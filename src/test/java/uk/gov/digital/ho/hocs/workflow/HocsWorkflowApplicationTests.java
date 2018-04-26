@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.document;
+package uk.gov.digital.ho.hocs.workflow;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class HocsDocsApplicationTests {
+public class HocsWorkflowApplicationTests {
 
 	@Test
 	public void contextLoads() {

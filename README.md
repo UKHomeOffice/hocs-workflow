@@ -1,2 +1,2 @@
-# hocs-document
-hocs document service
+# hocs-workflow
+hocs workflow service
