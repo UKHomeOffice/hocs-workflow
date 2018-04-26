@@ -1,12 +1,12 @@
-package uk.gov.digital.ho.hocs.casework;
+package uk.gov.digital.ho.hocs.document;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class HocsCaseApplication {
+public class HocsDocsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(HocsCaseApplication.class, args);
+		SpringApplication.run(HocsDocsApplication.class, args);
 	}
 }
