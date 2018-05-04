@@ -1,0 +1,193 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hocs-workflow
+  labels:
+    version: {{.VERSION}}
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: hocs-workflow
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 2
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: hocs-workflow
+        version: {{.VERSION}}
+    spec:
+      imagePullSecrets:
+        - name: registrykey
+      initContainers:
+        - name: truststore
+          image: quay.io/ukhomeofficedigital/cfssl-sidekick-jks:v0.0.6
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          args:
+            - --certs=/certs
+            - --command=/usr/bin/create-keystore.sh /certs/tls.pem /certs/tls-key.pem /etc/ssl/certs/acp-root.crt
+            - --domain=hocs-workflow.${KUBE_NAMESPACE}.svc.cluster.local
+            - --domain=localhost
+            - --onetime=true
+          env:
+          - name: KUBE_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          volumeMounts:
+          - name: certs
+            mountPath: /certs
+          - name: keystore
+            mountPath: /etc/keystore
+          - name: bundle
+            mountPath: /etc/ssl/certs
+            readOnly: true
+      containers:
+        - name: certs
+          image: quay.io/ukhomeofficedigital/cfssl-sidekick:v0.0.6
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          args:
+            - --certs=/certs
+            - --domain=hocs-workflow.${KUBE_NAMESPACE}.svc.cluster.local
+            - --expiry=8760h
+            - --command=/usr/local/scripts/trigger_nginx_reload.sh
+          env:
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+            - name: bundle
+              mountPath: /etc/ssl/certs
+              readOnly: true
+
+        - name: proxy
+          image: quay.io/ukhomeofficedigital/nginx-proxy:v3.2.9
+          imagePullPolicy: Always
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          resources:
+            limits:
+              memory: "100Mi"
+              cpu: 100m
+            requests:
+              memory: "50Mi"
+              cpu: 100m
+          env:
+            - name: PROXY_SERVICE_HOST
+              value: '127.0.0.1'
+            - name: PROXY_SERVICE_PORT
+              value: '8080'
+            - name: NAXSI_USE_DEFAULT_RULES
+              value: 'FALSE'
+            - name: ENABLE_UUID_PARAM
+              value: 'FALSE'
+            - name: HTTPS_REDIRECT
+              value: 'FALSE'
+            - name: BASIC_AUTH
+              value: /etc/nginx/service-secrets/.htpasswd_1
+            - name: SERVER_CERT
+              value: /certs/tls.pem
+            - name: SERVER_KEY
+              value: /certs/tls-key.pem
+            - name: ADD_NGINX_SERVER_CFG
+              value: 'gzip off; location = /reload { allow 127.0.0.1; deny all; content_by_lua_block { os.execute("touch /tmp/nginx-reload-triggered; /usr/local/openresty/nginx/sbin/nginx -s reload; touch /tmp/nginx-reload-complete;") } }'
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+            - name: secrets
+              mountPath: /etc/nginx/secrets
+              readOnly: true
+            - name: service-secrets
+              mountPath: /etc/nginx/service-secrets
+              readOnly: true
+          ports:
+            - name: https
+              containerPort: 10443
+
+        - name: hocs-workflow
+          image: quay.io/ukhomeofficedigital/hocs-workflow:{{.VERSION}}
+          imagePullPolicy: Always
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          env:
+            - name: JAVA_OPTS
+              value: '-Xms150m -Xmx250m -Djavax.net.ssl.trustStore=/etc/keystore/truststore.jks'
+            - name: JDK_TRUST_FILE
+              value: '/etc/keystore/truststore.jks'
+            - name: SERVER_PORT
+              value: '8080'
+            - name: ENDPOINTS_INFO_ENABLED
+              value: 'false'
+          resources:
+            limits:
+              cpu: 1600m
+              memory: 612Mi
+            requests:
+              cpu: 100m
+              memory: 484Mi
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              httpHeaders:
+                - name: X-probe
+                  value: kubelet
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              httpHeaders:
+                - name: X-probe
+                  value: kubelet
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 10
+          volumeMounts:
+            - mountPath: /etc/keystore
+              name: keystore
+              readOnly: true
+      volumes:
+        - name: keystore
+          emptyDir:
+            medium: "Memory"
+        - name: certs
+          emptyDir:
+            medium: "Memory"
+        - name: bundle
+          configMap:
+            name: bundle
+        - name: secrets
+          emptyDir:
+            medium: "Memory"
