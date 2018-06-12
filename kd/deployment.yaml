@@ -19,6 +19,7 @@ spec:
     metadata:
       labels:
         name: hocs-workflow
+        role: hocs-backend
         version: {{.VERSION}}
     spec:
       imagePullSecrets:
@@ -104,6 +105,8 @@ spec:
               value: 'FALSE'
             - name: HTTPS_REDIRECT
               value: 'FALSE'
+            - name: BASIC_AUTH
+              value: /etc/nginx/authsecrets/htpasswd
             - name: SERVER_CERT
               value: /certs/tls.pem
             - name: SERVER_KEY
@@ -116,6 +119,9 @@ spec:
               readOnly: true
             - name: secrets
               mountPath: /etc/nginx/secrets
+              readOnly: true
+            - name: auth-secrets
+              mountPath: /etc/nginx/authsecrets
               readOnly: true
           ports:
             - name: https
@@ -132,7 +138,7 @@ spec:
                 - SETGID
           env:
             - name: JAVA_OPTS
-              value: '-Xms150m -Xmx250m -Djavax.net.ssl.trustStore=/etc/keystore/truststore.jks'
+              value: '-Xms150m -Xmx768m -Djavax.net.ssl.trustStore=/etc/keystore/truststore.jks'
             - name: JDK_TRUST_FILE
               value: '/etc/keystore/truststore.jks'
             - name: SERVER_PORT
@@ -141,8 +147,8 @@ spec:
               value: 'false'
           resources:
             limits:
-              cpu: 1600m
-              memory: 612Mi
+              cpu: 400m
+              memory: 1024Mi
             requests:
               cpu: 100m
               memory: 484Mi
@@ -151,22 +157,22 @@ spec:
               containerPort: 8080
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /actuator/health
               port: http
               httpHeaders:
                 - name: X-probe
                   value: kubelet
-            initialDelaySeconds: 10
+            initialDelaySeconds: 100
             periodSeconds: 20
             timeoutSeconds: 10
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /actuator/health
               port: http
               httpHeaders:
                 - name: X-probe
                   value: kubelet
-            initialDelaySeconds: 10
+            initialDelaySeconds: 100
             periodSeconds: 20
             timeoutSeconds: 10
           volumeMounts:
@@ -186,3 +192,6 @@ spec:
         - name: secrets
           emptyDir:
             medium: "Memory"
+        - name: auth-secrets
+          secret:
+            secretName: ui-casework-creds
