@@ -1,7 +1,7 @@
 FROM quay.io/ukhomeofficedigital/openjdk8
 
 
-ENV USER user_hocs_workflow
+ENV USER 999
 ENV GROUP group_hocs_workflow
 ENV NAME hocs-workflow
 ENV JAR_PATH build/libs
