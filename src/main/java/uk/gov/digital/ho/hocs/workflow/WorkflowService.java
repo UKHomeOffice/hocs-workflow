@@ -23,15 +23,13 @@ public class WorkflowService {
         caseTypeDetails.add(new CaseTypeDetails("UKVI", "UKVI BREF", CaseType.BREF));
     }
 
-    private final RestTemplate restTemplate;
     private final RuntimeService runtimeService;
     private final TaskService taskService;
 
     @Autowired
-    public WorkflowService(RuntimeService runtimeService, TaskService taskService, RestTemplate restTemplate) {
+    public WorkflowService(RuntimeService runtimeService, TaskService taskService) {
         this.runtimeService = runtimeService;
         this.taskService = taskService;
-        this.restTemplate = restTemplate;
     }
 
     public List<CaseTypeDetails> getAllWorkflowTypes() {
