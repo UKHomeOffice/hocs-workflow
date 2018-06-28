@@ -1,8 +1,8 @@
-package uk.gov.digital.ho.hocs.workflow;
+package uk.gov.digital.ho.hocs.workflow.dto;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.util.UUID;
 
@@ -14,7 +14,7 @@ public class CreateWorkflowCaseResponse {
 
     private final UUID uuid;
 
-    private final StageType stageType;
+    //private final StageType stageType;
 
-    private final String spec;
+    //private final String spec;
 }

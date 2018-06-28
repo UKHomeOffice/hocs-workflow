@@ -1,6 +1,7 @@
-package uk.gov.digital.ho.hocs.workflow;
+package uk.gov.digital.ho.hocs.workflow.model;
 
 import lombok.AllArgsConstructor;
+import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 @AllArgsConstructor
 public class CaseTypeDetails {

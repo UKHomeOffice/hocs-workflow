@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow;
+package uk.gov.digital.ho.hocs.workflow.model;
 
 public enum  DocumentType {
     ORIGINAL,

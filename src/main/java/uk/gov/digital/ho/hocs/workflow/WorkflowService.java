@@ -7,7 +7,13 @@ import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import uk.gov.digital.ho.hocs.workflow.dto.*;
+import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
+import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
+import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseTypeDetails;
+import uk.gov.digital.ho.hocs.workflow.model.DocumentData;
+import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.util.*;
 
@@ -40,7 +46,10 @@ public class WorkflowService {
         }
     }
 
-    public CreateWorkflowCaseResponse createNewCase(CaseType caseType, String username) throws EntityCreationException, EntityNotFoundException {
+    public CreateWorkflowCaseResponse createNewCase(CaseType caseType) throws EntityCreationException, EntityNotFoundException {
+
+        String username = "poopy";
+
         // Validate the CaseType
         if (caseType != null) {
 
@@ -51,22 +60,30 @@ public class WorkflowService {
             // Get the first stage name from case level workflow
             StageType stageType = startCaseProcess(caseType, caseResponse.getUuid());
 
-            // Create Empty Stage
-            CreateStageResponse stageResponse = createStage(stageType, caseResponse.getUuid(), username);
-
-            // Instantiate the Stage level workflow
-            // Get the first screen name
-            String screenName = startStageProcess(stageType, stageResponse.getUuid());
-
             // Set current Stage, User,Team,Unit ...?
-            updateCase(stageResponse.getUuid(), stageType, username);
+            //updateCase(stageResponse.getUuid(), stageType, username);
 
             // Return
-            return new CreateWorkflowCaseResponse(caseResponse.getCaseReference(), caseResponse.getUuid(), stageType, screenName);
+            return new CreateWorkflowCaseResponse(caseResponse.getCaseReference(), caseResponse.getUuid());
 
         } else {
             throw new EntityCreationException("Failed to create case, invalid caseType!");
         }
+    }
+
+    public StartStageResponse startStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException {
+
+        StageType stageType = StageType.DCU_MIN_CATEGORISE;
+
+        // Create Empty Stage
+        CreateStageResponse stageResponse = createStage(stageType, caseUUID);
+
+        // Instantiate the Stage level workflow
+        // Get the first screen name
+        String screenName = startStageProcess(stageType, stageResponse.getUuid());
+
+        return new StartStageResponse(stageType, screenName);
+
     }
 
     public String updateCase(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException {
@@ -97,7 +114,7 @@ public class WorkflowService {
     }
 
     // STUB
-    private CreateStageResponse createStage(StageType stageType, UUID caseUUID, String username) {
+    private CreateStageResponse createStage(StageType stageType, UUID caseUUID) {
         // Post to /case/{caseUUID}/stage
         CreateStageRequest createStageRequest = new CreateStageRequest(stageType);
         return new CreateStageResponse(UUID.fromString("38400000-8cf0-11bd-b23e-10b96e4ef00d"));

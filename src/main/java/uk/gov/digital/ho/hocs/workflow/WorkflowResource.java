@@ -3,6 +3,11 @@ package uk.gov.digital.ho.hocs.workflow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.digital.ho.hocs.workflow.dto.*;
+import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
+import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
+import uk.gov.digital.ho.hocs.workflow.model.CaseTypeDetails;
+import uk.gov.digital.ho.hocs.workflow.model.Form;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,9 +38,9 @@ class WorkflowResource {
     }
 
     @RequestMapping(value = "/case", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CreateWorkflowCaseResponse> createCase(@RequestBody CreateCaseRequest request, @RequestHeader("X-Auth-Username") String username) {
+    public ResponseEntity<CreateWorkflowCaseResponse> createCase(@RequestBody CreateCaseRequest request) {
         try {
-            CreateWorkflowCaseResponse response = workflowService.createNewCase(request.getCaseType(), username);
+            CreateWorkflowCaseResponse response = workflowService.createNewCase(request.getCaseType());
             return ResponseEntity.ok(response);
         } catch (EntityCreationException | EntityNotFoundException e) {
             return ResponseEntity.badRequest().build();
@@ -43,7 +48,7 @@ class WorkflowResource {
     }
 
     @RequestMapping(value = "/case/{caseUUID}/document", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CreateWorkflowCaseResponse> createCase(@RequestBody AddDocumentRequest request, @RequestHeader("X-Auth-Username") String username) {
+    public ResponseEntity<CreateWorkflowCaseResponse> createCase(@RequestBody AddDocumentRequest request) {
         try {
             workflowService.addDocument(request.documents);
             return ResponseEntity.ok().build();
@@ -52,8 +57,18 @@ class WorkflowResource {
         }
     }
 
+    @RequestMapping(value = "/case/{caseUUID}/start", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StartStageResponse> startStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) {
+        try {
+            StartStageResponse response = workflowService.startStage(caseUUID, stageUUID);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @RequestMapping(value = "/case/{caseUUID}/{stageUUID}/submit", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<Form> endTask(@PathVariable UUID caseUUID,@PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
+    public ResponseEntity<Form> submitStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
         try {
             String screenName = workflowService.updateCase(caseUUID, stageUUID);
             return ResponseEntity.ok(new Form(screenName, null));
