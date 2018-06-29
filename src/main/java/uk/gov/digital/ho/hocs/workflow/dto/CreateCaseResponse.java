@@ -2,15 +2,16 @@ package uk.gov.digital.ho.hocs.workflow.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class CreateCaseResponse {
 
-    private final String caseReference;
+    private String caseReference;
 
-    private final UUID uuid;
+    private UUID uuid;
 
 }

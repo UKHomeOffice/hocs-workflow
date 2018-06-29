@@ -1,12 +1,16 @@
 package uk.gov.digital.ho.hocs.workflow;
 
+import org.apache.camel.spi.RestRegistry;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
@@ -19,6 +23,9 @@ import java.util.*;
 
 @Service
 public class WorkflowService {
+
+    private static String CASE_SERVICE;
+    private static RestTemplate restTemplate;
 
     private static List<CaseTypeDetails> caseTypeDetails = new ArrayList<>();
 
@@ -33,9 +40,11 @@ public class WorkflowService {
     private final TaskService taskService;
 
     @Autowired
-    public WorkflowService(RuntimeService runtimeService, TaskService taskService) {
+    public WorkflowService(RuntimeService runtimeService, TaskService taskService, RestTemplate restTemp, @Value("${hocs.case-service}") String caseService) {
         this.runtimeService = runtimeService;
         this.taskService = taskService;
+        restTemplate = restTemp;
+        CASE_SERVICE = caseService;
     }
 
     public List<CaseTypeDetails> getAllWorkflowTypes() {
@@ -48,13 +57,11 @@ public class WorkflowService {
 
     public CreateWorkflowCaseResponse createNewCase(CaseType caseType) throws EntityCreationException, EntityNotFoundException {
 
-        String username = "poopy";
-
         // Validate the CaseType
         if (caseType != null) {
 
             // Create Empty Case
-            CreateCaseResponse caseResponse = createCase(caseType, username);
+            CreateCaseResponse caseResponse = createCase(caseType);
 
             // Instantiate the Case level workflow
             // Get the first stage name from case level workflow
@@ -99,11 +106,13 @@ public class WorkflowService {
     }
 
     // STUB
-    private CreateCaseResponse createCase(CaseType caseType, String username) {
+    private CreateCaseResponse createCase(CaseType caseType) {
 
         // Post to /case
         CreateCaseRequest createCaseRequest = new CreateCaseRequest(caseType);
-        return new CreateCaseResponse("12345", UUID.randomUUID());
+        ResponseEntity<CreateCaseResponse> createCaseResponse = restTemplate.postForEntity(CASE_SERVICE + "/case", createCaseRequest, CreateCaseResponse.class);
+
+        return createCaseResponse.getBody();
     }
 
     // STUB
