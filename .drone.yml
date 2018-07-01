@@ -59,7 +59,7 @@ pipeline:
       - VERSION=build-${DRONE_BUILD_NUMBER}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
-      - hocs-workflow_dev
+      - hocs_workflow_dev
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
@@ -70,31 +70,31 @@ pipeline:
   deployment:
     image: quay.io/ukhomeofficedigital/kd:v0.8.0
     environment:
-      - KUBE_NAMESPACE=hocs-workflow-${DRONE_DEPLOY_TO}
+      - KUBE_NAMESPACE=cs-${DRONE_DEPLOY_TO}
       - ENVIRONMENT=${DRONE_DEPLOY_TO}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
-      - hocs-workflow_dev
-      - hocs-workflow_qa
+      - hocs_workflow_dev
+      - hocs_workflow_qa
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
     when:
       event: deployment
-      environment: [dev, test, preprod]
+      environment: [dev, qa]
 
   deploy-to-prod:
     image: quay.io/ukhomeofficedigital/kd:v0.8.0
     environment:
-      - KUBE_NAMESPACE=hocs-workflow-pr
-      - ENVIRONMENT=pr
+      - KUBE_NAMESPACE=cs-prod
+      - ENVIRONMENT=prod
       - VERSION=${IMAGE_VERSION}
       - KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
     secrets:
-      - hocs-workflow_pr
+      - hocs_workflow_prod
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
     when:
       event: deployment
-      environment: pr
+      environment: prod
