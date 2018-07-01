@@ -1,10 +1,14 @@
 package uk.gov.digital.ho.hocs.workflow.dto;
 
-import uk.gov.digital.ho.hocs.workflow.model.DocumentData;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.DocumentSummary;
 
-import java.util.List;
-
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class AddDocumentRequest {
 
-    public List<DocumentData> documents;
+    private DocumentSummary documentSummary;
 }

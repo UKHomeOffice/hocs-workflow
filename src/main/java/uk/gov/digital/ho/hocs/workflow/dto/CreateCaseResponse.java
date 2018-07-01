@@ -1,17 +1,19 @@
 package uk.gov.digital.ho.hocs.workflow.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.util.UUID;
 
-@NoArgsConstructor
+@AllArgsConstructor()
 @Getter
 public class CreateCaseResponse {
 
-    private String caseReference;
+    @JsonProperty("reference")
+    private final String reference;
 
-    private UUID uuid;
-
+    @JsonProperty("uuid")
+    private final UUID uuid;
 }

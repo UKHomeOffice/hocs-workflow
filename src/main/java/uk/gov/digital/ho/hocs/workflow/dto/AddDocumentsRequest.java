@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
-public class AddCaseDataRequest {
+public class AddDocumentsRequest {
 
-    @JsonProperty("data")
-    private Map<String, Object> data;
+    @JsonProperty("documentSummaries")
+    private List<DocumentSummary> documentSummaries;
 }

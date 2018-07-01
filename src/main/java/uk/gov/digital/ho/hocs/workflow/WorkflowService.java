@@ -1,53 +1,40 @@
 package uk.gov.digital.ho.hocs.workflow;
 
-import org.apache.camel.spi.RestRegistry;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.camunda.bpm.engine.runtime.VariableInstance;
-import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkDocumentSummary;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
-import uk.gov.digital.ho.hocs.workflow.model.CaseTypeDetails;
-import uk.gov.digital.ho.hocs.workflow.model.DocumentData;
-import uk.gov.digital.ho.hocs.workflow.model.StageType;
+import uk.gov.digital.ho.hocs.workflow.model.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class WorkflowService {
 
-    private static String CASE_SERVICE;
-    private static RestTemplate restTemplate;
+    private static List<WorkflowType> caseTypeDetails = new ArrayList<>();
 
-    private static List<CaseTypeDetails> caseTypeDetails = new ArrayList<>();
+    private final CaseworkClient caseworkClient;
+    private final CamundaClient camundaClient;
 
     static {
-        caseTypeDetails.add(new CaseTypeDetails("DCU", "DCU MIN", CaseType.MIN));
-        caseTypeDetails.add(new CaseTypeDetails("DCU", "DCU TRO", CaseType.TRO));
-        caseTypeDetails.add(new CaseTypeDetails("DCU", "DCU DTEN", CaseType.DTEN));
-        caseTypeDetails.add(new CaseTypeDetails("UKVI", "UKVI BREF", CaseType.BREF));
+        caseTypeDetails.add(new WorkflowType("DCU", "DCU MIN", CaseType.MIN));
+        caseTypeDetails.add(new WorkflowType("DCU", "DCU TRO", CaseType.TRO));
+        caseTypeDetails.add(new WorkflowType("DCU", "DCU DTEN", CaseType.DTEN));
+        caseTypeDetails.add(new WorkflowType("UKVI", "UKVI BREF", CaseType.BREF));
     }
-
-    private final RuntimeService runtimeService;
-    private final TaskService taskService;
 
     @Autowired
-    public WorkflowService(RuntimeService runtimeService, TaskService taskService, RestTemplate restTemp, @Value("${hocs.case-service}") String caseService) {
-        this.runtimeService = runtimeService;
-        this.taskService = taskService;
-        restTemplate = restTemp;
-        CASE_SERVICE = caseService;
+    public WorkflowService(CaseworkClient casework, CamundaClient camunda) {
+        caseworkClient = casework;
+        camundaClient = camunda;
     }
 
-    public List<CaseTypeDetails> getAllWorkflowTypes() {
+    public List<WorkflowType> getAllWorkflowTypes() {
         if(caseTypeDetails != null && !caseTypeDetails.isEmpty()){
             return caseTypeDetails;
         } else {
@@ -55,138 +42,48 @@ public class WorkflowService {
         }
     }
 
-    public CreateWorkflowCaseResponse createNewCase(CaseType caseType) throws EntityCreationException, EntityNotFoundException {
-
-        // Validate the CaseType
+    public uk.gov.digital.ho.hocs.workflow.dto.CreateCaseResponse createNewCase(CaseType caseType) throws EntityCreationException, EntityNotFoundException {
         if (caseType != null) {
+            UUID caseUUID = UUID.randomUUID();
 
-            // Create Empty Case
-            CreateCaseResponse caseResponse = createCase(caseType);
+            String caseReference =  caseworkClient.createCase(caseUUID, caseType);
+            camundaClient.startCase(caseUUID, caseType);
 
-            // Instantiate the Case level workflow
-            // Get the first stage name from case level workflow
-            StageType stageType = startCaseProcess(caseType, caseResponse.getUuid());
-
-            // Set current Stage, User,Team,Unit ...?
-            //updateCase(stageResponse.getUuid(), stageType, username);
-
-            // Return
-            return new CreateWorkflowCaseResponse(caseResponse.getCaseReference(), caseResponse.getUuid());
-
+            return new CreateCaseResponse(caseReference, caseUUID);
         } else {
             throw new EntityCreationException("Failed to create case, invalid caseType!");
         }
     }
 
-    public StartStageResponse startStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException {
+    public GetStageScreenResponse startCase(UUID caseUUID) throws EntityNotFoundException, EntityCreationException {
+        if (caseUUID != null) {
+            UUID stageUUID = UUID.randomUUID();
+            StageType stageType = camundaClient.getCaseStage(caseUUID);
 
-        StageType stageType = StageType.DCU_MIN_CATEGORISE;
+            caseworkClient.createStage(caseUUID, stageUUID, stageType);
+            String screenName = camundaClient.startStage(stageUUID, stageType);
 
-        // Create Empty Stage
-        CreateStageResponse stageResponse = createStage(stageType, caseUUID);
-
-        // Instantiate the Stage level workflow
-        // Get the first screen name
-        String screenName = startStageProcess(stageType, stageResponse.getUuid());
-
-        return new StartStageResponse(stageType, screenName);
-
-    }
-
-    public String updateCase(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException {
-
-        Task task = taskService.createTaskQuery().processInstanceBusinessKey(stageUUID.toString()).list().get(0);
-
-        Map<String, Object> values = new HashMap<>();
-        values.put("valid", true);
-        values.put("decision", "OGD");
-        taskService.complete(task.getId(), values);
-
-        return getValueFromBusinessKey(stageUUID, "screen");
-    }
-
-    // STUB
-    private CreateCaseResponse createCase(CaseType caseType) {
-
-        // Post to /case
-        CreateCaseRequest createCaseRequest = new CreateCaseRequest(caseType);
-        ResponseEntity<CreateCaseResponse> createCaseResponse = restTemplate.postForEntity(CASE_SERVICE + "/case", createCaseRequest, CreateCaseResponse.class);
-
-        return createCaseResponse.getBody();
-    }
-
-    // STUB
-    private void updateCase(UUID caseUUID, StageType stageType, String username) {
-        // Post to /case/{caseUUID}
-        // UpdateCaseRequest updateCaseRequest = new UpdateCaseRequest();
-        // Do nothing.
-    }
-
-    // STUB
-    private CreateStageResponse createStage(StageType stageType, UUID caseUUID) {
-        // Post to /case/{caseUUID}/stage
-        CreateStageRequest createStageRequest = new CreateStageRequest(stageType);
-        return new CreateStageResponse(UUID.fromString("38400000-8cf0-11bd-b23e-10b96e4ef00d"));
-    }
-
-    private StageType startCaseProcess(CaseType caseType, UUID caseUUID) throws EntityNotFoundException {
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseType.toString(), caseUUID.toString(), new HashMap<>());
-        String stageType = getValueFromProcess(processInstance.getProcessInstanceId(), "stage");
-        return StageType.valueOf(stageType);
-    }
-
-    private String startStageProcess(StageType stageName, UUID stageUUID) throws EntityNotFoundException {
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(stageName.name(), stageUUID.toString(), new HashMap<>());
-        return getValueFromProcess(processInstance.getProcessInstanceId(), "screen");
-    }
-
-    private String getValueFromBusinessKey(UUID businessKey, String value) throws EntityNotFoundException {
-        if (businessKey != null) {
-            ProcessInstance instance = runtimeService.createProcessInstanceQuery()
-                    .processInstanceBusinessKey(businessKey.toString())
-                    .singleResult();
-
-            if (instance == null) {
-                throw new EntityNotFoundException("ProcessInstance not found, businessKey: '" + businessKey + "'");
-            }
-
-            return getValueFromProcess(instance.getProcessInstanceId(), value);
-
+            return new GetStageScreenResponse(stageUUID, screenName);
         } else {
-            throw new EntityNotFoundException("ProcessInstance not found, businessKey is null!");
+            throw new EntityCreationException("Failed to start case, invalid caseUUID!");
         }
     }
 
-    private String getValueFromProcess(String processInstanceId, String value) throws EntityNotFoundException {
-        if (processInstanceId != null) {
-            VariableInstance variableInstance = runtimeService.createVariableInstanceQuery()
-                    .processInstanceIdIn(processInstanceId)
-                    .variableName(value).singleResult();
-
-            if (variableInstance == null) {
-                throw new EntityNotFoundException("VariableInstance not found, processInstanceId: '" + processInstanceId + " ','" + value + "'");
-            }
-
-            return (String) variableInstance.getValue();
-
+    public GetStageScreenResponse updateCase(UUID caseUUID, UUID stageUUID, Map<String,Object> values) throws EntityNotFoundException, EntityCreationException {
+        if (caseUUID != null && stageUUID != null && values != null) {
+            String screenName = camundaClient.validateStage(stageUUID, values);
+            return new GetStageScreenResponse(stageUUID, screenName);
         } else {
-            throw new EntityNotFoundException("ProcessInstance not found, processInstanceId is null!");
+            throw new EntityCreationException("Failed to start case, invalid caseUUID, stageUUID or Map!");
         }
     }
 
+    public void addDocuments(UUID caseUUID, List<DocumentSummary> documentSummaryList) throws EntityCreationException {
 
-    public void addDocument(List<DocumentData> documentDataList) throws EntityCreationException {
+        List<CaseworkDocumentSummary> caseworkDocumentSummaryList = documentSummaryList.stream().map(CaseworkDocumentSummary::from).collect(Collectors.toList());
+        caseworkClient.addDocuments(caseUUID, caseworkDocumentSummaryList);
 
-        // for each
-        for(DocumentData documentData : documentDataList) {
-
-            UUID docUUID = UUID.randomUUID();
-
-            //restTemplate.postForEntity("", documentData, AddDocumentResponse);
-            // post to /case/{caseUUID}/document { docUUID, displayName, documentType }
-
-            // post to queue { caseUUID, docUUID s3UntrustedUrl}
-        }
+        //TODO: post to queue { caseUUID, docUUID s3UntrustedUrl}
 
     }
 

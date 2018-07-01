@@ -6,11 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class CreateCaseRequest {
 
-    @JsonProperty("caseType")
-    private CaseType caseType;
+    @JsonProperty("type")
+    private CaseType type;
 }
