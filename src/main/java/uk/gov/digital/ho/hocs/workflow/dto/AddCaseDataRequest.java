@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @NoArgsConstructor
@@ -11,5 +12,5 @@ import java.util.Map;
 public class AddCaseDataRequest {
 
     @JsonProperty("data")
-    private Map<String, Object> data;
+    private Map<String, Object> data = new HashMap<>();
 }

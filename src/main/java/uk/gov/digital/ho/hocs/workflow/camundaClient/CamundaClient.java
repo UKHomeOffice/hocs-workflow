@@ -29,20 +29,20 @@ public class CamundaClient {
     }
 
     public void startCase(UUID caseUUID, CaseType caseType) throws EntityCreationException {
-        log.debug("Starting case bpmn: {} - {}", caseUUID, caseType);
+        log.debug("Starting case bpmn:  Case: '{}' - '{}'", caseUUID, caseType);
         if (caseUUID != null && caseType != null) {
             ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseType.toString(), caseUUID.toString(), new HashMap<>());
-            log.debug("Started case bpmn: {} - {} id: {}", caseUUID, caseType, processInstance.getCaseInstanceId());
+            log.debug("Started case bpmn: Case: '{}' - '{}' id: '{}'", caseUUID, caseType, processInstance.getId());
         } else {
             throw new EntityCreationException("Could not start case bpmn, caseUUID or caseType is null!");
         }
     }
 
     public StageType getCaseStage(UUID caseUUID) throws EntityNotFoundException {
-        log.debug("Getting current stage for case bpmn: {}", caseUUID);
+        log.debug("Getting current stage for case bpmn: '{}'", caseUUID);
         if(caseUUID != null) {
-            String stageType = getValueFromProcess(caseUUID, "stage");
-            log.debug("Got current stage for case bpmn: {} StageType: {}", caseUUID, stageType);
+            String stageType = getNext(caseUUID, "stage");
+            log.debug("Got current stage for case bpmn: '{}' StageType: '{}'", caseUUID, stageType);
 
             return StageType.valueOf(stageType);
         } else {
@@ -50,46 +50,77 @@ public class CamundaClient {
         }
     }
 
-    public String startStage(UUID stageUUID, StageType stageType) throws EntityCreationException, EntityNotFoundException {
-        log.debug("Starting stage bpmn: {} - {}", stageUUID, stageType);
+    //TODO: This is where we assign users
+    public void startStage(UUID stageUUID, StageType stageType) throws EntityCreationException, EntityNotFoundException {
+        log.debug("Starting stage bpmn: Case:'{}' Stage: '{}'", stageUUID, stageType);
         if(stageUUID != null && stageType != null) {
             ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(stageType.toString(), stageUUID.toString(), new HashMap<>());
-            log.debug("Started stage bpmn: {} - {} id: {}", stageUUID, stageType, processInstance.getCaseInstanceId());
-
-            return getValueFromProcess(processInstance.getProcessInstanceId(), "screen");
+            log.debug("Started stage bpmn: Case:'{}' Stage: '{}' id: '{}'", stageUUID, stageType, processInstance.getId());
         } else {
             throw new EntityCreationException("Could not create case, caseUUID or caseType is null!");
         }
     }
 
-    public String validateStage(UUID stageUUID, Map<String,Object> values) throws EntityNotFoundException {
-        log.debug("Validating stage for stage bpmn: {}", stageUUID);
-        if(stageUUID != null && !values.isEmpty()) {
+    public String getCurrentScreen(UUID stageUUID) throws EntityNotFoundException {
+        log.debug("Getting current screen for stage bpmn: '{}'", stageUUID);
+        if(stageUUID != null) {
+            String screenName = getNext(stageUUID, "screen");
+            log.debug("Got current stage for stage bpmn: '{}' screen: '{}'", stageUUID, screenName);
 
-            Task task = taskService.createTaskQuery().processInstanceBusinessKey(stageUUID.toString()).singleResult();
-            if(task != null) {
-                taskService.complete(task.getId(), values);
-                log.debug("Validated stage for stage bpmn: {}", stageUUID);
-                return getValueFromProcess(task.getProcessInstanceId(), "screen");
-            } else {
-                log.info("Failed to validate stage bpmn: {}, No tasks returned", stageUUID);
-                throw new EntityNotFoundException("Could not get current stage, caseUUID is null!");
-            }
+            return screenName;
         } else {
-            throw new EntityNotFoundException("Could not get current stage, caseUUID is null!");
+            throw new EntityNotFoundException("Could not get current stage, stageUUID is null!");
         }
     }
 
-    private String getValueFromProcess(UUID businessKey, String key) throws EntityNotFoundException {
+    public String updateStage(UUID stageUUID, Map<String,Object> values) throws EntityNotFoundException {
+
+        //TODO: REMOVE THIS DEMO CODE
+        values.put("valid", true);
+        values.put("decision", "FAQ");
+        values.put("topic", 8);
+        values.put("anotherTopic", false);
+
+        log.debug("Validating stage for stage bpmn: '{}'", stageUUID);
+        if(stageUUID != null && !values.isEmpty()) {
+
+            Task task = taskService.createTaskQuery().processInstanceBusinessKey(stageUUID.toString()).singleResult();
+
+            if(task != null) {
+                taskService.complete(task.getId(), values);
+                log.debug("Validated stage for stage bpmn: '{}'", stageUUID);
+                return getNext(task.getProcessInstanceId(), "screen");
+            } else {
+                throw new EntityNotFoundException("Failed to validate stage bpmn: '{}', No tasks returned", stageUUID);
+            }
+        } else {
+            throw new EntityNotFoundException("Could not get current stage, stageUUID is null or no values!!");
+        }
+    }
+
+    private String getNext(UUID businessKey, String key) throws EntityNotFoundException {
         ProcessInstance instance = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(businessKey.toString())
                 .singleResult();
 
         if (instance != null) {
-            log.debug("GetValueFromProcess BusinessKey: {} found processInstanceId: {}", businessKey, instance.getCaseInstanceId());
+            log.debug("GetValueFromProcess BusinessKey: '{}' found processInstanceId: '{}'", businessKey, instance.getProcessInstanceId());
+            return getNext(instance.getProcessInstanceId(), key);
+        } else {
+            return "FINISH";
+        }
+    }
+
+    private String getNext(String processInstanceId, String key) throws EntityNotFoundException {
+        ProcessInstance instance = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+
+        if (instance != null) {
+            log.debug("GetValueFromProcess found processInstanceId: '{}'", processInstanceId);
             return getValueFromProcess(instance.getProcessInstanceId(), key);
         } else {
-            throw new EntityNotFoundException(String.format("ProcessInstance not found, businessKey: %s'", businessKey));
+            return "FINISH";
         }
     }
 
@@ -100,8 +131,8 @@ public class CamundaClient {
                 .singleResult();
 
         if (instance != null) {
-            log.debug("GetValueFromProcess processInstanceId: {} found  value{}", processInstanceId, key);
             String value = (String) instance.getValue();
+            log.debug("GetValueFromProcess processInstanceId: '{}' found key: '{}'", processInstanceId, key);
             if(value != null) {
                 return value;
             } else {

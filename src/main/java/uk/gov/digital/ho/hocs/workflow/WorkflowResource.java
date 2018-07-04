@@ -27,7 +27,6 @@ class WorkflowResource {
         this.workflowService = workflowService;
     }
 
-
     @RequestMapping(value = "/workflow", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetWorkflowTypesResponse> getAllWorkflowTypes() {
         List<WorkflowType> workflowTypes = workflowService.getAllWorkflowTypes();
@@ -56,27 +55,20 @@ class WorkflowResource {
         }
     }
 
+    @RequestMapping(value = "/case/{caseUUID}/stage/{stageUUID}", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) throws EntityCreationException, EntityNotFoundException {
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+        return ResponseEntity.ok(response);
+    }
 
-    @RequestMapping(value = "/case/{caseUUID}/start", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageScreenResponse> startCase(@PathVariable UUID caseUUID) {
+    @RequestMapping(value = "/case/{caseUUID}/stage/{stageUUID}", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetStageResponse> submitStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
         try {
-            GetStageScreenResponse response = workflowService.startCase(caseUUID);
+            GetStageResponse response = workflowService.updateCase(caseUUID, stageUUID, request.getData());
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException | EntityCreationException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
-
-    @RequestMapping(value = "/case/{caseUUID}/{stageUUID}/update", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageScreenResponse> submitStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
-        try {
-            GetStageScreenResponse response = workflowService.updateCase(caseUUID, stageUUID, request.getData());
-            return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException | EntityCreationException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
 }

@@ -61,7 +61,7 @@ public class CamundaProcessEngineConfiguration {
     config.setMetricsEnabled(false);
 
     // deploy all processes from folder 'processes'
-    Resource[] resources = resourceLoader.getResources("classpath:/processes/*.bpmn");
+    Resource[] resources = resourceLoader.getResources("classpath:/processes/*");
     config.setDeploymentResources(resources);
 
     return config;
