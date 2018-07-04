@@ -9,6 +9,7 @@ import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
 import uk.gov.digital.ho.hocs.workflow.model.*;
+import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
 import java.util.*;
 import java.util.stream.Collectors;
