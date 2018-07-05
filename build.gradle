@@ -1,13 +1,14 @@
 buildscript {
-	ext {
-		springBootVersion = '2.0.3.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+    ext {
+        springBootVersion = '2.0.3.RELEASE'
+        camelVersion = '2.18.1'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
 }
 
 apply plugin: 'java'
@@ -20,7 +21,8 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+    mavenCentral()
+    jcenter()
 }
 
 dependencyManagement {
@@ -30,12 +32,26 @@ dependencyManagement {
 }
 
 dependencies {
-	compile ('org.camunda.bpm:camunda-engine-spring:7.9.0')
+	compile("org.springframework.boot:spring-boot-starter-web") {
+		exclude module: "spring-boot-starter-tomcat"
+	}
+
+	compile('org.springframework.boot:spring-boot-starter-jetty')
 	compile('net.logstash.logback:logstash-logback-encoder:5.1')
 	compile('org.springframework.boot:spring-boot-starter-json')
     compile('org.springframework.boot:spring-boot-starter-actuator')
-	compile('org.springframework.boot:spring-boot-starter-webflux')
-    compile('com.h2database:h2')
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+
+	compile ('org.camunda.bpm:camunda-engine-spring:7.9.0')
+
+    compile group: 'org.apache.camel', name: 'camel-spring-boot', version: camelVersion
+    compile group: 'org.apache.camel', name: 'camel-jackson', version: camelVersion
+    compile group: 'org.apache.camel', name: 'camel-aws', version: camelVersion
+    compile group: 'org.apache.camel', name: 'camel-gson', version: camelVersion
+    compile group: 'org.apache.camel', name: 'camel-rabbitmq', version: camelVersion
+
+    runtime('com.h2database:h2')
+	runtime('org.postgresql:postgresql')
 
 	compileOnly('org.projectlombok:lombok')
 

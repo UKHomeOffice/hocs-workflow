@@ -9,4 +9,5 @@ public class HocsWorkflowApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HocsWorkflowApplication.class, args);
 	}
+
 }
