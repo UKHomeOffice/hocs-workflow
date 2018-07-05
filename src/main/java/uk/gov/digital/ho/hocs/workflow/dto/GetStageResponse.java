@@ -14,6 +14,12 @@ public class GetStageResponse {
     @JsonProperty("stageUUID")
     private UUID stageUUID;
 
+    @JsonProperty("caseReference")
+    private String caseReference;
+
+    @JsonProperty("screenName")
+    private String screenName;
+
     @JsonProperty("form")
     private HocsForm form;
 }

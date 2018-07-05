@@ -10,11 +10,11 @@ import uk.gov.digital.ho.hocs.workflow.model.forms.HocsSchema;
 import java.util.*;
 
 @Service
-public class FormService {
+public class HocsFormService {
 
-    private static Map<String,HocsForm> forms = new HashMap<>();
+    private Map<String,HocsForm> forms = new HashMap<>();
 
-    static {
+    public HocsFormService(){
         forms.put("INITIAL_DECISION", getInitialDecision());
         forms.put("DEADLINES", getDeadlinesForm());
         forms.put("TOPICS", getTopics());
@@ -26,26 +26,31 @@ public class FormService {
         return forms.get(form);
     }
 
-    private static HocsForm getInitialDecision() {
+    private HocsForm getInitialDecision() {
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
 
         Map<String,String> choice1 = new HashMap<>();
-        choice1.put("label", "Test1");
-        choice1.put("value", "Test1");
+        choice1.put("label", "Policy Response");
+        choice1.put("value", "PolicyResponse");
+        choice1.put("checked", "checked");
 
         Map<String,String> choice2 = new HashMap<>();
-        choice2.put("label", "Test2");
-        choice2.put("value", "Test2");
+        choice2.put("label", "FAQ");
+        choice2.put("value", "FAQ");
 
         Map<String,String> choice3 = new HashMap<>();
-        choice3.put("label", "Test3");
-        choice3.put("value", "Test3");
+        choice3.put("label", "Refer To OGD");
+        choice3.put("value", "OGD");
 
+        Map<String,String> choice4 = new HashMap<>();
+        choice4.put("label", "No Reply Needed");
+        choice4.put("value", "NRN");
         List<Map<String, String>> choices = new ArrayList<>();
         choices.add(choice1);
         choices.add(choice2);
         choices.add(choice3);
+        choices.add(choice4);
 
         Map<String,Object> properties4 = new HashMap<>();
         properties4.put("name", "InitialDecision");
@@ -57,7 +62,7 @@ public class FormService {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Initial Decision", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Initial Decision", "Next", formFields);
 
         Map<String, Object> data = new HashMap<>();
         HocsForm form1 = new HocsForm(schema1, data);
@@ -65,7 +70,7 @@ public class FormService {
         return form1;
     }
 
-    private static HocsForm getAllocateForm() {
+    private HocsForm getAllocateForm() {
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
 
@@ -100,7 +105,7 @@ public class FormService {
         return form1;
     }
 
-    private static HocsForm getDeadlinesForm() {
+    private HocsForm getDeadlinesForm() {
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
 
@@ -130,14 +135,14 @@ public class FormService {
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Deadlines", "Default", formFields);
 
         Map<String, Object> data = new HashMap<>();
-        data.put("DateReceived", "1988-14-04");
+        data.put("DateReceived", "1988-04-14");
 
         HocsForm form1 = new HocsForm(schema1, data);
 
         return form1;
     }
 
-    private static HocsForm getAllocationNote(){
+    private HocsForm getAllocationNote(){
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
 
@@ -159,7 +164,7 @@ public class FormService {
 
     }
 
-    private static HocsForm getTopics(){
+    private HocsForm getTopics(){
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
 

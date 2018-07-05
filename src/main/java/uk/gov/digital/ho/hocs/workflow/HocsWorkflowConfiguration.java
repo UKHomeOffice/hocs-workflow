@@ -24,12 +24,6 @@ public class HocsWorkflowConfiguration implements WebMvcConfigurer {
     @Bean
     public RestTemplate createRestTemplate() { return new RestTemplate();}
 
-    @Bean
-    public CaseworkClient createCaseworkClient(RestTemplate restTemplate,  @Value("${hocs.case-service}") String caseService) { return new CaseworkClient(restTemplate, caseService);}
-
-    @Bean
-    public CamundaClient createCamundaClient(RuntimeService runtimeService, TaskService taskService) { return new CamundaClient(runtimeService, taskService); }
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(createRequestData());

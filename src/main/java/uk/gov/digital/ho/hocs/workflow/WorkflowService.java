@@ -21,7 +21,7 @@ public class WorkflowService {
 
     private final CaseworkClient caseworkClient;
     private final CamundaClient camundaClient;
-    private final FormService formService;
+    private final HocsFormService hocsFormService;
 
     static {
         caseTypeDetails.add(new WorkflowType("DCU", "DCU MIN", CaseType.MIN));
@@ -31,10 +31,10 @@ public class WorkflowService {
     }
 
     @Autowired
-    public WorkflowService(CaseworkClient caseworkClient, CamundaClient camundaClient) {
+    public WorkflowService(CaseworkClient caseworkClient, CamundaClient camundaClient, HocsFormService hocsFormService) {
         this.caseworkClient = caseworkClient;
         this.camundaClient = camundaClient;
-        this.formService = new FormService();
+        this.hocsFormService = hocsFormService;
     }
 
     List<WorkflowType> getAllWorkflowTypes() {
@@ -62,8 +62,8 @@ public class WorkflowService {
     GetStageResponse getStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null && stageUUID != null) {
             String screenName = camundaClient.getCurrentScreen(stageUUID);
-            HocsForm form = formService.getStage(screenName);
-            return new GetStageResponse(stageUUID, form);
+            HocsForm form = hocsFormService.getStage(screenName);
+            return new GetStageResponse(stageUUID,"Dummy Case Ref", screenName, form);
         } else {
             throw new EntityCreationException("Failed to Get case, invalid caseUUID or stageUUID!");
         }
@@ -72,8 +72,8 @@ public class WorkflowService {
     GetStageResponse updateCase(UUID caseUUID, UUID stageUUID, Map<String,Object> values) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null && stageUUID != null && values != null) {
             String screenName = camundaClient.updateStage(stageUUID, values);
-            HocsForm form = formService.getStage(screenName);
-            return new GetStageResponse(stageUUID, form);
+            HocsForm form = hocsFormService.getStage(screenName);
+            return new GetStageResponse(stageUUID,"Dummy Case Ref", screenName, form);
         } else {
             throw new EntityCreationException("Failed to start case, invalid caseUUID, stageUUID or Map!");
         }
