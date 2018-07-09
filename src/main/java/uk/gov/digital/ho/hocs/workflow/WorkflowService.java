@@ -45,14 +45,18 @@ public class WorkflowService {
         }
     }
 
-    CreateCaseResponse createNewCase(CaseType caseType) throws EntityCreationException, EntityNotFoundException {
+    CreateCaseResponse createNewCase(CaseType caseType, List<DocumentSummary> documents) throws EntityCreationException, EntityNotFoundException {
         if (caseType != null) {
 
+            // Create a case in the workflow service in order to get a UUID
             CwCreateCaseResponse response = caseworkClient.createCase(caseType);
-
             UUID caseUUID = response.getUuid();
+
+            // As this is a brand new case start a new workflow
             camundaClient.startCase(caseUUID, caseType);
-            startCase(caseUUID);
+
+            //
+            startStage(caseUUID);
 
             return new CreateCaseResponse(caseUUID,response.getReference());
         } else {
@@ -80,14 +84,14 @@ public class WorkflowService {
         }
     }
 
-    void addDocument(UUID caseUUID, String displayName, DocumentType type) throws EntityCreationException {
+    private void addDocument(UUID caseUUID, String displayName, DocumentType type) throws EntityCreationException {
 
         CwCreateDocumentResponse response = caseworkClient.addDocument(caseUUID, displayName, type);
 
         //TODO: post to queue (response.getUuid(), documentSummary.getS3UntrustedUrl());
     }
 
-    private void startCase(UUID caseUUID) throws EntityNotFoundException, EntityCreationException {
+    private void startStage(UUID caseUUID) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null) {
             UUID stageUUID = UUID.randomUUID();
             StageType stageType = camundaClient.getCaseStage(caseUUID);
