@@ -8,6 +8,7 @@ import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
 import uk.gov.digital.ho.hocs.workflow.dto.WorkflowType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,22 @@ class WorkflowResource {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
+    }
+
+
+    @RequestMapping(value = "/case/bulk", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<CreateCaseResponse> createCaseBulk(@RequestBody CreateCaseWithDocumentsRequest request) {
+
+        CaseType type = request.getCaseType();
+        List<DocumentSummary> list = request.getDocumentSummaries();
+        list.forEach( (document) -> {
+            try {
+                workflowService.createNewCase(type, document);
+            } catch (EntityCreationException | EntityNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        return ResponseEntity.ok().build();
     }
 
     @RequestMapping(value = "/case/{caseUUID}/documents", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)

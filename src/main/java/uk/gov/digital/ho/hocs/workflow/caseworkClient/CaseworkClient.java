@@ -44,22 +44,6 @@ public class CaseworkClient {
         }
     }
 
-    public String createCaseWithDocuments(UUID caseUUID, CaseType caseType, List<CaseworkDocumentSummary> documentSummaries) throws EntityCreationException {
-        log.info("Creating a case with documents '{}' - '{}' - '{}'", caseUUID, caseType, documentSummaries);
-        if(caseUUID != null && caseType != null) {
-            CreateCaseRequest request = new CreateCaseRequest(caseUUID, caseType, documentSummaries);
-            ResponseEntity<CreateCaseResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case", request, CreateCaseResponse.class);
-            if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully created case: '{}' - '{}'", caseUUID, caseType);
-                return response.getBody().getCaseReference();
-            } else {
-                throw new EntityCreationException("Could not create case, response: " + response.getStatusCodeValue());
-            }
-        } else {
-            throw new EntityCreationException("Could not create case, caseUUID or caseType is null!");
-        }
-    }
-
     public void createStage(UUID caseUUID, UUID stageUUID, StageType stageType) throws EntityCreationException {
         log.info("Creating a stage for case: '{}' - stage: '{}' -  type: '{}'", caseUUID, stageUUID, stageType);
         if(caseUUID != null && stageUUID != null && stageType != null) {
