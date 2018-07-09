@@ -6,13 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.UUID;
 
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
-class AddDocumentsRequest {
+public class CwCreateCaseResponse {
 
-    @JsonProperty("documentSummaries")
-    private List<CaseworkDocumentSummary> documentSummaries;
+    @JsonProperty("uuid")
+    private UUID uuid;
+
+    @JsonProperty("reference")
+    private String reference;
+
 }

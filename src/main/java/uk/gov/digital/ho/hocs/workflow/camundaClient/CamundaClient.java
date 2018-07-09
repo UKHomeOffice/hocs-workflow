@@ -79,7 +79,6 @@ public class CamundaClient {
 
         //TODO: REMOVE THIS DEMO CODE
         values.put("valid", true);
-        values.put("decision", "FAQ");
         values.put("topic", 8);
         values.put("anotherTopic", false);
 

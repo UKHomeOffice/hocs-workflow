@@ -44,10 +44,10 @@ class WorkflowResource {
         }
     }
 
-    @RequestMapping(value = "/case/{caseUUID}/documents", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity createCase(@PathVariable UUID caseUUID, @RequestBody AddDocumentsRequest request) {
+    @RequestMapping(value = "/case/{caseUUID}/document", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity createCase(@PathVariable UUID caseUUID, @RequestBody CreateDocumentRequest request) {
         try {
-            workflowService.addDocuments(caseUUID, request.getDocumentSummaries());
+            workflowService.addDocument(caseUUID, request.getDisplayName(), request.getType());
             return ResponseEntity.ok().build();
         } catch (EntityCreationException e) {
             e.printStackTrace();

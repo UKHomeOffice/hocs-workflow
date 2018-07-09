@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkDocumentSummary;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.CwCreateCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.CwCreateDocumentResponse;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
@@ -12,7 +13,6 @@ import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class WorkflowService {
@@ -47,13 +47,14 @@ public class WorkflowService {
 
     CreateCaseResponse createNewCase(CaseType caseType) throws EntityCreationException, EntityNotFoundException {
         if (caseType != null) {
-            UUID caseUUID = UUID.randomUUID();
 
-            String caseReference = caseworkClient.createCase(caseUUID, caseType);
+            CwCreateCaseResponse response = caseworkClient.createCase(caseType);
+
+            UUID caseUUID = response.getUuid();
             camundaClient.startCase(caseUUID, caseType);
             startCase(caseUUID);
 
-            return new CreateCaseResponse(caseReference, caseUUID);
+            return new CreateCaseResponse(caseUUID,response.getReference());
         } else {
             throw new EntityCreationException("Failed to create case, invalid caseType!");
         }
@@ -75,15 +76,15 @@ public class WorkflowService {
             HocsForm form = hocsFormService.getStage(screenName);
             return new GetStageResponse(stageUUID,"Dummy Case Ref", screenName, form);
         } else {
-            throw new EntityCreationException("Failed to start case, invalid caseUUID, stageUUID or Map!");
+            throw new EntityCreationException("Failed to start case, invalid caseUUID, stageUUID or values!");
         }
     }
 
-    void addDocuments(UUID caseUUID, List<DocumentSummary> documentSummaryList) throws EntityCreationException {
-        List<CaseworkDocumentSummary> caseworkDocumentSummaryList = documentSummaryList.stream().map(CaseworkDocumentSummary::from).collect(Collectors.toList());
-        caseworkClient.addDocuments(caseUUID, caseworkDocumentSummaryList);
+    void addDocument(UUID caseUUID, String displayName, DocumentType type) throws EntityCreationException {
 
-        //TODO: post to queue { caseUUID, docUUID s3UntrustedUrl}
+        CwCreateDocumentResponse response = caseworkClient.addDocument(caseUUID, displayName, type);
+
+        //TODO: post to queue (response.getUuid(), documentSummary.getS3UntrustedUrl());
     }
 
     private void startCase(UUID caseUUID) throws EntityNotFoundException, EntityCreationException {
@@ -91,7 +92,7 @@ public class WorkflowService {
             UUID stageUUID = UUID.randomUUID();
             StageType stageType = camundaClient.getCaseStage(caseUUID);
 
-            caseworkClient.createStage(caseUUID, stageUUID, stageType);
+            caseworkClient.createStage(caseUUID, stageType);
             camundaClient.startStage(stageUUID, stageType);
 
         } else {
