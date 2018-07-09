@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @Getter
-class CwCreateStageResponse {
+public class CwCreateStageResponse {
 
     @JsonProperty("uuid")
     private UUID uuid;

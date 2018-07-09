@@ -6,6 +6,7 @@ import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.CwCreateCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.CwCreateDocumentResponse;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.CwCreateStageResponse;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
@@ -93,10 +94,10 @@ public class WorkflowService {
 
     private void startStage(UUID caseUUID) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null) {
-            UUID stageUUID = UUID.randomUUID();
             StageType stageType = camundaClient.getCaseStage(caseUUID);
 
-            caseworkClient.createStage(caseUUID, stageType);
+            CwCreateStageResponse response = caseworkClient.createStage(caseUUID, stageType);
+            UUID stageUUID = response.getUuid();
             camundaClient.startStage(stageUUID, stageType);
 
         } else {
