@@ -49,17 +49,44 @@ public class WorkflowService {
     CreateCaseResponse createNewCase(CaseType caseType, List<DocumentSummary> documents) throws EntityCreationException, EntityNotFoundException {
         if (caseType != null) {
 
-            // Create a case in the workflow service in order to get a UUID
-            CwCreateCaseResponse response = caseworkClient.createCase(caseType);
-            UUID caseUUID = response.getUuid();
+            // Create a case in the casework service in order to get a UUID.
+            CwCreateCaseResponse caseResponse = caseworkClient.createCase(caseType);
+            UUID caseUUID = caseResponse.getUuid();
 
-            // As this is a brand new case start a new workflow
-            camundaClient.startCase(caseUUID, caseType);
+            if (caseUUID != null) {
 
-            //
-            startStage(caseUUID);
+                // Start a new case level workflow (caseUUID is the business key).
+                StageType stageType = camundaClient.startCase(caseUUID, caseType);
 
-            return new CreateCaseResponse(caseUUID,response.getReference());
+                // Create a stage in the casework service in order to get a UUID.
+                CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, stageType);
+                UUID stageUUID = stageResponse.getUuid();
+
+                if(stageUUID != null) {
+
+                    // Start a new stage level workflow (stage UUID is the business key).
+                    camundaClient.startStage(stageUUID, stageType);
+                }
+                else {
+                    throw new EntityCreationException("Failed to start case, invalid stageUUID!");
+
+                    // TODO: if this fails we should tidy up here.
+                }
+
+            } else {
+                throw new EntityCreationException("Failed to start case, invalid caseUUID!");
+
+                // TODO: if this fails we should tidy up here.
+            }
+
+            // Add any Documents to the case
+            if(documents != null) {
+                for (DocumentSummary document : documents) {
+                    addDocument(caseUUID, document);
+                }
+            }
+
+            return new CreateCaseResponse(caseUUID,caseResponse.getReference());
         } else {
             throw new EntityCreationException("Failed to create case, invalid caseType!");
         }
@@ -85,24 +112,10 @@ public class WorkflowService {
         }
     }
 
-    private void addDocument(UUID caseUUID, String displayName, DocumentType type) throws EntityCreationException {
+    private void addDocument(UUID caseUUID, DocumentSummary document) throws EntityCreationException {
 
-        CwCreateDocumentResponse response = caseworkClient.addDocument(caseUUID, displayName, type);
+        CwCreateDocumentResponse response = caseworkClient.addDocument(caseUUID, document.getDisplayName(), document.getType());
 
         //TODO: post to queue (response.getUuid(), documentSummary.getS3UntrustedUrl());
     }
-
-    private void startStage(UUID caseUUID) throws EntityNotFoundException, EntityCreationException {
-        if (caseUUID != null) {
-            StageType stageType = camundaClient.getCaseStage(caseUUID);
-
-            CwCreateStageResponse response = caseworkClient.createStage(caseUUID, stageType);
-            UUID stageUUID = response.getUuid();
-            camundaClient.startStage(stageUUID, stageType);
-
-        } else {
-            throw new EntityCreationException("Failed to start case, invalid caseUUID!");
-        }
-    }
-
 }

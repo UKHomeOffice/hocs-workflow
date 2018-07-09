@@ -30,17 +30,18 @@ public class CamundaClient {
         this.taskService = taskService;
     }
 
-    public void startCase(UUID caseUUID, CaseType caseType) throws EntityCreationException {
+    public StageType startCase(UUID caseUUID, CaseType caseType) throws EntityCreationException, EntityNotFoundException {
         log.debug("Starting case bpmn:  Case: '{}' - '{}'", caseUUID, caseType);
         if (caseUUID != null && caseType != null) {
             ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseType.toString(), caseUUID.toString(), new HashMap<>());
             log.debug("Started case bpmn: Case: '{}' - '{}' id: '{}'", caseUUID, caseType, processInstance.getId());
+            return getCaseStage(caseUUID);
         } else {
             throw new EntityCreationException("Could not start case bpmn, caseUUID or caseType is null!");
         }
     }
 
-    public StageType getCaseStage(UUID caseUUID) throws EntityNotFoundException {
+    private StageType getCaseStage(UUID caseUUID) throws EntityNotFoundException {
         log.debug("Getting current stage for case bpmn: '{}'", caseUUID);
         if(caseUUID != null) {
             String stageType = getNext(caseUUID, "stage");
