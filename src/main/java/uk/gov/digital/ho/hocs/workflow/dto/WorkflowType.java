@@ -13,6 +13,6 @@ public class WorkflowType {
     @JsonProperty("displayName")
     private String displayName;
 
-    @JsonProperty("casType")
+    @JsonProperty("caseType")
     private CaseType caseType;
 }
