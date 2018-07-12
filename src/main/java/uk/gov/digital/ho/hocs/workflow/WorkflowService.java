@@ -110,11 +110,6 @@ public class WorkflowService implements JavaDelegate {
         return createNewCase(caseType, Collections.singletonList(documentSummary));
     }
 
-    CreateCaseResponse createNewCase(CaseType caseType, List<DocumentSummary> documentSummaries) throws EntityCreationException, EntityNotFoundException {
-        CreateCaseResponse newCase = createNewCase(caseType);
-        addDocuments(newCase.getUuid(), documentSummaries);
-        return newCase;
-    }
     GetStageResponse getStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null && stageUUID != null) {
             String screenName = camundaClient.getCurrentScreen(stageUUID);
