@@ -4,7 +4,8 @@ import lombok.Getter;
 
 public enum StageType {
 
-    DCU_MIN_MARKUP(1);
+    DCU_MIN_MARKUP(1),
+    UKVI_BREF_CATEGORISE(2);
 
     @Getter
     private int numVal;
