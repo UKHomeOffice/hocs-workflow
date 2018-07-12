@@ -10,9 +10,9 @@ public class WorkflowType {
     @JsonProperty("requiredRole")
     private String requiredRole;
 
-    @JsonProperty("displayName")
+    @JsonProperty("label")
     private String displayName;
 
-    @JsonProperty("casType")
+    @JsonProperty("value")
     private CaseType caseType;
 }

@@ -1,20 +1,26 @@
 package uk.gov.digital.ho.hocs.workflow.caseworkClient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
+import java.util.List;
 import java.util.UUID;
 
+@AllArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @Getter
 public class CreateCaseRequest {
 
+    @JsonProperty("caseUUID")
+    @NonNull
+    private UUID caseUUID;
+
     @JsonProperty("type")
+    @NonNull
     private CaseType type;
 
+    @JsonProperty("documentSummaries")
+    private List<CaseworkDocumentSummary> documents;
 }
