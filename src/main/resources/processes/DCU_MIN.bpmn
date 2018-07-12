@@ -1,84 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
   <bpmn:process id="MIN" isExecutable="true">
     <bpmn:startEvent id="DCU_MIN_START" name="Start Case">
-      <bpmn:outgoing>FromStart_ToInitial</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1pepep6</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="FromStart_ToInitial" sourceRef="DCU_MIN_START" targetRef="CATEGORISE" />
     <bpmn:endEvent id="DCU_MIN_END" name="End Case">
-      <bpmn:incoming>SequenceFlow_0f2ukae</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_17f9ea6</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_1fki7re" sourceRef="CATEGORISE" targetRef="ExclusiveGateway_0rnc7rb" />
-    <bpmn:serviceTask id="CATEGORISE" name="Categorise" camunda:expression="DCU_MIN_CATEGORISE" camunda:resultVariable="stage">
-      <bpmn:incoming>FromStart_ToInitial</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1fki7re</bpmn:outgoing>
+    <bpmn:callActivity id="MARKUP" name="Mark up" calledElement="DCU_MIN_MARKUP">
+      <bpmn:extensionElements>
+        <camunda:out variables="all" />
+        <camunda:in businessKey="${StageUUID}" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1kbehe7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0u1h4lr</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="SequenceFlow_0u1h4lr" sourceRef="MARKUP" targetRef="Task_1fsyyto" />
+    <bpmn:sequenceFlow id="SequenceFlow_1kbehe7" sourceRef="CREATE_MARKUP" targetRef="MARKUP" />
+    <bpmn:serviceTask id="CREATE_MARKUP" name="Create Markup" camunda:expression="${workflowService.createStage(execution.processBusinessKey,&#34;DCU_MIN_MARKUP&#34;)}" camunda:resultVariable="StageUUID">
+      <bpmn:incoming>SequenceFlow_1pepep6</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1kbehe7</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="Par1" name="Par1">
-      <bpmn:incoming>SequenceFlow_0ifhuay</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0f2ukae</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0f2ukae" sourceRef="Par1" targetRef="DCU_MIN_END" />
-    <bpmn:userTask id="Par2" name="Par2">
-      <bpmn:incoming>SequenceFlow_1oarh12</bpmn:incoming>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1oarh12" sourceRef="ExclusiveGateway_0rnc7rb" targetRef="Par2" />
-    <bpmn:parallelGateway id="ExclusiveGateway_0rnc7rb">
-      <bpmn:incoming>SequenceFlow_1fki7re</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1oarh12</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_0ifhuay</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_0ifhuay" sourceRef="ExclusiveGateway_0rnc7rb" targetRef="Par1" />
+    <bpmn:sequenceFlow id="SequenceFlow_1pepep6" sourceRef="DCU_MIN_START" targetRef="CREATE_MARKUP" />
+    <bpmn:serviceTask id="Task_1fsyyto" name="Save Markup" camunda:expression="${workflowService.updateStage(execution.processBusinessKey,StageUUID)}">
+      <bpmn:incoming>SequenceFlow_0u1h4lr</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_17f9ea6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_17f9ea6" sourceRef="Task_1fsyyto" targetRef="DCU_MIN_END" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MIN">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="DCU_MIN_START">
-        <dc:Bounds x="426" y="174" width="36" height="36" />
+        <dc:Bounds x="162" y="125" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="420" y="210" width="52" height="14" />
+          <dc:Bounds x="156" y="161" width="52" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_14bdz4q_di" bpmnElement="FromStart_ToInitial">
-        <di:waypoint x="462" y="192" />
-        <di:waypoint x="546" y="192" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="197" y="95" width="90" height="20" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_1y4bj2w_di" bpmnElement="DCU_MIN_END">
-        <dc:Bounds x="1123" y="102" width="36" height="36" />
+        <dc:Bounds x="1030" y="125" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1116" y="140" width="49" height="14" />
+          <dc:Bounds x="1023" y="101" width="49" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_1fki7re_di" bpmnElement="SequenceFlow_1fki7re">
-        <di:waypoint x="646" y="192" />
-        <di:waypoint x="722" y="192" />
+      <bpmndi:BPMNShape id="CallActivity_17sx4nr_di" bpmnElement="MARKUP">
+        <dc:Bounds x="566" y="103" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0u1h4lr_di" bpmnElement="SequenceFlow_0u1h4lr">
+        <di:waypoint x="666" y="143" />
+        <di:waypoint x="800" y="143" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_10h02e2_di" bpmnElement="CATEGORISE">
-        <dc:Bounds x="546" y="152" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_1camqcb_di" bpmnElement="Par1">
-        <dc:Bounds x="880" y="80" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0f2ukae_di" bpmnElement="SequenceFlow_0f2ukae">
-        <di:waypoint x="980" y="120" />
-        <di:waypoint x="1123" y="120" />
+      <bpmndi:BPMNEdge id="SequenceFlow_1kbehe7_di" bpmnElement="SequenceFlow_1kbehe7">
+        <di:waypoint x="469" y="143" />
+        <di:waypoint x="566" y="143" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="UserTask_1yobggr_di" bpmnElement="Par2">
-        <dc:Bounds x="880" y="212" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_0dmv20t_di" bpmnElement="CREATE_MARKUP">
+        <dc:Bounds x="369" y="103" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_1oarh12_di" bpmnElement="SequenceFlow_1oarh12">
-        <di:waypoint x="747" y="217" />
-        <di:waypoint x="747" y="252" />
-        <di:waypoint x="880" y="252" />
+      <bpmndi:BPMNEdge id="SequenceFlow_1pepep6_di" bpmnElement="SequenceFlow_1pepep6">
+        <di:waypoint x="198" y="143" />
+        <di:waypoint x="369" y="143" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ParallelGateway_028ducj_di" bpmnElement="ExclusiveGateway_0rnc7rb">
-        <dc:Bounds x="722" y="167" width="50" height="50" />
+      <bpmndi:BPMNShape id="ServiceTask_17wmkar_di" bpmnElement="Task_1fsyyto">
+        <dc:Bounds x="800" y="103" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0ifhuay_di" bpmnElement="SequenceFlow_0ifhuay">
-        <di:waypoint x="747" y="167" />
-        <di:waypoint x="747" y="120" />
-        <di:waypoint x="880" y="120" />
+      <bpmndi:BPMNEdge id="SequenceFlow_17f9ea6_di" bpmnElement="SequenceFlow_17f9ea6">
+        <di:waypoint x="899.777108433735" y="143" />
+        <di:waypoint x="1030" y="143" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -1,5 +1,9 @@
 package uk.gov.digital.ho.hocs.workflow;
 
+import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
@@ -16,7 +20,8 @@ import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 import java.util.*;
 
 @Service
-public class WorkflowService {
+@Slf4j
+public class WorkflowService implements JavaDelegate {
 
     private static List<WorkflowType> caseTypeDetails = new ArrayList<>();
 
@@ -46,6 +51,30 @@ public class WorkflowService {
         }
     }
 
+    @Override
+    public void execute(DelegateExecution execution){
+
+    }
+
+
+    public String createStage(String uuid, String type) throws EntityCreationException {
+        UUID caseUUID = UUID.fromString(uuid);
+        StageType stageType = StageType.valueOf(type);
+
+        // Create a stage in the casework service in order to get a UUID.
+        CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, stageType);
+        UUID stageUUID = stageResponse.getUuid();
+        return stageUUID.toString();
+    }
+
+    public void updateStage(String caseString, String stageString) throws EntityCreationException {
+        UUID caseUUID = UUID.fromString(caseString);
+        UUID stageUUID = UUID.fromString(stageString);
+
+        // Finish the stage.
+        caseworkClient.updateStage(caseUUID, stageUUID);
+    }
+
     CreateCaseResponse createNewCase(CaseType caseType, List<DocumentSummary> documents) throws EntityCreationException, EntityNotFoundException {
         if (caseType != null) {
 
@@ -56,22 +85,7 @@ public class WorkflowService {
             if (caseUUID != null) {
 
                 // Start a new case level workflow (caseUUID is the business key).
-                StageType stageType = camundaClient.startCase(caseUUID, caseType);
-
-                // Create a stage in the casework service in order to get a UUID.
-                CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, stageType);
-                UUID stageUUID = stageResponse.getUuid();
-
-                if(stageUUID != null) {
-
-                    // Start a new stage level workflow (stage UUID is the business key).
-                    camundaClient.startStage(stageUUID, stageType);
-                }
-                else {
-                    throw new EntityCreationException("Failed to start case, invalid stageUUID!");
-
-                    // TODO: if this fails we should tidy up here.
-                }
+                camundaClient.startCase(caseUUID, caseType);
 
             } else {
                 throw new EntityCreationException("Failed to start case, invalid caseUUID!");
@@ -95,20 +109,22 @@ public class WorkflowService {
     GetStageResponse getStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null && stageUUID != null) {
             String screenName = camundaClient.getCurrentScreen(stageUUID);
-            HocsForm form = hocsFormService.getStage(screenName);
+            HocsForm form = hocsFormService.getStageForm(screenName);
             return new GetStageResponse(stageUUID,"Dummy Case Ref", screenName, form);
         } else {
             throw new EntityCreationException("Failed to Get case, invalid caseUUID or stageUUID!");
         }
     }
 
-    GetStageResponse updateCase(UUID caseUUID, UUID stageUUID, Map<String,Object> values) throws EntityNotFoundException, EntityCreationException {
+    GetStageResponse updateCase(UUID caseUUID, UUID stageUUID, Map<String,String> values) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null && stageUUID != null && values != null) {
-            String screenName = camundaClient.updateStage(stageUUID, values);
-            HocsForm form = hocsFormService.getStage(screenName);
-            return new GetStageResponse(stageUUID,"Dummy Case Ref", screenName, form);
+            String screenName = camundaClient.getCurrentScreen(stageUUID);
+            caseworkClient.createScreen(caseUUID,stageUUID, screenName, values);
+            String newScreenName = camundaClient.updateStage(stageUUID, values);
+            HocsForm form = hocsFormService.getStageForm(newScreenName);
+            return new GetStageResponse(stageUUID,"Dummy Case Ref", newScreenName, form);
         } else {
-            throw new EntityCreationException("Failed to start case, invalid caseUUID, stageUUID or values!");
+            throw new EntityCreationException("Failed to update case, invalid caseUUID, stageUUID or values!");
         }
     }
 

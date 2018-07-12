@@ -3,6 +3,9 @@ package uk.gov.digital.ho.hocs.workflow.caseworkClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +15,7 @@ import uk.gov.digital.ho.hocs.workflow.model.DocumentType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -56,6 +60,38 @@ public class CaseworkClient {
             }
         } else {
             throw new EntityCreationException("Could not create stage; caseUUID or caseType is null!");
+        }
+    }
+
+    public void createScreen(UUID caseUUID, UUID stageUUID, String screenName, Map<String,String> data) throws EntityCreationException {
+        log.info("Creating screen '{}' for stage: '{}'", screenName, stageUUID);
+        if(caseUUID != null && stageUUID != null && screenName != null && data != null) {
+            CreateScreenRequest request = new CreateScreenRequest(screenName,data);
+            ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/screen" , request, Void.class);
+
+            if(response.getStatusCodeValue() == 200) {
+                log.debug("Created screen: '{}' for case '{}'",screenName, stageUUID);
+            } else {
+                throw new EntityCreationException("Could not create screen; response: " + response.getStatusCodeValue());
+            }
+        } else {
+            throw new EntityCreationException("Could not create screen; caseUUID, stageUUID, screenName or data is null!");
+        }
+    }
+
+    public void updateStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
+        log.info("Updating stage '{}' for case: '{}'", stageUUID, caseUUID);
+        if(caseUUID != null && stageUUID != null) {
+            //UpdateStageRequest request = new UpdateStageRequest();
+            ResponseEntity<Void> response = restTemplate.getForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID , Void.class);
+
+            if(response.getStatusCodeValue() == 200) {
+                log.debug("Successfully updated stage: '{}' for case '{}'",stageUUID, caseUUID);
+            } else {
+                throw new EntityCreationException("Could not update stage; response: " + response.getStatusCodeValue());
+            }
+        } else {
+            throw new EntityCreationException("Could not update stage; caseUUID or data is null!");
         }
     }
 

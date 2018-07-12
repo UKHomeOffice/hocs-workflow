@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0n7l4p8" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
+  <bpmn:process id="WF_CREATE_CASE" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_18uzvvq</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_18uzvvq" sourceRef="StartEvent_1" targetRef="SELECT_TYPE" />
+    <bpmn:businessRuleTask id="CALCULATE_DEADLINE" name="Calculate Deadline">
+      <bpmn:incoming>SequenceFlow_1sfz02l</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0pei0uo</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0jwigu5" sourceRef="SELECT_TYPE" targetRef="Task_1l2omng" />
+    <bpmn:sequenceFlow id="SequenceFlow_0pei0uo" sourceRef="CALCULATE_DEADLINE" targetRef="ExclusiveGateway_1c6gn0j" />
+    <bpmn:endEvent id="EndEvent_11k9iqo">
+      <bpmn:incoming>SequenceFlow_0i9xmof</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_067245p</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1sfz02l" sourceRef="Task_1l2omng" targetRef="CALCULATE_DEADLINE" />
+    <bpmn:userTask id="SELECT_TYPE" name="Select Case Type">
+      <bpmn:incoming>SequenceFlow_18uzvvq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0jwigu5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_1l2omng" name="Upload Documents">
+      <bpmn:incoming>SequenceFlow_0jwigu5</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1sfz02l</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0i9xmof" sourceRef="CREATE_CASE" targetRef="EndEvent_11k9iqo" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1c6gn0j">
+      <bpmn:incoming>SequenceFlow_0pei0uo</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0g26oqz</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1nol9zy</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_067245p" sourceRef="BULK_CREATE_CASE" targetRef="EndEvent_11k9iqo" />
+    <bpmn:sequenceFlow id="SequenceFlow_0g26oqz" sourceRef="ExclusiveGateway_1c6gn0j" targetRef="CREATE_CASE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BulkCreate == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1nol9zy" sourceRef="ExclusiveGateway_1c6gn0j" targetRef="BULK_CREATE_CASE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BulkCreate == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="CREATE_CASE" name="Create Case">
+      <bpmn:incoming>SequenceFlow_0g26oqz</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0i9xmof</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="BULK_CREATE_CASE" name="Bulk Create Cases">
+      <bpmn:incoming>SequenceFlow_1nol9zy</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_067245p</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="WF_CREATE_CASE">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="173" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_18uzvvq_di" bpmnElement="SequenceFlow_18uzvvq">
+        <di:waypoint x="209" y="120" />
+        <di:waypoint x="299" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="BusinessRuleTask_1t8mb33_di" bpmnElement="CALCULATE_DEADLINE">
+        <dc:Bounds x="691" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0jwigu5_di" bpmnElement="SequenceFlow_0jwigu5">
+        <di:waypoint x="399" y="120" />
+        <di:waypoint x="499" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0pei0uo_di" bpmnElement="SequenceFlow_0pei0uo">
+        <di:waypoint x="791" y="120" />
+        <di:waypoint x="872" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_11k9iqo_di" bpmnElement="EndEvent_11k9iqo">
+        <dc:Bounds x="1425" y="260" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1sfz02l_di" bpmnElement="SequenceFlow_1sfz02l">
+        <di:waypoint x="599" y="120" />
+        <di:waypoint x="690" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_1jl04jc_di" bpmnElement="SELECT_TYPE">
+        <dc:Bounds x="299" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0uzwgv1_di" bpmnElement="Task_1l2omng">
+        <dc:Bounds x="499" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0i9xmof_di" bpmnElement="SequenceFlow_0i9xmof">
+        <di:waypoint x="1220" y="120" />
+        <di:waypoint x="1312" y="120" />
+        <di:waypoint x="1312" y="278" />
+        <di:waypoint x="1425" y="278" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1c6gn0j_di" bpmnElement="ExclusiveGateway_1c6gn0j" isMarkerVisible="true">
+        <dc:Bounds x="872" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_067245p_di" bpmnElement="SequenceFlow_067245p">
+        <di:waypoint x="1220" y="278" />
+        <di:waypoint x="1425" y="278" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0g26oqz_di" bpmnElement="SequenceFlow_0g26oqz">
+        <di:waypoint x="922" y="120" />
+        <di:waypoint x="1120" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1nol9zy_di" bpmnElement="SequenceFlow_1nol9zy">
+        <di:waypoint x="897" y="145" />
+        <di:waypoint x="897" y="278" />
+        <di:waypoint x="1120" y="278" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1rjjc28_di" bpmnElement="CREATE_CASE">
+        <dc:Bounds x="1120" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0i5ajhl_di" bpmnElement="BULK_CREATE_CASE">
+        <dc:Bounds x="1120" y="238" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

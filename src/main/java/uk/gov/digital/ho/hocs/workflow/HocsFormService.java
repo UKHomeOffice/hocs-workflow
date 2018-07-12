@@ -22,7 +22,7 @@ public class HocsFormService {
         forms.put("ALLOCATION_NOTE",getAllocationNote());
     }
 
-    public HocsForm getStage(String form){
+    public HocsForm getStageForm(String form){
         return forms.get(form);
     }
 
