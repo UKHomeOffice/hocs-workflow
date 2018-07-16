@@ -22,7 +22,7 @@ public class HocsFormService {
         forms.put("ALLOCATION_NOTE",getAllocationNote());
     }
 
-    public HocsForm getStage(String form){
+    public HocsForm getStageForm(String form){
         return forms.get(form);
     }
 
@@ -32,7 +32,7 @@ public class HocsFormService {
 
         Map<String,String> choice1 = new HashMap<>();
         choice1.put("label", "Policy Response");
-        choice1.put("value", "PolicyResponse");
+        choice1.put("value", "PR");
         choice1.put("checked", "checked");
 
         Map<String,String> choice2 = new HashMap<>();
@@ -97,7 +97,7 @@ public class HocsFormService {
         formFields.add(fieldFive);
         formFields.add(fieldSix);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Answering", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Answering", "Next", formFields);
 
         Map<String, Object> data = new HashMap<>();
         HocsForm form1 = new HocsForm(schema1, data);
@@ -132,7 +132,7 @@ public class HocsFormService {
         formFields.add(fieldTwo);
         formFields.add(fieldThree);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Deadlines", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Deadlines", "Next", formFields);
 
         Map<String, Object> data = new HashMap<>();
         data.put("DateReceived", "1988-04-14");
@@ -155,7 +155,7 @@ public class HocsFormService {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Allocation Note", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Allocation Note", "Submit", formFields);
 
         Map<String, Object> data = new HashMap<>();
         HocsForm form1 = new HocsForm(schema1, data);
@@ -177,7 +177,7 @@ public class HocsFormService {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Topics", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Topics", "Next", formFields);
 
         Map<String, Object> data = new HashMap<>();
         HocsForm form1 = new HocsForm(schema1, data);

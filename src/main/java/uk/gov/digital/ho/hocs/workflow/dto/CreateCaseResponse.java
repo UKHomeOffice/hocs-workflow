@@ -11,9 +11,9 @@ import java.util.UUID;
 @Getter
 public class CreateCaseResponse {
 
-    @JsonProperty("reference")
-    private final String reference;
-
     @JsonProperty("uuid")
     private final UUID uuid;
+
+    @JsonProperty("reference")
+    private final String reference;
 }

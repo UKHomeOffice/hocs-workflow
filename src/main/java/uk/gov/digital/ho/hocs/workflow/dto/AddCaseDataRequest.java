@@ -12,5 +12,5 @@ import java.util.Map;
 public class AddCaseDataRequest {
 
     @JsonProperty("data")
-    private Map<String, Object> data = new HashMap<>();
+    private Map<String, String> data = new HashMap<>();
 }

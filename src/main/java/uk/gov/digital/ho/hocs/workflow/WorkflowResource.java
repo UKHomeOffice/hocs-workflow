@@ -37,7 +37,7 @@ class WorkflowResource {
     @RequestMapping(value = "/case", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request) {
         try {
-            CreateCaseResponse response = workflowService.createNewCase(request.getType());
+            CreateCaseResponse response = workflowService.createNewCase(request.getType(), request.getDocuments());
             return ResponseEntity.ok(response);
         } catch (EntityCreationException | EntityNotFoundException e) {
             e.printStackTrace();
@@ -45,12 +45,11 @@ class WorkflowResource {
         }
     }
 
-
     @RequestMapping(value = "/case/bulk", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCaseBulk(@RequestBody CreateCaseWithDocumentsRequest request) {
 
         CaseType type = request.getCaseType();
-        List<DocumentSummary> list = request.getDocumentSummaries();
+        List<DocumentSummary> list = request.getDocuments();
         list.forEach( (document) -> {
             try {
                 workflowService.createNewCase(type, document);
@@ -59,17 +58,6 @@ class WorkflowResource {
             }
         });
         return ResponseEntity.ok().build();
-    }
-
-    @RequestMapping(value = "/case/{caseUUID}/documents", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity createCase(@PathVariable UUID caseUUID, @RequestBody AddDocumentsRequest request) {
-        try {
-            workflowService.addDocuments(caseUUID, request.getDocumentSummaries());
-            return ResponseEntity.ok().build();
-        } catch (EntityCreationException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
     }
 
     @RequestMapping(value = "/case/{caseUUID}/stage/{stageUUID}", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)

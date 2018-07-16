@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @NoArgsConstructor
 @Getter
-class CreateCaseResponse {
+public class CwCreateDocumentResponse {
 
-    @JsonProperty("caseReference")
-    private String caseReference;
+    @JsonProperty("uuid")
+    private UUID uuid;
 }

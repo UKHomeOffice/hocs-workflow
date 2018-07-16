@@ -1,18 +1,20 @@
 package uk.gov.digital.ho.hocs.workflow.caseworkClient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Map;
 
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
-class AddDocumentsRequest {
+public class CreateScreenRequest {
 
-    @JsonProperty("documentSummaries")
-    private List<CaseworkDocumentSummary> documentSummaries;
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("data")
+    private Map<String, String> data;
 }

@@ -5,9 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.ho.hocs.workflow.model.DocumentType;
 
+import java.util.List;
+import java.util.UUID;
+
 @NoArgsConstructor
 @Getter
-public class DocumentSummary {
+public class CreateDocumentRequest {
 
     @JsonProperty("displayName")
     private String displayName;
