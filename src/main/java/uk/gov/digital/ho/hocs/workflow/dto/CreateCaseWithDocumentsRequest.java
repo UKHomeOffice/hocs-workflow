@@ -16,5 +16,6 @@ public class CreateCaseWithDocumentsRequest {
     @JsonProperty("type")
     private CaseType caseType;
 
-    private List<DocumentSummary> documentSummaries;
+    @JsonProperty("documents")
+    private List<DocumentSummary> documents;
 }

@@ -3,9 +3,6 @@ package uk.gov.digital.ho.hocs.workflow.caseworkClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -82,7 +79,6 @@ public class CaseworkClient {
     public void updateStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
         log.info("Updating stage '{}' for case: '{}'", stageUUID, caseUUID);
         if(caseUUID != null && stageUUID != null) {
-            //UpdateStageRequest request = new UpdateStageRequest();
             ResponseEntity<Void> response = restTemplate.getForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID , Void.class);
 
             if(response.getStatusCodeValue() == 200) {
@@ -98,7 +94,7 @@ public class CaseworkClient {
     public CwCreateDocumentResponse addDocument(UUID caseUUID, String name, DocumentType type) throws EntityCreationException {
         log.info("Creating document for case '{}'", caseUUID);
         if(caseUUID != null && name != null && type != null) {
-            CreateDocumentRequest request = new CreateDocumentRequest();
+            CreateDocumentRequest request = new CreateDocumentRequest(name, type);
             ResponseEntity<CwCreateDocumentResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/document", request, CwCreateDocumentResponse.class);
             if(response.getStatusCodeValue() == 200) {
                 log.debug("Successfully added document ('{}') to case: '{}'", response.getBody().getUuid(), caseUUID);
