@@ -45,12 +45,11 @@ class WorkflowResource {
         }
     }
 
-
     @RequestMapping(value = "/case/bulk", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCaseBulk(@RequestBody CreateCaseWithDocumentsRequest request) {
 
         CaseType type = request.getCaseType();
-        List<DocumentSummary> list = request.getDocumentSummaries();
+        List<DocumentSummary> list = request.getDocuments();
         list.forEach( (document) -> {
             try {
                 workflowService.createNewCase(type, document);
