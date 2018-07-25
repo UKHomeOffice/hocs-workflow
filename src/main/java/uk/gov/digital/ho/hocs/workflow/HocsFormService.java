@@ -15,14 +15,22 @@ public class HocsFormService {
     private Map<String,HocsForm> forms = new HashMap<>();
 
     public HocsFormService(){
-        forms.put("INITIAL_DECISION", getInitialDecision());
+
+        // Shared
         forms.put("DEADLINES", getDeadlinesForm());
-        forms.put("TOPICS", getTopics());
-        forms.put("ANSWERING",getAllocateForm());
         forms.put("ALLOCATION_NOTE",getAllocationNote());
+
+        // DCU
+        forms.put("INITIAL_DECISION", getInitialDecision());
+        forms.put("TOPICS", getTopics());
+
+        // UKVI
+        forms.put("INITIAL_DECISION_UKVI", getInitialDecisionUKVI());
+        forms.put("OWNING_MEMBER", getOwningMember());
+        forms.put("ANSWERING",getAllocateForm());
     }
 
-    public HocsForm getStage(String form){
+    public HocsForm getStageForm(String form){
         return forms.get(form);
     }
 
@@ -32,7 +40,7 @@ public class HocsFormService {
 
         Map<String,String> choice1 = new HashMap<>();
         choice1.put("label", "Policy Response");
-        choice1.put("value", "PolicyResponse");
+        choice1.put("value", "PR");
         choice1.put("checked", "checked");
 
         Map<String,String> choice2 = new HashMap<>();
@@ -97,12 +105,31 @@ public class HocsFormService {
         formFields.add(fieldFive);
         formFields.add(fieldSix);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Answering", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Answering", "Next", formFields);
 
         Map<String, Object> data = new HashMap<>();
         HocsForm form1 = new HocsForm(schema1, data);
 
         return form1;
+    }
+
+    private HocsForm getOwningMember() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("name", "owningMember");
+        properties.put("label", "Owning Member");
+
+        HocsFormField dropDown = new HocsFormField("dropdown", validationList, properties);
+
+        List<HocsFormField> fields = new ArrayList<>();
+        fields.add(dropDown);
+
+        HocsSchema schema = new HocsSchema(HocsFormAction.SUBMIT, "Owning Member", "Next", fields);
+
+        Map<String, Object> data = new HashMap<>();
+        return new HocsForm(schema, data);
     }
 
     private HocsForm getDeadlinesForm() {
@@ -132,7 +159,7 @@ public class HocsFormService {
         formFields.add(fieldTwo);
         formFields.add(fieldThree);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Deadlines", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Deadlines", "Next", formFields);
 
         Map<String, Object> data = new HashMap<>();
         data.put("DateReceived", "1988-04-14");
@@ -155,7 +182,7 @@ public class HocsFormService {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Allocation Note", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Allocation Note", "Submit", formFields);
 
         Map<String, Object> data = new HashMap<>();
         HocsForm form1 = new HocsForm(schema1, data);
@@ -177,13 +204,52 @@ public class HocsFormService {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Topics", "Default", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Topics", "Next", formFields);
 
         Map<String, Object> data = new HashMap<>();
         HocsForm form1 = new HocsForm(schema1, data);
 
         return form1;
 
+    }
+
+    private HocsForm getInitialDecisionUKVI() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String,String> choice1 = new HashMap<>();
+        choice1.put("label", "Send To Draft");
+        choice1.put("value", "DRAFT");
+        choice1.put("checked", "checked");
+
+        Map<String,String> choice3 = new HashMap<>();
+        choice3.put("label", "Refer To OGD");
+        choice3.put("value", "OGD");
+
+        Map<String,String> choice4 = new HashMap<>();
+        choice4.put("label", "No Reply Needed");
+        choice4.put("value", "NRN");
+        List<Map<String, String>> choices = new ArrayList<>();
+        choices.add(choice1);
+        choices.add(choice3);
+        choices.add(choice4);
+
+        Map<String,Object> properties4 = new HashMap<>();
+        properties4.put("name", "InitialDecision");
+        properties4.put("label", "Initial Decision");
+        properties4.put("choices", choices);
+
+        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
+
+        List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldFour);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Initial Decision", "Next", formFields);
+
+        Map<String, Object> data = new HashMap<>();
+        HocsForm form1 = new HocsForm(schema1, data);
+
+        return form1;
     }
 
 }

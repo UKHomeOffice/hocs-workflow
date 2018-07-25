@@ -30,7 +30,7 @@ public class CamundaClient {
         this.taskService = taskService;
     }
 
-    public void startCase(UUID caseUUID, CaseType caseType) throws EntityCreationException {
+    public void startCase(UUID caseUUID, CaseType caseType) throws EntityCreationException, EntityNotFoundException {
         log.debug("Starting case bpmn:  Case: '{}' - '{}'", caseUUID, caseType);
         if (caseUUID != null && caseType != null) {
             ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseType.toString(), caseUUID.toString(), new HashMap<>());
@@ -40,7 +40,7 @@ public class CamundaClient {
         }
     }
 
-    public StageType getCaseStage(UUID caseUUID) throws EntityNotFoundException {
+    private StageType getCaseStage(UUID caseUUID) throws EntityNotFoundException {
         log.debug("Getting current stage for case bpmn: '{}'", caseUUID);
         if(caseUUID != null) {
             String stageType = getNext(caseUUID, "stage");
@@ -52,7 +52,6 @@ public class CamundaClient {
         }
     }
 
-    //TODO: This is where we assign users
     public void startStage(UUID stageUUID, StageType stageType) throws EntityCreationException, EntityNotFoundException {
         log.debug("Starting stage bpmn: Case:'{}' Stage: '{}'", stageUUID, stageType);
         if(stageUUID != null && stageType != null) {
@@ -75,13 +74,12 @@ public class CamundaClient {
         }
     }
 
-    public String updateStage(UUID stageUUID, Map<String,Object> values) throws EntityNotFoundException {
+    public String updateStage(UUID stageUUID, Map<String,String> values) throws EntityNotFoundException {
 
         //TODO: REMOVE THIS DEMO CODE
-        values.put("valid", true);
-        values.put("decision", "FAQ");
-        values.put("topic", 8);
-        values.put("anotherTopic", false);
+        values.put("valid", "true");
+        values.put("topic", "8");
+        values.put("anotherTopic", "false");
 
         log.debug("Validating stage for stage bpmn: '{}'", stageUUID);
         if(stageUUID != null && !values.isEmpty()) {
@@ -89,7 +87,9 @@ public class CamundaClient {
             Task task = taskService.createTaskQuery().processInstanceBusinessKey(stageUUID.toString()).singleResult();
 
             if(task != null) {
-                taskService.complete(task.getId(), values);
+                Map<String,Object> objectHashMap = new HashMap<>();
+                objectHashMap.putAll(values);
+                taskService.complete(task.getId(), objectHashMap);
                 log.debug("Validated stage for stage bpmn: '{}'", stageUUID);
                 return getNext(task.getProcessInstanceId(), "screen");
             } else {
@@ -126,7 +126,7 @@ public class CamundaClient {
         }
     }
 
-    private String getValueFromProcess(String processInstanceId, String key) throws EntityNotFoundException {
+    public String getValueFromProcess(String processInstanceId, String key) throws EntityNotFoundException {
         VariableInstance instance = runtimeService.createVariableInstanceQuery()
                 .processInstanceIdIn(processInstanceId)
                 .variableName(key)
