@@ -37,7 +37,7 @@ public class CaseworkClient {
                 log.debug("Successfully created case: {}", caseType);
                 return response.getBody();
             } else {
-                throw new EntityCreationException("Could not create case; response: " + response.getStatusCodeValue());
+                throw new EntityCreationException("Could not create case; response: %s ", response.getStatusCodeValue());
             }
         } else {
             throw new EntityCreationException("Could not create case; caseUUID or caseType is null!");
@@ -45,46 +45,62 @@ public class CaseworkClient {
     }
 
     public CwCreateStageResponse createStage(UUID caseUUID, StageType stageType) throws EntityCreationException {
-        log.info("Creating a stage for case: '{}' -  type: '{}'", caseUUID, stageType);
+        log.info("Creating a stage for Case: '{}'  Type: '{}'", caseUUID, stageType);
         if(caseUUID != null && stageType != null) {
             CreateStageRequest request = new CreateStageRequest(stageType, new HashMap<>());
             ResponseEntity<CwCreateStageResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage" , request, CwCreateStageResponse.class);
             if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully created stage: '{}' - '{}' - '{}'", caseUUID, response.getBody().getUuid(), stageType);
+                log.debug("Successfully created stage Case: '{}' Stage: '{}' Type: '{}'", caseUUID, response.getBody().getUuid(), stageType);
+                log.debug("************ Dev Shortcut /case/{}/stage/{}", caseUUID, response.getBody().getUuid());
                 return response.getBody();
             } else {
-                throw new EntityCreationException("Could not create stage; response: " + response.getStatusCodeValue());
+                throw new EntityCreationException("Could not create stage; response: %s", response.getStatusCodeValue());
             }
         } else {
             throw new EntityCreationException("Could not create stage; caseUUID or caseType is null!");
         }
     }
 
-    public void createScreen(UUID caseUUID, UUID stageUUID, String screenName, Map<String,String> data) throws EntityCreationException {
-        log.info("Creating screen '{}' for stage: '{}'", screenName, stageUUID);
+    public void updateStage(UUID caseUUID, UUID stageUUID, String screenName, Map<String,String> data) throws EntityCreationException {
+        log.info("Creating Screen: '{}' for Stage: '{}'", screenName, stageUUID);
         if(caseUUID != null && stageUUID != null && screenName != null && data != null) {
             CreateScreenRequest request = new CreateScreenRequest(screenName,data);
-            ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/screen" , request, Void.class);
+            ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, request, Void.class);
 
             if(response.getStatusCodeValue() == 200) {
-                log.debug("Created screen: '{}' for case '{}'",screenName, stageUUID);
+                log.debug("Created Screen: '{}' for Stage: '{}'",screenName, stageUUID);
             } else {
-                throw new EntityCreationException("Could not create screen; response: " + response.getStatusCodeValue());
+                throw new EntityCreationException("Could not create screen; response: %s", response.getStatusCodeValue());
             }
         } else {
             throw new EntityCreationException("Could not create screen; caseUUID, stageUUID, screenName or data is null!");
         }
     }
 
-    public void updateStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
-        log.info("Updating stage '{}' for case: '{}'", stageUUID, caseUUID);
+    public void completeStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
+        log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
         if(caseUUID != null && stageUUID != null) {
-            ResponseEntity<Void> response = restTemplate.getForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID , Void.class);
+            ResponseEntity<Void> response = restTemplate.getForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/complete" , Void.class);
 
             if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully updated stage: '{}' for case '{}'",stageUUID, caseUUID);
+                log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
             } else {
-                throw new EntityCreationException("Could not update stage; response: " + response.getStatusCodeValue());
+                throw new EntityCreationException("Could not update stage; response: %s", response.getStatusCodeValue());
+            }
+        } else {
+            throw new EntityCreationException("Could not update stage; caseUUID or data is null!");
+        }
+    }
+
+    public void allocateStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
+        log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
+        if(caseUUID != null && stageUUID != null) {
+            ResponseEntity<Void> response = restTemplate.getForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/allocate" , Void.class);
+
+            if(response.getStatusCodeValue() == 200) {
+                log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
+            } else {
+                throw new EntityCreationException("Could not update stage; response: %s", response.getStatusCodeValue());
             }
         } else {
             throw new EntityCreationException("Could not update stage; caseUUID or data is null!");
@@ -92,15 +108,15 @@ public class CaseworkClient {
     }
 
     public CwCreateDocumentResponse addDocument(UUID caseUUID, String name, DocumentType type) throws EntityCreationException {
-        log.info("Creating document for case '{}'", caseUUID);
+        log.info("Creating document for Case: '{}'", caseUUID);
         if(caseUUID != null && name != null && type != null) {
             CreateDocumentRequest request = new CreateDocumentRequest(name, type);
             ResponseEntity<CwCreateDocumentResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/document", request, CwCreateDocumentResponse.class);
             if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully added document ('{}') to case: '{}'", response.getBody().getUuid(), caseUUID);
+                log.debug("Successfully added Document: '{}' to Case: '{}'", response.getBody().getUuid(), caseUUID);
                 return response.getBody();
             } else {
-                throw new EntityCreationException("Could not create document; response: " + response.getStatusCodeValue());
+                throw new EntityCreationException("Could not create document; response: %s", response.getStatusCodeValue());
             }
         } else {
             throw new EntityCreationException("Could not add document; caseUUID or caseType is null!");

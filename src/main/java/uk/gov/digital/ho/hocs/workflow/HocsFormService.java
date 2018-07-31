@@ -23,6 +23,7 @@ public class HocsFormService {
         // DCU
         forms.put("INITIAL_DECISION", getInitialDecision());
         forms.put("TOPICS", getTopics());
+        forms.put("TRANSFER_CONFIRMATION", getTransferConfirmation());
 
         // UKVI
         forms.put("INITIAL_DECISION_UKVI", getInitialDecisionUKVI());
@@ -30,8 +31,44 @@ public class HocsFormService {
         forms.put("ANSWERING",getAllocateForm());
     }
 
+
     public HocsForm getStageForm(String form){
         return forms.get(form);
+    }
+
+    private HocsForm getTransferConfirmation() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String,String> choice1 = new HashMap<>();
+        choice1.put("label", "Refer To OGD");
+        choice1.put("value", "OGD");
+        choice1.put("checked", "checked");
+
+        Map<String,String> choice2 = new HashMap<>();
+        choice2.put("label", "Reject Transfer");
+        choice2.put("value", "RT");
+
+        List<Map<String, String>> choices = new ArrayList<>();
+        choices.add(choice1);
+        choices.add(choice2);
+
+        Map<String,Object> properties4 = new HashMap<>();
+        properties4.put("name", "TransferConfirmation");
+        properties4.put("label", "Transfer Confirmation");
+        properties4.put("choices", choices);
+
+        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
+
+        List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldFour);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Transfer Confirmation", "Finish", formFields);
+
+        Map<String, Object> data = new HashMap<>();
+        HocsForm form1 = new HocsForm(schema1, data);
+
+        return form1;
     }
 
     private HocsForm getInitialDecision() {
@@ -80,7 +117,7 @@ public class HocsFormService {
 
     private HocsForm getAllocateForm() {
         List<String> validationList = new ArrayList<>();
-        validationList.add("required");
+        //alidationList.add("required");
 
         Map<String,Object> properties4 = new HashMap<>();
         properties4.put("name", "MarkupUnit");
