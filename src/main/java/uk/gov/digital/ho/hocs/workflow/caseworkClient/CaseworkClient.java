@@ -75,7 +75,7 @@ public class CaseworkClient {
         log.info("Creating Screen: '{}' for Stage: '{}'", screenName, stageUUID);
         if(caseUUID != null && stageUUID != null && screenName != null && data != null) {
             CreateScreenRequest request = new CreateScreenRequest(screenName,data);
-            ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, request, Void.class);
+            ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, new HttpEntity<>(request, createAuthHeaders()), Void.class);
 
             if(response.getStatusCodeValue() == 200) {
                 log.debug("Created Screen: '{}' for Stage: '{}'",screenName, stageUUID);
@@ -90,7 +90,7 @@ public class CaseworkClient {
     public void completeStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
         log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
         if(caseUUID != null && stageUUID != null) {
-            ResponseEntity<Void> response = restTemplate.getForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/complete" , Void.class);
+            ResponseEntity<Void> response = restTemplate.exchange(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/complete", HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), Void.class);
 
             if(response.getStatusCodeValue() == 200) {
                 log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
@@ -105,7 +105,7 @@ public class CaseworkClient {
     public void allocateStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
         log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
         if(caseUUID != null && stageUUID != null) {
-            ResponseEntity<Void> response = restTemplate.getForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/allocate" , Void.class);
+            ResponseEntity<Void> response = restTemplate.exchange(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/allocate", HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), Void.class);
 
             if(response.getStatusCodeValue() == 200) {
                 log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
@@ -140,5 +140,5 @@ public class CaseworkClient {
         return headers;
     }
 
-    public String caseworkBasicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(CASE_SERVICE_AUTH.getBytes(Charset.forName("UTF-8")))); }
+    private String caseworkBasicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(CASE_SERVICE_AUTH.getBytes(Charset.forName("UTF-8")))); }
 }
