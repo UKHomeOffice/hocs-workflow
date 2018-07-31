@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
+  <bpmn:process id="DCU_MIN_TRANSFER_CONFIRMATION" isExecutable="true">
+    <bpmn:startEvent id="DCU_MIN_TRANSFER_CONFIRMATION_START" name="Start Transfer Confir Stage">
+      <bpmn:outgoing>FromStart_ToInitial</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="FromInitial_ToValidateInitial" sourceRef="TRANSFER_CONFIRMATION" targetRef="VALIDATE_TRANSFER_CONFIRMATION" />
+    <bpmn:serviceTask id="TRANSFER_CONFIRMATION" name="Transfer Confirmation" camunda:expression="TRANSFER_CONFIRMATION" camunda:resultVariable="screen">
+      <bpmn:incoming>FromGatewayValidateInitial_ToInitialDecision</bpmn:incoming>
+      <bpmn:incoming>FromStart_ToInitial</bpmn:incoming>
+      <bpmn:outgoing>FromInitial_ToValidateInitial</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="FromGatewayValidateInitial_ToInitialDecision" sourceRef="ExclusiveGateway_1tlo418" targetRef="TRANSFER_CONFIRMATION">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="FromValidateInital_ToGatewayValidateInitial" sourceRef="VALIDATE_TRANSFER_CONFIRMATION" targetRef="ExclusiveGateway_1tlo418" />
+    <bpmn:userTask id="VALIDATE_TRANSFER_CONFIRMATION" name="Validate Transfer Confirmation">
+      <bpmn:incoming>FromInitial_ToValidateInitial</bpmn:incoming>
+      <bpmn:outgoing>FromValidateInital_ToGatewayValidateInitial</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="FromStart_ToInitial" sourceRef="DCU_MIN_TRANSFER_CONFIRMATION_START" targetRef="TRANSFER_CONFIRMATION" />
+    <bpmn:endEvent id="DCU_MIN_TRANSFER_CONFIRMATION_END" name="End Transfer Confirmation Stage">
+      <bpmn:incoming>SequenceFlow_008in3e</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_008in3e" sourceRef="ExclusiveGateway_1tlo418" targetRef="DCU_MIN_TRANSFER_CONFIRMATION_END">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1tlo418">
+      <bpmn:incoming>FromValidateInital_ToGatewayValidateInitial</bpmn:incoming>
+      <bpmn:outgoing>FromGatewayValidateInitial_ToInitialDecision</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_008in3e</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_MIN_TRANSFER_CONFIRMATION">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="DCU_MIN_TRANSFER_CONFIRMATION_START">
+        <dc:Bounds x="173" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="161" y="138" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0d726xt_di" bpmnElement="FromInitial_ToValidateInitial">
+        <di:waypoint x="393" y="160" />
+        <di:waypoint x="393" y="254" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="366" y="95" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_10h02e2_di" bpmnElement="TRANSFER_CONFIRMATION">
+        <dc:Bounds x="343" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_19ztczr_di" bpmnElement="FromGatewayValidateInitial_ToInitialDecision">
+        <di:waypoint x="607" y="182" />
+        <di:waypoint x="607" y="120" />
+        <di:waypoint x="443" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1kboz8x_di" bpmnElement="FromValidateInital_ToGatewayValidateInitial">
+        <di:waypoint x="443" y="293" />
+        <di:waypoint x="607" y="293" />
+        <di:waypoint x="607" y="233" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_0yqbmpc_di" bpmnElement="VALIDATE_TRANSFER_CONFIRMATION">
+        <dc:Bounds x="343" y="254" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_14bdz4q_di" bpmnElement="FromStart_ToInitial">
+        <di:waypoint x="209" y="120" />
+        <di:waypoint x="343" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="197" y="95" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0m4p03w_di" bpmnElement="DCU_MIN_TRANSFER_CONFIRMATION_END">
+        <dc:Bounds x="863" y="189" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="851" y="152" width="64" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_008in3e_di" bpmnElement="SequenceFlow_008in3e">
+        <di:waypoint x="632" y="207" />
+        <di:waypoint x="863" y="207" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1tlo418_di" bpmnElement="ExclusiveGateway_1tlo418" isMarkerVisible="true">
+        <dc:Bounds x="581.9284750337382" y="182.12820512820508" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
