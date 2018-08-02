@@ -2,10 +2,8 @@ package uk.gov.digital.ho.hocs.workflow.model.forms;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
-import lombok.AllArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
 public class HocsForm {
 
     @JsonProperty("schema")
@@ -14,6 +12,10 @@ public class HocsForm {
     @Setter
     @JsonRawValue
     // We can do raw value here as all we do is pass it to the UI.
-    private String data;
+    private String data = "";
+
+    public HocsForm(HocsSchema schema){
+        this.schema = schema;
+    }
 
 }
