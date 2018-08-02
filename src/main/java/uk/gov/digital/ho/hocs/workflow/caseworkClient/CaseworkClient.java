@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
+import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 import uk.gov.digital.ho.hocs.workflow.model.DocumentType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
@@ -70,6 +71,19 @@ public class CaseworkClient {
             throw new EntityCreationException("Could not create stage; caseUUID or caseType is null!");
         }
     }
+
+    public CwGetStageResponse getStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException {
+        log.info("Getting a Stage '{}' for Case: '{}'", stageUUID, caseUUID);
+        ResponseEntity<CwGetStageResponse> response = restTemplate.exchange(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), CwGetStageResponse.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.debug("Successfully retrieved  Stage: '{}' Case: '{}'", stageUUID, caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not create stage; response: %s", response.getStatusCodeValue());
+        }
+    }
+
 
     public void updateStage(UUID caseUUID, UUID stageUUID, String screenName, Map<String,String> data) throws EntityCreationException {
         log.info("Creating Screen: '{}' for Stage: '{}'", screenName, stageUUID);

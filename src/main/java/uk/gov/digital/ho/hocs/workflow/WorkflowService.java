@@ -1,15 +1,13 @@
 package uk.gov.digital.ho.hocs.workflow;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.CwCreateCaseResponse;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.CwCreateDocumentResponse;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.CwCreateStageResponse;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
@@ -52,8 +50,6 @@ public class WorkflowService implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution){
-
-        int fsdfsd = 4;
     }
 
 
@@ -148,11 +144,11 @@ public class WorkflowService implements JavaDelegate {
 
     GetStageResponse getStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null && stageUUID != null) {
-            // TODO: get Active Stage + Stage Data
-            // TODO: permission check
+            // TODO: permission check (active stage userID? TeamID ?)
+            CwGetStageResponse response = caseworkClient.getStage(caseUUID, stageUUID);
             String screenName = camundaClient.getCurrentScreen(stageUUID);
             HocsForm form = hocsFormService.getStageForm(screenName);
-            // TODO: populate schema
+            form.setData(response.getData());
             return new GetStageResponse(stageUUID,"Dummy Case Ref", screenName, form);
         } else {
             throw new EntityCreationException("Failed to Get case, invalid caseUUID or stageUUID!");
@@ -161,8 +157,7 @@ public class WorkflowService implements JavaDelegate {
 
     GetStageResponse updateCase(UUID caseUUID, UUID stageUUID, Map<String,String> values) throws EntityNotFoundException, EntityCreationException {
         if (caseUUID != null && stageUUID != null && values != null) {
-            // TODO: get Active Stage + Stage Data
-            // TODO: permission check
+            // TODO: permission check (active stage userID? TeamID ?)
             String screenName = camundaClient.getCurrentScreen(stageUUID);
             HocsForm form = hocsFormService.getStageForm(screenName);
             //TODO: validate Form

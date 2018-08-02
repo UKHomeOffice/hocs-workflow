@@ -65,8 +65,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Transfer Confirmation", "Finish", formFields);
 
-        Map<String, Object> data = new HashMap<>();
-        HocsForm form1 = new HocsForm(schema1, data);
+        HocsForm form1 = new HocsForm(schema1, "");
 
         return form1;
     }
@@ -109,8 +108,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Initial Decision", "Next", formFields);
 
-        Map<String, Object> data = new HashMap<>();
-        HocsForm form1 = new HocsForm(schema1, data);
+        HocsForm form1 = new HocsForm(schema1, "");
 
         return form1;
     }
@@ -144,8 +142,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Answering", "Next", formFields);
 
-        Map<String, Object> data = new HashMap<>();
-        HocsForm form1 = new HocsForm(schema1, data);
+        HocsForm form1 = new HocsForm(schema1, "");
 
         return form1;
     }
@@ -165,8 +162,8 @@ public class HocsFormService {
 
         HocsSchema schema = new HocsSchema(HocsFormAction.SUBMIT, "Owning Member", "Next", fields);
 
-        Map<String, Object> data = new HashMap<>();
-        return new HocsForm(schema, data);
+        HocsForm form1 = new HocsForm(schema, "");
+        return  form1;
     }
 
     private HocsForm getDeadlinesForm() {
@@ -198,10 +195,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Deadlines", "Next", formFields);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("DateReceived", "1988-04-14");
-
-        HocsForm form1 = new HocsForm(schema1, data);
+        HocsForm form1 = new HocsForm(schema1, "");
 
         return form1;
     }
@@ -221,8 +215,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Allocation Note", "Submit", formFields);
 
-        Map<String, Object> data = new HashMap<>();
-        HocsForm form1 = new HocsForm(schema1, data);
+        HocsForm form1 = new HocsForm(schema1, "");
 
         return form1;
 
@@ -243,8 +236,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Topics", "Next", formFields);
 
-        Map<String, Object> data = new HashMap<>();
-        HocsForm form1 = new HocsForm(schema1, data);
+        HocsForm form1 = new HocsForm(schema1, "");
 
         return form1;
 
@@ -283,8 +275,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Initial Decision", "Next", formFields);
 
-        Map<String, Object> data = new HashMap<>();
-        HocsForm form1 = new HocsForm(schema1, data);
+        HocsForm form1 = new HocsForm(schema1, "");
 
         return form1;
     }
