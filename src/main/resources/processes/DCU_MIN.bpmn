@@ -12,11 +12,9 @@
       <bpmn:extensionElements>
         <camunda:out variables="all" />
         <camunda:in businessKey="${MarkupStageUUID}" />
-        <camunda:executionListener expression="${workflowService.allocateStage(execution.processBusinessKey, MarkupStageUUID)}" event="start" />
         <camunda:executionListener expression="${workflowService.updateStage(execution.processBusinessKey,MarkupStageUUID)}" event="end" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1kbehe7</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1969s27</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0u1h4lr</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_0u1h4lr" sourceRef="MARKUP" targetRef="ExclusiveGateway_1j2nbeb" />
@@ -29,18 +27,12 @@
     <bpmn:sequenceFlow id="SequenceFlow_058p133" sourceRef="ExclusiveGateway_1j2nbeb" targetRef="Task_0y9voql">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${InitialDecision == "OGD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0d4c2g2" sourceRef="Task_0y9voql" targetRef="Task_1d484k1" />
     <bpmn:sequenceFlow id="SequenceFlow_0pm7jk6" sourceRef="Task_1d484k1" targetRef="ExclusiveGateway_0krzrti" />
-    <bpmn:serviceTask id="Task_0y9voql" name="Create Transfer Confirmation" camunda:expression="${workflowService.createStage(execution.processBusinessKey,&#34;DCU_MIN_TRANSFER_CONFIRMATION&#34;)}" camunda:resultVariable="TransferConfirmationStageUUID">
-      <bpmn:incoming>SequenceFlow_058p133</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0d4c2g2</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:callActivity id="Task_1d484k1" name="Transfer Confirmation" calledElement="DCU_MIN_TRANSFER_CONFIRMATION">
       <bpmn:extensionElements>
         <camunda:out variables="all" />
         <camunda:in businessKey="${TransferConfirmationStageUUID}" />
         <camunda:executionListener expression="${workflowService.updateStage(execution.processBusinessKey,TransferConfirmationStageUUID)}" event="end" />
-        <camunda:executionListener expression="${workflowService.allocateStage(execution.processBusinessKey, TransferConfirmationStageUUID)}" event="start" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0d4c2g2</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0pm7jk6</bpmn:outgoing>
@@ -54,10 +46,16 @@
     <bpmn:sequenceFlow id="SequenceFlow_1gmn6qa" sourceRef="ExclusiveGateway_0krzrti" targetRef="DCU_MIN_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "OGD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1969s27" sourceRef="ExclusiveGateway_0krzrti" targetRef="MARKUP">
+    <bpmn:sequenceFlow id="SequenceFlow_1969s27" sourceRef="ExclusiveGateway_0krzrti" targetRef="CREATE_MARKUP">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "RT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="CREATE_MARKUP" name="Create Markup" camunda:expression="${workflowService.createStage(execution.processBusinessKey,&#34;DCU_MIN_MARKUP&#34;)}" camunda:resultVariable="MarkupStageUUID">
+    <bpmn:serviceTask id="Task_0y9voql" name="Create Transfer Confirmation" camunda:expression="${workflowService.allocateStage(execution.processBusinessKey, &#34;DCU_MIN_TRANSFER_CONFIRMATION&#34;, execution.getVariable(&#34;TransferConfirmationStageUUID&#34;))}" camunda:resultVariable="TransferConfirmationStageUUID">
+      <bpmn:incoming>SequenceFlow_058p133</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0d4c2g2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0d4c2g2" sourceRef="Task_0y9voql" targetRef="Task_1d484k1" />
+    <bpmn:serviceTask id="CREATE_MARKUP" name="Create Markup" camunda:expression="${workflowService.allocateStage(execution.processBusinessKey, &#34;DCU_MIN_MARKUP&#34;, execution.getVariable(&#34;MarkupStageUUID&#34;))}" camunda:resultVariable="MarkupStageUUID">
+      <bpmn:incoming>SequenceFlow_1969s27</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1pepep6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1kbehe7</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -66,9 +64,9 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MIN">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="DCU_MIN_START">
-        <dc:Bounds x="387" y="594" width="36" height="36" />
+        <dc:Bounds x="264" y="594" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="381" y="630" width="52" height="14" />
+          <dc:Bounds x="258" y="630" width="52" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1y4bj2w_di" bpmnElement="DCU_MIN_END">
@@ -85,7 +83,7 @@
         <di:waypoint x="1059" y="612" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1pepep6_di" bpmnElement="SequenceFlow_1pepep6">
-        <di:waypoint x="423" y="612" />
+        <di:waypoint x="300" y="612" />
         <di:waypoint x="552" y="612" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_1j2nbeb_di" bpmnElement="ExclusiveGateway_1j2nbeb" isMarkerVisible="true">
@@ -95,17 +93,10 @@
         <di:waypoint x="1084" y="587" />
         <di:waypoint x="1084" y="489" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0d4c2g2_di" bpmnElement="SequenceFlow_0d4c2g2">
-        <di:waypoint x="1084" y="409" />
-        <di:waypoint x="1084" y="332" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0pm7jk6_di" bpmnElement="SequenceFlow_0pm7jk6">
         <di:waypoint x="1084" y="252" />
         <di:waypoint x="1084" y="167" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_0mepfru_di" bpmnElement="Task_0y9voql">
-        <dc:Bounds x="1034" y="409" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_1hgwq17_di" bpmnElement="Task_1d484k1">
         <dc:Bounds x="1034" y="252" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -123,8 +114,15 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1969s27_di" bpmnElement="SequenceFlow_1969s27">
         <di:waypoint x="1059" y="142" />
-        <di:waypoint x="842" y="142" />
-        <di:waypoint x="842" y="572" />
+        <di:waypoint x="602" y="142" />
+        <di:waypoint x="602" y="572" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0mepfru_di" bpmnElement="Task_0y9voql">
+        <dc:Bounds x="1034" y="409" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0d4c2g2_di" bpmnElement="SequenceFlow_0d4c2g2">
+        <di:waypoint x="1084" y="409" />
+        <di:waypoint x="1084" y="332" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_0dmv20t_di" bpmnElement="CREATE_MARKUP">
         <dc:Bounds x="552" y="572" width="100" height="80" />
