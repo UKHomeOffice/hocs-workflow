@@ -52,6 +52,20 @@ public class WorkflowService implements JavaDelegate {
     public void execute(DelegateExecution execution){
     }
 
+
+    public String createStage(String caseUUIDString, String type) throws EntityCreationException {
+        log.debug("######## Creating Stage ########");
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        StageType stageType = StageType.valueOf(type);
+
+        // Create a stage in the casework service in order to get a UUID.
+        CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, stageType);
+        UUID stageUUID = stageResponse.getUuid();
+
+        log.debug("######## Created Stage ########");
+        return stageUUID.toString();
+    }
+
     public void updateStage(String caseUUIDString, String stageUUIDString) throws EntityCreationException {
         log.debug("######## Updating Stage ########");
 
@@ -63,25 +77,14 @@ public class WorkflowService implements JavaDelegate {
         log.debug("######## Updated Stage ########");
     }
 
-    public String allocateStage(String caseUUIDString,  String type, String stageUUIDString) throws EntityCreationException {
-        log.debug("######## Creating Stage ########");
+    public void allocateStage(String caseUUIDString, String stageUUIDString) throws EntityCreationException {
+        log.debug("######## Allocating Stage ########");
+
         UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID;
-        StageType stageType = StageType.valueOf(type);
-
-        if(stageUUIDString == null) {
-            // Create a stage in the casework service in order to get a UUID.
-            CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, stageType);
-            stageUUID = stageResponse.getUuid();
-
-        } else {
-            stageUUID = UUID.fromString(stageUUIDString);
-        }
+        UUID stageUUID = UUID.fromString(stageUUIDString);
 
         caseworkClient.allocateStage(caseUUID, stageUUID);
-
-        log.debug("######## Created Stage ########");
-        return stageUUID.toString();
+        log.debug("######## Allocated Stage ########");
     }
 
     public void crateDeadlines(){
