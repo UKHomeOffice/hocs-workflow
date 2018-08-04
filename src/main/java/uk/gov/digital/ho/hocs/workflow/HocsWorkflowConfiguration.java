@@ -23,9 +23,4 @@ public class HocsWorkflowConfiguration implements WebMvcConfigurer {
 
     @Bean
     public RestTemplate createRestTemplate() { return new RestTemplate();}
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(createRequestData());
-    }
 }

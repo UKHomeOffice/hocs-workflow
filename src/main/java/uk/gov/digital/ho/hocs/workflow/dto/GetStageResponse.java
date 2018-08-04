@@ -17,9 +17,6 @@ public class GetStageResponse {
     @JsonProperty("caseReference")
     private String caseReference;
 
-    @JsonProperty("screenName")
-    private String screenName;
-
     @JsonProperty("form")
     private HocsForm form;
 }
