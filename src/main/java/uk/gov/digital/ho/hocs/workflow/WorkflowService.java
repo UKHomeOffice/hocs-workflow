@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
@@ -27,10 +26,10 @@ public class WorkflowService implements JavaDelegate {
     private final HocsFormService hocsFormService;
 
     static {
-        caseTypeDetails.add(new WorkflowType("DCU", "DCU MIN", CaseType.MIN));
-        caseTypeDetails.add(new WorkflowType("DCU", "DCU TRO", CaseType.TRO));
-        caseTypeDetails.add(new WorkflowType("DCU", "DCU DTEN", CaseType.DTEN));
-        caseTypeDetails.add(new WorkflowType("UKVI", "UKVI BREF", CaseType.BREF));
+        caseTypeDetails.add(new WorkflowType("DCU MIN", CaseType.MIN.toString()));
+        caseTypeDetails.add(new WorkflowType("DCU TRO", CaseType.TRO.toString()));
+        caseTypeDetails.add(new WorkflowType("DCU DTEN", CaseType.DTEN.toString()));
+        caseTypeDetails.add(new WorkflowType("UKVI BREF", CaseType.BREF.toString()));
     }
 
     @Autowired
@@ -52,7 +51,7 @@ public class WorkflowService implements JavaDelegate {
     public void execute(DelegateExecution execution){
     }
 
-    public void updateStage(String caseUUIDString, String stageUUIDString) throws EntityCreationException {
+    public void endStage(String caseUUIDString, String stageUUIDString) throws EntityCreationException {
         log.debug("######## Updating Stage ########");
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
@@ -63,45 +62,27 @@ public class WorkflowService implements JavaDelegate {
         log.debug("######## Updated Stage ########");
     }
 
-    public String allocateStage(String caseUUIDString,  String type, String stageUUIDString) throws EntityCreationException {
+    public String beginStage(String caseUUIDString, String stageUUIDString, String stageType) throws EntityCreationException {
         log.debug("######## Creating Stage ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID;
-        StageType stageType = StageType.valueOf(type);
 
         if(stageUUIDString == null) {
             // Create a stage in the casework service in order to get a UUID.
-            CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, stageType);
+            CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType));
             stageUUID = stageResponse.getUuid();
 
         } else {
             stageUUID = UUID.fromString(stageUUIDString);
+            caseworkClient.allocateStage(caseUUID, stageUUID);
         }
-
-        caseworkClient.allocateStage(caseUUID, stageUUID);
 
         log.debug("######## Created Stage ########");
         return stageUUID.toString();
     }
 
-    public void crateDeadlines(){
-        log.debug("######## Creating Deadline ########");
-        // Find the deadlines for casetype
-        // INFO_SERVICE/deadlines { caseType: MIN, date: 2018-12-20 }
-        //deadlines[] { stageType, date }
-        // OR INFO_SERVICE/casetype/MIN/datereceived/2018-12-20 ??
-
-        // INFO_SERVICE/casetype/COL/datereceived/2018-12-20/
-        //{stageType, date }
-
-        //{
-        //    casetype: MIN,
-        //    date: today,
-        //    slas :[{ dispatch: 10/5, qa: 5, draft: 7 }]
-        //}
-
-        log.debug("######## Created Deadline ########");
-
+    CreateCaseResponse createNewCase(CaseType caseType, DocumentSummary documentSummary) throws EntityNotFoundException, EntityCreationException {
+        return createNewCase(caseType, Collections.singletonList(documentSummary));
     }
 
     CreateCaseResponse createNewCase(CaseType caseType, List<DocumentSummary> documents) throws EntityCreationException, EntityNotFoundException {
@@ -135,37 +116,31 @@ public class WorkflowService implements JavaDelegate {
         }
     }
 
-    CreateCaseResponse createNewCase(CaseType caseType, DocumentSummary documentSummary) throws EntityNotFoundException, EntityCreationException {
-        return createNewCase(caseType, Collections.singletonList(documentSummary));
-    }
-
-    GetStageResponse getStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException, EntityCreationException {
-        if (caseUUID != null && stageUUID != null) {
-            // TODO: permission check (active stage userID? TeamID ?)
-            CwGetStageResponse response = caseworkClient.getStage(caseUUID, stageUUID);
-            String screenName = camundaClient.getCurrentScreen(stageUUID);
-            HocsForm form = hocsFormService.getStageForm(screenName);
+    GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
+        // TODO: permission check (active stage userID? TeamID ?)
+        CwGetStageResponse response = caseworkClient.getStage(caseUUID, stageUUID);
+        HocsForm form = getFormForStage(stageUUID);
+        if(form != null) {
+            // If the stage is finished we have no form.
             form.setData(response.getData());
-            return new GetStageResponse(stageUUID,"Dummy Case Ref", screenName, form);
-        } else {
-            throw new EntityCreationException("Failed to Get case, invalid caseUUID or stageUUID!");
         }
+        return new GetStageResponse(stageUUID,response.getCaseReference(), form);
     }
 
-    GetStageResponse updateCase(UUID caseUUID, UUID stageUUID, Map<String,String> values) throws EntityNotFoundException, EntityCreationException {
-        if (caseUUID != null && stageUUID != null && values != null) {
-            // TODO: permission check (active stage userID? TeamID ?)
-            String screenName = camundaClient.getCurrentScreen(stageUUID);
-            HocsForm form = hocsFormService.getStageForm(screenName);
-            //TODO: validate Form
-            caseworkClient.updateStage(caseUUID,stageUUID, screenName, values);
-            String newScreenName = camundaClient.updateStage(stageUUID, values);
-            log.debug("Updating Case: '{}', Stage: '{}' NextScreen: '{}'", caseUUID, stageUUID, newScreenName);
-            HocsForm newForm = hocsFormService.getStageForm(newScreenName);
-            return new GetStageResponse(stageUUID,"Dummy Case Ref", newScreenName, newForm);
-        } else {
-            throw new EntityCreationException("Failed to update case, invalid caseUUID, stageUUID or values!");
-        }
+    GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> values){
+        // TODO: permission check (active stage userID? TeamID ?)
+        log.debug("Updating Case: '{}', Stage: '{}'", caseUUID, stageUUID);
+
+        //TODO: validate Form
+        caseworkClient.updateStage(caseUUID,stageUUID, values);
+        camundaClient.updateStage(stageUUID, values);
+
+        return getStage(caseUUID, stageUUID);
+    }
+
+    private HocsForm getFormForStage(UUID stageUUID) {
+        String screenName = camundaClient.getScreenName(stageUUID);
+       return hocsFormService.getForm(screenName);
     }
 
     private void addDocument(UUID caseUUID, DocumentSummary document) throws EntityCreationException {

@@ -28,21 +28,16 @@ class WorkflowResource {
         this.workflowService = workflowService;
     }
 
-    @RequestMapping(value = "/workflow", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetWorkflowTypesResponse> getAllWorkflowTypes() {
+    @RequestMapping(value = "/caseType", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetWorkflowTypesResponse> getAllCaseTypes() {
         List<WorkflowType> workflowTypes = workflowService.getAllWorkflowTypes();
         return ResponseEntity.ok(new GetWorkflowTypesResponse(workflowTypes));
     }
 
     @RequestMapping(value = "/case", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request) {
-        try {
-            CreateCaseResponse response = workflowService.createNewCase(request.getType(), request.getDocuments());
-            return ResponseEntity.ok(response);
-        } catch (EntityCreationException | EntityNotFoundException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+        CreateCaseResponse response = workflowService.createNewCase(request.getType(), request.getDocuments());
+        return ResponseEntity.ok(response);
     }
 
     @RequestMapping(value = "/case/bulk", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
@@ -60,20 +55,21 @@ class WorkflowResource {
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/case/{caseUUID}/stage/{stageUUID}", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) throws EntityCreationException, EntityNotFoundException {
-        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
-        return ResponseEntity.ok(response);
-    }
-
     @RequestMapping(value = "/case/{caseUUID}/stage/{stageUUID}", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> submitStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
         try {
-            GetStageResponse response = workflowService.updateCase(caseUUID, stageUUID, request.getData());
+            GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request.getData());
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException | EntityCreationException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @RequestMapping(value = "/case/{caseUUID}/stage/{stageUUID}", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) throws EntityCreationException, EntityNotFoundException {
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -32,7 +32,7 @@ public class HocsFormService {
     }
 
 
-    public HocsForm getStageForm(String form){
+    public HocsForm getForm(String form){
         return forms.get(form);
     }
 

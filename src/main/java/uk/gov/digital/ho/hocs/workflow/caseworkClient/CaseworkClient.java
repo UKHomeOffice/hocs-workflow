@@ -85,19 +85,14 @@ public class CaseworkClient {
     }
 
 
-    public void updateStage(UUID caseUUID, UUID stageUUID, String screenName, Map<String,String> data) throws EntityCreationException {
-        log.info("Creating Screen: '{}' for Stage: '{}'", screenName, stageUUID);
-        if(caseUUID != null && stageUUID != null && screenName != null && data != null) {
-            CreateScreenRequest request = new CreateScreenRequest(screenName,data);
-            ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, new HttpEntity<>(request, createAuthHeaders()), Void.class);
+    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> data) throws EntityCreationException {
+        CwUpdateStageRequest request = new CwUpdateStageRequest(data);
+        ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, new HttpEntity<>(request, createAuthHeaders()), Void.class);
 
-            if(response.getStatusCodeValue() == 200) {
-                log.debug("Created Screen: '{}' for Stage: '{}'",screenName, stageUUID);
-            } else {
-                throw new EntityCreationException("Could not create screen; response: %s", response.getStatusCodeValue());
-            }
+        if(response.getStatusCodeValue() == 200) {
+            log.debug("Updated Stage: '{}'", stageUUID);
         } else {
-            throw new EntityCreationException("Could not create screen; caseUUID, stageUUID, screenName or data is null!");
+            throw new EntityCreationException("Could not create screen; response: %s", response.getStatusCodeValue());
         }
     }
 
