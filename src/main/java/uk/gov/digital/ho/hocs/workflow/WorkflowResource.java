@@ -42,28 +42,18 @@ class WorkflowResource {
 
     @RequestMapping(value = "/case/bulk", method = RequestMethod.POST, consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCaseBulk(@RequestBody CreateCaseWithDocumentsRequest request) {
-
         CaseType type = request.getCaseType();
         List<DocumentSummary> list = request.getDocuments();
         list.forEach( (document) -> {
-            try {
-                workflowService.createNewCase(type, document);
-            } catch (EntityCreationException | EntityNotFoundException e) {
-                e.printStackTrace();
-            }
+            workflowService.createNewCase(type, document);
         });
         return ResponseEntity.ok().build();
     }
 
     @RequestMapping(value = "/case/{caseUUID}/stage/{stageUUID}", method = RequestMethod.POST, produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> submitStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
-        try {
-            GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request.getData());
-            return ResponseEntity.ok(response);
-        } catch (EntityNotFoundException | EntityCreationException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+        GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request.getData());
+        return ResponseEntity.ok(response);
     }
 
     @RequestMapping(value = "/case/{caseUUID}/stage/{stageUUID}", method = RequestMethod.GET, produces = APPLICATION_JSON_UTF8_VALUE)

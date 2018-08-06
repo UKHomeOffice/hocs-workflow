@@ -51,7 +51,7 @@ public class WorkflowService implements JavaDelegate {
     public void execute(DelegateExecution execution){
     }
 
-    public void endStage(String caseUUIDString, String stageUUIDString) throws EntityCreationException {
+    public void endStage(String caseUUIDString, String stageUUIDString) {
         log.debug("######## Updating Stage ########");
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
@@ -62,7 +62,7 @@ public class WorkflowService implements JavaDelegate {
         log.debug("######## Updated Stage ########");
     }
 
-    public String beginStage(String caseUUIDString, String stageUUIDString, String stageType) throws EntityCreationException {
+    public String beginStage(String caseUUIDString, String stageUUIDString, String stageType) {
         log.debug("######## Creating Stage ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID;
@@ -81,11 +81,11 @@ public class WorkflowService implements JavaDelegate {
         return stageUUID.toString();
     }
 
-    CreateCaseResponse createNewCase(CaseType caseType, DocumentSummary documentSummary) throws EntityNotFoundException, EntityCreationException {
+    CreateCaseResponse createNewCase(CaseType caseType, DocumentSummary documentSummary) {
         return createNewCase(caseType, Collections.singletonList(documentSummary));
     }
 
-    CreateCaseResponse createNewCase(CaseType caseType, List<DocumentSummary> documents) throws EntityCreationException, EntityNotFoundException {
+    CreateCaseResponse createNewCase(CaseType caseType, List<DocumentSummary> documents) {
         if (caseType != null) {
 
             // Create a case in the casework service in order to get a UUID.
@@ -143,7 +143,7 @@ public class WorkflowService implements JavaDelegate {
        return hocsFormService.getForm(screenName);
     }
 
-    private void addDocument(UUID caseUUID, DocumentSummary document) throws EntityCreationException {
+    private void addDocument(UUID caseUUID, DocumentSummary document) {
 
         CwCreateDocumentResponse response = caseworkClient.addDocument(caseUUID, document.getDisplayName(), document.getType());
 

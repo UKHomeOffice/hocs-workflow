@@ -42,6 +42,7 @@ public class CaseworkClient {
     public CwCreateCaseResponse createCase(CaseType caseType) throws EntityCreationException {
         log.info("Creating a case: {}", caseType);
         if(caseType != null) {
+            // TODO: Wire in.
             CreateCaseRequest request = new CreateCaseRequest(caseType);
             ResponseEntity<CwCreateCaseResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case",  new HttpEntity<>(request, createAuthHeaders()), CwCreateCaseResponse.class);
             if(response.getStatusCodeValue() == 200) {
@@ -58,7 +59,7 @@ public class CaseworkClient {
     public CwCreateStageResponse createStage(UUID caseUUID, StageType stageType) throws EntityCreationException {
         log.info("Creating a stage for Case: '{}'  Type: '{}'", caseUUID, stageType);
         if(caseUUID != null && stageType != null) {
-            CreateStageRequest request = new CreateStageRequest(stageType, new HashMap<>());
+            CreateStageRequest request = new CreateStageRequest(stageType, UUID.randomUUID(), UUID.randomUUID(), new HashMap<>());
             ResponseEntity<CwCreateStageResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage" ,  new HttpEntity<>(request, createAuthHeaders()), CwCreateStageResponse.class);
             if(response.getStatusCodeValue() == 200) {
                 log.debug("Successfully created stage Case: '{}' Stage: '{}' Type: '{}'", caseUUID, response.getBody().getUuid(), stageType);
@@ -114,7 +115,9 @@ public class CaseworkClient {
     public void allocateStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
         log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
         if(caseUUID != null && stageUUID != null) {
-            ResponseEntity<Void> response = restTemplate.exchange(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/allocate", HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), Void.class);
+            // TODO: Wire in.
+            AllocateStageRequest request = new AllocateStageRequest(UUID.randomUUID(), UUID.randomUUID());
+            ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/allocate", new HttpEntity<>(request, createAuthHeaders()), Void.class);
 
             if(response.getStatusCodeValue() == 200) {
                 log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);

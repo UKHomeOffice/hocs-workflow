@@ -8,17 +8,11 @@ import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
-class CreateStageRequest {
-
-    @JsonProperty("type")
-    private StageType stageType;
+class AllocateStageRequest {
 
     @JsonProperty("teamUUID")
     private UUID teamUUID;
 
     @JsonProperty("userUUID")
     private UUID userUUID;
-
-    @JsonProperty("data")
-    private Map<String, String> stageData;
 }
