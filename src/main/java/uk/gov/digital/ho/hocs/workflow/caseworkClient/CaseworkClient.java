@@ -39,41 +39,33 @@ public class CaseworkClient {
         CASE_SERVICE_AUTH = caseworkBasicAuth;
     }
 
-    public CwCreateCaseResponse createCase(CaseType caseType) throws EntityCreationException {
+    public CwCreateCaseResponse createCase(CaseType caseType) {
         log.info("Creating a case: {}", caseType);
-        if(caseType != null) {
-            // TODO: Wire in.
-            CreateCaseRequest request = new CreateCaseRequest(caseType);
-            ResponseEntity<CwCreateCaseResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case",  new HttpEntity<>(request, createAuthHeaders()), CwCreateCaseResponse.class);
-            if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully created case: {}", caseType);
-                return response.getBody();
-            } else {
-                throw new EntityCreationException("Could not create case; response: %s ", response.getStatusCodeValue());
-            }
+        // TODO: Wire in.
+        CreateCaseRequest request = new CreateCaseRequest(caseType);
+        ResponseEntity<CwCreateCaseResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case",  new HttpEntity<>(request, createAuthHeaders()), CwCreateCaseResponse.class);
+        if(response.getStatusCodeValue() == 200) {
+            log.debug("Successfully created case: {}", caseType);
+            return response.getBody();
         } else {
-            throw new EntityCreationException("Could not create case; caseUUID or caseType is null!");
+            throw new EntityCreationException("Could not create case; response: %s ", response.getStatusCodeValue());
         }
     }
 
-    public CwCreateStageResponse createStage(UUID caseUUID, StageType stageType) throws EntityCreationException {
+    public CwCreateStageResponse createStage(UUID caseUUID, StageType stageType, UUID teamUUID, UUID userUUID) {
         log.info("Creating a stage for Case: '{}'  Type: '{}'", caseUUID, stageType);
-        if(caseUUID != null && stageType != null) {
-            CreateStageRequest request = new CreateStageRequest(stageType, UUID.randomUUID(), UUID.randomUUID(), new HashMap<>());
-            ResponseEntity<CwCreateStageResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage" ,  new HttpEntity<>(request, createAuthHeaders()), CwCreateStageResponse.class);
-            if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully created stage Case: '{}' Stage: '{}' Type: '{}'", caseUUID, response.getBody().getUuid(), stageType);
-                log.debug("************ Dev Shortcut /case/{}/stage/{}", caseUUID, response.getBody().getUuid());
-                return response.getBody();
-            } else {
-                throw new EntityCreationException("Could not create stage; response: %s", response.getStatusCodeValue());
-            }
+        CreateStageRequest request = new CreateStageRequest(stageType, teamUUID, userUUID, new HashMap<>());
+        ResponseEntity<CwCreateStageResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage" ,  new HttpEntity<>(request, createAuthHeaders()), CwCreateStageResponse.class);
+        if(response.getStatusCodeValue() == 200) {
+            log.debug("Successfully created stage Case: '{}' Stage: '{}' Type: '{}'", caseUUID, response.getBody().getUuid(), stageType);
+            log.debug("************ Dev Shortcut /case/{}/stage/{}", caseUUID, response.getBody().getUuid());
+            return response.getBody();
         } else {
-            throw new EntityCreationException("Could not create stage; caseUUID or caseType is null!");
+            throw new EntityCreationException("Could not create stage; response: %s", response.getStatusCodeValue());
         }
     }
 
-    public CwGetStageResponse getStage(UUID caseUUID, UUID stageUUID) throws EntityNotFoundException {
+    public CwGetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         log.info("Getting a Stage '{}' for Case: '{}'", stageUUID, caseUUID);
         ResponseEntity<CwGetStageResponse> response = restTemplate.exchange(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), CwGetStageResponse.class);
 
@@ -85,8 +77,7 @@ public class CaseworkClient {
         }
     }
 
-
-    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> data) throws EntityCreationException {
+    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> data) {
         CwUpdateStageRequest request = new CwUpdateStageRequest(data);
         ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, new HttpEntity<>(request, createAuthHeaders()), Void.class);
 
@@ -97,55 +88,50 @@ public class CaseworkClient {
         }
     }
 
-    public void completeStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
+    public void completeStage(UUID caseUUID, UUID stageUUID) {
         log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
-        if(caseUUID != null && stageUUID != null) {
-            ResponseEntity<Void> response = restTemplate.exchange(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/complete", HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), Void.class);
-
-            if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
-            } else {
-                throw new EntityCreationException("Could not update stage; response: %s", response.getStatusCodeValue());
-            }
+        ResponseEntity<Void> response = getWithAuth(String.format("/case/%s/stage/%s/complete", caseUUID, stageUUID), null, Void.class);
+        if(response.getStatusCodeValue() == 200) {
+            log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
         } else {
-            throw new EntityCreationException("Could not update stage; caseUUID or data is null!");
+            throw new EntityCreationException("Could not update stage; response: %s", response.getStatusCodeValue());
         }
     }
 
-    public void allocateStage(UUID caseUUID, UUID stageUUID) throws EntityCreationException {
-        log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
-        if(caseUUID != null && stageUUID != null) {
-            // TODO: Wire in.
-            AllocateStageRequest request = new AllocateStageRequest(UUID.randomUUID(), UUID.randomUUID());
-            ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID + "/allocate", new HttpEntity<>(request, createAuthHeaders()), Void.class);
+    public void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
+        log.info("Allocating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
+            AllocateStageRequest request = new AllocateStageRequest(teamUUID, userUUID);
+            ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/stage/%s/allocate", caseUUID, stageUUID), request, Void.class);
 
             if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
+                log.debug("Allocated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
             } else {
                 throw new EntityCreationException("Could not update stage; response: %s", response.getStatusCodeValue());
             }
-        } else {
-            throw new EntityCreationException("Could not update stage; caseUUID or data is null!");
-        }
     }
 
-    public CwCreateDocumentResponse addDocument(UUID caseUUID, String name, DocumentType type) throws EntityCreationException {
+    public CwCreateDocumentResponse addDocument(UUID caseUUID, String name, DocumentType type){
         log.info("Creating document for Case: '{}'", caseUUID);
-        if(caseUUID != null && name != null && type != null) {
-            CreateDocumentRequest request = new CreateDocumentRequest(name, type);
-            ResponseEntity<CwCreateDocumentResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/document",  new HttpEntity<>(request, createAuthHeaders()), CwCreateDocumentResponse.class);
-            if(response.getStatusCodeValue() == 200) {
-                log.debug("Successfully added Document: '{}' to Case: '{}'", response.getBody().getUuid(), caseUUID);
-                return response.getBody();
-            } else {
-                throw new EntityCreationException("Could not create document; response: %s", response.getStatusCodeValue());
-            }
+        CreateDocumentRequest request = new CreateDocumentRequest(name, type);
+        ResponseEntity<CwCreateDocumentResponse> response = postWithAuth(String.format("/case/%s/document", caseUUID), request, CwCreateDocumentResponse.class);
+        if(response.getStatusCodeValue() == 200) {
+            log.debug("Successfully added Document: '{}' to Case: '{}'", response.getBody().getUuid(), caseUUID);
+            return response.getBody();
         } else {
-            throw new EntityCreationException("Could not add document; caseUUID or caseType is null!");
+            throw new EntityCreationException("Could not create document; response: %s", response.getStatusCodeValue());
         }
+
     }
 
-    private  HttpHeaders createAuthHeaders() {
+    private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {
+        return restTemplate.postForEntity(String.format("%s%s", CASE_SERVICE, url), new HttpEntity<>(request, createAuthHeaders()), responseType);
+    }
+
+    private <T,R> ResponseEntity<R> getWithAuth(String url, T request, Class<R> responseType) {
+        return restTemplate.exchange(String.format("%s%s", CASE_SERVICE, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
+    }
+
+    private HttpHeaders createAuthHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add(AUTHORIZATION, caseworkBasicAuth());

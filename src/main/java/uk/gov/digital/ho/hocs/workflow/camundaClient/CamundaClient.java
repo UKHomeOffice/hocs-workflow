@@ -28,25 +28,33 @@ public class CamundaClient {
         this.taskService = taskService;
     }
 
-    public void startCase(UUID caseUUID, CaseType caseType) {
+    public void startCase(UUID caseUUID, CaseType caseType, Map<String,Object> seedData) {
         log.debug("Starting case bpmn:  Case: '{}' Type: '{}'", caseUUID, caseType);
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseType.toString(), caseUUID.toString(), new HashMap<>());
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseType.toString(), caseUUID.toString(), seedData);
         log.info("Started case bpmn: Case: '{}' Type: '{}' id: '{}'", caseUUID, caseType, processInstance.getId());
     }
 
     public String getScreenName(UUID stageUUID) {
         log.debug("Getting current screen for bpmn Stage: '{}'", stageUUID);
-        String screenName = getVariableName(stageUUID, "screen");
-        log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName);
-        return screenName;
+        ProcessInstance businessKeyInstance = runtimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(stageUUID.toString())
+                .singleResult();
+
+        if (businessKeyInstance != null) {
+            String screenName = getValueFromProcess(businessKeyInstance.getProcessInstanceId(), "screen");
+            log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName);
+            return screenName;
+        } else {
+            return "FINISH";
+        }
     }
 
-    public void updateStage(UUID stageUUID, Map<String,String> values) throws EntityNotFoundException {
+    public void updateStage(UUID stageUUID, Map<String,String> values) {
+        log.debug("Validating stage for bpmn Stage: '{}'", stageUUID);
 
         //TODO: REMOVE THIS DEMO CODE
         values.put("valid", "true");
 
-        log.debug("Validating stage for bpmn Stage: '{}'", stageUUID);
         Task task = taskService.createTaskQuery().processInstanceBusinessKey(stageUUID.toString()).singleResult();
 
         if(task != null) {
@@ -57,23 +65,26 @@ public class CamundaClient {
         }
     }
 
-    private String getVariableName(UUID businessKey, String key) throws EntityNotFoundException {
-        ProcessInstance businessKeyInstance = runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(businessKey.toString())
-                .singleResult();
+    public void allocateStage(UUID caseUUID, UUID teamUUID, UUID userUUID) {
+        log.debug("Allocating Case UUID: {} to User UUID: {} of Team UUID: {}", caseUUID, userUUID, teamUUID);
 
-        if (businessKeyInstance != null) {
-            return getValueFromProcess(businessKeyInstance.getProcessInstanceId(), key);
+        Task task = taskService.createTaskQuery().processInstanceBusinessKey(caseUUID.toString()).singleResult();
+
+        if(task != null) {
+            taskService.complete(task.getId(), new HashMap<>());
+            log.info("Allocated Case UUID: {} to User UUID: {} of Team UUID: {}", caseUUID, userUUID, teamUUID);
         } else {
-            return "FINISH";
+            throw new EntityNotFoundException("Failed to allocate Case UUID: %s, No tasks returned", caseUUID);
         }
     }
 
-    private String getValueFromProcess(String processInstanceId, String key) throws EntityNotFoundException {
+    private String getValueFromProcess(String processInstanceId, String key) {
         VariableInstance instance = runtimeService.createVariableInstanceQuery()
                 .processInstanceIdIn(processInstanceId)
                 .variableName(key)
                 .singleResult();
+
+        //runtimeService.
 
         if (instance != null) {
             String value = (String) instance.getValue();

@@ -9,7 +9,6 @@ import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
-import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
@@ -19,11 +18,8 @@ import java.util.*;
 @Slf4j
 public class WorkflowService implements JavaDelegate {
 
+    // TODO: this should be in the list service
     private static List<WorkflowType> caseTypeDetails = new ArrayList<>();
-
-    private final CaseworkClient caseworkClient;
-    private final CamundaClient camundaClient;
-    private final HocsFormService hocsFormService;
 
     static {
         caseTypeDetails.add(new WorkflowType("DCU MIN", CaseType.MIN.toString()));
@@ -31,6 +27,10 @@ public class WorkflowService implements JavaDelegate {
         caseTypeDetails.add(new WorkflowType("DCU DTEN", CaseType.DTEN.toString()));
         caseTypeDetails.add(new WorkflowType("UKVI BREF", CaseType.BREF.toString()));
     }
+
+    private final CaseworkClient caseworkClient;
+    private final CamundaClient camundaClient;
+    private final HocsFormService hocsFormService;
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient, CamundaClient camundaClient, HocsFormService hocsFormService) {
@@ -51,102 +51,92 @@ public class WorkflowService implements JavaDelegate {
     public void execute(DelegateExecution execution){
     }
 
-    public void endStage(String caseUUIDString, String stageUUIDString) {
-        log.debug("######## Updating Stage ########");
+    public CreateCaseResponse createCase(CaseType caseType, List<DocumentSummary> documents) {
+        // Create a case in the casework service in order to get a UUID.
+        CwCreateCaseResponse caseResponse = caseworkClient.createCase(caseType);
+        UUID caseUUID = caseResponse.getUuid();
 
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID = UUID.fromString(stageUUIDString);
-
-        // Finish the stage.
-        caseworkClient.completeStage(caseUUID, stageUUID);
-        log.debug("######## Updated Stage ########");
+        if (caseUUID != null) {
+            // Start a new case level workflow (caseUUID is the business key).
+            Map<String, Object> seedData = new HashMap<>();
+            seedData.put("MarkupStageTeamUUID", "11111111-1111-1111-1111-111111111111");
+            seedData.put("TCStageTeamUUID", "33333333-3333-3333-3333-333333333333");
+            camundaClient.startCase(caseUUID, caseType, seedData);
+            if(documents != null) {
+                // Add any Documents to the case
+                for (DocumentSummary document : documents) {
+                    CwCreateDocumentResponse response = caseworkClient.addDocument(caseUUID, document.getDisplayName(), document.getType());
+                    //TODO: post to queue (response.getUuid(), documentSummary.getS3UntrustedUrl());
+                }
+            }
+        } else {
+            throw new EntityCreationException("Failed to start case, invalid caseUUID!");
+        }
+        return new CreateCaseResponse(caseUUID,caseResponse.getReference());
     }
 
-    public String beginStage(String caseUUIDString, String stageUUIDString, String stageType) {
+    public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
         log.debug("######## Creating Stage ########");
+
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID;
+        UUID teamUUID = null;
+        UUID userUUID = null;
 
-        if(stageUUIDString == null) {
-            // Create a stage in the casework service in order to get a UUID.
-            CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType));
-            stageUUID = stageResponse.getUuid();
-
-        } else {
-            stageUUID = UUID.fromString(stageUUIDString);
-            caseworkClient.allocateStage(caseUUID, stageUUID);
+        if(teamUUIDString != null) {
+            teamUUID = UUID.fromString(teamUUIDString);
+        }
+        if(userUUIDString != null) {
+            userUUID = UUID.fromString(userUUIDString);
         }
 
+        if(stageUUIDString != null) {
+            // Otherwise just allocate the stage.
+            stageUUID = UUID.fromString(stageUUIDString);
+
+            caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
+        } else {
+            // Create a stage in the casework service in order to get a UUID.
+            CwCreateStageResponse stageResponse = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID);
+            stageUUID = stageResponse.getUuid();
+        }
         log.debug("######## Created Stage ########");
         return stageUUID.toString();
     }
 
-    CreateCaseResponse createNewCase(CaseType caseType, DocumentSummary documentSummary) {
-        return createNewCase(caseType, Collections.singletonList(documentSummary));
-    }
-
-    CreateCaseResponse createNewCase(CaseType caseType, List<DocumentSummary> documents) {
-        if (caseType != null) {
-
-            // Create a case in the casework service in order to get a UUID.
-            CwCreateCaseResponse caseResponse = caseworkClient.createCase(caseType);
-            UUID caseUUID = caseResponse.getUuid();
-
-            if (caseUUID != null) {
-
-                // Add any Documents to the case
-                if(documents != null) {
-                    for (DocumentSummary document : documents) {
-                        addDocument(caseUUID, document);
-                    }
-                }
-
-                // Start a new case level workflow (caseUUID is the business key).
-                camundaClient.startCase(caseUUID, caseType);
-
-            } else {
-                throw new EntityCreationException("Failed to start case, invalid caseUUID!");
-
-                // TODO: if this fails we should tidy up here.
-            }
-
-            return new CreateCaseResponse(caseUUID,caseResponse.getReference());
-        } else {
-            throw new EntityCreationException("Failed to create case, invalid caseType!");
-        }
-    }
-
-    GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
-        // TODO: permission check (active stage userID? TeamID ?)
-        CwGetStageResponse response = caseworkClient.getStage(caseUUID, stageUUID);
-        HocsForm form = getFormForStage(stageUUID);
+    public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
+        String screenName = camundaClient.getScreenName(stageUUID);
+        // TODO: replace Hocs form service with calls to list service.
+        HocsForm form = hocsFormService.getForm(screenName);
+        // If the stage is complete we have form as null.
         if(form != null) {
-            // If the stage is finished we have no form.
+            // TODO: permission check (active stage userID? TeamID ?)
+            CwGetStageResponse response = caseworkClient.getStage(caseUUID, stageUUID);
             form.setData(response.getData());
+            return new GetStageResponse(stageUUID, response.getCaseReference(), form);
         }
-        return new GetStageResponse(stageUUID,response.getCaseReference(), form);
+        else {
+            return new GetStageResponse(stageUUID, null, null);
+        }
     }
 
-    GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> values){
+    public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> values){
         // TODO: permission check (active stage userID? TeamID ?)
-        log.debug("Updating Case: '{}', Stage: '{}'", caseUUID, stageUUID);
-
-        //TODO: validate Form
+        // TODO: validate Form
         caseworkClient.updateStage(caseUUID,stageUUID, values);
         camundaClient.updateStage(stageUUID, values);
 
         return getStage(caseUUID, stageUUID);
     }
 
-    private HocsForm getFormForStage(UUID stageUUID) {
-        String screenName = camundaClient.getScreenName(stageUUID);
-       return hocsFormService.getForm(screenName);
+    public void completeStage(String caseUUIDString, String stageUUIDString) {
+        log.debug("######## Updating Stage ########");
+        caseworkClient.completeStage(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString));
+        log.debug("######## Updated Stage ########");
     }
 
-    private void addDocument(UUID caseUUID, DocumentSummary document) {
-
-        CwCreateDocumentResponse response = caseworkClient.addDocument(caseUUID, document.getDisplayName(), document.getType());
-
-        //TODO: post to queue (response.getUuid(), documentSummary.getS3UntrustedUrl());
+    public void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
+        camundaClient.allocateStage(caseUUID, teamUUID, userUUID);
+        caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
     }
 }
