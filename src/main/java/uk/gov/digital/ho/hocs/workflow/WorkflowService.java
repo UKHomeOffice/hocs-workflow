@@ -25,7 +25,7 @@ public class WorkflowService implements JavaDelegate {
         caseTypeDetails.add(new WorkflowType("DCU MIN", CaseType.MIN.toString()));
         caseTypeDetails.add(new WorkflowType("DCU TRO", CaseType.TRO.toString()));
         caseTypeDetails.add(new WorkflowType("DCU DTEN", CaseType.DTEN.toString()));
-        caseTypeDetails.add(new WorkflowType("UKVI BREF", CaseType.BREF.toString()));
+      //  caseTypeDetails.add(new WorkflowType("UKVI BREF", CaseType.BREF.toString()));
     }
 
     private final CaseworkClient caseworkClient;
@@ -59,8 +59,12 @@ public class WorkflowService implements JavaDelegate {
         if (caseUUID != null) {
             // Start a new case level workflow (caseUUID is the business key).
             Map<String, Object> seedData = new HashMap<>();
-            seedData.put("MarkupStageTeamUUID", "11111111-1111-1111-1111-111111111111");
-            seedData.put("TCStageTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("DataInputTeamUUID", "22222222-2222-2222-2222-222222222222");
+            seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
+            seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
+            seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
             camundaClient.startCase(caseUUID, caseType, seedData);
             if(documents != null) {
                 // Add any Documents to the case

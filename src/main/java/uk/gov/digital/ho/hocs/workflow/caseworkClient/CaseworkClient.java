@@ -90,7 +90,7 @@ public class CaseworkClient {
 
     public void completeStage(UUID caseUUID, UUID stageUUID) {
         log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
-        ResponseEntity<Void> response = getWithAuth(String.format("/case/%s/stage/%s/complete", caseUUID, stageUUID), null, Void.class);
+        ResponseEntity<Void> response = getWithAuth(String.format("/stage/%s/complete", stageUUID), null, Void.class);
         if(response.getStatusCodeValue() == 200) {
             log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
         } else {
@@ -124,10 +124,12 @@ public class CaseworkClient {
     }
 
     private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {
+        String testURL = String.format("%s%s", CASE_SERVICE, url);
         return restTemplate.postForEntity(String.format("%s%s", CASE_SERVICE, url), new HttpEntity<>(request, createAuthHeaders()), responseType);
     }
 
     private <T,R> ResponseEntity<R> getWithAuth(String url, T request, Class<R> responseType) {
+        String testURL = String.format("%s%s", CASE_SERVICE, url);
         return restTemplate.exchange(String.format("%s%s", CASE_SERVICE, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
     }
 

@@ -54,6 +54,7 @@ public class CamundaClient {
 
         //TODO: REMOVE THIS DEMO CODE
         values.put("valid", "true");
+        values.put("anotherTopic", "false");
 
         Task task = taskService.createTaskQuery().processInstanceBusinessKey(stageUUID.toString()).singleResult();
 
