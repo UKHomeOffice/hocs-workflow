@@ -9,9 +9,12 @@ import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoDeadlines;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -29,12 +32,14 @@ public class WorkflowService implements JavaDelegate {
     }
 
     private final CaseworkClient caseworkClient;
+    private final InfoClient infoClient;
     private final CamundaClient camundaClient;
     private final HocsFormService hocsFormService;
 
     @Autowired
-    public WorkflowService(CaseworkClient caseworkClient, CamundaClient camundaClient, HocsFormService hocsFormService) {
+    public WorkflowService(CaseworkClient caseworkClient, InfoClient infoClient, CamundaClient camundaClient, HocsFormService hocsFormService) {
         this.caseworkClient = caseworkClient;
+        this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.hocsFormService = hocsFormService;
     }
@@ -77,6 +82,17 @@ public class WorkflowService implements JavaDelegate {
             throw new EntityCreationException("Failed to start case, invalid caseUUID!");
         }
         return new CreateCaseResponse(caseUUID,caseResponse.getReference());
+    }
+
+    public void calculateDeadlines(String caseUUIDString,String caseTypeString) {
+        log.debug("######## Calculating Deadlines ########");
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        LocalDate now = LocalDate.now();
+        CaseType caseType = CaseType.valueOf(caseTypeString);
+        Set<InfoDeadlines> deadlines = infoClient.getDeadlines(caseType, now);
+        caseworkClient.setDeadlines(caseUUID, deadlines);
+
+        log.debug("######## Created Stage ########");
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {

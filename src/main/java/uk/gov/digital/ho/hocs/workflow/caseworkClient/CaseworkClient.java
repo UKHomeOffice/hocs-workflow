@@ -12,15 +12,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoDeadlines;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 import uk.gov.digital.ho.hocs.workflow.model.DocumentType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.nio.charset.Charset;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -108,6 +106,18 @@ public class CaseworkClient {
             } else {
                 throw new EntityCreationException("Could not update stage; response: %s", response.getStatusCodeValue());
             }
+    }
+
+    public void setDeadlines(UUID caseUUID, Set<InfoDeadlines> deadlines) {
+        log.info("Setting Deadlines for Case: '{}'", caseUUID);
+        UpdateDeadlinesRequest request = new UpdateDeadlinesRequest(deadlines);
+        ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/deadline", caseUUID), request, Void.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.debug("Set Deadlines for Case: '{}'", caseUUID);
+        } else {
+            throw new EntityCreationException("Could not set deadlines for case; response: %s", response.getStatusCodeValue());
+        }
     }
 
     public CwCreateDocumentResponse addDocument(UUID caseUUID, String name, DocumentType type){

@@ -12,9 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-
 
 @RestController
 @Slf4j
@@ -40,13 +38,13 @@ class WorkflowResource {
     }
 
     @PostMapping(value = "/case/bulk", consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CreateCaseResponse> createCaseBulk(@RequestBody CreateCaseWithDocumentsRequest request) {
+    public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseWithDocumentsRequest request) {
         CaseType type = request.getCaseType();
         List<DocumentSummary> list = request.getDocuments();
         list.forEach( (documentSummary) -> {
             workflowService.createCase(type, Collections.singletonList(documentSummary));
         });
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }
 
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
