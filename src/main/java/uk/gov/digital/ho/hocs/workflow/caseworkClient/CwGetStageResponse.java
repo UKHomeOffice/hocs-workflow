@@ -19,5 +19,7 @@ public class CwGetStageResponse {
     @JsonProperty("uuid")
     private UUID uuid;
 
+    @JsonProperty("caseReference")
+    private String caseReference;
 
 }

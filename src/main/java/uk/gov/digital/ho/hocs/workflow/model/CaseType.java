@@ -3,16 +3,16 @@ package uk.gov.digital.ho.hocs.workflow.model;
 import lombok.Getter;
 
 public enum CaseType {
-    RSH(0),
-    MIN(1),
-    TRO(2),
-    DTEN(3),
-    BREF(4);
+    RSH("WR Response"),
+    MIN("Ministerial"),
+    TRO("Treat Official"),
+    DTEN("Number 10");
 
     @Getter
-    private int numVal;
+    private String displayValue;
 
-    CaseType(int numVal) {
-        this.numVal = numVal;
+    CaseType(String value) {
+        displayValue = value;
     }
 }
+

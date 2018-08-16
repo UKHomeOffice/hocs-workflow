@@ -8,6 +8,8 @@ import java.util.Map;
 
 @AllArgsConstructor
 @Getter
-public class UpdateStageRequest {
+public class CwUpdateStageRequest {
 
+    @JsonProperty("data")
+    private Map<String, String> data;
 }

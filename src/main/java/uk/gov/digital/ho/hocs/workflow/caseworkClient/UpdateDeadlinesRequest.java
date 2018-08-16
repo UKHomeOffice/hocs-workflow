@@ -4,13 +4,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoDeadlines;
 
-import java.util.Map;
+import java.util.Set;
 
 @AllArgsConstructor
 @Getter
-public class CreateScreenRequest {
+public class UpdateDeadlinesRequest {
 
-    @JsonProperty("data")
-    private Map<String, String> data;
+    @JsonProperty("deadlines")
+    private Set<InfoDeadlines> deadlines;
+
+
 }

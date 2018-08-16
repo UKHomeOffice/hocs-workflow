@@ -4,8 +4,8 @@
     <bpmn:startEvent id="DCU_MIN_MARKUP_START" name="Start Markup Stage">
       <bpmn:outgoing>FromStart_ToInitial</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="FromInitial_ToValidateInitial" sourceRef="INITIAL_DECISION" targetRef="VALIDATE_INITIAL_DECISION" />
-    <bpmn:serviceTask id="INITIAL_DECISION" name="Initial Decision" camunda:expression="INITIAL_DECISION" camunda:resultVariable="screen">
+    <bpmn:sequenceFlow id="FromInitial_ToValidateInitial" sourceRef="MARKUP_DECISION" targetRef="VALIDATE_MARKUP_DECISION" />
+    <bpmn:serviceTask id="MARKUP_DECISION" name="Markup Decision" camunda:expression="MARKUP_DECISION" camunda:resultVariable="screen">
       <bpmn:incoming>FromGatewayValidateInitial_ToInitialDecision</bpmn:incoming>
       <bpmn:incoming>FromStart_ToInitial</bpmn:incoming>
       <bpmn:outgoing>FromInitial_ToValidateInitial</bpmn:outgoing>
@@ -15,14 +15,14 @@
       <bpmn:outgoing>FromGatewayValidateInitial_ToInitialDecision</bpmn:outgoing>
       <bpmn:outgoing>FromGatewayValidateInitial_ToGatewayDecisionInitial</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="FromGatewayValidateInitial_ToInitialDecision" sourceRef="GatewayValidateInitial" targetRef="INITIAL_DECISION">
+    <bpmn:sequenceFlow id="FromGatewayValidateInitial_ToInitialDecision" sourceRef="GatewayValidateInitial" targetRef="MARKUP_DECISION">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="FromGatewayValidateInitial_ToGatewayDecisionInitial" sourceRef="GatewayValidateInitial" targetRef="GatewayDecisionInitial">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="FromValidateInital_ToGatewayValidateInitial" sourceRef="VALIDATE_INITIAL_DECISION" targetRef="GatewayValidateInitial" />
-    <bpmn:userTask id="VALIDATE_INITIAL_DECISION" name="Validate Initial Decision">
+    <bpmn:sequenceFlow id="FromValidateInital_ToGatewayValidateInitial" sourceRef="VALIDATE_MARKUP_DECISION" targetRef="GatewayValidateInitial" />
+    <bpmn:userTask id="VALIDATE_MARKUP_DECISION" name="Validate Markup Decision">
       <bpmn:incoming>FromInitial_ToValidateInitial</bpmn:incoming>
       <bpmn:outgoing>FromValidateInital_ToGatewayValidateInitial</bpmn:outgoing>
     </bpmn:userTask>
@@ -32,7 +32,7 @@
       <bpmn:outgoing>SequenceFlow_0ovfo59</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="ToGatewayDecisionInitial_ToDcuOgdEnd" sourceRef="GatewayDecisionInitial" targetRef="ALLOCATION_NOTE">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${InitialDecision == "OGD" || InitialDecision == "NRN"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MarkupDecision == "OGD" || MarkupDecision == "NRN"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ALLOCATION_NOTE" name="Allocation Note" camunda:expression="ALLOCATION_NOTE" camunda:resultVariable="screen">
       <bpmn:incoming>ToGatewayDecisionInitial_ToDcuOgdEnd</bpmn:incoming>
@@ -55,12 +55,12 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0ovfo59" sourceRef="GatewayDecisionInitial" targetRef="DEADLINES">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${InitialDecision == "PR" || InitialDecision == "FAQ"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MarkupDecision == "PR" || MarkupDecision == "FAQ"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="FromGatewayValidateAllocationNote_ToEnd" sourceRef="GatewayValidateAllocationNote" targetRef="DCU_MIN_MARKUP_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="FromStart_ToInitial" sourceRef="DCU_MIN_MARKUP_START" targetRef="INITIAL_DECISION" />
+    <bpmn:sequenceFlow id="FromStart_ToInitial" sourceRef="DCU_MIN_MARKUP_START" targetRef="MARKUP_DECISION" />
     <bpmn:serviceTask id="DEADLINES" name="Deadlines" camunda:expression="DEADLINES" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_1aixugt</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0ovfo59</bpmn:incoming>
@@ -163,7 +163,7 @@
           <dc:Bounds x="366" y="95" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_10h02e2_di" bpmnElement="INITIAL_DECISION">
+      <bpmndi:BPMNShape id="ServiceTask_10h02e2_di" bpmnElement="MARKUP_DECISION">
         <dc:Bounds x="343" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1w8xy67_di" bpmnElement="GatewayValidateInitial" isMarkerVisible="true">
@@ -183,7 +183,7 @@
         <di:waypoint x="607" y="293" />
         <di:waypoint x="607" y="232" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="UserTask_0yqbmpc_di" bpmnElement="VALIDATE_INITIAL_DECISION">
+      <bpmndi:BPMNShape id="UserTask_0yqbmpc_di" bpmnElement="VALIDATE_MARKUP_DECISION">
         <dc:Bounds x="343" y="254" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_17vu7s0_di" bpmnElement="GatewayDecisionInitial" isMarkerVisible="true">
