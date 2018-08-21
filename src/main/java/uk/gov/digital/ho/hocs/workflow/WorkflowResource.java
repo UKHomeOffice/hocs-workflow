@@ -33,7 +33,7 @@ class WorkflowResource {
 
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request) {
-        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDocuments());
+        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments());
         return ResponseEntity.ok(response);
     }
 
@@ -42,7 +42,7 @@ class WorkflowResource {
         CaseType type = request.getCaseType();
         List<DocumentSummary> list = request.getDocuments();
         list.forEach( (documentSummary) -> {
-            workflowService.createCase(type, Collections.singletonList(documentSummary));
+            workflowService.createCase(type, request.getDateReceived(), Collections.singletonList(documentSummary));
         });
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @AllArgsConstructor
@@ -15,6 +16,9 @@ public class CreateCaseWithDocumentsRequest {
 
     @JsonProperty("type")
     private CaseType caseType;
+
+    @JsonProperty("dateReceived")
+    private LocalDate dateReceived;
 
     @JsonProperty("documents")
     private List<DocumentSummary> documents;

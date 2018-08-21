@@ -56,14 +56,16 @@ public class WorkflowService implements JavaDelegate {
     public void execute(DelegateExecution execution){
     }
 
-    public CreateCaseResponse createCase(CaseType caseType, List<DocumentSummary> documents) {
+    public CreateCaseResponse createCase(CaseType caseType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a UUID.
-        CwCreateCaseResponse caseResponse = caseworkClient.createCase(caseType);
+        CwCreateCaseResponse caseResponse = caseworkClient.createCase(caseType, dateReceived);
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
             // Start a new case level workflow (caseUUID is the business key).
             Map<String, Object> seedData = new HashMap<>();
+            seedData.put("DateReceived", dateReceived);
+
             seedData.put("DataInputTeamUUID", "22222222-2222-2222-2222-222222222222");
             seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
             seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
@@ -84,14 +86,13 @@ public class WorkflowService implements JavaDelegate {
         return new CreateCaseResponse(caseUUID,caseResponse.getReference());
     }
 
-    public void calculateDeadlines(String caseUUIDString,String caseTypeString) {
+    public void calculateDeadlines(String caseUUIDString,String caseTypeString, String dateReceivedString) {
         log.debug("######## Calculating Deadlines ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
-        LocalDate now = LocalDate.now();
+        LocalDate now = LocalDate.parse(dateReceivedString);
         CaseType caseType = CaseType.valueOf(caseTypeString);
         Set<InfoDeadlines> deadlines = infoClient.getDeadlines(caseType, now);
         caseworkClient.setDeadlines(caseUUID, deadlines);
-
         log.debug("######## Created Stage ########");
     }
 
