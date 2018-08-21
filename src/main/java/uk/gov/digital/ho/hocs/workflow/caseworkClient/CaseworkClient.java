@@ -18,6 +18,7 @@ import uk.gov.digital.ho.hocs.workflow.model.DocumentType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -37,10 +38,9 @@ public class CaseworkClient {
         CASE_SERVICE_AUTH = caseworkBasicAuth;
     }
 
-    public CwCreateCaseResponse createCase(CaseType caseType) {
+    public CwCreateCaseResponse createCase(CaseType caseType, LocalDate dateReceived) {
         log.info("Creating a case: {}", caseType);
-        // TODO: Wire in.
-        CreateCaseRequest request = new CreateCaseRequest(caseType);
+        CreateCaseRequest request = new CreateCaseRequest(caseType, dateReceived);
         ResponseEntity<CwCreateCaseResponse> response = restTemplate.postForEntity(CASE_SERVICE + "/case",  new HttpEntity<>(request, createAuthHeaders()), CwCreateCaseResponse.class);
         if(response.getStatusCodeValue() == 200) {
             log.debug("Successfully created case: {}", caseType);
@@ -77,7 +77,7 @@ public class CaseworkClient {
 
     public void updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> data) {
         CwUpdateStageRequest request = new CwUpdateStageRequest(data);
-        ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/stage/" + stageUUID, new HttpEntity<>(request, createAuthHeaders()), Void.class);
+        ResponseEntity<Void> response = restTemplate.postForEntity(CASE_SERVICE + "/case/" + caseUUID + "/input", new HttpEntity<>(request, createAuthHeaders()), Void.class);
 
         if(response.getStatusCodeValue() == 200) {
             log.debug("Updated Stage: '{}'", stageUUID);
@@ -88,7 +88,7 @@ public class CaseworkClient {
 
     public void completeStage(UUID caseUUID, UUID stageUUID) {
         log.info("Updating Stage: '{}' for Case: '{}'", stageUUID, caseUUID);
-        ResponseEntity<Void> response = getWithAuth(String.format("/stage/%s/complete", stageUUID), null, Void.class);
+        ResponseEntity<Void> response = getWithAuth(String.format("/case/%s/stage/%s/complete", caseUUID, stageUUID), null, Void.class);
         if(response.getStatusCodeValue() == 200) {
             log.debug("Successfully updated Stage: '{}' for Case: '{}'",stageUUID, caseUUID);
         } else {
@@ -134,12 +134,10 @@ public class CaseworkClient {
     }
 
     private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {
-        String testURL = String.format("%s%s", CASE_SERVICE, url);
         return restTemplate.postForEntity(String.format("%s%s", CASE_SERVICE, url), new HttpEntity<>(request, createAuthHeaders()), responseType);
     }
 
     private <T,R> ResponseEntity<R> getWithAuth(String url, T request, Class<R> responseType) {
-        String testURL = String.format("%s%s", CASE_SERVICE, url);
         return restTemplate.exchange(String.format("%s%s", CASE_SERVICE, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
     }
 
