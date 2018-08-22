@@ -22,6 +22,8 @@ public class HocsFormService {
 
         // DCU
         forms.put("DCU_DATA_INPUT", getDataInput());
+        forms.put("DCU_CORRESPONDENT", getCorrespondent());
+
         forms.put("MARKUP_DECISION", getMarkupDecision());
         forms.put("TOPICS", getTopics());
         forms.put("TRANSFER_CONFIRMATION", getTransferConfirmation());
@@ -51,8 +53,8 @@ public class HocsFormService {
         HocsFormField fieldOne = new HocsFormField("date", validationList, properties1);
 
         Map<String,Object> properties2 = new HashMap<>();
-        properties2.put("name", "DateOfLetter");
-        properties2.put("label", "Date Of Letter");
+        properties2.put("name", "DateOfCorrespondence");
+        properties2.put("label", "Date of Correspondence");
 
         HocsFormField fieldTwo = new HocsFormField("date", validationList, properties2);
 
@@ -88,8 +90,56 @@ public class HocsFormService {
 
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
-        formFields.add(fieldOne);
         formFields.add(fieldTwo);
+        formFields.add(fieldOne);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Data Input", "Next", formFields);
+
+        HocsForm form1 = new HocsForm(schema1, "");
+
+        return form1;
+    }
+
+    private HocsForm getCorrespondent() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String,String> choice7 = new HashMap<>();
+        choice7.put("label", "Send Copy To Number 10");
+        choice7.put("value", "SendCopy");
+
+        List<Map<String, String>> choices7 = new ArrayList<>();
+        choices7.add(choice7);
+
+        Map<String,Object> properties7 = new HashMap<>();
+        properties7.put("name", "NumberTen");
+        properties7.put("label", "Number 10");
+        properties7.put("choices", choices7);
+
+        HocsFormField fieldSeven = new HocsFormField("checkbox", validationList, properties7);
+
+        Map<String,Object> properties8 = new HashMap<>();
+        properties8.put("name", "Correspondents");
+        properties8.put("label", "Correspondent");
+        properties8.put("action", "CORRESPONDENT");
+        properties8.put("hasRemoveLink", true);
+        properties8.put("hasAddLink", true);
+
+        HocsFormField fieldEight = new HocsFormField("entity-list", new ArrayList<>(), properties8);
+
+        Map<String,Object> properties9 = new HashMap<>();
+        properties9.put("name", "References");
+        properties9.put("label", "Reference");
+        properties9.put("action", "REFERENCE");
+        properties9.put("hasRemoveLink", true);
+        properties9.put("hasAddLink", true);
+
+        HocsFormField fieldNine = new HocsFormField("entity-list", validationList, properties9);
+
+        List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldSeven);
+        formFields.add(fieldEight);
+        formFields.add(fieldNine);
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Data Input", "Finish", formFields);
 
