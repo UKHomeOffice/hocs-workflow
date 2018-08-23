@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public class InfoDeadlines {
 
-    @JsonProperty("deadlineDate")
+    @JsonProperty("date")
     private LocalDate date;
 
     @JsonProperty("type")
