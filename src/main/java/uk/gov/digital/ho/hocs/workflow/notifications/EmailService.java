@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.Notifications;
+package uk.gov.digital.ho.hocs.workflow.notifications;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

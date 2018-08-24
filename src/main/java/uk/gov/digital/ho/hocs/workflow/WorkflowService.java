@@ -5,7 +5,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.ho.hocs.workflow.Notifications.EmailService;
+import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.dto.CreateCaseResponse;
@@ -172,7 +172,7 @@ public class WorkflowService implements JavaDelegate {
     public void sendEmail(String caseUUIDString, String stageUUIDString, String teamUUIDString, String emailType) throws NotificationClientException {
         log.debug("######## Sending Reject Email ########");
         String templateId = "50223419-1fba-4651-93e2-e03613c4a128";
-        String link = "http//www.google.co.uk";
+        String link = "https://www.google.co.uk";
 
         Set<InfoNominatedPeople> nominatedPeopleSet = infoClient.getNominatedPeople(UUID.fromString(teamUUIDString));
 
