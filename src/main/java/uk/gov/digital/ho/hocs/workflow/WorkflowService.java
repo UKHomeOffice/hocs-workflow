@@ -5,14 +5,21 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.ho.hocs.workflow.Notifications.EmailService;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
-import uk.gov.digital.ho.hocs.workflow.dto.*;
+import uk.gov.digital.ho.hocs.workflow.dto.CreateCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.dto.DocumentSummary;
+import uk.gov.digital.ho.hocs.workflow.dto.GetStageResponse;
+import uk.gov.digital.ho.hocs.workflow.dto.WorkflowType;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoDeadlines;
-import uk.gov.digital.ho.hocs.workflow.model.*;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoNominatedPeople;
+import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.StageType;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
+import uk.gov.service.notify.NotificationClientException;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -28,24 +35,26 @@ public class WorkflowService implements JavaDelegate {
         caseTypeDetails.add(new WorkflowType("DCU MIN", CaseType.MIN.toString()));
         caseTypeDetails.add(new WorkflowType("DCU TRO", CaseType.TRO.toString()));
         caseTypeDetails.add(new WorkflowType("DCU DTEN", CaseType.DTEN.toString()));
-      //  caseTypeDetails.add(new WorkflowType("UKVI BREF", CaseType.BREF.toString()));
+        //  caseTypeDetails.add(new WorkflowType("UKVI BREF", CaseType.BREF.toString()));
     }
 
     private final CaseworkClient caseworkClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
     private final HocsFormService hocsFormService;
+    private final EmailService emailService;
 
     @Autowired
-    public WorkflowService(CaseworkClient caseworkClient, InfoClient infoClient, CamundaClient camundaClient, HocsFormService hocsFormService) {
+    public WorkflowService(CaseworkClient caseworkClient, InfoClient infoClient, CamundaClient camundaClient, HocsFormService hocsFormService, EmailService emailService) {
         this.caseworkClient = caseworkClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.hocsFormService = hocsFormService;
+        this.emailService = emailService;
     }
 
     List<WorkflowType> getAllWorkflowTypes() {
-        if(caseTypeDetails != null && !caseTypeDetails.isEmpty()){
+        if (caseTypeDetails != null && !caseTypeDetails.isEmpty()) {
             return caseTypeDetails;
         } else {
             return new ArrayList<>();
@@ -53,7 +62,7 @@ public class WorkflowService implements JavaDelegate {
     }
 
     @Override
-    public void execute(DelegateExecution execution){
+    public void execute(DelegateExecution execution) {
     }
 
     public CreateCaseResponse createCase(CaseType caseType, LocalDate dateReceived, List<DocumentSummary> documents) {
@@ -66,14 +75,14 @@ public class WorkflowService implements JavaDelegate {
             Map<String, Object> seedData = new HashMap<>();
             seedData.put("DateReceived", dateReceived);
 
-            seedData.put("DataInputTeamUUID", "22222222-2222-2222-2222-222222222222");
+            seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
             seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
             seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
             seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
             seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
             seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
             camundaClient.startCase(caseUUID, caseType, seedData);
-            if(documents != null) {
+            if (documents != null) {
                 // Add any Documents to the case
                 for (DocumentSummary document : documents) {
                     CwCreateDocumentResponse response = caseworkClient.addDocument(caseUUID, document.getDisplayName(), document.getType());
@@ -83,10 +92,10 @@ public class WorkflowService implements JavaDelegate {
         } else {
             throw new EntityCreationException("Failed to start case, invalid caseUUID!");
         }
-        return new CreateCaseResponse(caseUUID,caseResponse.getReference());
+        return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    public void calculateDeadlines(String caseUUIDString,String caseTypeString, String dateReceivedString) {
+    public void calculateDeadlines(String caseUUIDString, String caseTypeString, String dateReceivedString) {
         log.debug("######## Calculating Deadlines ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
         LocalDate now = LocalDate.parse(dateReceivedString);
@@ -104,14 +113,14 @@ public class WorkflowService implements JavaDelegate {
         UUID teamUUID = null;
         UUID userUUID = null;
 
-        if(teamUUIDString != null) {
+        if (teamUUIDString != null) {
             teamUUID = UUID.fromString(teamUUIDString);
         }
-        if(userUUIDString != null) {
+        if (userUUIDString != null) {
             userUUID = UUID.fromString(userUUIDString);
         }
 
-        if(stageUUIDString != null) {
+        if (stageUUIDString != null) {
             // Otherwise just allocate the stage.
             stageUUID = UUID.fromString(stageUUIDString);
 
@@ -130,21 +139,20 @@ public class WorkflowService implements JavaDelegate {
         // TODO: replace Hocs form service with calls to list service.
         HocsForm form = hocsFormService.getForm(screenName);
         // If the stage is complete we have form as null.
-        if(form != null) {
+        if (form != null) {
             // TODO: permission check (active stage userID? TeamID ?)
             CwGetStageResponse response = caseworkClient.getStage(caseUUID, stageUUID);
             form.setData(response.getData());
             return new GetStageResponse(stageUUID, response.getCaseReference(), form);
-        }
-        else {
+        } else {
             return new GetStageResponse(stageUUID, null, null);
         }
     }
 
-    public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> values){
+    public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: permission check (active stage userID? TeamID ?)
         // TODO: validate Form
-        caseworkClient.updateStage(caseUUID,stageUUID, values);
+        caseworkClient.updateStage(caseUUID, stageUUID, values);
         camundaClient.updateStage(stageUUID, values);
 
         return getStage(caseUUID, stageUUID);
@@ -159,5 +167,22 @@ public class WorkflowService implements JavaDelegate {
     public void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
         camundaClient.allocateStage(caseUUID, teamUUID, userUUID);
         caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
+    }
+
+    public void sendEmail(String caseUUIDString, String stageUUIDString, String teamUUIDString, String emailType) throws NotificationClientException {
+        log.debug("######## Sending Reject Email ########");
+        String templateId = "50223419-1fba-4651-93e2-e03613c4a128";
+        String link = "http//www.google.co.uk";
+
+        Set<InfoNominatedPeople> nominatedPeopleSet = infoClient.getNominatedPeople(UUID.fromString(teamUUIDString));
+
+        for (InfoNominatedPeople nominatedPeople : nominatedPeopleSet) {
+            Map<String, String> personalisation = new HashMap<>();
+            personalisation.put("link", link);
+            personalisation.put("caseRef", caseUUIDString);
+            emailService.sendEmail(templateId, nominatedPeople.getEmailAddress(), personalisation);
+        }
+
+        log.debug("######## Sent Reject Email ########");
     }
 }
