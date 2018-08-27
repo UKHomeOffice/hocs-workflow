@@ -7,6 +7,7 @@
     <bpmn:endEvent id="DCU_MIN_END" name="End Case">
       <bpmn:incoming>SequenceFlow_0hrswjv</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0tcxf89</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0qz7pb4</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1pepep6" sourceRef="DCU_MIN_START" targetRef="Task_0eif473" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1j2nbeb">
@@ -33,9 +34,9 @@
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="MarkupUUID" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_0occ9ef</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1ii85y3</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_00huh00</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0occ9ef</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1kbehe7</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="Task_0wqz5qj" name="Transfer Confirmation" calledElement="STAGE">
@@ -63,6 +64,7 @@
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="DataInputUUID" />
         <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_04dvzkv</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0g5e28l</bpmn:incoming>
@@ -104,6 +106,9 @@
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="TransferConfirmationUUID" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out source="ResponseChannel" target="ResponseChannel" />
+        <camunda:out source="OfflineQA" target="OfflineQA" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_04i3gn3</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_094as2e</bpmn:incoming>
@@ -138,21 +143,21 @@
     <bpmn:sequenceFlow id="SequenceFlow_0lq9cg0" name="NRN" sourceRef="ExclusiveGateway_1j2nbeb" targetRef="CallActivity_0ttmlei">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MarkupDecision == "NRN"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0hodmse" name="ACCEPT" sourceRef="ExclusiveGateway_1wtjsxs" targetRef="CallActivity_151mthq">
+    <bpmn:sequenceFlow id="SequenceFlow_0hodmse" name="ACCEPT" sourceRef="ExclusiveGateway_1wtjsxs" targetRef="ExclusiveGateway_0m2d0yc">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${InitialDraftDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_151mthq" name="QA Response" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="QAResponseUUID" target="StageUUID" />
         <camunda:in sourceExpression="DCU_MIN_QA_RESPONSE" target="StageType" />
-        <camunda:in source="InitalDraftStageUserUUID" target="UserUUID" />
-        <camunda:in source="InitialDraftStageTeamUUID" target="TeamUUID" />
+        <camunda:in source="QAResponseUserUUID" target="UserUUID" />
+        <camunda:in source="QAResponseTeamUUID" target="TeamUUID" />
         <camunda:out source="QAResponseDecision" target="QAResponseDecision" />
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="QAResponseUUID" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_0hodmse</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_17blyfx</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1gic80p</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="CallActivity_0pmeblj" name="Private Office Sign Off" calledElement="STAGE">
@@ -168,6 +173,7 @@
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0y1hwz5</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1fy5blc</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_08od3ei</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1dvsqnt</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:exclusiveGateway id="ExclusiveGateway_1asbwik">
@@ -247,11 +253,11 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MinisterSignOffDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_04dvzkv" sourceRef="Task_0eif473" targetRef="CallActivity_0sc1113" />
-    <bpmn:serviceTask id="Task_0eif473" name="Generate Deadlines" camunda:expression="${workflowService.calculateDeadlines(execution.processBusinessKey, &#34;MIN&#34;, execution.getVariable(&#34;DateReceived&#34;))}">
+    <bpmn:serviceTask id="Task_0eif473" name="Calcualte Deadlines" camunda:expression="${workflowService.calculateDeadlines(execution.processBusinessKey, &#34;MIN&#34;, execution.getVariable(&#34;DateReceived&#34;))}">
       <bpmn:incoming>SequenceFlow_1pepep6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_04dvzkv</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="ServiceTask_041u543" name="Regenerate Deadlines" camunda:expression="${workflowService.calculateDeadlines(execution.processBusinessKey, &#34;MIN&#34;, execution.getVariable(&#34;DateReceived&#34;))}">
+    <bpmn:serviceTask id="ServiceTask_041u543" name="Recalculate Deadlines" camunda:expression="${workflowService.calculateDeadlines(execution.processBusinessKey, &#34;MIN&#34;, execution.getVariable(&#34;DateReceived&#34;))}">
       <bpmn:incoming>SequenceFlow_18mb2fq</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1vxko7g</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -271,13 +277,35 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${NoReplyNeededConfirmation == "ACCEPT" || TransferConfirmation == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_182xn78" sourceRef="CallActivity_1pib0bu" targetRef="ExclusiveGateway_0rc3vcz" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0m2d0yc">
+      <bpmn:incoming>SequenceFlow_0hodmse</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0e38st4</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0qz7pb4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0e38st4" name="Initial Draft by Letter" sourceRef="ExclusiveGateway_0m2d0yc" targetRef="ExclusiveGateway_1ycmh2d">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ResponseChannel == "LETTER"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0qz7pb4" name="Initial Draft By Phone" sourceRef="ExclusiveGateway_0m2d0yc" targetRef="DCU_MIN_END">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ResponseChannel == "PHONE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1ycmh2d">
+      <bpmn:incoming>SequenceFlow_0e38st4</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_17blyfx</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_08od3ei</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_17blyfx" sourceRef="ExclusiveGateway_1ycmh2d" targetRef="CallActivity_151mthq">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${OfflineQA == "FALSE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_08od3ei" name="Offline QA" sourceRef="ExclusiveGateway_1ycmh2d" targetRef="CallActivity_0pmeblj">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${OfflineQA == "TRUE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MIN">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="DCU_MIN_START">
         <dc:Bounds x="207" y="602" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="199" y="578" width="52" height="14" />
+          <dc:Bounds x="199" y="648" width="52" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1y4bj2w_di" bpmnElement="DCU_MIN_END">
@@ -351,19 +379,19 @@
         <dc:Bounds x="2415" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1wtjsxs_di" bpmnElement="ExclusiveGateway_1wtjsxs" isMarkerVisible="true">
-        <dc:Bounds x="2703" y="595" width="50" height="50" />
+        <dc:Bounds x="2616" y="595" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1no0ocj_di" bpmnElement="SequenceFlow_1no0ocj">
         <di:waypoint x="2515" y="620" />
-        <di:waypoint x="2703" y="620" />
+        <di:waypoint x="2616" y="620" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0occ9ef_di" bpmnElement="SequenceFlow_0occ9ef">
-        <di:waypoint x="2728" y="595" />
-        <di:waypoint x="2728" y="448" />
+        <di:waypoint x="2641" y="595" />
+        <di:waypoint x="2641" y="448" />
         <di:waypoint x="1889" y="448" />
         <di:waypoint x="1889" y="580" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2676" y="574" width="43" height="14" />
+          <dc:Bounds x="2589" y="574" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="CallActivity_0ttmlei_di" bpmnElement="CallActivity_0ttmlei">
@@ -378,39 +406,39 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0hodmse_di" bpmnElement="SequenceFlow_0hodmse">
-        <di:waypoint x="2753" y="620" />
-        <di:waypoint x="2941" y="620" />
+        <di:waypoint x="2666" y="620" />
+        <di:waypoint x="2767" y="620" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2756" y="600" width="45" height="14" />
+          <dc:Bounds x="2658" y="600" width="45" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="CallActivity_151mthq_di" bpmnElement="CallActivity_151mthq">
-        <dc:Bounds x="2941" y="580" width="100" height="80" />
+        <dc:Bounds x="3100" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_0pmeblj_di" bpmnElement="CallActivity_0pmeblj">
         <dc:Bounds x="3467" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1asbwik_di" bpmnElement="ExclusiveGateway_1asbwik" isMarkerVisible="true">
-        <dc:Bounds x="3229" y="595" width="50" height="50" />
+        <dc:Bounds x="3313" y="595" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1gic80p_di" bpmnElement="SequenceFlow_1gic80p">
-        <di:waypoint x="3041" y="620" />
-        <di:waypoint x="3229" y="620" />
+        <di:waypoint x="3200" y="620" />
+        <di:waypoint x="3313" y="620" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0y1hwz5_di" bpmnElement="SequenceFlow_0y1hwz5">
-        <di:waypoint x="3279" y="620" />
+        <di:waypoint x="3363" y="620" />
         <di:waypoint x="3467" y="620" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="3285" y="601" width="45" height="14" />
+          <dc:Bounds x="3368" y="599" width="45" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_094as2e_di" bpmnElement="SequenceFlow_094as2e">
-        <di:waypoint x="3254" y="645" />
-        <di:waypoint x="3254" y="741" />
+        <di:waypoint x="3338" y="645" />
+        <di:waypoint x="3338" y="741" />
         <di:waypoint x="2465" y="741" />
         <di:waypoint x="2465" y="660" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="3265" y="645" width="43" height="14" />
+          <dc:Bounds x="3349" y="645" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_0uh5jth_di" bpmnElement="ExclusiveGateway_0uh5jth" isMarkerVisible="true">
@@ -528,6 +556,41 @@
       <bpmndi:BPMNEdge id="SequenceFlow_182xn78_di" bpmnElement="SequenceFlow_182xn78">
         <di:waypoint x="1413" y="620" />
         <di:waypoint x="1601" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0m2d0yc_di" bpmnElement="ExclusiveGateway_0m2d0yc" isMarkerVisible="true">
+        <dc:Bounds x="2766.936117936118" y="595" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0e38st4_di" bpmnElement="SequenceFlow_0e38st4">
+        <di:waypoint x="2817" y="620" />
+        <di:waypoint x="2914" y="620" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2803" y="579" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0qz7pb4_di" bpmnElement="SequenceFlow_0qz7pb4">
+        <di:waypoint x="2792" y="595" />
+        <di:waypoint x="2792" y="260" />
+        <di:waypoint x="5080" y="260" />
+        <di:waypoint x="5080" y="602" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2715" y="532" width="69" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1ycmh2d_di" bpmnElement="ExclusiveGateway_1ycmh2d" isMarkerVisible="true">
+        <dc:Bounds x="2913.648451730419" y="595" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_17blyfx_di" bpmnElement="SequenceFlow_17blyfx">
+        <di:waypoint x="2964" y="620" />
+        <di:waypoint x="3100" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_08od3ei_di" bpmnElement="SequenceFlow_08od3ei">
+        <di:waypoint x="2939" y="595" />
+        <di:waypoint x="2939" y="398" />
+        <di:waypoint x="3517" y="398" />
+        <di:waypoint x="3517" y="580" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2951" y="571" width="51" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

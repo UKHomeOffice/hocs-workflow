@@ -120,6 +120,18 @@ public class CaseworkClient {
         }
     }
 
+    public void addCorrespondent(UUID caseUUID, Correspondent correspondent) {
+        log.info("Adding Correspondent to Case: '{}'");
+       // AddCorrespondentRequest request = new AddCorrespondentRequest(correspondent);
+       // ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/correspondent", caseUUID), request, Void.class);
+
+       // if(response.getStatusCodeValue() == 200) {
+       //     log.debug("Added Correspondent for Case: '{}'", caseUUID);
+       // } else {
+       //     throw new EntityCreationException("Could not add correspondent for case; response: %s", response.getStatusCodeValue());
+       // }
+    }
+
     public CwCreateDocumentResponse addDocument(UUID caseUUID, String name, DocumentType type){
         log.info("Creating document for Case: '{}'", caseUUID);
         CreateDocumentRequest request = new CreateDocumentRequest(name, type);
