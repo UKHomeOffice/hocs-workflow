@@ -16,10 +16,6 @@ public class HocsFormService {
 
     public HocsFormService(){
 
-        // Shared
-        forms.put("DEADLINES", getDeadlinesForm());
-        forms.put("ALLOCATION_NOTE",getAllocationNote(false, "Allocation", "Allocation Note"));
-
         // DCU
 
         //// Create
@@ -30,6 +26,8 @@ public class HocsFormService {
         forms.put("DCU_ADD_ANOTHER_CORRESPONDENT", getAddAnotherCorrespondent());
         forms.put("DCU_SET_PRIMARY_CORRESPONDENT", getSetPrimaryCorrespondent());
 
+        //// Create QA
+        forms.put("APPROVE_DATA_INPUT_QA", getAcceptDataInputQA());
 
         //// Draft
         forms.put("DCU_INITIAL_DRAFT_DECISION", getInitialDraftConfirmation());
@@ -40,16 +38,24 @@ public class HocsFormService {
         forms.put("DCU_OFFLINE_QA_DECISION", getOfflineQADecision());
         forms.put("DCU_OFFLINE_QA_DETAILS", getOfflineQADetails());
 
+        //// MARKUP
         forms.put("MARKUP_DECISION", getMarkupDecision());
         forms.put("TOPICS", getTopics());
+
+        //// Transfer Confirmation
         forms.put("TRANSFER_CONFIRMATION", getTransferConfirmation());
+
+        //// No Reply Needed Confirmation
         forms.put("NO_REPLY_NEEDED_CONFIRMATION", getNoReplyNeededConfirmation());
-        forms.put("APPROVE_DATA_INPUT_QA", getAcceptDataInputQA());
 
         // UKVI
         forms.put("INITIAL_DECISION_UKVI", getInitialDecisionUKVI());
         forms.put("OWNING_MEMBER", getOwningMember());
         forms.put("ANSWERING",getAllocateForm());
+
+        // Shared
+        forms.put("DEADLINES", getDeadlinesForm());
+        forms.put("ALLOCATION_NOTE",getAllocationNote(false, "Allocation", "Allocation Note"));
     }
 
 
@@ -511,7 +517,7 @@ public class HocsFormService {
 
         Map<String,Object> properties4 = new HashMap<>();
         properties4.put("name", "InitialDraftDecision");
-        properties4.put("label", "Is this correspondence best answered by your team?");
+        properties4.put("label", "Should this correspondence be answered by your team?");
         properties4.put("choices", choices);
 
         HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
@@ -724,7 +730,7 @@ public class HocsFormService {
 
         Map<String,Object> properties7 = new HashMap<>();
         properties7.put("name", "RejectionNote");
-        properties7.put("label", "Please state why this should not be answered by your team.");
+        properties7.put("label", "Why should this should not be answered by your team?");
 
         HocsFormField fieldSeven = new HocsFormField("text-area", validationList, properties7);
 
