@@ -107,7 +107,6 @@
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_04i3gn3</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_094as2e</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_042tt22</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1tlbpjq</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1no0ocj</bpmn:outgoing>
     </bpmn:callActivity>
@@ -191,21 +190,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_1tlbpjq" name="REJECT" sourceRef="ExclusiveGateway_0uh5jth" targetRef="CallActivity_1ket68y">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PrivateOfficeDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:callActivity id="CallActivity_1syv7pu" name="Minister Sign Off" calledElement="STAGE">
-      <bpmn:extensionElements>
-        <camunda:in source="MinisterSignOffUUID" target="StageUUID" />
-        <camunda:in sourceExpression="DCU_MIN_MINISTER_SIGN_OFF" target="StageType" />
-        <camunda:in source="MinisterSignOffUserUUID" target="UserUUID" />
-        <camunda:in source="MinisterSignOffTeamUUID" target="TeamUUID" />
-        <camunda:out source="MinisterSignOffDecision" target="MinisterSignOffDecision" />
-        <camunda:in businessKey="#{execution.processBusinessKey}" />
-        <camunda:in variables="all" />
-        <camunda:out source="StageUUID" target="MinisterSignOffUUID" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_0ln7eru</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_19kv4zf</bpmn:outgoing>
-    </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_0ln7eru" name="ACCEPT" sourceRef="ExclusiveGateway_0uh5jth" targetRef="CallActivity_1syv7pu">
+    <bpmn:sequenceFlow id="SequenceFlow_0ln7eru" name="ACCEPT" sourceRef="ExclusiveGateway_0uh5jth" targetRef="CallActivity_1rowgu5">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PrivateOfficeDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_1rowgu5" name="Dispatch" calledElement="STAGE">
@@ -219,10 +204,9 @@
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="DispatchUUID" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_0gdfx58</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0ln7eru</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1p4ijz3</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_19kv4zf" sourceRef="CallActivity_1syv7pu" targetRef="ExclusiveGateway_1mq7rz0" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_19ar4c1">
       <bpmn:incoming>SequenceFlow_1p4ijz3</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0hrswjv</bpmn:outgoing>
@@ -234,17 +218,6 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1fy5blc" name="REJECT" sourceRef="ExclusiveGateway_19ar4c1" targetRef="CallActivity_0pmeblj">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchDecision == "REJECT"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_1mq7rz0">
-      <bpmn:incoming>SequenceFlow_19kv4zf</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_042tt22</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_0gdfx58</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_042tt22" name="REJECT" sourceRef="ExclusiveGateway_1mq7rz0" targetRef="CallActivity_1ket68y">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MinisterSignOffDecision == "REJECT"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0gdfx58" name="ACCEPT" sourceRef="ExclusiveGateway_1mq7rz0" targetRef="CallActivity_1rowgu5">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MinisterSignOffDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_04dvzkv" sourceRef="Task_0eif473" targetRef="CallActivity_0sc1113" />
     <bpmn:serviceTask id="Task_0eif473" name="Generate Deadlines" camunda:expression="${workflowService.calculateDeadlines(execution.processBusinessKey, &#34;MIN&#34;, execution.getVariable(&#34;DateReceived&#34;))}">
@@ -273,7 +246,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_182xn78" sourceRef="CallActivity_1pib0bu" targetRef="ExclusiveGateway_0rc3vcz" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MIN">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DTEN">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="DCU_MIN_START">
         <dc:Bounds x="207" y="602" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -429,23 +402,16 @@
           <dc:Bounds x="3796" y="648" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="CallActivity_1syv7pu_di" bpmnElement="CallActivity_1syv7pu">
-        <dc:Bounds x="3993" y="580" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0ln7eru_di" bpmnElement="SequenceFlow_0ln7eru">
         <di:waypoint x="3805" y="620" />
-        <di:waypoint x="3993" y="620" />
+        <di:waypoint x="4519" y="620" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="3807" y="601" width="45" height="14" />
+          <dc:Bounds x="3827" y="600" width="45" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="CallActivity_1rowgu5_di" bpmnElement="CallActivity_1rowgu5">
         <dc:Bounds x="4519" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_19kv4zf_di" bpmnElement="SequenceFlow_19kv4zf">
-        <di:waypoint x="4093" y="620" />
-        <di:waypoint x="4281" y="620" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_19ar4c1_di" bpmnElement="ExclusiveGateway_19ar4c1" isMarkerVisible="true">
         <dc:Bounds x="4807" y="595" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -467,25 +433,6 @@
         <di:waypoint x="3517" y="580" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="4842" y="570" width="43" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ExclusiveGateway_1mq7rz0_di" bpmnElement="ExclusiveGateway_1mq7rz0" isMarkerVisible="true">
-        <dc:Bounds x="4281" y="595" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_042tt22_di" bpmnElement="SequenceFlow_042tt22">
-        <di:waypoint x="4306" y="645" />
-        <di:waypoint x="4306" y="965" />
-        <di:waypoint x="2465" y="965" />
-        <di:waypoint x="2465" y="660" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="4321" y="653" width="43" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0gdfx58_di" bpmnElement="SequenceFlow_0gdfx58">
-        <di:waypoint x="4331" y="620" />
-        <di:waypoint x="4519" y="620" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="4337" y="603" width="45" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_04dvzkv_di" bpmnElement="SequenceFlow_04dvzkv">
