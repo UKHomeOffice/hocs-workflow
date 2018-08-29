@@ -45,21 +45,19 @@ public class WorkflowService implements JavaDelegate {
     private final CamundaClient camundaClient;
     private final HocsFormService hocsFormService;
     private final EmailService emailService;
-    private final String URL;
+
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
                            InfoClient infoClient,
                            CamundaClient camundaClient,
                            HocsFormService hocsFormService,
-                           EmailService emailService,
-                           @Value("${hocs.url}") String URL) {
+                           EmailService emailService) {
         this.caseworkClient = caseworkClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.hocsFormService = hocsFormService;
         this.emailService = emailService;
-        this.URL = URL;
     }
 
     List<WorkflowType> getAllWorkflowTypes() {
@@ -81,7 +79,6 @@ public class WorkflowService implements JavaDelegate {
 
         if (caseUUID != null) {
             // Start a new case level workflow (caseUUID is the business key).
-//            String caseRef = caseResponse.getReference();
             Map<String, Object> seedData = new HashMap<>();
             seedData.put("DateReceived", dateReceived);
             seedData.put("CaseReference", caseResponse.getReference());
@@ -183,16 +180,7 @@ public class WorkflowService implements JavaDelegate {
     public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) throws NotificationClientException {
         log.debug("######## Sending {} Email ########", notifyType);
 
-        String link = URL + "case/" + caseUUIDString + "/stage/" + stageUUIDString;
-
-        Set<InfoNominatedPeople> nominatedPeopleSet = infoClient.getNominatedPeople(UUID.fromString(teamUUIDString));
-
-        for (InfoNominatedPeople nominatedPeople : nominatedPeopleSet) {
-            Map<String, String> personalisation = new HashMap<>();
-            personalisation.put("link", link);
-            personalisation.put("caseRef", caseRef);
-            emailService.sendEmail(notifyType, nominatedPeople.getEmailAddress(), personalisation);
-        }
+            emailService.buildEmailToSend(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
 
         log.debug("######## Sent {} Email ########", notifyType);
     }
