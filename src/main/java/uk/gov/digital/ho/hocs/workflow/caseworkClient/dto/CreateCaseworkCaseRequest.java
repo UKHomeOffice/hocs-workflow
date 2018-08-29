@@ -1,17 +1,13 @@
-package uk.gov.digital.ho.hocs.workflow.caseworkClient;
+package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 import java.time.LocalDate;
-import java.util.UUID;
-
 
 @AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class CreateCaseRequest {
+public class CreateCaseworkCaseRequest {
 
     @JsonProperty("type")
     private CaseType type;

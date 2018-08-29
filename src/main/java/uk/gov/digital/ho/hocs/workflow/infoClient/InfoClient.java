@@ -7,6 +7,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.Deadline;
 
 import java.nio.charset.Charset;
 import java.time.LocalDate;
@@ -30,10 +31,10 @@ public class InfoClient {
         CASE_SERVICE_AUTH = caseworkBasicAuth;
     }
 
-   public Set<InfoDeadlines> getDeadlines(CaseType caseType, LocalDate localDate) {
+   public Set<Deadline> getDeadlines(CaseType caseType, LocalDate localDate) {
 
        ResponseEntity<InfoGetDeadlinesResponse> response = getWithAuth(String.format("/casetype/%s/deadlines/%s", caseType, localDate), null, InfoGetDeadlinesResponse.class);
-       Set<InfoDeadlines> deadlines = response.getBody().getDeadlines();
+       Set<Deadline> deadlines = response.getBody().getDeadlines();
        return deadlines;
    }
 

@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.caseworkClient;
+package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
-class CreateStageRequest {
+public class CreateCaseworkStageRequest {
 
     @JsonProperty("type")
     private StageType stageType;
