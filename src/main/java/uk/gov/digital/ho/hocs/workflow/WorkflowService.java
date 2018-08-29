@@ -204,7 +204,7 @@ public class WorkflowService implements JavaDelegate {
     public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) throws NotificationClientException {
         log.debug("######## Sending {} Email ########", notifyType);
 
-            emailService.buildEmailToSend(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
+            emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
 
         log.debug("######## Sent {} Email ########", notifyType);
     }
