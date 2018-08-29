@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.dto.CreateCaseResponse;
@@ -19,6 +19,8 @@ import uk.gov.digital.ho.hocs.workflow.infoClient.InfoNominatedPeople;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
+import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
+import uk.gov.digital.ho.hocs.workflow.notifications.NotifyType;
 import uk.gov.service.notify.NotificationClientException;
 
 import java.time.LocalDate;
@@ -43,14 +45,21 @@ public class WorkflowService implements JavaDelegate {
     private final CamundaClient camundaClient;
     private final HocsFormService hocsFormService;
     private final EmailService emailService;
+    private final String URL;
 
     @Autowired
-    public WorkflowService(CaseworkClient caseworkClient, InfoClient infoClient, CamundaClient camundaClient, HocsFormService hocsFormService, EmailService emailService) {
+    public WorkflowService(CaseworkClient caseworkClient,
+                           InfoClient infoClient,
+                           CamundaClient camundaClient,
+                           HocsFormService hocsFormService,
+                           EmailService emailService,
+                           @Value("${hocs.workflow-service}") String URL) {
         this.caseworkClient = caseworkClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.hocsFormService = hocsFormService;
         this.emailService = emailService;
+        this.URL = URL;
     }
 
     List<WorkflowType> getAllWorkflowTypes() {
@@ -72,8 +81,10 @@ public class WorkflowService implements JavaDelegate {
 
         if (caseUUID != null) {
             // Start a new case level workflow (caseUUID is the business key).
+//            String caseRef = caseResponse.getReference();
             Map<String, Object> seedData = new HashMap<>();
             seedData.put("DateReceived", dateReceived);
+            seedData.put("CaseReference", caseResponse.getReference());
 
             seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
             seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
@@ -169,20 +180,20 @@ public class WorkflowService implements JavaDelegate {
         caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
     }
 
-    public void sendEmail(String caseUUIDString, String stageUUIDString, String teamUUIDString, String emailType) throws NotificationClientException {
-        log.debug("######## Sending Reject Email ########");
-        String templateId = "50223419-1fba-4651-93e2-e03613c4a128";
-        String link = "https://www.google.co.uk";
+    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) throws NotificationClientException {
+        log.debug("######## Sending {} Email ########", notifyType);
+
+        String link = URL + "case/" + caseUUIDString + "/stage/" + stageUUIDString;
 
         Set<InfoNominatedPeople> nominatedPeopleSet = infoClient.getNominatedPeople(UUID.fromString(teamUUIDString));
 
         for (InfoNominatedPeople nominatedPeople : nominatedPeopleSet) {
             Map<String, String> personalisation = new HashMap<>();
             personalisation.put("link", link);
-            personalisation.put("caseRef", caseUUIDString);
-            emailService.sendEmail(templateId, nominatedPeople.getEmailAddress(), personalisation);
+            personalisation.put("caseRef", caseRef);
+            emailService.sendEmail(notifyType, nominatedPeople.getEmailAddress(), personalisation);
         }
 
-        log.debug("######## Sent Reject Email ########");
+        log.debug("######## Sent {} Email ########", notifyType);
     }
 }

@@ -16,13 +16,13 @@ public class EmailService {
     private final NotificationClient notifyClient;
 
     @Autowired
-    public EmailService(@Value("${notify.apiKey}") String apiKey){
+    public EmailService(@Value("${notify.apiKey}") String apiKey) {
         this.notifyClient = new NotificationClient(apiKey);
     }
 
-    public void sendEmail(String templateId, String emailAddress, Map<String, String> personalisation) throws NotificationClientException {
-        log.info("Received request to sendEmailRequest {}, templateId {}", emailAddress, templateId);
+    public void sendEmail(NotifyType notifyType, String emailAddress, Map<String, String> personalisation) throws NotificationClientException {
+        log.info("Received request to sendEmailRequest {}, template Name {}, template ID {}", emailAddress, notifyType, notifyType.getDisplayValue());
         //TODO auditService
-        notifyClient.sendEmail(templateId, emailAddress, personalisation, null);
+        notifyClient.sendEmail(notifyType.getDisplayValue(), emailAddress, personalisation, null);
     }
 }
