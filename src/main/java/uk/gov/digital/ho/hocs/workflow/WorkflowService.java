@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.camunda.bpm.engine.runtime.Execution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -89,6 +90,10 @@ public class WorkflowService implements JavaDelegate {
             seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
             seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
             seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("QAResponseTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
             camundaClient.startCase(caseUUID, caseType, seedData);
             if (documents != null) {
                 // Add any Documents to the case
@@ -103,6 +108,25 @@ public class WorkflowService implements JavaDelegate {
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
+    public void addPublicCorrespondent(String caseUUIDString){
+        // Do nothing.
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+    }
+
+    public void addMemberCorrespondent(String caseUUIDString){
+        // Do nothing.
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+    }
+
+    public void addReference(String caseUUIDString){
+        // Do nothing.
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+    }
+
+    public void addCaseNote(String caseUUIDString, String caseNote){
+        // Do nothing.
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+    }
     public void calculateDeadlines(String caseUUIDString, String caseTypeString, String dateReceivedString) {
         log.debug("######## Calculating Deadlines ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
