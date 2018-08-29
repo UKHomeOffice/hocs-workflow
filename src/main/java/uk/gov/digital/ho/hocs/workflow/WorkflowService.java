@@ -53,7 +53,7 @@ public class WorkflowService implements JavaDelegate {
                            CamundaClient camundaClient,
                            HocsFormService hocsFormService,
                            EmailService emailService,
-                           @Value("${hocs.workflow-service}") String URL) {
+                           @Value("${hocs.url}") String URL) {
         this.caseworkClient = caseworkClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
