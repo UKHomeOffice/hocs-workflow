@@ -190,19 +190,19 @@ public class HocsFormService {
         validationList.add("required");
 
         Map<String,String> choice1 = new HashMap<>();
-        choice1.put("label", "Type 1");
-        choice1.put("value", "12345");
+        choice1.put("label", "Correspondent");
+        choice1.put("value", "CORRESPONDENT");
 
         Map<String,String> choice2 = new HashMap<>();
-        choice2.put("label", "Type 2");
-        choice2.put("value", "56789");
+        choice2.put("label", "Other");
+        choice2.put("value", "OTHER");
 
         List<Map<String, String>> choices = new ArrayList<>();
         choices.add(choice1);
         choices.add(choice2);
 
         Map<String,Object> propertiesA = new HashMap<>();
-        propertiesA.put("name", "Correspondent Type");
+        propertiesA.put("name", "CType");
         propertiesA.put("label", "What is the correspondent type?");
         propertiesA.put("choices", choices);
 
@@ -257,13 +257,13 @@ public class HocsFormService {
         HocsFormField fieldSeven = new HocsFormField("text", new ArrayList<>(), properties7);
 
         Map<String,Object> properties8 = new HashMap<>();
-        properties8.put("name", "CTownOrCity");
+        properties8.put("name", "CAddressThree");
         properties8.put("label", "Town or City");
 
         HocsFormField fieldEight = new HocsFormField("text", new ArrayList<>(), properties8);
 
         Map<String,Object> properties11 = new HashMap<>();
-        properties11.put("name", "CorrespondenceReference");
+        properties11.put("name", "CReference");
         properties11.put("label", "Does this correspondent give a case reference?");
 
         HocsFormField fieldEleven = new HocsFormField("text", new ArrayList<>(), properties11);
@@ -290,7 +290,7 @@ public class HocsFormService {
         choices1.add(choice20);
 
         Map<String,Object> propertiesB = new HashMap<>();
-        propertiesB.put("name", "Country");
+        propertiesB.put("name", "CAddressCountry");
         propertiesB.put("label", "Country");
         propertiesB.put("choices", choices1);
 

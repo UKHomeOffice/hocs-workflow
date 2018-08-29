@@ -133,6 +133,18 @@ public class CaseworkClient {
         }
     }
 
+    public void createReference(UUID caseUUID, ReferenceType referenceType, String reference) {
+        log.debug("Creating Correspondent, Case {}", caseUUID);
+        CreateCaseworkReferenceRequest request = new CreateCaseworkReferenceRequest(referenceType, reference);
+        ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/reference", caseUUID), request, Void.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.debug("Created Correspondent, for Case {}", caseUUID);
+        } else {
+            throw new EntityCreationException("Could not create Correspondent; response: %s", response.getStatusCodeValue());
+        }
+    }
+
     public UUID createDocument(UUID caseUUID, String displayName, DocumentType type){
         log.debug("Creating Document, Case {}", caseUUID);
         CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(displayName, type);

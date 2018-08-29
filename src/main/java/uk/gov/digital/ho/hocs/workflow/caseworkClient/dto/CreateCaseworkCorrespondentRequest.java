@@ -6,9 +6,6 @@ import uk.gov.digital.ho.hocs.workflow.model.CorrespondentType;
 
 public class CreateCaseworkCorrespondentRequest {
 
-    @JsonProperty("uuid")
-    private String uuid;
-
     @JsonProperty("title")
     private String title;
 
@@ -43,6 +40,16 @@ public class CreateCaseworkCorrespondentRequest {
     private CorrespondentType type;
 
     public CreateCaseworkCorrespondentRequest(Correspondent correspondent) {
-
+        this.title = correspondent.getTitle();
+        this.firstName = correspondent.getFirstName();
+        this.surname = correspondent.getSurname();
+        this.postcode = correspondent.getPostcode();
+        this.address1 = correspondent.getAddress1();
+        this.address2 = correspondent.getAddress2();
+        this.address3 = correspondent.getAddress3();
+        this.country = correspondent.getCountry();
+        this.telephone = correspondent.getTelephone();
+        this.email = correspondent.getEmail();
+        this.type = correspondent.getCorrespondentType();
     }
 }

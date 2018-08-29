@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.casework.casedetails.model;
+package uk.gov.digital.ho.hocs.workflow.model;
 
 import lombok.Getter;
 

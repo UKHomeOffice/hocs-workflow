@@ -3,11 +3,16 @@ package uk.gov.digital.ho.hocs.workflow.model;
 import lombok.Getter;
 
 public enum CorrespondentType {
-    RSH("WR Response"),
-    MIN("Ministerial"),
-    TRO("Treat Official"),
-    DTEN("Number 10");
-
+    CORRESPONDENT("Correspondent"),
+    CONSTITUENT("Constituent"),
+    THIRD_PARY("Third Party"),
+    APPLICAT("Applicant"),
+    COMPLAINANT("Complainant"),
+    FAMILY("Family Relation"),
+    FRIEND("Friend"),
+    LEGAL_REP("Legal Representative"),
+    MEMBER("Member"),
+    OTHER("Other");
 
     @Getter
     private String displayValue;
