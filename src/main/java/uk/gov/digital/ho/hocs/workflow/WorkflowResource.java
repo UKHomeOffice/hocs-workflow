@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
-import uk.gov.digital.ho.hocs.workflow.dto.WorkflowType;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 import java.util.Collections;
@@ -23,12 +22,6 @@ class WorkflowResource {
     @Autowired
     public WorkflowResource(WorkflowService workflowService) {
         this.workflowService = workflowService;
-    }
-
-    @GetMapping(value = "/caseType", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetWorkflowTypesResponse> getAllCaseTypes() {
-        List<WorkflowType> workflowTypes = workflowService.getAllWorkflowTypes();
-        return ResponseEntity.ok(new GetWorkflowTypesResponse(workflowTypes));
     }
 
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
@@ -62,6 +55,12 @@ class WorkflowResource {
     @GetMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) {
         GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetDocumentsResponse> getDocuments(@PathVariable UUID caseUUID) {
+        GetDocumentsResponse response = workflowService.getDocuments(caseUUID);
         return ResponseEntity.ok(response);
     }
 

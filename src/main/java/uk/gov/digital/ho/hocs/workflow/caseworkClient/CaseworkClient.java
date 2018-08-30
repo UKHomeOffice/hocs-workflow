@@ -93,7 +93,19 @@ public class CaseworkClient {
             log.info("Got Stage: {} for Case: {}", stageUUID, caseUUID);
             return response.getBody();
         } else {
-            throw new EntityNotFoundException("Could not create Stage; response: %s", response.getStatusCodeValue());
+            throw new EntityNotFoundException("Could not get Stage; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    public GetCaseworkDocumentsResponse getDocuments(UUID caseUUID) {
+        log.debug("Getting Documents for Case: {}", caseUUID);
+        ResponseEntity<GetCaseworkDocumentsResponse> response = getWithAuth(String.format("/case/%s/document", caseUUID), GetCaseworkDocumentsResponse.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.info("Got Documents for Case: {}", caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get Documents; response: %s", response.getStatusCodeValue());
         }
     }
 

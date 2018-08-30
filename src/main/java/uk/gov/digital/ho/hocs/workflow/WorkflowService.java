@@ -4,22 +4,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkDocumentsResponse;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkStageResponse;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoDeadlines;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoNominatedPeople;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
 import uk.gov.digital.ho.hocs.workflow.notifications.NotifyType;
-import uk.gov.service.notify.NotificationClientException;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -27,15 +24,6 @@ import java.util.*;
 @Service
 @Slf4j
 public class WorkflowService implements JavaDelegate {
-
-    // TODO: this should be in the list service
-    private static List<WorkflowType> caseTypeDetails = new ArrayList<>();
-
-    static {
-        caseTypeDetails.add(new WorkflowType("DCU MIN", CaseType.MIN.toString()));
-        caseTypeDetails.add(new WorkflowType("DCU TRO", CaseType.TRO.toString()));
-        caseTypeDetails.add(new WorkflowType("DCU DTEN", CaseType.DTEN.toString()));
-    }
 
     private final CaseworkClient caseworkClient;
     private final InfoClient infoClient;
@@ -55,14 +43,6 @@ public class WorkflowService implements JavaDelegate {
         this.camundaClient = camundaClient;
         this.hocsFormService = hocsFormService;
         this.emailService = emailService;
-    }
-
-    List<WorkflowType> getAllWorkflowTypes() {
-        if (caseTypeDetails != null && !caseTypeDetails.isEmpty()) {
-            return caseTypeDetails;
-        } else {
-            return new ArrayList<>();
-        }
     }
 
     @Override
@@ -179,6 +159,11 @@ public class WorkflowService implements JavaDelegate {
         }
     }
 
+    public GetDocumentsResponse getDocuments(UUID caseUUID) {
+        GetCaseworkDocumentsResponse response = caseworkClient.getDocuments(caseUUID);
+        return GetDocumentsResponse.from(response);
+    }
+
     public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: permission check (active stage userID? TeamID ?)
         // TODO: validate Form
@@ -199,7 +184,7 @@ public class WorkflowService implements JavaDelegate {
         caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
     }
 
-    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) throws NotificationClientException {
+    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) {
         log.debug("######## Sending {} Email ########", notifyType);
 
             emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
