@@ -67,15 +67,15 @@ public class CamundaClient {
     }
 
     public void allocateStage(UUID caseUUID, UUID teamUUID, UUID userUUID) {
-        log.debug("Allocating Case UUID: {} to User UUID: {} of Team UUID: {}", caseUUID, userUUID, teamUUID);
+        log.debug("Allocating Case {} to User {} of Team {}", caseUUID, userUUID, teamUUID);
 
         Task task = taskService.createTaskQuery().processInstanceBusinessKey(caseUUID.toString()).singleResult();
 
         if(task != null) {
             taskService.complete(task.getId(), new HashMap<>());
-            log.info("Allocated Case UUID: {} to User UUID: {} of Team UUID: {}", caseUUID, userUUID, teamUUID);
+            log.info("Allocated Case {} to User {} of Team {}", caseUUID, userUUID, teamUUID);
         } else {
-            throw new EntityNotFoundException("Failed to allocate Case UUID: %s, No tasks returned", caseUUID);
+            throw new EntityNotFoundException("Failed to allocate Case %s, No tasks returned", caseUUID);
         }
     }
 

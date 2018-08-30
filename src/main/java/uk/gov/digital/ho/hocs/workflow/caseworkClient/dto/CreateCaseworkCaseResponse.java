@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.caseworkClient;
+package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @Getter
-public class CwCreateCaseResponse {
+public class CreateCaseworkCaseResponse {
 
     @JsonProperty("uuid")
     private UUID uuid;
