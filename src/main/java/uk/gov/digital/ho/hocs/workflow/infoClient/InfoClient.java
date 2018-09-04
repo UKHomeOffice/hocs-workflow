@@ -8,12 +8,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 import uk.gov.digital.ho.hocs.workflow.model.Deadline;
-import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,6 +44,12 @@ public class InfoClient {
        Set<InfoNominatedPeople> nominatedPeople = response.getBody().getNominatedPeople();
         return nominatedPeople;
    }
+
+    public InfoGetTemplateResponse getTemplate(CaseType caseType) {
+        ResponseEntity<InfoGetTemplateResponse> response = getWithAuth(String.format("/casetype/%s/template", caseType), null, InfoGetTemplateResponse.class);
+        InfoGetTemplateResponse template = response.getBody();
+        return template;
+    }
 
     private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {
         return restTemplate.postForEntity(String.format("%s%s", INFO_SERVICE, url), new HttpEntity<>(request, createAuthHeaders()), responseType);
