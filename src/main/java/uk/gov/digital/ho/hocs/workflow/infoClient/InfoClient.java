@@ -43,7 +43,7 @@ public class InfoClient {
    }
 
     public Correspondent getMemberAsCorrespondent(String memberId) {
-
+        return null;
     }
 
     private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {

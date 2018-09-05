@@ -103,8 +103,8 @@ public class WorkflowService implements JavaDelegate {
     public void addMemberCorrespondent(String caseUUIDString, String memberId, String cReference){
         UUID caseUUID = UUID.fromString(caseUUIDString);
 
-        Correspondent correspondent = infoClient.getMemberAsCorrespondent(memberId);
-        caseworkClient.createCorrespondent(caseUUID, correspondent);
+        //Correspondent correspondent = infoClient.getMemberAsCorrespondent(memberId);
+        //caseworkClient.createCorrespondent(caseUUID, correspondent);
 
         if(cReference != null) {
             caseworkClient.createReference(caseUUID, ReferenceType.MEMBER_REFERENCE, cReference);
