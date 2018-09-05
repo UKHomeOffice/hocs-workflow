@@ -58,10 +58,4 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetDocumentsResponse> getDocuments(@PathVariable UUID caseUUID) {
-        GetDocumentsResponse response = workflowService.getDocuments(caseUUID);
-        return ResponseEntity.ok(response);
-    }
-
 }

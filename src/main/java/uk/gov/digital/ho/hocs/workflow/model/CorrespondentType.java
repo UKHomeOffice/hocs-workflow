@@ -6,7 +6,7 @@ public enum CorrespondentType {
     CORRESPONDENT("Correspondent"),
     CONSTITUENT("Constituent"),
     THIRD_PARY("Third Party"),
-    APPLICAT("Applicant"),
+    APPLICANT("Applicant"),
     COMPLAINANT("Complainant"),
     FAMILY("Family Relation"),
     FRIEND("Friend"),

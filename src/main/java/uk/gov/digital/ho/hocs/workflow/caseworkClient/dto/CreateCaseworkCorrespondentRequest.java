@@ -4,7 +4,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
 import uk.gov.digital.ho.hocs.workflow.model.CorrespondentType;
 
+import java.util.UUID;
+
 public class CreateCaseworkCorrespondentRequest {
+
+    @JsonProperty("command")
+    private String command = "create_correspondent_command";
+
+    @JsonProperty("caseUUID")
+    private UUID caseUUID;
 
     @JsonProperty("title")
     private String title;
@@ -39,7 +47,8 @@ public class CreateCaseworkCorrespondentRequest {
     @JsonProperty("type")
     private CorrespondentType type;
 
-    public CreateCaseworkCorrespondentRequest(Correspondent correspondent) {
+    public CreateCaseworkCorrespondentRequest(UUID caseUUID, Correspondent correspondent) {
+        this.caseUUID = caseUUID;
         this.title = correspondent.getTitle();
         this.firstName = correspondent.getFirstName();
         this.surname = correspondent.getSurname();

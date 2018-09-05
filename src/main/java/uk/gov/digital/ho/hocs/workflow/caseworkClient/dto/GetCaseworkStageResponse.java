@@ -14,9 +14,6 @@ public class GetCaseworkStageResponse {
     @JsonProperty("type")
     private StageType type;
 
-    @JsonProperty("data")
-    private String data;
-
     @JsonProperty("uuid")
     private UUID uuid;
 
