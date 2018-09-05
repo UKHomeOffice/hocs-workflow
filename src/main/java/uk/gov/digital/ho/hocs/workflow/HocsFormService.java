@@ -111,24 +111,18 @@ public class HocsFormService {
         HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
 
         Map<String,String> choice7 = new HashMap<>();
-        choice7.put("label", "Yes");
+        choice7.put("label", "Send a copy of the response to Number 10?");
         choice7.put("value", "TRUE");
-
-        Map<String,String> choice8 = new HashMap<>();
-        choice8.put("label", "No");
-        choice8.put("value", "FALSE");
-        choice8.put("checked", "checked");
 
         List<Map<String, String>> choices7 = new ArrayList<>();
         choices7.add(choice7);
-        choices7.add(choice8);
 
         Map<String,Object> properties7 = new HashMap<>();
         properties7.put("name", "CopyNumberTen");
-        properties7.put("label", "Should a copy be sent to Number 10?");
+        properties7.put("label", "");
         properties7.put("choices", choices7);
 
-        HocsFormField fieldSeven = new HocsFormField("radio", validationList, properties7);
+        HocsFormField fieldSeven = new HocsFormField("checkbox", new ArrayList<>(), properties7);
 
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
@@ -138,7 +132,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondence Details", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -164,23 +158,18 @@ public class HocsFormService {
         Map<String,Object> properties4 = new HashMap<>();
         properties4.put("name", "CorrespondentIsMember");
         properties4.put("label", "Is the correspondent a member of a Parliament or an Assembly?");
+        properties4.put("hint", "These are MPs, MSPs, AMs, MLAs or British MEPs.");
         properties4.put("choices", choices);
 
         HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
 
-        Map<String,Object> properties5 = new HashMap<>();
-        properties5.put("children", "These are MPs, MSPs, AMs, MLAs or British MEPs.");
-
-        HocsFormField fieldFive = new HocsFormField("inset", new ArrayList<>(), properties5);
-
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
-        formFields.add(fieldFive);
 
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondent Details", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -313,7 +302,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondent Details", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -355,7 +344,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondent Details", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
 
@@ -390,7 +379,7 @@ public class HocsFormService {
         formFields.add(fieldFour);
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondent Details", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
 
@@ -425,7 +414,7 @@ public class HocsFormService {
         formFields.add(fieldNine);
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondence Details", "Finish", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -459,7 +448,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Transfer Confirmation", "Finish", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -493,7 +482,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "No Reply Needed Confirmation", "Finish", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -533,7 +522,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -567,7 +556,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Data Input QA Decision", "Finish", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -610,7 +599,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Markup Decision", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -644,7 +633,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Answering", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -664,7 +653,7 @@ public class HocsFormService {
 
         HocsSchema schema = new HocsSchema(HocsFormAction.SUBMIT, "Owning Member", "Continue", fields);
 
-        HocsForm form1 = new HocsForm(schema, "");
+        HocsForm form1 = new HocsForm(schema);
         return  form1;
     }
 
@@ -691,7 +680,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Deadlines", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -718,7 +707,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Finish", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
 
@@ -739,7 +728,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Finish", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
 
@@ -762,7 +751,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, title + " Note", "Finish", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
 
@@ -783,7 +772,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Topics", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
 
@@ -822,7 +811,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Initial Decision", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -863,7 +852,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -874,7 +863,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Upload Draft", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -910,7 +899,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Offline QA Decision", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
@@ -921,7 +910,7 @@ public class HocsFormService {
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Offline QA Details", "Continue", formFields);
 
-        HocsForm form1 = new HocsForm(schema1, "");
+        HocsForm form1 = new HocsForm(schema1);
 
         return form1;
     }
