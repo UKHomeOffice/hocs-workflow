@@ -311,17 +311,7 @@ public class HocsFormService {
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
 
-        Map<String,String> choice1 = new HashMap<>();
-        choice1.put("label", "Mike Smith");
-        choice1.put("value", "12345");
-
-        Map<String,String> choice2 = new HashMap<>();
-        choice2.put("label", "Amanda Hugankiss");
-        choice2.put("value", "56789");
-
-        List<Map<String, String>> choices = new ArrayList<>();
-        choices.add(choice2);
-        choices.add(choice1);
+        String choices = "MEMBER_LIST";
 
         Map<String,Object> properties4 = new HashMap<>();
         properties4.put("name", "Member");
