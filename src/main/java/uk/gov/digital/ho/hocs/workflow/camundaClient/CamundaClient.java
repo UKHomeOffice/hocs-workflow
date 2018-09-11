@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.camundaClient;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.runtime.Execution;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
@@ -54,7 +55,6 @@ public class CamundaClient {
 
         //TODO: REMOVE THIS DEMO CODE
         values.put("valid", "true");
-        values.put("anotherTopic", "false");
 
         Task task = taskService.createTaskQuery().processInstanceBusinessKey(stageUUID.toString()).singleResult();
 
@@ -84,8 +84,6 @@ public class CamundaClient {
                 .processInstanceIdIn(processInstanceId)
                 .variableName(key)
                 .singleResult();
-
-        //runtimeService.
 
         if (instance != null) {
             String value = (String) instance.getValue();
