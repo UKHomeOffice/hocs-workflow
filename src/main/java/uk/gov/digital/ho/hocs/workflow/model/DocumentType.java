@@ -3,15 +3,14 @@ package uk.gov.digital.ho.hocs.workflow.model;
 import lombok.Getter;
 
 public enum DocumentType {
-    ORIGINAL(0),
-    SUBSEQUENT(1),
-    DRAFT(2),
-    FINAL_RESPONSE(3);
+
+    ORIGINAL("Original"),
+    DRAFT("Draft");
 
     @Getter
-    private int numVal;
+    private String displayValue;
 
-    DocumentType(int numVal) {
-        this.numVal = numVal;
+    DocumentType(String value) {
+        displayValue = value;
     }
 }

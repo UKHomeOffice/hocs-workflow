@@ -10,6 +10,7 @@ import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.CreateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkInputResponse;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkStageResponse;
+import uk.gov.digital.ho.hocs.workflow.documentClient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
@@ -26,6 +27,7 @@ import java.util.*;
 public class WorkflowService implements JavaDelegate {
 
     private final CaseworkClient caseworkClient;
+    private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
     private final HocsFormService hocsFormService;
@@ -34,11 +36,13 @@ public class WorkflowService implements JavaDelegate {
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
+                           DocumentClient documentClient,
                            InfoClient infoClient,
                            CamundaClient camundaClient,
                            HocsFormService hocsFormService,
                            EmailService emailService) {
         this.caseworkClient = caseworkClient;
+        this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.hocsFormService = hocsFormService;
@@ -73,41 +77,62 @@ public class WorkflowService implements JavaDelegate {
             Map<String, String> data = new HashMap<>();
             data.put("DateReceived", dateReceived.toString());
             caseworkClient.setInputData(caseUUID, data);
-
+            createDocument(caseUUID, documents);
             camundaClient.startCase(caseUUID, caseType, seedData);
-            if (documents != null) {
-                // Add any Documents to the case
-                for (DocumentSummary document : documents) {
-                    UUID response = caseworkClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
-                    //TODO: post to queue (response.getUuid(), documentSummary.getS3UntrustedUrl());
-                }
-            }
+
         } else {
             throw new EntityCreationException("Failed to start case, invalid caseUUID!");
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    public void addPublicCorrespondent(String caseUUIDString, String cType, String cTitle, String cFirstName, String cLastName, String cPostcode, String cAddressOne, String cAddressTwo, String cAddressThree, String cAddressCountry, String cPhone, String cEmail, String cReference ){
+    public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
+
+        if (documents != null) {
+            // Add any Documents to the case
+            for (DocumentSummary document : documents) {
+                UUID response = documentClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
+
+                documentClient.processDocument(caseUUID, response, document.getS3UntrustedUrl());
+            }
+        }
+    }
+
+    public void deleteDocument(UUID caseUUID, UUID documentUUID) {
+
+         documentClient.deleteDocument(caseUUID, documentUUID);
+
+    }
+
+
+    public void lookupCorrespondent(String caseUUIDString, String CFullName) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+
+        try {
+            Thread.sleep(1000l);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // Lookup full name in Info service.
+
+        //if not null
+            // save the correspondent details
+    }
+
+    public void clearCorrespondentData(String caseUUIDString) {
+
+        //caseworkClient.
+    }
+
+    public void addCorrespondent(String caseUUIDString, String cType, String cFullName, String cPostcode, String cAddressOne, String cAddressTwo, String cAddressThree, String cAddressCountry, String cPhone, String cEmail, String cReference ){
         UUID caseUUID = UUID.fromString(caseUUIDString);
 
         CorrespondentType correspondentType = CorrespondentType.valueOf(cType);
-        Correspondent correspondent = new Correspondent(correspondentType, cTitle, cFirstName, cLastName, cPostcode, cAddressOne, cAddressTwo, cAddressThree, cAddressCountry, cPhone, cEmail);
+        Correspondent correspondent = new Correspondent(correspondentType, cFullName, cPostcode, cAddressOne, cAddressTwo, cAddressThree, cAddressCountry, cPhone, cEmail);
         caseworkClient.createCorrespondent(caseUUID, correspondent);
 
         if(cReference != null) {
             caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, cReference);
-        }
-    }
-
-    public void addMemberCorrespondent(String caseUUIDString, String memberId, String cReference){
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-
-        //Correspondent correspondent = infoClient.getMemberAsCorrespondent(memberId);
-        //caseworkClient.createCorrespondent(caseUUID, correspondent);
-
-        if(cReference != null) {
-            caseworkClient.createReference(caseUUID, ReferenceType.MEMBER_REFERENCE, cReference);
         }
     }
 
@@ -123,6 +148,27 @@ public class WorkflowService implements JavaDelegate {
         Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseType, now);
         caseworkClient.createDeadlines(caseUUID, deadlines);
         log.debug("######## Created Stage ########");
+    }
+
+    // TODO: this is BS but we need to move on.
+    public void clearTempData(String caseUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+
+        Set<String> dataToRemove = new HashSet<>();
+
+        dataToRemove.add("TEMPCType");
+        dataToRemove.add("TEMPCFullName");
+        dataToRemove.add("TEMPCPostcode");
+        dataToRemove.add("TEMPCAddressOne");
+        dataToRemove.add("TEMPCAddressTwo");
+        dataToRemove.add("TEMPCCountry");
+        dataToRemove.add("TEMPCEmail");
+        dataToRemove.add("TEMPCPhone");
+        dataToRemove.add("TEMPCAddressThree");
+        dataToRemove.add("TEMPCReference");
+        dataToRemove.add("TEMPAdditionalCorrespondent");
+
+        caseworkClient.removeInputData(caseUUID, dataToRemove);
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
@@ -156,6 +202,7 @@ public class WorkflowService implements JavaDelegate {
     public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getScreenName(stageUUID);
         HocsForm form = hocsFormService.getForm(screenName);
+
         // If the stage is complete we have form as null.
         if (form != null) {
             // TODO: permission check (active stage userID? TeamID ?)

@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
+package uk.gov.digital.ho.hocs.workflow.documentClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

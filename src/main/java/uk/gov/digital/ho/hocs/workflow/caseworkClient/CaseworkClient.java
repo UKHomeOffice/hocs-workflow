@@ -80,19 +80,6 @@ public class CaseworkClient {
         }
     }
 
-    public UUID createDocument(UUID caseUUID, String displayName, DocumentType type){
-        log.debug("Creating Document, Case {}", caseUUID);
-        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(displayName, type);
-        ResponseEntity<CreateCaseworkDocumentResponse> response = postWithAuth(String.format("/case/%s/document", caseUUID), request, CreateCaseworkDocumentResponse.class);
-
-        if(response.getStatusCodeValue() == 200) {
-            log.info("Created Document {}, Case {}", response.getBody().getUuid(), caseUUID);
-            return response.getBody().getUuid();
-        } else {
-            throw new EntityCreationException("Could not create Document; response: %s", response.getStatusCodeValue());
-        }
-    }
-
     public void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
         log.debug("Allocating Stage {}, Case {}", stageUUID, caseUUID);
         AllocateCaseworkStageRequest request = new AllocateCaseworkStageRequest(teamUUID, userUUID);
@@ -126,6 +113,13 @@ public class CaseworkClient {
         } catch (JsonProcessingException e) {
             throw new EntityCreationException("Could not set Input Data: %s", e.toString());
         }
+    }
+
+    public void removeInputData(UUID caseUUID, Set<String> dataToRemove) {
+        Map<String, String> tempData = new HashMap<>();
+        dataToRemove.forEach(d -> tempData.put(d, ""));
+
+        this.setInputData(caseUUID, tempData);
     }
 
     public void createDeadlines(UUID caseUUID, Map<StageType, LocalDate> deadlines) {
@@ -204,4 +198,5 @@ public class CaseworkClient {
     }
 
     private String caseworkBasicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(caseServiceAuth.getBytes(Charset.forName("UTF-8")))); }
+
 }
