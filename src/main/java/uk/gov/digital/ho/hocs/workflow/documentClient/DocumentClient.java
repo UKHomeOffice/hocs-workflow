@@ -66,18 +66,32 @@ public class DocumentClient {
 
 
     public void processDocument(UUID caseUUID, UUID documentUUID, String fileLocation) {
-        log.debug("Setting Input Data, Case {}", caseUUID);
+        log.debug("Setting Document, Case {}", caseUUID);
         ProcessDocumentRequest request = new ProcessDocumentRequest(documentUUID, caseUUID, fileLocation);
 
         try {
             producerTemplate.sendBody(documentQueue, objectMapper.writeValueAsString(request));
-            log.info("Set Input Data, Case {}", caseUUID);
+            log.info("Set Document, Case {}", caseUUID);
         } catch (JsonProcessingException e) {
             throw new EntityCreationException("Could not set Input Data: %s", e.toString());
         }
-
     }
 
+    public void deleteDocument(UUID caseUUID, UUID documentUUID) {
+        log.debug("Deleting Document {}, Case {}", documentUUID, caseUUID);
+
+        ResponseEntity<Void> response = deleteWithAuth(String.format("/case/%s/document/%s", caseUUID, documentUUID), null,  Void.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.info("Deleted Document {}, Case {}", documentUUID, caseUUID);
+        } else {
+            throw new EntityCreationException("Could not delete Document; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    private <T,R> ResponseEntity<R> deleteWithAuth(String url, T request, Class<R> responseType) {
+        return restTemplate.exchange(String.format("%s%s", documentServiceUrl, url), HttpMethod.DELETE, new HttpEntity<>(null, createAuthHeaders()), responseType);
+    }
 
     private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {
         return restTemplate.postForEntity(String.format("%s%s", documentServiceUrl, url), new HttpEntity<>(request, createAuthHeaders()), responseType);

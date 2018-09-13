@@ -77,21 +77,33 @@ public class WorkflowService implements JavaDelegate {
             Map<String, String> data = new HashMap<>();
             data.put("DateReceived", dateReceived.toString());
             caseworkClient.setInputData(caseUUID, data);
-
+            createDocument(caseUUID, documents);
             camundaClient.startCase(caseUUID, caseType, seedData);
-            if (documents != null) {
-                // Add any Documents to the case
-                for (DocumentSummary document : documents) {
-                    UUID response = documentClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
 
-                    documentClient.processDocument(caseUUID, response, document.getS3UntrustedUrl());
-                }
-            }
         } else {
             throw new EntityCreationException("Failed to start case, invalid caseUUID!");
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
+
+    public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
+
+        if (documents != null) {
+            // Add any Documents to the case
+            for (DocumentSummary document : documents) {
+                UUID response = documentClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
+
+                documentClient.processDocument(caseUUID, response, document.getS3UntrustedUrl());
+            }
+        }
+    }
+
+    public void deleteDocument(UUID caseUUID, UUID documentUUID) {
+
+         documentClient.deleteDocument(caseUUID, documentUUID);
+
+    }
+
 
     public void lookupCorrespondent(String caseUUIDString, String CFullName) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
