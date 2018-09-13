@@ -14,14 +14,8 @@ public class CreateCaseworkCorrespondentRequest {
     @JsonProperty("caseUUID")
     private UUID caseUUID;
 
-    @JsonProperty("title")
-    private String title;
-
-    @JsonProperty("first_name")
-    private String firstName;
-
-    @JsonProperty("surname")
-    private String surname;
+    @JsonProperty("fullname")
+    private String fullName;
 
     @JsonProperty("postcode")
     private String postcode;
@@ -49,9 +43,7 @@ public class CreateCaseworkCorrespondentRequest {
 
     public CreateCaseworkCorrespondentRequest(UUID caseUUID, Correspondent correspondent) {
         this.caseUUID = caseUUID;
-        this.title = correspondent.getTitle();
-        this.firstName = correspondent.getFirstName();
-        this.surname = correspondent.getSurname();
+        this.fullName = correspondent.getFullname();
         this.postcode = correspondent.getPostcode();
         this.address1 = correspondent.getAddress1();
         this.address2 = correspondent.getAddress2();
