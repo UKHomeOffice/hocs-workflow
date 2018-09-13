@@ -40,6 +40,18 @@ class WorkflowResource {
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }
 
+    @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
+        workflowService.createDocument(caseUUID, request.getDocuments());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(value = "/case/{caseUUID}/document/{documentUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity deleteDocument(@PathVariable UUID caseUUID, @PathVariable UUID documentUUID) {
+        workflowService.deleteDocument(caseUUID, documentUUID);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> updateStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
         GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request.getData());
