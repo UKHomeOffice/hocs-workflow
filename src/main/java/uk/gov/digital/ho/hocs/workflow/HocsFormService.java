@@ -25,9 +25,6 @@ public class HocsFormService {
         forms.put("DCU_ADD_ANOTHER_CORRESPONDENT", getAddAnotherCorrespondent());
         forms.put("DCU_SET_PRIMARY_CORRESPONDENT", getSetPrimaryCorrespondent());
 
-        //// Create QA
-        forms.put("APPROVE_DATA_INPUT_QA", getAcceptDataInputQA());
-
         //// Draft
         forms.put("DCU_INITIAL_DRAFT_DECISION", getInitialDraftConfirmation());
         forms.put("DCU_REJECTION_NOTE", getRejectionNote());
@@ -454,40 +451,6 @@ public class HocsFormService {
         formFields.add(fieldFive);
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Continue", formFields);
-
-        HocsForm form1 = new HocsForm(schema1);
-
-        return form1;
-    }
-
-    private HocsForm getAcceptDataInputQA() {
-        List<String> validationList = new ArrayList<>();
-        validationList.add("required");
-
-        Map<String,String> choice1 = new HashMap<>();
-        choice1.put("label", "Accept");
-        choice1.put("value", "ACCEPT");
-        choice1.put("checked", "checked");
-
-        Map<String,String> choice2 = new HashMap<>();
-        choice2.put("label", "Reject");
-        choice2.put("value", "REJECT");
-
-        List<Map<String, String>> choices = new ArrayList<>();
-        choices.add(choice1);
-        choices.add(choice2);
-
-        Map<String,Object> properties4 = new HashMap<>();
-        properties4.put("name", "DataInputQADecision");
-        properties4.put("label", "Data Input QA Decision");
-        properties4.put("choices", choices);
-
-        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
-
-        List<HocsFormField> formFields = new ArrayList<>();
-        formFields.add(fieldFour);
-
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Data Input QA Decision", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
