@@ -283,7 +283,6 @@ public class HocsFormService {
 
         return form1;
     }
-
     private HocsForm getAddAnotherCorrespondent(){
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
