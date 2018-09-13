@@ -42,6 +42,12 @@ public class InfoClient {
         return nominatedPeople;
    }
 
+    public InfoGetTemplateResponse getTemplate(CaseType caseType) {
+        ResponseEntity<InfoGetTemplateResponse> response = getWithAuth(String.format("/casetype/%s/template", caseType), null, InfoGetTemplateResponse.class);
+        InfoGetTemplateResponse template = response.getBody();
+        return template;
+    }
+  
     public Correspondent getMemberAsCorrespondent(String memberId) {
         return null;
     }
