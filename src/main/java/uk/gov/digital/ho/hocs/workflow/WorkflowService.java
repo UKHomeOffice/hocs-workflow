@@ -4,22 +4,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkInputResponse;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkStageResponse;
+import uk.gov.digital.ho.hocs.workflow.documentClient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoDeadlines;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoNominatedPeople;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
 import uk.gov.digital.ho.hocs.workflow.notifications.NotifyType;
-import uk.gov.service.notify.NotificationClientException;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -28,16 +26,8 @@ import java.util.*;
 @Slf4j
 public class WorkflowService implements JavaDelegate {
 
-    // TODO: this should be in the list service
-    private static List<WorkflowType> caseTypeDetails = new ArrayList<>();
-
-    static {
-        caseTypeDetails.add(new WorkflowType("DCU MIN", CaseType.MIN.toString()));
-        caseTypeDetails.add(new WorkflowType("DCU TRO", CaseType.TRO.toString()));
-        caseTypeDetails.add(new WorkflowType("DCU DTEN", CaseType.DTEN.toString()));
-    }
-
     private final CaseworkClient caseworkClient;
+    private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
     private final HocsFormService hocsFormService;
@@ -46,23 +36,17 @@ public class WorkflowService implements JavaDelegate {
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
+                           DocumentClient documentClient,
                            InfoClient infoClient,
                            CamundaClient camundaClient,
                            HocsFormService hocsFormService,
                            EmailService emailService) {
         this.caseworkClient = caseworkClient;
+        this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.hocsFormService = hocsFormService;
         this.emailService = emailService;
-    }
-
-    List<WorkflowType> getAllWorkflowTypes() {
-        if (caseTypeDetails != null && !caseTypeDetails.isEmpty()) {
-            return caseTypeDetails;
-        } else {
-            return new ArrayList<>();
-        }
     }
 
     @Override
@@ -71,14 +55,13 @@ public class WorkflowService implements JavaDelegate {
 
     public CreateCaseResponse createCase(CaseType caseType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a UUID.
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseType, dateReceived);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseType);
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
             // Start a new case level workflow (caseUUID is the business key).
             Map<String, Object> seedData = new HashMap<>();
             seedData.put("DateReceived", dateReceived);
-            seedData.put("CaseReference", caseResponse.getReference());
 
             seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
             seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
@@ -90,36 +73,67 @@ public class WorkflowService implements JavaDelegate {
             seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
             seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
             seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
+
+            Map<String, String> data = new HashMap<>();
+            data.put("DateReceived", dateReceived.toString());
+            caseworkClient.setInputData(caseUUID, data);
+            createDocument(caseUUID, documents);
             camundaClient.startCase(caseUUID, caseType, seedData);
-            if (documents != null) {
-                // Add any Documents to the case
-                for (DocumentSummary document : documents) {
-                    UUID response = caseworkClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
-                    //TODO: post to queue (response.getUuid(), documentSummary.getS3UntrustedUrl());
-                }
-            }
+
         } else {
             throw new EntityCreationException("Failed to start case, invalid caseUUID!");
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    public void addPublicCorrespondent(String caseUUIDString, String cType, String cTitle, String cFirstName, String cLastName, String cPostcode, String cAddressOne, String cAddressTwo, String cAddressThree, String cAddressCountry, String cPhone, String cEmail, String cReference ){
+    public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
 
-        UUID caseUUID = UUID.fromString(caseUUIDString);
+        if (documents != null) {
+            // Add any Documents to the case
+            for (DocumentSummary document : documents) {
+                UUID response = documentClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
 
-        CorrespondentType correspondentType = CorrespondentType.valueOf(cType);
-        Correspondent correspondent = new Correspondent(correspondentType, cTitle, cFirstName, cLastName, cPostcode, cAddressOne, cAddressTwo, cAddressThree, cAddressCountry, cEmail, cPhone);
-        caseworkClient.createCorrespondent(caseUUID, correspondent);
+                documentClient.processDocument(caseUUID, response, document.getS3UntrustedUrl());
+            }
+        }
+    }
 
-        caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, cReference);
+    public void deleteDocument(UUID caseUUID, UUID documentUUID) {
+
+         documentClient.deleteDocument(caseUUID, documentUUID);
+
     }
 
 
-
-    public void addMemberCorrespondent(String caseUUIDString){
-        // Do nothing.
+    public void lookupCorrespondent(String caseUUIDString, String CFullName) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
+
+        try {
+            Thread.sleep(1000l);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // Lookup full name in Info service.
+
+        //if not null
+            // save the correspondent details
+    }
+
+    public void clearCorrespondentData(String caseUUIDString) {
+
+        //caseworkClient.
+    }
+
+    public void addCorrespondent(String caseUUIDString, String cType, String cFullName, String cPostcode, String cAddressOne, String cAddressTwo, String cAddressThree, String cAddressCountry, String cPhone, String cEmail, String cReference ){
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+
+        CorrespondentType correspondentType = CorrespondentType.valueOf(cType);
+        Correspondent correspondent = new Correspondent(correspondentType, cFullName, cPostcode, cAddressOne, cAddressTwo, cAddressThree, cAddressCountry, cPhone, cEmail);
+        caseworkClient.createCorrespondent(caseUUID, correspondent);
+
+        if(cReference != null) {
+            caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, cReference);
+        }
     }
 
     public void addCaseNote(String caseUUIDString, String caseNote){
@@ -131,9 +145,30 @@ public class WorkflowService implements JavaDelegate {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         LocalDate now = LocalDate.parse(dateReceivedString);
         CaseType caseType = CaseType.valueOf(caseTypeString);
-        Set<Deadline> deadlines = infoClient.getDeadlines(caseType, now);
+        Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseType, now);
         caseworkClient.createDeadlines(caseUUID, deadlines);
         log.debug("######## Created Stage ########");
+    }
+
+    // TODO: this is BS but we need to move on.
+    public void clearTempData(String caseUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+
+        Set<String> dataToRemove = new HashSet<>();
+
+        dataToRemove.add("TEMPCType");
+        dataToRemove.add("TEMPCFullName");
+        dataToRemove.add("TEMPCPostcode");
+        dataToRemove.add("TEMPCAddressOne");
+        dataToRemove.add("TEMPCAddressTwo");
+        dataToRemove.add("TEMPCCountry");
+        dataToRemove.add("TEMPCEmail");
+        dataToRemove.add("TEMPCPhone");
+        dataToRemove.add("TEMPCAddressThree");
+        dataToRemove.add("TEMPCReference");
+        dataToRemove.add("TEMPAdditionalCorrespondent");
+
+        caseworkClient.removeInputData(caseUUID, dataToRemove);
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
@@ -166,14 +201,15 @@ public class WorkflowService implements JavaDelegate {
 
     public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getScreenName(stageUUID);
-        // TODO: replace Hocs form service with calls to list service.
         HocsForm form = hocsFormService.getForm(screenName);
+
         // If the stage is complete we have form as null.
         if (form != null) {
             // TODO: permission check (active stage userID? TeamID ?)
-            GetCaseworkStageResponse response = caseworkClient.getStage(caseUUID, stageUUID);
-            form.setData(response.getData());
-            return new GetStageResponse(stageUUID, response.getCaseReference(), form);
+            GetCaseworkStageResponse stageResponse = caseworkClient.getStage(caseUUID, stageUUID);
+            GetCaseworkInputResponse inputResponse = caseworkClient.getInput(caseUUID);
+            form.setData(inputResponse.getData());
+            return new GetStageResponse(stageUUID, stageResponse.getCaseReference(), form);
         } else {
             return new GetStageResponse(stageUUID, null, null);
         }
@@ -182,7 +218,7 @@ public class WorkflowService implements JavaDelegate {
     public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: permission check (active stage userID? TeamID ?)
         // TODO: validate Form
-        caseworkClient.updateStage(caseUUID, stageUUID, values);
+        caseworkClient.setInputData(caseUUID, values);
         camundaClient.updateStage(stageUUID, values);
 
         return getStage(caseUUID, stageUUID);
@@ -199,11 +235,9 @@ public class WorkflowService implements JavaDelegate {
         caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
     }
 
-    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) throws NotificationClientException {
+    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) {
         log.debug("######## Sending {} Email ########", notifyType);
-
-            emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
-
+        //emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
         log.debug("######## Sent {} Email ########", notifyType);
     }
 }

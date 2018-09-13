@@ -31,7 +31,7 @@ public class EmailService {
         this.URL = URL;
     }
 
-    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) throws NotificationClientException {
+    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) {
         String link = URL + "case/" + caseUUIDString + "/stage/" + stageUUIDString;
 
         Set<InfoNominatedPeople> nominatedPeopleSet = infoClient.getNominatedPeople(UUID.fromString(teamUUIDString));
@@ -44,9 +44,15 @@ public class EmailService {
         }
     }
 
-    private void sendEmail(NotifyType notifyType, String emailAddress, Map<String, String> personalisation) throws NotificationClientException {
+    private void sendEmail(NotifyType notifyType, String emailAddress, Map<String, String> personalisation) {
         log.info("Received request to sendEmailRequest {}, template Name {}, template ID {}", emailAddress, notifyType, notifyType.getDisplayValue());
         //TODO auditService
-        notifyClient.sendEmail(notifyType.getDisplayValue(), emailAddress, personalisation, null);
+
+        try {
+            notifyClient.sendEmail(notifyType.getDisplayValue(), emailAddress, personalisation, null);
+        } catch (NotificationClientException e) {
+            log.warn("Didn't send email to %s", emailAddress);
+        }
+
     }
 }

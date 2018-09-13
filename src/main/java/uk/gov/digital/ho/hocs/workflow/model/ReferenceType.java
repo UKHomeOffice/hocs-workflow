@@ -4,7 +4,7 @@ import lombok.Getter;
 
 public enum ReferenceType {
 
-   MP_REFERENCE("MP Reference"),
+   MEMBER_REFERENCE("MP Reference"),
    HO_REFERENCE("HO Reference"),
    PASSPORT_NUMBER("Passport Number"),
    CID_NUMBER("CID Number"),

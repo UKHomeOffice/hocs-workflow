@@ -1,6 +1,9 @@
 package uk.gov.digital.ho.hocs.workflow.caseworkClient;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -27,18 +30,33 @@ public class CaseworkClient {
 
     private final String caseServiceUrl;
     private final String caseServiceAuth;
+
+    private final String caseQueue;
+
+    private final ProducerTemplate producerTemplate;
+
     private final RestTemplate restTemplate;
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
-    public CaseworkClient(RestTemplate restTemp, @Value("${hocs.case-service}") String caseService, @Value("${hocs.case-service.auth}") String caseworkBasicAuth) {
-        caseServiceUrl = caseService;
-        caseServiceAuth = caseworkBasicAuth;
-        restTemplate = restTemp;
+    public CaseworkClient(RestTemplate restTemp,
+                          ProducerTemplate producerTemplate,
+                          ObjectMapper objectMapper,
+                          @Value("${hocs.case-service}") String caseService,
+                          @Value("${hocs.case-service.auth}") String caseworkBasicAuth,
+                          @Value("${case.queue}") String caseQueue) {
+        this.producerTemplate = producerTemplate;
+        this.caseServiceUrl = caseService;
+        this.objectMapper = objectMapper;
+        this.caseServiceAuth = caseworkBasicAuth;
+        this.restTemplate = restTemp;
+        this.caseQueue = caseQueue;
     }
 
-    public CreateCaseworkCaseResponse createCase(CaseType caseType, LocalDate dateReceived) {
+    public CreateCaseworkCaseResponse createCase(CaseType caseType) {
         log.info("Creating Case: {}", caseType);
-        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseType, dateReceived);
+        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseType);
         ResponseEntity<CreateCaseworkCaseResponse> response = postWithAuth("/case", request, CreateCaseworkCaseResponse.class);
 
         if(response.getStatusCodeValue() == 200) {
@@ -62,41 +80,6 @@ public class CaseworkClient {
         }
     }
 
-    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String,String> data) {
-        log.info("Updating Stage: {} for Case: {}", stageUUID, caseUUID);
-        UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
-        ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/input", caseUUID), request, Void.class);
-
-        if(response.getStatusCodeValue() == 200) {
-            log.info("Updated Stage: {} for Case: {}", stageUUID, caseUUID);
-        } else {
-            throw new EntityCreationException("Could not update Stage; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public void completeStage(UUID caseUUID, UUID stageUUID) {
-        log.info("Completing Stage: {} for Case: {}", stageUUID, caseUUID);
-        ResponseEntity<Void> response = getWithAuth(String.format("/case/%s/stage/%s/complete", caseUUID, stageUUID), Void.class);
-
-        if(response.getStatusCodeValue() == 200) {
-            log.debug("Completed Stage: {} for Case: {}", stageUUID, caseUUID);
-        } else {
-            throw new EntityCreationException("Could not complete Stage; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public GetCaseworkStageResponse getStage(UUID caseUUID, UUID stageUUID) {
-        log.debug("Getting Stage: {} for Case: {}", stageUUID, caseUUID);
-        ResponseEntity<GetCaseworkStageResponse> response = getWithAuth(String.format("/case/%s/stage/%s", caseUUID, stageUUID), GetCaseworkStageResponse.class);
-
-        if(response.getStatusCodeValue() == 200) {
-            log.info("Got Stage: {} for Case: {}", stageUUID, caseUUID);
-            return response.getBody();
-        } else {
-            throw new EntityNotFoundException("Could not create Stage; response: %s", response.getStatusCodeValue());
-        }
-    }
-
     public void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
         log.debug("Allocating Stage {}, Case {}", stageUUID, caseUUID);
         AllocateCaseworkStageRequest request = new AllocateCaseworkStageRequest(teamUUID, userUUID);
@@ -109,52 +92,93 @@ public class CaseworkClient {
         }
     }
 
-    public void createDeadlines(UUID caseUUID, Set<Deadline> deadlines) {
-        log.debug("Creating Deadlines, for Case {}", caseUUID);
-        CreateCaseworkDeadlinesRequest request = new CreateCaseworkDeadlinesRequest(deadlines);
-        ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/deadline", caseUUID), request, Void.class);
+    public void completeStage(UUID caseUUID, UUID stageUUID) {
+        log.info("Completing Stage: {} for Case: {}", stageUUID, caseUUID);
+        ResponseEntity<Void> response = getWithAuth(String.format("/case/%s/stage/%s/close", caseUUID, stageUUID), Void.class);
 
         if(response.getStatusCodeValue() == 200) {
-            log.info("Created Deadlines for Case {}", caseUUID);
+            log.debug("Completed Stage: {} for Case: {}", stageUUID, caseUUID);
         } else {
-            throw new EntityCreationException("Could not create Deadlines; response: %s", response.getStatusCodeValue());
+            throw new EntityCreationException("Could not complete Stage; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    public void setInputData(UUID caseUUID, Map<String,String> data) {
+        log.debug("Setting Input Data, Case {}", caseUUID);
+        UpdateCaseworkInputDataRequest request = new UpdateCaseworkInputDataRequest(caseUUID, data);
+
+        try {
+            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
+            log.info("Set Input Data, Case {}", caseUUID);
+        } catch (JsonProcessingException e) {
+            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
+        }
+    }
+
+    public void removeInputData(UUID caseUUID, Set<String> dataToRemove) {
+        Map<String, String> tempData = new HashMap<>();
+        dataToRemove.forEach(d -> tempData.put(d, ""));
+
+        this.setInputData(caseUUID, tempData);
+    }
+
+    public void createDeadlines(UUID caseUUID, Map<StageType, LocalDate> deadlines) {
+        log.debug("Creating Deadlines, for Case {}", caseUUID);
+        UpdateCaseworkDeadlinesRequest request = new UpdateCaseworkDeadlinesRequest(caseUUID, deadlines);
+
+        try {
+            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
+            log.info("Created Deadlines for Case {}", caseUUID);
+        } catch (JsonProcessingException e) {
+            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
         }
     }
 
     public void createCorrespondent(UUID caseUUID, Correspondent correspondent) {
         log.debug("Creating Correspondent, Case {}", caseUUID);
-        CreateCaseworkCorrespondentRequest request = new CreateCaseworkCorrespondentRequest(correspondent);
-        ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/correspondent", caseUUID), request, Void.class);
+        CreateCaseworkCorrespondentRequest request = new CreateCaseworkCorrespondentRequest(caseUUID, correspondent);
 
-        if(response.getStatusCodeValue() == 200) {
-            log.debug("Created Correspondent, for Case {}", caseUUID);
-        } else {
-            throw new EntityCreationException("Could not create Correspondent; response: %s", response.getStatusCodeValue());
+        try {
+            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
+            log.info("Created Correspondent, for Case {}", caseUUID);
+        } catch (JsonProcessingException e) {
+            throw new EntityCreationException("Could not create Correspondent: %s", e.toString());
         }
     }
 
     public void createReference(UUID caseUUID, ReferenceType referenceType, String reference) {
         log.debug("Creating Correspondent, Case {}", caseUUID);
-        CreateCaseworkReferenceRequest request = new CreateCaseworkReferenceRequest(referenceType, reference);
-        ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/reference", caseUUID), request, Void.class);
+        CreateCaseworkReferenceRequest request = new CreateCaseworkReferenceRequest(caseUUID, reference, referenceType);
 
-        if(response.getStatusCodeValue() == 200) {
-            log.debug("Created Correspondent, for Case {}", caseUUID);
-        } else {
-            throw new EntityCreationException("Could not create Correspondent; response: %s", response.getStatusCodeValue());
+        try {
+            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
+            log.info("Created Correspondent, Case {}", caseUUID);
+        } catch (JsonProcessingException e) {
+            throw new EntityCreationException("Could not create Reference: %s", e.toString());
         }
     }
 
-    public UUID createDocument(UUID caseUUID, String displayName, DocumentType type){
-        log.debug("Creating Document, Case {}", caseUUID);
-        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(displayName, type);
-        ResponseEntity<CreateCaseworkDocumentResponse> response = postWithAuth(String.format("/case/%s/document", caseUUID), request, CreateCaseworkDocumentResponse.class);
+    public GetCaseworkStageResponse getStage(UUID caseUUID, UUID stageUUID) {
+        log.debug("Getting Stage: {} for Case: {}", stageUUID, caseUUID);
+        ResponseEntity<GetCaseworkStageResponse> response = getWithAuth(String.format("/case/%s/stage/%s", caseUUID, stageUUID), GetCaseworkStageResponse.class);
 
         if(response.getStatusCodeValue() == 200) {
-            log.info("Created Document {}, Case {}", response.getBody().getUuid(), caseUUID);
-            return response.getBody().getUuid();
+            log.info("Got Stage: {} for Case: {}", stageUUID, caseUUID);
+            return response.getBody();
         } else {
-            throw new EntityCreationException("Could not create Document; response: %s", response.getStatusCodeValue());
+            throw new EntityNotFoundException("Could not get Stage; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    public GetCaseworkInputResponse getInput(UUID caseUUID) {
+        log.debug("Getting Input for Case: {}", caseUUID);
+        ResponseEntity<GetCaseworkInputResponse> response = getWithAuth(String.format("/case/%s/input", caseUUID), GetCaseworkInputResponse.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.info("Got Input for Case: {}", caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get Input; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -174,4 +198,5 @@ public class CaseworkClient {
     }
 
     private String caseworkBasicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(caseServiceAuth.getBytes(Charset.forName("UTF-8")))); }
+
 }

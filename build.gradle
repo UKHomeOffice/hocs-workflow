@@ -1,14 +1,14 @@
 buildscript {
-    ext {
-        springBootVersion = '2.0.3.RELEASE'
-        camelVersion = '2.18.1'
-    }
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
+	ext {
+		springBootVersion = '2.0.5.RELEASE'
+		camelVersion = '2.22.0'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
 }
 
 apply plugin: 'java'
@@ -21,8 +21,8 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
-    jcenter()
+	mavenCentral()
+	jcenter()
 }
 
 dependencyManagement {
@@ -36,24 +36,28 @@ dependencies {
 		exclude module: "spring-boot-starter-tomcat"
 	}
 
-	compile('org.springframework.boot:spring-boot-starter-jetty')
+	compile('org.springframework.boot:spring-boot-starter-undertow')
 	compile('net.logstash.logback:logstash-logback-encoder:5.1')
 	compile('org.springframework.boot:spring-boot-starter-json')
-    compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile 'uk.gov.service.notify:notifications-java-client:3.10.0-RELEASE'
-	compile 'com.amazonaws:aws-java-sdk:1.11.400'
-	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
 
+	compile group: 'org.apache.camel', name: 'camel-spring-boot', version: camelVersion
+	compile group: 'org.apache.camel', name: 'camel-jackson', version: camelVersion
+	compile group: 'org.apache.camel', name: 'camel-aws', version: camelVersion
+	compile group: 'org.apache.camel', name: 'camel-http4', version: camelVersion
+	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
+	compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.380'
+
+	compile 'uk.gov.service.notify:notifications-java-client:3.10.0-RELEASE'
 	compile ('org.camunda.bpm:camunda-engine-spring:7.9.0')
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
 
-
-	runtime('com.h2database:h2')
 	runtime('org.postgresql:postgresql')
 
 	compileOnly('org.projectlombok:lombok')
 
+	testCompile group: 'org.apache.camel', name: 'camel-test-spring', version: camelVersion
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.assertj:assertj-core')
 }

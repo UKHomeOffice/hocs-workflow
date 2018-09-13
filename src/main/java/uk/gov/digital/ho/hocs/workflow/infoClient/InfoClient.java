@@ -6,14 +6,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
-import uk.gov.digital.ho.hocs.workflow.model.Deadline;
+import uk.gov.digital.ho.hocs.workflow.model.*;
 
 import java.nio.charset.Charset;
 import java.time.LocalDate;
-import java.util.Base64;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -32,10 +29,10 @@ public class InfoClient {
         CASE_SERVICE_AUTH = caseworkBasicAuth;
     }
 
-   public Set<Deadline> getDeadlines(CaseType caseType, LocalDate localDate) {
+   public Map<StageType, LocalDate> getDeadlines(CaseType caseType, LocalDate localDate) {
 
        ResponseEntity<InfoGetDeadlinesResponse> response = getWithAuth(String.format("/casetype/%s/deadlines/%s", caseType, localDate), null, InfoGetDeadlinesResponse.class);
-       Set<Deadline> deadlines = response.getBody().getDeadlines();
+       Map<StageType, LocalDate> deadlines = response.getBody().getDeadlines();
        return deadlines;
    }
 
@@ -49,6 +46,10 @@ public class InfoClient {
         ResponseEntity<InfoGetTemplateResponse> response = getWithAuth(String.format("/casetype/%s/template", caseType), null, InfoGetTemplateResponse.class);
         InfoGetTemplateResponse template = response.getBody();
         return template;
+    }
+  
+    public Correspondent getMemberAsCorrespondent(String memberId) {
+        return null;
     }
 
     private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {

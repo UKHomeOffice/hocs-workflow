@@ -4,16 +4,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
 import uk.gov.digital.ho.hocs.workflow.model.CorrespondentType;
 
+import java.util.UUID;
+
 public class CreateCaseworkCorrespondentRequest {
 
-    @JsonProperty("title")
-    private String title;
+    @JsonProperty("command")
+    private String command = "create_correspondent_command";
 
-    @JsonProperty("first_name")
-    private String firstName;
+    @JsonProperty("caseUUID")
+    private UUID caseUUID;
 
-    @JsonProperty("surname")
-    private String surname;
+    @JsonProperty("fullname")
+    private String fullName;
 
     @JsonProperty("postcode")
     private String postcode;
@@ -39,10 +41,9 @@ public class CreateCaseworkCorrespondentRequest {
     @JsonProperty("type")
     private CorrespondentType type;
 
-    public CreateCaseworkCorrespondentRequest(Correspondent correspondent) {
-        this.title = correspondent.getTitle();
-        this.firstName = correspondent.getFirstName();
-        this.surname = correspondent.getSurname();
+    public CreateCaseworkCorrespondentRequest(UUID caseUUID, Correspondent correspondent) {
+        this.caseUUID = caseUUID;
+        this.fullName = correspondent.getFullname();
         this.postcode = correspondent.getPostcode();
         this.address1 = correspondent.getAddress1();
         this.address2 = correspondent.getAddress2();

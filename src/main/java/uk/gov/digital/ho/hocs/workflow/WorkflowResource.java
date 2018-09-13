@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
-import uk.gov.digital.ho.hocs.workflow.dto.WorkflowType;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 import java.util.Collections;
@@ -25,12 +24,6 @@ class WorkflowResource {
         this.workflowService = workflowService;
     }
 
-    @GetMapping(value = "/caseType", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetWorkflowTypesResponse> getAllCaseTypes() {
-        List<WorkflowType> workflowTypes = workflowService.getAllWorkflowTypes();
-        return ResponseEntity.ok(new GetWorkflowTypesResponse(workflowTypes));
-    }
-
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request) {
         CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments());
@@ -45,6 +38,18 @@ class WorkflowResource {
             workflowService.createCase(type, request.getDateReceived(), Collections.singletonList(documentSummary));
         });
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
+    }
+
+    @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
+        workflowService.createDocument(caseUUID, request.getDocuments());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(value = "/case/{caseUUID}/document/{documentUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity deleteDocument(@PathVariable UUID caseUUID, @PathVariable UUID documentUUID) {
+        workflowService.deleteDocument(caseUUID, documentUUID);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)

@@ -2,15 +2,16 @@ package uk.gov.digital.ho.hocs.workflow.model;
 
 import lombok.Getter;
 
-public enum DocumentType {
+public enum DocumentStatus {
 
-    ORIGINAL("Original"),
-    DRAFT("Draft");
+    PENDING("Pending"),
+    UPLOADED("Uploaded"),
+    FAILED("Failed");
 
     @Getter
     private String displayValue;
 
-    DocumentType(String value) {
+    DocumentStatus(String value) {
         displayValue = value;
     }
 }

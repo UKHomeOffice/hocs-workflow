@@ -9,11 +9,7 @@ public class Correspondent {
 
     private CorrespondentType correspondentType;
 
-    private String title;
-
-    private String firstName;
-
-    private String surname;
+    private String fullname;
 
     private String postcode;
 
