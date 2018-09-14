@@ -663,19 +663,8 @@ public class HocsFormService {
 
         HocsFormField fieldSeven = new HocsFormField("text-area", validationList, properties7);
 
-        Map<String,Object> properties9 = new HashMap<>();
-        properties9.put("name", "primary_topic");
-        properties9.put("label", "What is the primary topic?");
-        properties9.put("entity", "topic");
-        properties9.put("hasRemoveLink", true);
-        properties9.put("hasAddLink", true);
-        properties9.put("choices", "CASE_TOPIC_LIST");
-
-        HocsFormField fieldNine = new HocsFormField("entity-list", new ArrayList<>() , properties9);
-
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
-        formFields.add(fieldNine);
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Topics", "Continue", formFields);
 
