@@ -182,12 +182,39 @@ public class CaseworkClient {
         }
     }
 
+    public void addTopicToCase(UUID caseUUID, UUID topicUUID) {
+        log.debug("adding topic to Case: {}", caseUUID);
+        AddTopicToCaseRequest request = new AddTopicToCaseRequest(topicUUID);
+        ResponseEntity<Void> response = postWithAuth(String.format("/case/%s/topic", caseUUID), request, Void.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.info("Added topic {}, to Case {}", topicUUID, caseUUID);
+        } else {
+            throw new EntityCreationException("Could not add topic; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    public void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
+        log.debug("deleting topic from Case: {}", caseUUID);
+        ResponseEntity<Void> response = deleteWithAuth(String.format("/case/%s/topic/%s", caseUUID, topicUUID), Void.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.info("deleted topic {}, from Case {}", topicUUID, caseUUID);
+        } else {
+            throw new EntityCreationException("Could not add topic; response: %s", response.getStatusCodeValue());
+        }
+    }
+
     private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {
         return restTemplate.postForEntity(String.format("%s%s", caseServiceUrl, url), new HttpEntity<>(request, createAuthHeaders()), responseType);
     }
 
     private <R> ResponseEntity<R> getWithAuth(String url, Class<R> responseType) {
         return restTemplate.exchange(String.format("%s%s", caseServiceUrl, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
+    }
+
+    private <R> ResponseEntity<R> deleteWithAuth(String url, Class<R> responseType) {
+        return restTemplate.exchange(String.format("%s%s", caseServiceUrl, url), HttpMethod.DELETE, new HttpEntity<>(null, createAuthHeaders()), responseType);
     }
 
     private HttpHeaders createAuthHeaders() {

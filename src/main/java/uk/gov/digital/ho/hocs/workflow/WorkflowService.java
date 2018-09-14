@@ -246,4 +246,12 @@ public class WorkflowService implements JavaDelegate {
         String caseType = "MIN";
         return infoClient.getParentTopics(caseType);
     }
+
+    public void addTopicToCase(UUID caseUUID, UUID topicUUID) {
+        caseworkClient.addTopicToCase(caseUUID, topicUUID);
+    }
+
+    public void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
+        caseworkClient.deleteTopicFromCase(caseUUID, topicUUID);
+    }
 }
