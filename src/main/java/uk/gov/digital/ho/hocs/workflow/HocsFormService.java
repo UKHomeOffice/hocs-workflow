@@ -333,28 +333,15 @@ public class HocsFormService {
         properties9.put("name", "Correspondents");
         properties9.put("label", "Which is the primary correspondent?");
         properties9.put("action", "CORRESPONDENT");
-        properties9.put("entity", "correspondent");
-        properties9.put("hasRemoveLink", true);
-        properties9.put("hasAddLink", true);
+        properties9.put("hasRemoveLink", false);
+        properties9.put("hasAddLink", false);
         properties9.put("choices", choices);
 
         HocsFormField fieldNine = new HocsFormField("entity-list", new ArrayList<>() , properties9);
 
-        Map<String, Object> properties10 = new HashMap<>();
-        properties10.put("name", "standard_lines");
-        properties10.put("label", "Standard lines");
-        properties10.put("entity", "standard_line");
-        properties10.put("hasRemoveLink", false);
-        properties10.put("hasAddLink", false);
-        properties10.put("hasDownloadLink", true);
-        properties10.put("choices", "CASE_STANDARD_LINES");
-
-        HocsFormField fieldTen = new HocsFormField("entity-manager", new ArrayList<>() , properties10);
-
         List<HocsFormField> formFields = new ArrayList<>();
 
         formFields.add(fieldNine);
-        formFields.add(fieldTen);
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondence Details", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
