@@ -70,4 +70,10 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetParentTopicResponse> getParentTopicByCase(@PathVariable UUID caseUUID) {
+        GetParentTopicResponse response = workflowService.getParentTopics(caseUUID);
+        return ResponseEntity.ok(response);
+    }
+
 }

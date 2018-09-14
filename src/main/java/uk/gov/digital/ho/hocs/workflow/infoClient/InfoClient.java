@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import uk.gov.digital.ho.hocs.workflow.dto.GetParentTopicResponse;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 
 import java.nio.charset.Charset;
@@ -47,7 +49,13 @@ public class InfoClient {
         InfoGetTemplateResponse template = response.getBody();
         return template;
     }
-  
+
+    public GetParentTopicResponse getParentTopics(String caseType) {
+        ResponseEntity<GetParentTopicResponse> response = getWithAuth(String.format("/topic/parent/%s", caseType), null, GetParentTopicResponse.class);
+        GetParentTopicResponse topics = response.getBody();
+        return topics;
+    }
+
     public Correspondent getMemberAsCorrespondent(String memberId) {
         return null;
     }

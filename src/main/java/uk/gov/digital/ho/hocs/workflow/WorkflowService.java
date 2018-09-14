@@ -240,4 +240,10 @@ public class WorkflowService implements JavaDelegate {
         //emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
         log.debug("######## Sent {} Email ########", notifyType);
     }
+
+    public GetParentTopicResponse getParentTopics(UUID caseUUID) {
+        // TODO: get case type
+        String caseType = "MIN";
+        return infoClient.getParentTopics(caseType);
+    }
 }
