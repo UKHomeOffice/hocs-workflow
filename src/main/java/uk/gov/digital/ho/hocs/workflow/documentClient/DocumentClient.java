@@ -50,7 +50,6 @@ public class DocumentClient {
         this.documentQueue = documentQueue;
     }
 
-
     public UUID createDocument(UUID caseUUID, String displayName, DocumentType type){
         log.debug("Creating Document, Case {}", caseUUID);
         CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(displayName, type);
