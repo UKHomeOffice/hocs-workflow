@@ -70,4 +70,22 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetParentTopicResponse> getParentTopicByCase(@PathVariable UUID caseUUID) {
+        GetParentTopicResponse response = workflowService.getParentTopics(caseUUID);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity addTopicToCase(@PathVariable UUID caseUUID, @RequestBody AddTopicRequest request) {
+        workflowService.addTopicToCase(caseUUID, request.getTopicUUID());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(value = "/case/{caseUUID}/topic/{topicUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity deleteTopicFromCase(@PathVariable UUID caseUUID, @PathVariable UUID topicUUID) {
+        workflowService.deleteTopicFromCase(caseUUID, topicUUID);
+        return ResponseEntity.ok().build();
+    }
+
 }

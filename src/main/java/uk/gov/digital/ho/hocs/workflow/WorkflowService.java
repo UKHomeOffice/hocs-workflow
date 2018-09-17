@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkCaseTypeResponse;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkInputResponse;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkStageResponse;
 import uk.gov.digital.ho.hocs.workflow.documentClient.DocumentClient;
@@ -239,5 +240,20 @@ public class WorkflowService implements JavaDelegate {
         log.debug("######## Sending {} Email ########", notifyType);
         //emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
         log.debug("######## Sent {} Email ########", notifyType);
+    }
+
+    public GetParentTopicResponse getParentTopics(UUID caseUUID) {
+        // TODO: get case type
+//        String caseType = "MIN";
+        GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
+        return infoClient.getParentTopics(caseTypeResponse.getType().toString());
+    }
+
+    public void addTopicToCase(UUID caseUUID, UUID topicUUID) {
+        caseworkClient.addTopicToCase(caseUUID, topicUUID);
+    }
+
+    public void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
+        caseworkClient.deleteTopicFromCase(caseUUID, topicUUID);
     }
 }
