@@ -137,6 +137,16 @@ public class WorkflowService implements JavaDelegate {
         }
     }
 
+    public void addCorrespondentToCase(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
+
+        Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email);
+        caseworkClient.createCorrespondent(caseUUID, correspondent);
+
+        if(reference != null) {
+            caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, reference);
+        }
+    }
+
     public void addCaseNote(String caseUUIDString, String caseNote){
         // Do nothing.
         UUID caseUUID = UUID.fromString(caseUUIDString);
@@ -243,8 +253,6 @@ public class WorkflowService implements JavaDelegate {
     }
 
     public GetParentTopicResponse getParentTopics(UUID caseUUID) {
-        // TODO: get case type
-//        String caseType = "MIN";
         GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
         return infoClient.getParentTopics(caseTypeResponse.getType().toString());
     }
