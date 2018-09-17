@@ -182,6 +182,18 @@ public class CaseworkClient {
         }
     }
 
+    public GetCaseworkCaseTypeResponse getCaseTypeForCase(UUID caseUUID){
+        log.debug("Getting caseType for Case: {}", caseUUID);
+        ResponseEntity<GetCaseworkCaseTypeResponse> response = getWithAuth(String.format("/case/%s/casetype", caseUUID), GetCaseworkCaseTypeResponse.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.info("Got caseType for Case: {}", caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get caseType; response: %s", response.getStatusCodeValue());
+        }
+    }
+
     public void addTopicToCase(UUID caseUUID, UUID topicUUID) {
         log.debug("adding topic to Case: {}", caseUUID);
         AddTopicToCaseRequest request = new AddTopicToCaseRequest(topicUUID);
