@@ -70,6 +70,12 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping(value = "/case/{caseUUID}/correspondent", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity addCorrespondentToCase(@PathVariable UUID caseUUID, @RequestBody AddCorrespondentRequest request) {
+        workflowService.addCorrespondentToCase(caseUUID, request.getType(), request.getFullname(), request.getPostcode(), request.getAddress1(), request.getAddress2(), request.getAddress3(), request.getCountry(),request.getEmail(), request.getTelephone(), request.getReference());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetParentTopicResponse> getParentTopicByCase(@PathVariable UUID caseUUID) {
         GetParentTopicResponse response = workflowService.getParentTopics(caseUUID);
