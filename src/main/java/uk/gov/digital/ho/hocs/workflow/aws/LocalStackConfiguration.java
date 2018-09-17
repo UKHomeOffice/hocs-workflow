@@ -10,6 +10,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -18,11 +19,20 @@ import org.springframework.context.annotation.Profile;
 @Profile({ "local"})
 public class LocalStackConfiguration {
 
+    @Bean("Case")
+    public AmazonSQS caseSqsClient() {
+        return sqsClient();
+    }
+
+    @Bean("Docs")
+    public AmazonSQS docsSqsClient() {
+        return sqsClient();
+    }
 
     @Bean
     public AmazonSQS sqsClient() {
-
         AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration("http://localhost:4576/", "eu-west-2");
+
         return AmazonSQSClientBuilder.standard()
                 .withClientConfiguration(new ClientConfiguration().withProtocol(Protocol.HTTP))
                 .withCredentials(awsCredentialsProvider)
