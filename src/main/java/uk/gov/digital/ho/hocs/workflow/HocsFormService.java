@@ -318,17 +318,6 @@ public class HocsFormService {
 
 
     private HocsForm getSetPrimaryCorrespondent(){
-        Map<String,String> choice1 = new HashMap<>();
-        choice1.put("label", "This One");
-        choice1.put("value", "12345");
-
-        Map<String,String> choice2 = new HashMap<>();
-        choice2.put("label", "This Other One");
-        choice2.put("value", "67890");
-
-        List<Map<String, String>> choices = new ArrayList<>();
-        choices.add(choice1);
-        choices.add(choice2);
 
         Map<String,Object> properties9 = new HashMap<>();
         properties9.put("name", "Correspondents");
@@ -337,7 +326,7 @@ public class HocsFormService {
         properties9.put("entity", "correspondent");
         properties9.put("hasRemoveLink", false);
         properties9.put("hasAddLink", true);
-        properties9.put("choices", choices);
+        properties9.put("choices", "CASE_CORRESPONDENTS");
 
         HocsFormField fieldNine = new HocsFormField("entity-list", new ArrayList<>() , properties9);
 
