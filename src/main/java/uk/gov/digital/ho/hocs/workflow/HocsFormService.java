@@ -107,7 +107,7 @@ public class HocsFormService {
         HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
 
         Map<String,String> choice7 = new HashMap<>();
-        choice7.put("label", "Send a copy of the response to Number 10?");
+        choice7.put("label", "Send a copy to Number 10?");
         choice7.put("value", "TRUE");
 
         List<Map<String, String>> choices7 = new ArrayList<>();
@@ -280,6 +280,7 @@ public class HocsFormService {
 
         return form1;
     }
+
     private HocsForm getAddAnotherCorrespondent(){
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
@@ -333,8 +334,9 @@ public class HocsFormService {
         properties9.put("name", "Correspondents");
         properties9.put("label", "Which is the primary correspondent?");
         properties9.put("action", "CORRESPONDENT");
+        properties9.put("entity", "correspondent");
         properties9.put("hasRemoveLink", false);
-        properties9.put("hasAddLink", false);
+        properties9.put("hasAddLink", true);
         properties9.put("choices", choices);
 
         HocsFormField fieldNine = new HocsFormField("entity-list", new ArrayList<>() , properties9);
