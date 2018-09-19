@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.application;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -11,6 +12,7 @@ import java.util.Base64;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+@Slf4j
 @Component
 public class RestHelper {
 
@@ -25,7 +27,16 @@ public class RestHelper {
     }
 
     public <T,R> ResponseEntity<R> post(String serviceBaseURL, String url, T request, Class<R> responseType) {
+
+        try {
+            String response = restTemplate.exchange("https://clamav.{{.KUBE_NAMESPACE}}.svc.cluster.local", HttpMethod.GET, null, String.class).getBody();
+            log.info(response);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
         return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.POST, new HttpEntity<>(request, createAuthHeaders()), responseType);
+
     }
 
     public <T,R> ResponseEntity<R> get(String serviceBaseURL, String url, Class<R> responseType) {
