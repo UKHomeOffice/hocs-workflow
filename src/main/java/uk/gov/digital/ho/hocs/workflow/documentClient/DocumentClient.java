@@ -36,7 +36,7 @@ public class DocumentClient {
                           @Value("${docs.queue}") String documentQueue,
                           ObjectMapper objectMapper){
         this.restHelper = restHelper;
-        this.serviceBaseURL = documentQueue;
+        this.serviceBaseURL = documentService;
 
         this.producerTemplate = producerTemplate;
         this.documentQueue = documentQueue;
