@@ -5,75 +5,51 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
+import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.dto.GetParentTopicResponse;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 
-import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.*;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
 @Component
 public class InfoClient {
 
-    private final String INFO_SERVICE;
-    private final RestTemplate restTemplate;
-    private final String CASE_SERVICE_AUTH;
+    private final RestHelper restHelper;
+    private final String serviceBaseURL;
+
 
     @Autowired
-    public InfoClient(RestTemplate restTemp, @Value("${hocs.info-service}") String infoService, @Value("${hocs.case-service.auth}") String caseworkBasicAuth) {
-        INFO_SERVICE = infoService;
-        restTemplate = restTemp;
-        CASE_SERVICE_AUTH = caseworkBasicAuth;
+    public InfoClient(RestHelper restHelper,
+                      @Value("${hocs.info-service}") String infoService) {
+        this.restHelper = restHelper;
+        this.serviceBaseURL = infoService;
     }
 
    public Map<StageType, LocalDate> getDeadlines(CaseType caseType, LocalDate localDate) {
-
-       ResponseEntity<InfoGetDeadlinesResponse> response = getWithAuth(String.format("/casetype/%s/deadlines/%s", caseType, localDate), null, InfoGetDeadlinesResponse.class);
+       ResponseEntity<InfoGetDeadlinesResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/deadlines/%s", caseType, localDate), InfoGetDeadlinesResponse.class);
        Map<StageType, LocalDate> deadlines = response.getBody().getDeadlines();
        return deadlines;
    }
 
    public Set<InfoNominatedPeople> getNominatedPeople(UUID teamUUID) {
-       ResponseEntity<InfoGetNominatedPeopleResponse> response = getWithAuth(String.format("/nominatedpeople/%s", teamUUID), null, InfoGetNominatedPeopleResponse.class);
+       ResponseEntity<InfoGetNominatedPeopleResponse> response = restHelper.get(serviceBaseURL, String.format("/nominatedpeople/%s", teamUUID), InfoGetNominatedPeopleResponse.class);
        Set<InfoNominatedPeople> nominatedPeople = response.getBody().getNominatedPeople();
-        return nominatedPeople;
+       return nominatedPeople;
    }
 
     public InfoGetTemplateResponse getTemplate(CaseType caseType) {
-        ResponseEntity<InfoGetTemplateResponse> response = getWithAuth(String.format("/casetype/%s/template", caseType), null, InfoGetTemplateResponse.class);
+        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/template", caseType), InfoGetTemplateResponse.class);
         InfoGetTemplateResponse template = response.getBody();
         return template;
     }
 
     public GetParentTopicResponse getParentTopics(String caseType) {
-        ResponseEntity<GetParentTopicResponse> response = getWithAuth(String.format("/topic/parent/%s", caseType), null, GetParentTopicResponse.class);
+        ResponseEntity<GetParentTopicResponse> response = restHelper.get(serviceBaseURL, String.format("/topic/parent/%s", caseType), GetParentTopicResponse.class);
         GetParentTopicResponse topics = response.getBody();
         return topics;
     }
 
-    public Correspondent getMemberAsCorrespondent(String memberId) {
-        return null;
-    }
-
-    private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {
-        return restTemplate.postForEntity(String.format("%s%s", INFO_SERVICE, url), new HttpEntity<>(request, createAuthHeaders()), responseType);
-    }
-
-    private <T,R> ResponseEntity<R> getWithAuth(String url, T request, Class<R> responseType) {
-        return restTemplate.exchange(String.format("%s%s", INFO_SERVICE, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
-    }
-
-    private HttpHeaders createAuthHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add(AUTHORIZATION, basicAuth());
-        return headers;
-    }
-
-    private String basicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(CASE_SERVICE_AUTH.getBytes(Charset.forName("UTF-8")))); }
 }
