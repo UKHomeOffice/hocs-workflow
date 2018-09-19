@@ -29,7 +29,7 @@ public class RestHelper {
     public <T,R> ResponseEntity<R> post(String serviceBaseURL, String url, T request, Class<R> responseType) {
 
         try {
-            String response = restTemplate.exchange("https://clamav.{{.KUBE_NAMESPACE}}.svc.cluster.local", HttpMethod.GET, null, String.class).getBody();
+            String response = restTemplate.exchange("https://clamav.cs-dev.svc.cluster.local", HttpMethod.GET, null, String.class).getBody();
             log.info(response);
         }
         catch(Exception e) {
