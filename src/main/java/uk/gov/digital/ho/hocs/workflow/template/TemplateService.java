@@ -20,6 +20,7 @@ import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -44,9 +45,9 @@ public class TemplateService {
                 .build();
     }
 
-    public ResponseEntity<ByteArrayResource> getTemplateForCaseType(CaseType caseType) {
+    public ResponseEntity<ByteArrayResource> getTemplateForCaseType(CaseType caseType, UUID templateUUID) {
         // get key from info service
-        String documentKey = infoClient.getTemplate(caseType).getDocumentKey();
+        String documentKey = infoClient.getTemplate(caseType, templateUUID).getDocumentKey();
         //use key to return template
         if (s3client.doesObjectExist(bucketName, documentKey)) {
             log.info("template exists - request download for template with key {}", documentKey);
@@ -55,7 +56,7 @@ public class TemplateService {
             try {
                 byteArray = IOUtils.toByteArray(s3Object.getObjectContent());
             } catch (IOException e) {
-                log.error("Error converting s3object to byteArray - templateKye {}", documentKey);
+                log.error("Error converting s3object to byteArray - templateKey {}", documentKey);
             }
             String fileName = s3Object.getObjectMetadata().getUserMetadata().get("originalname");
             MediaType mediaType = MediaType.valueOf(s3Object.getObjectMetadata().getContentType());

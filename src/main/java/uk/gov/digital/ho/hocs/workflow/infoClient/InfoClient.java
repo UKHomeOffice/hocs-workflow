@@ -44,8 +44,8 @@ public class InfoClient {
         return nominatedPeople;
    }
 
-    public InfoGetTemplateResponse getTemplate(CaseType caseType) {
-        ResponseEntity<InfoGetTemplateResponse> response = getWithAuth(String.format("/casetype/%s/template", caseType), null, InfoGetTemplateResponse.class);
+    public InfoGetTemplateResponse getTemplate(CaseType caseType, UUID templateUUID) {
+        ResponseEntity<InfoGetTemplateResponse> response = getWithAuth(String.format("/casetype/%s/template/%s", caseType, templateUUID), null, InfoGetTemplateResponse.class);
         InfoGetTemplateResponse template = response.getBody();
         return template;
     }

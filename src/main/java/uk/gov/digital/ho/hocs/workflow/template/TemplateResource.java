@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
@@ -25,10 +26,10 @@ public class TemplateResource {
     }
 
 
-    @GetMapping(value = "/casetype/{caseType}/template", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<ByteArrayResource> getTemplateForCaseType(@PathVariable CaseType caseType) throws IOException {
-        log.info("get template for case type - {}", caseType);
-        return templateService.getTemplateForCaseType(caseType);
+    @GetMapping(value = "/casetype/{caseType}/template/{templateUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<ByteArrayResource> getTemplateForCaseType(@PathVariable CaseType caseType, @PathVariable UUID templateUUID) throws IOException {
+        log.info("get template {} for case type - {}", templateUUID, caseType);
+        return templateService.getTemplateForCaseType(caseType, templateUUID);
     }
 }
 
