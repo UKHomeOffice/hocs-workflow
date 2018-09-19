@@ -161,27 +161,6 @@ public class WorkflowService implements JavaDelegate {
         log.debug("######## Created Stage ########");
     }
 
-    // TODO: this is BS but we need to move on.
-    public void clearTempData(String caseUUIDString) {
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-
-        Set<String> dataToRemove = new HashSet<>();
-
-        dataToRemove.add("TEMPCType");
-        dataToRemove.add("TEMPCFullName");
-        dataToRemove.add("TEMPCPostcode");
-        dataToRemove.add("TEMPCAddressOne");
-        dataToRemove.add("TEMPCAddressTwo");
-        dataToRemove.add("TEMPCCountry");
-        dataToRemove.add("TEMPCEmail");
-        dataToRemove.add("TEMPCPhone");
-        dataToRemove.add("TEMPCAddressThree");
-        dataToRemove.add("TEMPCReference");
-        dataToRemove.add("TEMPAdditionalCorrespondent");
-
-        caseworkClient.removeInputData(caseUUID, dataToRemove);
-    }
-
     public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
         log.debug("######## Creating Stage ########");
 

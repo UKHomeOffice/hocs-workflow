@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow;
+package uk.gov.digital.ho.hocs.workflow.application;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

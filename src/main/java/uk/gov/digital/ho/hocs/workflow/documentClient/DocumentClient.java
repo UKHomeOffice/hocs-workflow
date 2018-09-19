@@ -8,53 +8,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.documentClient.dto.CreateCaseworkDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.documentClient.dto.CreateCaseworkDocumentResponse;
 import uk.gov.digital.ho.hocs.workflow.documentClient.dto.ProcessDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 
-import java.nio.charset.Charset;
 import java.util.*;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
 @Component
 public class DocumentClient {
 
-    private final String documentServiceUrl;
-    private final String caseServiceAuth;
-
     private final String documentQueue;
-
     private final ProducerTemplate producerTemplate;
-
-    private final RestTemplate restTemplate;
-
     private final ObjectMapper objectMapper;
 
+    private final RestHelper restHelper;
+    private final String serviceBaseURL;
+
     @Autowired
-    public DocumentClient(RestTemplate restTemp,
-                          ProducerTemplate producerTemplate,
-                          ObjectMapper objectMapper,
+    public DocumentClient(RestHelper restHelper,
                           @Value("${hocs.document-service}") String documentService,
-                          @Value("${hocs.case-service.auth}") String caseworkBasicAuth,
-                          @Value("${docs.queue}") String documentQueue) {
+                          ProducerTemplate producerTemplate,
+                          @Value("${docs.queue}") String documentQueue,
+                          ObjectMapper objectMapper){
+        this.restHelper = restHelper;
+        this.serviceBaseURL = documentQueue;
+
         this.producerTemplate = producerTemplate;
-        this.documentServiceUrl = documentService;
-        this.objectMapper = objectMapper;
-        this.caseServiceAuth = caseworkBasicAuth;
-        this.restTemplate = restTemp;
         this.documentQueue = documentQueue;
+        this.objectMapper = objectMapper;
     }
 
     public UUID createDocument(UUID caseUUID, String displayName, DocumentType type){
-        log.debug("Creating Document, Case {}", caseUUID);
         CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(displayName, type);
-        ResponseEntity<CreateCaseworkDocumentResponse> response = postWithAuth(String.format("/case/%s/document", caseUUID), request, CreateCaseworkDocumentResponse.class);
-
+        ResponseEntity<CreateCaseworkDocumentResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/document", caseUUID), request, CreateCaseworkDocumentResponse.class);
         if(response.getStatusCodeValue() == 200) {
             log.info("Created Document {}, Case {}", response.getBody().getUuid(), caseUUID);
             return response.getBody().getUuid();
@@ -63,9 +54,7 @@ public class DocumentClient {
         }
     }
 
-
     public void processDocument(UUID caseUUID, UUID documentUUID, String fileLocation) {
-        log.debug("Setting Document, Case {}", caseUUID);
         ProcessDocumentRequest request = new ProcessDocumentRequest(documentUUID, caseUUID, fileLocation);
 
         try {
@@ -77,9 +66,7 @@ public class DocumentClient {
     }
 
     public void deleteDocument(UUID caseUUID, UUID documentUUID) {
-        log.debug("Deleting Document {}, Case {}", documentUUID, caseUUID);
-
-        ResponseEntity<Void> response = deleteWithAuth(String.format("/case/%s/document/%s", caseUUID, documentUUID), null,  Void.class);
+        ResponseEntity<Void> response = restHelper.delete(serviceBaseURL, String.format("/case/%s/document/%s", caseUUID, documentUUID), Void.class);
 
         if(response.getStatusCodeValue() == 200) {
             log.info("Deleted Document {}, Case {}", documentUUID, caseUUID);
@@ -87,26 +74,4 @@ public class DocumentClient {
             throw new EntityCreationException("Could not delete Document; response: %s", response.getStatusCodeValue());
         }
     }
-
-    private <T,R> ResponseEntity<R> deleteWithAuth(String url, T request, Class<R> responseType) {
-        return restTemplate.exchange(String.format("%s%s", documentServiceUrl, url), HttpMethod.DELETE, new HttpEntity<>(null, createAuthHeaders()), responseType);
-    }
-
-    private <T,R> ResponseEntity<R> postWithAuth(String url, T request, Class<R> responseType) {
-        return restTemplate.postForEntity(String.format("%s%s", documentServiceUrl, url), new HttpEntity<>(request, createAuthHeaders()), responseType);
-    }
-
-    private <R> ResponseEntity<R> getWithAuth(String url, Class<R> responseType) {
-        return restTemplate.exchange(String.format("%s%s", documentServiceUrl, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
-    }
-
-    private HttpHeaders createAuthHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add(AUTHORIZATION, caseworkBasicAuth());
-        return headers;
-    }
-
-    private String caseworkBasicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(caseServiceAuth.getBytes(Charset.forName("UTF-8")))); }
-
 }
