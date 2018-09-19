@@ -50,6 +50,12 @@ public class InfoClient {
         return template;
     }
 
+    public InfoGetStandardLineResponse getStandardLine(CaseType caseType, UUID standardLineUUID) {
+        ResponseEntity<InfoGetStandardLineResponse> response = getWithAuth(String.format("/casetype/%s/standardlinekey/%s", caseType, standardLineUUID), null, InfoGetStandardLineResponse.class);
+        InfoGetStandardLineResponse standardLineKey = response.getBody();
+        return standardLineKey;
+    }
+
     public GetParentTopicResponse getParentTopics(String caseType) {
         ResponseEntity<GetParentTopicResponse> response = getWithAuth(String.format("/topic/parent/%s", caseType), null, GetParentTopicResponse.class);
         GetParentTopicResponse topics = response.getBody();
