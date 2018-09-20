@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.template;
+package uk.gov.digital.ho.hocs.workflow.standardLine;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -24,17 +24,17 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-public class TemplateService {
+public class StandardLineService {
 
     private String bucketName;
     private AmazonS3 s3client;
     private final InfoClient infoClient;
 
     @Autowired
-    public TemplateService(InfoClient infoClient,
-                           @Value("UNSET") String bucketName,
-                           @Value("UNSET") String accessKey,
-                           @Value("UNSET}") String secretKey) {
+    public StandardLineService(InfoClient infoClient,
+                               @Value("${aws.bucketname}") String bucketName,
+                               @Value("${aws.accesskey}") String accessKey,
+                               @Value("${aws.secretkey}") String secretKey) {
         this.infoClient = infoClient;
         this.bucketName = bucketName;
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
@@ -45,18 +45,18 @@ public class TemplateService {
                 .build();
     }
 
-    public ResponseEntity<ByteArrayResource> getTemplateForCaseType(CaseType caseType, UUID templateUUID) {
+    public ResponseEntity<ByteArrayResource> getStandardLineDocument(CaseType caseType, UUID standardLineUUID) {
         // get key from info service
-        String documentKey = infoClient.getTemplate(caseType, templateUUID).getDocumentKey();
-        //use key to return template
+        String documentKey = infoClient.getStandardLine(caseType, standardLineUUID).getDocumentKey();
+        //use key to return standard line
         if (s3client.doesObjectExist(bucketName, documentKey)) {
-            log.info("template exists - request download for template with key {}", documentKey);
+            log.info("standard line exists - request download for standard line with key {}", documentKey);
             S3Object s3Object = s3client.getObject(bucketName, documentKey);
             byte[] byteArray = new byte[0];
             try {
                 byteArray = IOUtils.toByteArray(s3Object.getObjectContent());
             } catch (IOException e) {
-                log.error("Error converting s3object to byteArray - templateKey {}", documentKey);
+                log.error("Error converting s3object to byteArray - standard line Key {}", documentKey);
             }
             String fileName = s3Object.getObjectMetadata().getUserMetadata().get("originalname");
             MediaType mediaType = MediaType.valueOf(s3Object.getObjectMetadata().getContentType());
@@ -68,7 +68,7 @@ public class TemplateService {
                     .contentLength(byteArray.length) //
                     .body(resource);
         } else {
-            log.info("template {} dosent exist", documentKey);
+            log.info("standard line {} dosent exist", documentKey);
             return ResponseEntity.notFound().build();
         }
     }

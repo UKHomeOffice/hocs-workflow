@@ -39,11 +39,17 @@ public class InfoClient {
        Set<InfoNominatedPeople> nominatedPeople = response.getBody().getNominatedPeople();
        return nominatedPeople;
    }
-
+  
     public InfoGetTemplateResponse getTemplate(CaseType caseType) {
-        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/template", caseType), InfoGetTemplateResponse.class);
+        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/template/%s", caseType, templateUUID), InfoGetTemplateResponse.class);
         InfoGetTemplateResponse template = response.getBody();
         return template;
+    }
+
+    public InfoGetStandardLineResponse getStandardLine(CaseType caseType, UUID standardLineUUID) {
+        ResponseEntity<InfoGetStandardLineResponse> response = getWithAuth(String.format("/casetype/%s/standardlinekey/%s", caseType, standardLineUUID), null, InfoGetStandardLineResponse.class);
+        InfoGetStandardLineResponse standardLineKey = response.getBody();
+        return standardLineKey;
     }
 
     public GetParentTopicResponse getParentTopics(String caseType) {
