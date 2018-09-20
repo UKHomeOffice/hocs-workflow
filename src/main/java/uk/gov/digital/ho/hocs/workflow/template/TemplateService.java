@@ -32,9 +32,9 @@ public class TemplateService {
 
     @Autowired
     public TemplateService(InfoClient infoClient,
-                           @Value("${aws.bucketname}") String bucketName,
-                           @Value("${aws.accesskey}") String accessKey,
-                           @Value("${aws.secretkey}") String secretKey) {
+                           @Value("UNSET") String bucketName,
+                           @Value("UNSET") String accessKey,
+                           @Value("UNSET}") String secretKey) {
         this.infoClient = infoClient;
         this.bucketName = bucketName;
         AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
