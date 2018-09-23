@@ -40,14 +40,14 @@ public class InfoClient {
        return nominatedPeople;
    }
   
-    public InfoGetTemplateResponse getTemplate(CaseType caseType) {
+    public InfoGetTemplateResponse getTemplate(CaseType caseType, UUID templateUUID) {
         ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/template/%s", caseType, templateUUID), InfoGetTemplateResponse.class);
         InfoGetTemplateResponse template = response.getBody();
         return template;
     }
 
     public InfoGetStandardLineResponse getStandardLine(CaseType caseType, UUID standardLineUUID) {
-        ResponseEntity<InfoGetStandardLineResponse> response = getWithAuth(String.format("/casetype/%s/standardlinekey/%s", caseType, standardLineUUID), null, InfoGetStandardLineResponse.class);
+        ResponseEntity<InfoGetStandardLineResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/standardlinekey/%s", caseType, standardLineUUID), InfoGetStandardLineResponse.class);
         InfoGetStandardLineResponse standardLineKey = response.getBody();
         return standardLineKey;
     }

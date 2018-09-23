@@ -94,7 +94,7 @@ public class WorkflowService implements JavaDelegate {
             for (DocumentSummary document : documents) {
                 UUID response = documentClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
 
-                documentClient.processDocument(caseUUID, response, document.getS3UntrustedUrl());
+                documentClient.processDocument(response, document.getS3UntrustedUrl());
             }
         }
     }
@@ -103,26 +103,6 @@ public class WorkflowService implements JavaDelegate {
 
          documentClient.deleteDocument(caseUUID, documentUUID);
 
-    }
-
-
-    public void lookupCorrespondent(String caseUUIDString, String CFullName) {
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-
-        try {
-            Thread.sleep(1000l);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        // Lookup full name in Info service.
-
-        //if not null
-            // save the correspondent details
-    }
-
-    public void clearCorrespondentData(String caseUUIDString) {
-
-        //caseworkClient.
     }
 
     public void addCorrespondent(String caseUUIDString, String cType, String cFullName, String cPostcode, String cAddressOne, String cAddressTwo, String cAddressThree, String cAddressCountry, String cPhone, String cEmail, String cReference ){
