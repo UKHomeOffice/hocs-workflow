@@ -1,8 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
@@ -17,22 +15,19 @@ import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
-import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
-import uk.gov.digital.ho.hocs.workflow.notifications.NotifyType;
 
 import java.time.LocalDate;
 import java.util.*;
 
 @Service
 @Slf4j
-public class WorkflowService implements JavaDelegate {
+public class WorkflowService {
 
     private final CaseworkClient caseworkClient;
     private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
     private final HocsFormService hocsFormService;
-    private final EmailService emailService;
 
 
     @Autowired
@@ -40,21 +35,15 @@ public class WorkflowService implements JavaDelegate {
                            DocumentClient documentClient,
                            InfoClient infoClient,
                            CamundaClient camundaClient,
-                           HocsFormService hocsFormService,
-                           EmailService emailService) {
+                           HocsFormService hocsFormService) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.hocsFormService = hocsFormService;
-        this.emailService = emailService;
     }
 
-    @Override
-    public void execute(DelegateExecution execution) {
-    }
-
-    public CreateCaseResponse createCase(CaseType caseType, LocalDate dateReceived, List<DocumentSummary> documents) {
+    CreateCaseResponse createCase(CaseType caseType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a UUID.
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseType);
         UUID caseUUID = caseResponse.getUuid();
@@ -87,8 +76,7 @@ public class WorkflowService implements JavaDelegate {
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
-
+    void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
@@ -99,26 +87,11 @@ public class WorkflowService implements JavaDelegate {
         }
     }
 
-    public void deleteDocument(UUID caseUUID, UUID documentUUID) {
-
+    void deleteDocument(UUID caseUUID, UUID documentUUID) {
          documentClient.deleteDocument(caseUUID, documentUUID);
-
     }
 
-    public void addCorrespondent(String caseUUIDString, String cType, String cFullName, String cPostcode, String cAddressOne, String cAddressTwo, String cAddressThree, String cAddressCountry, String cPhone, String cEmail, String cReference ){
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-
-        CorrespondentType correspondentType = CorrespondentType.valueOf(cType);
-        Correspondent correspondent = new Correspondent(correspondentType, cFullName, cPostcode, cAddressOne, cAddressTwo, cAddressThree, cAddressCountry, cPhone, cEmail);
-        caseworkClient.createCorrespondent(caseUUID, correspondent);
-
-        if(cReference != null) {
-            caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, cReference);
-        }
-    }
-
-    public void addCorrespondentToCase(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
-
+    void addCorrespondentToCase(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
         Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email);
         caseworkClient.createCorrespondent(caseUUID, correspondent);
 
@@ -127,49 +100,7 @@ public class WorkflowService implements JavaDelegate {
         }
     }
 
-    public void addCaseNote(String caseUUIDString, String caseNote){
-        // Do nothing.
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-    }
-    public void calculateDeadlines(String caseUUIDString, String caseTypeString, String dateReceivedString) {
-        log.debug("######## Calculating Deadlines ########");
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        LocalDate now = LocalDate.parse(dateReceivedString);
-        CaseType caseType = CaseType.valueOf(caseTypeString);
-        Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseType, now);
-        caseworkClient.createDeadlines(caseUUID, deadlines);
-        log.debug("######## Created Stage ########");
-    }
-
-    public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
-        log.debug("######## Creating Stage ########");
-
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID;
-        UUID teamUUID = null;
-        UUID userUUID = null;
-
-        if (teamUUIDString != null) {
-            teamUUID = UUID.fromString(teamUUIDString);
-        }
-        if (userUUIDString != null) {
-            userUUID = UUID.fromString(userUUIDString);
-        }
-
-        if (stageUUIDString != null) {
-            // Otherwise just allocate the stage.
-            stageUUID = UUID.fromString(stageUUIDString);
-
-            caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
-        } else {
-            // Create a stage in the casework service in order to get a UUID.
-            stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID);
-        }
-        log.debug("######## Created Stage ########");
-        return stageUUID.toString();
-    }
-
-    public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
+    GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getScreenName(stageUUID);
         HocsForm form = hocsFormService.getForm(screenName);
 
@@ -185,7 +116,7 @@ public class WorkflowService implements JavaDelegate {
         }
     }
 
-    public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
+    GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: permission check (active stage userID? TeamID ?)
         // TODO: validate Form
         caseworkClient.setInputData(caseUUID, values);
@@ -194,33 +125,21 @@ public class WorkflowService implements JavaDelegate {
         return getStage(caseUUID, stageUUID);
     }
 
-    public void completeStage(String caseUUIDString, String stageUUIDString) {
-        log.debug("######## Updating Stage ########");
-        caseworkClient.completeStage(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString));
-        log.debug("######## Updated Stage ########");
-    }
-
-    public void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
+    void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
         camundaClient.allocateStage(caseUUID, teamUUID, userUUID);
         caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
     }
 
-    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) {
-        log.debug("######## Sending {} Email ########", notifyType);
-        //emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
-        log.debug("######## Sent {} Email ########", notifyType);
-    }
-
-    public GetParentTopicResponse getParentTopics(UUID caseUUID) {
+    GetParentTopicResponse getParentTopics(UUID caseUUID) {
         GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
         return infoClient.getParentTopics(caseTypeResponse.getType().toString());
     }
 
-    public void addTopicToCase(UUID caseUUID, UUID topicUUID) {
+    void addTopicToCase(UUID caseUUID, UUID topicUUID) {
         caseworkClient.addTopicToCase(caseUUID, topicUUID);
     }
 
-    public void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
+    void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
         caseworkClient.deleteTopicFromCase(caseUUID, topicUUID);
     }
 }
