@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.model;
+package uk.gov.digital.ho.hocs.workflow.documentClient.model;
 
 import lombok.Getter;
 

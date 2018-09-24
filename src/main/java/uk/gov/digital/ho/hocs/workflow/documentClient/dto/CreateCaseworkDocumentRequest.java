@@ -2,7 +2,9 @@ package uk.gov.digital.ho.hocs.workflow.documentClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import uk.gov.digital.ho.hocs.workflow.model.DocumentType;
+import uk.gov.digital.ho.hocs.workflow.documentClient.model.DocumentType;
+
+import java.util.UUID;
 
 @AllArgsConstructor
 public class CreateCaseworkDocumentRequest {
@@ -13,4 +15,6 @@ public class CreateCaseworkDocumentRequest {
     @JsonProperty("type")
     private DocumentType type;
 
+    @JsonProperty("caseUUID")
+    private UUID caseUUID;
 }

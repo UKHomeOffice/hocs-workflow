@@ -12,11 +12,10 @@ import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.documentClient.dto.CreateCaseworkDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.documentClient.dto.CreateCaseworkDocumentResponse;
 import uk.gov.digital.ho.hocs.workflow.documentClient.dto.ProcessDocumentRequest;
+import uk.gov.digital.ho.hocs.workflow.documentClient.model.DocumentType;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
-import uk.gov.digital.ho.hocs.workflow.model.*;
 
 import java.util.*;
-
 
 @Slf4j
 @Component
@@ -44,8 +43,8 @@ public class DocumentClient {
     }
 
     public UUID createDocument(UUID caseUUID, String displayName, DocumentType type){
-        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(displayName, type);
-        ResponseEntity<CreateCaseworkDocumentResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/document", caseUUID), request, CreateCaseworkDocumentResponse.class);
+        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(displayName, type, caseUUID);
+        ResponseEntity<CreateCaseworkDocumentResponse> response = restHelper.post(serviceBaseURL, "/document", request, CreateCaseworkDocumentResponse.class);
         if(response.getStatusCodeValue() == 200) {
             log.info("Created Document {}, Case {}", response.getBody().getUuid(), caseUUID);
             return response.getBody().getUuid();
@@ -54,19 +53,19 @@ public class DocumentClient {
         }
     }
 
-    public void processDocument(UUID caseUUID, UUID documentUUID, String fileLocation) {
-        ProcessDocumentRequest request = new ProcessDocumentRequest(documentUUID, caseUUID, fileLocation);
+    public void processDocument(UUID documentUUID, String fileLocation) {
+        ProcessDocumentRequest request = new ProcessDocumentRequest(documentUUID, fileLocation);
 
         try {
             producerTemplate.sendBody(documentQueue, objectMapper.writeValueAsString(request));
-            log.info("Set Document, Case {}", caseUUID);
+            log.info("Processed Document {}", documentUUID);
         } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
+            throw new EntityCreationException("Could not process Document: %s", e.toString());
         }
     }
 
     public void deleteDocument(UUID caseUUID, UUID documentUUID) {
-        ResponseEntity<Void> response = restHelper.delete(serviceBaseURL, String.format("/case/%s/document/%s", caseUUID, documentUUID), Void.class);
+        ResponseEntity<Void> response = restHelper.delete(serviceBaseURL, String.format("/document/%s", documentUUID), Void.class);
 
         if(response.getStatusCodeValue() == 200) {
             log.info("Deleted Document {}, Case {}", documentUUID, caseUUID);
