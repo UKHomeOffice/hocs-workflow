@@ -29,9 +29,15 @@ public class LocalStackConfiguration {
         return sqsClient();
     }
 
+    @Value("${aws.local.host:localhost}")
+    private String awsHost;
+
     @Bean
     public AmazonSQS sqsClient() {
-        AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration("http://localhost:4576/", "eu-west-2");
+
+        String host = String.format("http://%s:4576/", awsHost);
+
+        AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration(host, "eu-west-2");
 
         return AmazonSQSClientBuilder.standard()
                 .withClientConfiguration(new ClientConfiguration().withProtocol(Protocol.HTTP))
@@ -42,7 +48,10 @@ public class LocalStackConfiguration {
 
     @Bean
     public AmazonS3 s3Client() {
-        AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration("http://localhost:4572/", "eu-west-2");
+
+        String host = String.format("http://%s:4572/", awsHost);
+
+        AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration(host, "eu-west-2");
 
         return AmazonS3ClientBuilder.standard()
                 .withClientConfiguration(new ClientConfiguration().withProtocol(Protocol.HTTP))
