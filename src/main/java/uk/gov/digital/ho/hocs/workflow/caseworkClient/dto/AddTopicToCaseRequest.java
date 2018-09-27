@@ -10,4 +10,7 @@ public class AddTopicToCaseRequest {
 
     @JsonProperty("topicUUID")
     private UUID topicUUID;
+
+    @JsonProperty("topicName")
+    private String topicName;
 }

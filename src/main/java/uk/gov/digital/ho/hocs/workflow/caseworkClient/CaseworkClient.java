@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.dto.GetCaseTopicsResponse;
+import uk.gov.digital.ho.hocs.workflow.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
 import uk.gov.digital.ho.hocs.workflow.model.*;
@@ -160,8 +162,30 @@ public class CaseworkClient {
         }
     }
 
-    public void addTopicToCase(UUID caseUUID, UUID topicUUID) {
-        AddTopicToCaseRequest request = new AddTopicToCaseRequest(topicUUID);
+    public GetCorrespondentResponse getCorrespondentForCase(UUID caseUUID, UUID correspondentUUID) {
+        ResponseEntity<GetCorrespondentResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/correspondent/%s", caseUUID, correspondentUUID), GetCorrespondentResponse.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.info("Got correspondent for Case: {}", caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get correspondent %s; response: %s", correspondentUUID, response.getStatusCodeValue());
+        }
+    }
+
+    public GetCaseTopicsResponse getCaseTopics(UUID caseUUID) {
+        ResponseEntity<GetCaseTopicsResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/topic", caseUUID), GetCaseTopicsResponse.class);
+
+        if(response.getStatusCodeValue() == 200) {
+            log.info("Got topics for Case: {}", caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get topics; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    public void addTopicToCase(UUID caseUUID, UUID topicUUID, String topicName) {
+        AddTopicToCaseRequest request = new AddTopicToCaseRequest(topicUUID, topicName);
         ResponseEntity<Void> response = restHelper.post(serviceBaseURL, String.format("/case/%s/topic", caseUUID), request, Void.class);
 
         if(response.getStatusCodeValue() == 200) {

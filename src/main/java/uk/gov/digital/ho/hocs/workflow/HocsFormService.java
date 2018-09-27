@@ -324,7 +324,7 @@ public class HocsFormService {
         properties9.put("label", "Which is the primary correspondent?");
         properties9.put("action", "CORRESPONDENT");
         properties9.put("entity", "correspondent");
-        properties9.put("hasRemoveLink", false);
+        properties9.put("hasRemoveLink", true);
         properties9.put("hasAddLink", true);
         properties9.put("choices", "CASE_CORRESPONDENTS");
 
@@ -650,9 +650,14 @@ public class HocsFormService {
 
         Map<String,Object> properties7 = new HashMap<>();
         properties7.put("name", "Topics");
-        properties7.put("label", "Topics");
+        properties7.put("label", "Which is the primary Topic?");
+        properties7.put("action", "TOPIC");
+        properties7.put("entity", "topic");
+        properties7.put("hasRemoveLink", true);
+        properties7.put("hasAddLink", true);
+        properties7.put("choices", "CASE_TOPICS");
 
-        HocsFormField fieldSeven = new HocsFormField("text-area", validationList, properties7);
+        HocsFormField fieldSeven = new HocsFormField("entity-list", validationList, properties7);
 
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);

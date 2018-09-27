@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.dto.GetParentTopicResponse;
+import uk.gov.digital.ho.hocs.workflow.dto.Topic;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 
 import java.time.LocalDate;
@@ -39,7 +40,7 @@ public class InfoClient {
        Set<InfoNominatedPeople> nominatedPeople = response.getBody().getNominatedPeople();
        return nominatedPeople;
    }
-  
+
     public InfoGetTemplateResponse getTemplate(CaseType caseType, UUID templateUUID) {
         ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/template/%s", caseType, templateUUID), InfoGetTemplateResponse.class);
         InfoGetTemplateResponse template = response.getBody();
@@ -56,6 +57,12 @@ public class InfoClient {
         ResponseEntity<GetParentTopicResponse> response = restHelper.get(serviceBaseURL, String.format("/topic/parent/%s", caseType), GetParentTopicResponse.class);
         GetParentTopicResponse topics = response.getBody();
         return topics;
+    }
+
+    public Topic getTopic(UUID topicUUID) {
+        ResponseEntity<Topic> response = restHelper.get(serviceBaseURL, String.format("/topic/%s", topicUUID), Topic.class);
+        Topic topic = response.getBody();
+        return topic;
     }
 
 }
