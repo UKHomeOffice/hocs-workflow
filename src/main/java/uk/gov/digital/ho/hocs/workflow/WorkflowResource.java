@@ -71,7 +71,7 @@ class WorkflowResource {
     }
 
     @GetMapping(value = "/case/{caseUUID}/correspondent/{correspondentUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetCorrespondentResponse> addCorrespondentToCase(@PathVariable UUID caseUUID, @PathVariable UUID correspondentUUID) {
+    public ResponseEntity<GetCorrespondentResponse> getCorrespondentForCase(@PathVariable UUID caseUUID, @PathVariable UUID correspondentUUID) {
         GetCorrespondentResponse response = workflowService.getCorrespondentData(caseUUID, correspondentUUID);
         return ResponseEntity.ok(response);
     }
@@ -79,6 +79,12 @@ class WorkflowResource {
     @PostMapping(value = "/case/{caseUUID}/correspondent", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity addCorrespondentToCase(@PathVariable UUID caseUUID, @RequestBody AddCorrespondentRequest request) {
         workflowService.addCorrespondentToCase(caseUUID, request.getType(), request.getFullname(), request.getPostcode(), request.getAddress1(), request.getAddress2(), request.getAddress3(), request.getCountry(),request.getEmail(), request.getTelephone(), request.getReference());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(value = "/case/{caseUUID}/correspondent/{correspondentUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity deleteCorrespondentFromCase(@PathVariable UUID caseUUID, @PathVariable UUID correspondentUUID) {
+        workflowService.deleteCorrespondentFromCase(caseUUID, correspondentUUID);
         return ResponseEntity.ok().build();
     }
 

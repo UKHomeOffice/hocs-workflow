@@ -158,4 +158,8 @@ public class WorkflowService {
     void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
         caseworkClient.deleteTopicFromCase(caseUUID, topicUUID);
     }
+
+    public void deleteCorrespondentFromCase(UUID caseUUID, UUID correspondentUUID) {
+        caseworkClient.deleteCorrespondentFromCase(caseUUID,correspondentUUID);
+    }
 }
