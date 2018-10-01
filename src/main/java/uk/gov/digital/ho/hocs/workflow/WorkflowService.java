@@ -91,6 +91,11 @@ public class WorkflowService {
          documentClient.deleteDocument(caseUUID, documentUUID);
     }
 
+    GetCorrespondentResponse getCorrespondentData(UUID caseUUID, UUID correspondentUUID) {
+        GetCorrespondentResponse correspondent = caseworkClient.getCorrespondentForCase(caseUUID, correspondentUUID);
+        return correspondent;
+    }
+
     void addCorrespondentToCase(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
         Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email);
         caseworkClient.createCorrespondent(caseUUID, correspondent);
@@ -135,11 +140,26 @@ public class WorkflowService {
         return infoClient.getParentTopics(caseTypeResponse.getType().toString());
     }
 
+    GetCaseTopicsResponse getCaseTopics(UUID caseUUID) {
+        GetCaseTopicsResponse caseTopicsResponse = caseworkClient.getCaseTopics(caseUUID);
+        return caseTopicsResponse;
+    }
+
+    Topic getTopicData(UUID topicUUID) {
+        Topic topic = infoClient.getTopic(topicUUID);
+        return topic;
+    }
+
     void addTopicToCase(UUID caseUUID, UUID topicUUID) {
-        caseworkClient.addTopicToCase(caseUUID, topicUUID);
+        Topic topic = infoClient.getTopic(topicUUID);
+        caseworkClient.addTopicToCase(caseUUID, topic.getValue(), topic.getLabel());
     }
 
     void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
         caseworkClient.deleteTopicFromCase(caseUUID, topicUUID);
+    }
+
+    public void deleteCorrespondentFromCase(UUID caseUUID, UUID correspondentUUID) {
+        caseworkClient.deleteCorrespondentFromCase(caseUUID,correspondentUUID);
     }
 }
