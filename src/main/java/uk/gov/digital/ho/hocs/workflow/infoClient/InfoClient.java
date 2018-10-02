@@ -59,10 +59,28 @@ public class InfoClient {
         return topics;
     }
 
+    public GetParentTopicResponse getParentTopicsAndTopics(String caseType) {
+        ResponseEntity<GetParentTopicResponse> response = restHelper.get(serviceBaseURL, String.format("topics/%s", caseType), GetParentTopicResponse.class);
+        GetParentTopicResponse topics = response.getBody();
+        return topics;
+    }
+
     public Topic getTopic(UUID topicUUID) {
         ResponseEntity<Topic> response = restHelper.get(serviceBaseURL, String.format("/topic/%s", topicUUID), Topic.class);
         Topic topic = response.getBody();
         return topic;
+    }
+
+    public InfoGetTemplateListResponse getTemplateList(CaseType caseType) {
+        ResponseEntity<InfoGetTemplateListResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/templates", caseType), InfoGetTemplateListResponse.class);
+        InfoGetTemplateListResponse template = response.getBody();
+        return template;
+    }
+
+    public InfoGetStandardLineListResponse getStandardLineList( UUID topicUUID) {
+        ResponseEntity<InfoGetStandardLineListResponse> response = restHelper.get(serviceBaseURL, String.format("/standardlines/%s", topicUUID), InfoGetStandardLineListResponse.class);
+        InfoGetStandardLineListResponse template = response.getBody();
+        return template;
     }
 
 }

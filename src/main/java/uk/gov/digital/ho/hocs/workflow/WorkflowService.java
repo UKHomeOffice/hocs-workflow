@@ -5,16 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.CreateCaseworkCaseResponse;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkCaseTypeResponse;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkInputResponse;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.GetCaseworkStageResponse;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.documentClient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineListResponse;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateListResponse;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
+
 
 import java.time.LocalDate;
 import java.util.*;
@@ -135,9 +135,9 @@ public class WorkflowService {
         caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
     }
 
-    GetParentTopicResponse getParentTopics(UUID caseUUID) {
+    GetParentTopicResponse getParentTopicsAndTopics(UUID caseUUID) {
         GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
-        return infoClient.getParentTopics(caseTypeResponse.getType().toString());
+        return infoClient.getParentTopicsAndTopics(caseTypeResponse.getType().toString());
     }
 
     GetCaseTopicsResponse getCaseTopics(UUID caseUUID) {
@@ -161,5 +161,15 @@ public class WorkflowService {
 
     public void deleteCorrespondentFromCase(UUID caseUUID, UUID correspondentUUID) {
         caseworkClient.deleteCorrespondentFromCase(caseUUID,correspondentUUID);
+    }
+
+    public InfoGetTemplateListResponse getTemplatesList(UUID caseUUID) {
+        GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
+        return infoClient.getTemplateList(caseTypeResponse.getType());
+    }
+
+    public InfoGetStandardLineListResponse getStandardLineList(UUID caseUUID) {
+        GetPrimaryTopicResponse getPrimaryTopicResponse = caseworkClient.getCaseTypeAndTopicForCase(caseUUID);
+        return infoClient.getStandardLineList(getPrimaryTopicResponse.getTopicUUID());
     }
 }

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineListResponse;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateListResponse;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 import java.util.Collections;
@@ -88,6 +90,12 @@ class WorkflowResource {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(value = "/case/{caseUUID}/topiclist", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetParentTopicResponse> getParentTopicsAndTopics(@PathVariable UUID caseUUID) {
+        GetParentTopicResponse response = workflowService.getParentTopicsAndTopics(caseUUID);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetCaseTopicsResponse> getCaseTopics(@PathVariable UUID caseUUID) {
         GetCaseTopicsResponse response = workflowService.getCaseTopics(caseUUID);
@@ -112,4 +120,15 @@ class WorkflowResource {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(value = "/case/{caseUUID}/templates", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<InfoGetTemplateListResponse> getTemplateList(@PathVariable UUID caseUUID) {
+        InfoGetTemplateListResponse response = workflowService.getTemplatesList(caseUUID);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/case/{caseUUID}/standard_lines", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<InfoGetStandardLineListResponse> getStandardLinesList(@PathVariable UUID caseUUID) {
+        InfoGetStandardLineListResponse response = workflowService.getStandardLineList(caseUUID);
+        return ResponseEntity.ok(response);
+    }
 }
