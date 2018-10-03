@@ -220,5 +220,14 @@ public class CaseworkClient {
         }
     }
 
+    public GetPrimaryTopicResponse getCaseTypeAndTopicForCase(UUID caseUUID) {
+        ResponseEntity<GetPrimaryTopicResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/topiclist", caseUUID), GetPrimaryTopicResponse.class);
 
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Got case type and topic for Case: {}", caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get case type and topic; response: %s", response.getStatusCodeValue());
+        }
+    }
 }
