@@ -33,10 +33,20 @@ public class HocsFormService {
         forms.put("DCU_UPLOAD_DOCUMENT", getUploadDraftDocument());
         forms.put("DCU_OFFLINE_QA_DECISION", getOfflineQADecision());
         forms.put("DCU_OFFLINE_QA_DETAILS", getOfflineQADetails());
+        forms.put("APPROVE_QA_RESPONSE", getApproveQAResponse());
 
         //// MARKUP
         forms.put("MARKUP_DECISION", getMarkupDecision());
         forms.put("TOPICS", getTopics());
+
+        //// Private Office
+        forms.put("APPROVE_PRIVATE_OFFICE", getApprovePrivateOffice());
+
+        ////Minister
+        forms.put("APPROVE_MINISTER_SIGN_OFF", getApproveMinisterSignOff());
+
+        ////Dispatch
+        forms.put("APPROVE_DISPATCH", getApproveDispatch());
 
         //// Transfer Confirmation
         forms.put("TRANSFER_CONFIRMATION", getTransferConfirmation());
@@ -613,7 +623,7 @@ public class HocsFormService {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Decision", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -765,14 +775,13 @@ public class HocsFormService {
         List<String> validationList = new ArrayList<>();
         validationList.add("required");
 
-
         Map<String,String> choice3 = new HashMap<>();
-        choice3.put("label", "Yes");
-        choice3.put("value", "TRUE");
+        choice3.put("label", "No");
+        choice3.put("value", "FALSE");
 
         Map<String,String> choice4 = new HashMap<>();
-        choice4.put("label", "No");
-        choice4.put("value", "FALSE");
+        choice4.put("label", "Yes");
+        choice4.put("value", "TRUE");
 
         List<Map<String, String>> choices = new ArrayList<>();
         choices.add(choice3);
@@ -807,4 +816,145 @@ public class HocsFormService {
         return form1;
     }
 
+    private HocsForm getApproveQAResponse() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String,String> choice1 = new HashMap<>();
+        choice1.put("label", "Accept");
+        choice1.put("value", "ACCEPT");
+        choice1.put("checked", "checked");
+
+        Map<String,String> choice2 = new HashMap<>();
+        choice2.put("label", "Reject");
+        choice2.put("value", "REJECT");
+
+        List<Map<String, String>> choices = new ArrayList<>();
+        choices.add(choice1);
+        choices.add(choice2);
+
+        Map<String,Object> properties4 = new HashMap<>();
+        properties4.put("name", "QAResponseDecision");
+        properties4.put("label", "QA Response");
+        properties4.put("choices", choices);
+
+        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
+
+        Map<String,Object> properties5 = new HashMap<>();
+        properties5.put("children", "If you select 'No' you will be asked to explain why and the case will return to DCU.");
+
+        HocsFormField fieldFive = new HocsFormField("inset", new ArrayList<>(), properties5);
+
+        List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldFour);
+        formFields.add(fieldFive);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "QA Response", "Finish", formFields);
+
+        HocsForm form1 = new HocsForm(schema1);
+
+        return form1;
+    }
+
+    private HocsForm getApprovePrivateOffice() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String,String> choice1 = new HashMap<>();
+        choice1.put("label", "Accept");
+        choice1.put("value", "ACCEPT");
+        choice1.put("checked", "checked");
+
+        Map<String,String> choice2 = new HashMap<>();
+        choice2.put("label", "Reject");
+        choice2.put("value", "REJECT");
+
+        List<Map<String, String>> choices = new ArrayList<>();
+        choices.add(choice1);
+        choices.add(choice2);
+
+        Map<String,Object> properties4 = new HashMap<>();
+        properties4.put("name", "PrivateOfficeDecision");
+        properties4.put("label", "Private Office Sign Off");
+        properties4.put("choices", choices);
+
+        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
+
+        List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldFour);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Private Office Sign Off", "Finish", formFields);
+
+        HocsForm form1 = new HocsForm(schema1);
+
+        return form1;
+    }
+
+    private HocsForm getApproveMinisterSignOff() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String,String> choice1 = new HashMap<>();
+        choice1.put("label", "Accept");
+        choice1.put("value", "ACCEPT");
+        choice1.put("checked", "checked");
+
+        Map<String,String> choice2 = new HashMap<>();
+        choice2.put("label", "Reject");
+        choice2.put("value", "REJECT");
+
+        List<Map<String, String>> choices = new ArrayList<>();
+        choices.add(choice1);
+        choices.add(choice2);
+
+        Map<String,Object> properties4 = new HashMap<>();
+        properties4.put("name", "MinisterSignOffDecision");
+        properties4.put("label", "Minister Sign Off");
+        properties4.put("choices", choices);
+
+        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
+
+        List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldFour);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Minister Sign Off", "Finish", formFields);
+
+        HocsForm form1 = new HocsForm(schema1);
+
+        return form1;
+    }
+
+    private HocsForm getApproveDispatch() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String,String> choice1 = new HashMap<>();
+        choice1.put("label", "Accept");
+        choice1.put("value", "ACCEPT");
+        choice1.put("checked", "checked");
+
+        Map<String,String> choice2 = new HashMap<>();
+        choice2.put("label", "Reject");
+        choice2.put("value", "REJECT");
+
+        List<Map<String, String>> choices = new ArrayList<>();
+        choices.add(choice1);
+        choices.add(choice2);
+
+        Map<String,Object> properties4 = new HashMap<>();
+        properties4.put("name", "DispatchDecision");
+        properties4.put("label", "Dispatch");
+        properties4.put("choices", choices);
+
+        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
+
+        List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldFour);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Dispatch", "Finish", formFields);
+
+        HocsForm form1 = new HocsForm(schema1);
+
+        return form1;
+    }
 }
