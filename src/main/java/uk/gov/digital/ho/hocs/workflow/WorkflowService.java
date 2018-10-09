@@ -128,6 +128,7 @@ public class WorkflowService {
         // TODO: permission check (active stage userID? TeamID ?)
         // TODO: validate Form
         caseworkClient.setInputData(caseUUID, values);
+
         camundaClient.updateStage(stageUUID, values);
 
         return getStage(caseUUID, stageUUID);

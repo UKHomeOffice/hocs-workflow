@@ -230,4 +230,8 @@ public class CaseworkClient {
             throw new EntityNotFoundException("Could not get case type and topic; response: %s", response.getStatusCodeValue());
         }
     }
+
+    public void createCaseNote(UUID caseUUID, String caseNote) {
+        log.info("caseUUID {}, case note - {}", caseUUID,caseNote);
+    }
 }

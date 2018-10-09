@@ -619,7 +619,7 @@ public class HocsFormService {
         validationList.add("required");
 
         Map<String, Object> properties7 = new HashMap<>();
-        properties7.put("name", "RejectionNote");
+        properties7.put("name", "CaseNote_RejectionNote");
         properties7.put("label", "Why should this should not be answered by your team?");
 
         HocsFormField fieldSeven = new HocsFormField("text-area", validationList, properties7);
@@ -642,7 +642,7 @@ public class HocsFormService {
         }
 
         Map<String, Object> properties7 = new HashMap<>();
-        properties7.put("name", title + "Note");
+        properties7.put("name", "CaseNote_" + title + "Note");
         properties7.put("label", question);
 
         HocsFormField fieldSeven = new HocsFormField("text-area", validationList, properties7);
