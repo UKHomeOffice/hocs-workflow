@@ -32,10 +32,10 @@ public class EmailService {
     }
 
     public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) {
-        String link = URL + "case/" + caseUUIDString + "/stage/" + stageUUIDString;
-
+        String link = URL + "/case/" + caseUUIDString + "/stage/" + stageUUIDString;
+        log.info("Generating email personalisation");
         Set<InfoNominatedPeople> nominatedPeopleSet = infoClient.getNominatedPeople(UUID.fromString(teamUUIDString));
-
+        log.info("Nominated people set size - " + nominatedPeopleSet.size());
         for (InfoNominatedPeople nominatedPeople : nominatedPeopleSet) {
             Map<String, String> personalisation = new HashMap<>();
             personalisation.put("link", link);
@@ -51,7 +51,8 @@ public class EmailService {
         try {
             notifyClient.sendEmail(notifyType.getDisplayValue(), emailAddress, personalisation, null);
         } catch (NotificationClientException e) {
-            log.warn("Didn't send email to %s", emailAddress);
+            log.error(e.getLocalizedMessage());
+            log.warn("Didn't send email to {}", emailAddress);
         }
 
     }

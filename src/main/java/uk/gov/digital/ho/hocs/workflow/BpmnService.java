@@ -49,9 +49,12 @@ public class BpmnService implements JavaDelegate {
     }
 
     public void addCaseNote(String caseUUIDString, String caseNote){
-        // Do nothing.
+        log.debug("######## Add case note ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
+        caseworkClient.createCaseNote(caseUUID, caseNote);
+        log.debug("######## Added case note ########");
     }
+
     public void calculateDeadlines(String caseUUIDString, String caseTypeString, String dateReceivedString) {
         log.debug("######## Calculating Deadlines ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);

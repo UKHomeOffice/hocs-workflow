@@ -16,6 +16,7 @@ public enum StageType {
     DCU_MIN_PRIVATE_OFFICE("Private Office"),
     DCU_MIN_MINISTER_SIGN_OFF("Minister Sign Off"),
     DCU_MIN_DISPATCH("Dispatch"),
+    DCU_MIN_COPY_NUMBER_TEN("Copy to Number Ten"),
     DCU_TRO_DATA_INPUT("Data Input"),
     DCU_TRO_DATA_INPUT_QA("Data Input QA"),
     DCU_TRO_MARKUP("Markup"),

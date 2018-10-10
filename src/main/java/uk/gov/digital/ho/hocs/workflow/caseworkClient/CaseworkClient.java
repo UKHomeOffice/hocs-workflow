@@ -101,6 +101,17 @@ public class CaseworkClient {
         }
     }
 
+    public void createCaseNote(UUID caseUUID, String caseNote) {
+        log.info("caseUUID {}, case note - {}", caseUUID,caseNote);
+        AddCaseworkCaseNoteDataRequest request = new AddCaseworkCaseNoteDataRequest(caseUUID, caseNote);
+        try {
+            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
+            log.info("Set Case Note Data for Case {}", caseUUID);
+        } catch (JsonProcessingException e) {
+            throw new EntityCreationException("Could not set Case Note Data: %s", e.toString());
+        }
+    }
+
     public void createDeadlines(UUID caseUUID, Map<StageType, LocalDate> deadlines) {
         UpdateCaseworkDeadlinesRequest request = new UpdateCaseworkDeadlinesRequest(caseUUID, deadlines);
 
@@ -230,4 +241,6 @@ public class CaseworkClient {
             throw new EntityNotFoundException("Could not get case type and topic; response: %s", response.getStatusCodeValue());
         }
     }
+
+
 }

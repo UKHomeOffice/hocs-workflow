@@ -47,6 +47,7 @@ public class WorkflowService {
         // Create a case in the casework service in order to get a UUID.
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseType);
         UUID caseUUID = caseResponse.getUuid();
+        String caseReference = caseResponse.getReference();
 
         if (caseUUID != null) {
             // Start a new case level workflow (caseUUID is the business key).
@@ -63,6 +64,8 @@ public class WorkflowService {
             seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
             seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
             seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("CopyNumberTenTeamUUID", "33333333-3333-3333-3333-333333333333");
+            seedData.put("CaseReference",caseReference);
 
             Map<String, String> data = new HashMap<>();
             data.put("DateReceived", dateReceived.toString());
@@ -125,6 +128,7 @@ public class WorkflowService {
         // TODO: permission check (active stage userID? TeamID ?)
         // TODO: validate Form
         caseworkClient.setInputData(caseUUID, values);
+
         camundaClient.updateStage(stageUUID, values);
 
         return getStage(caseUUID, stageUUID);
