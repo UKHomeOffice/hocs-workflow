@@ -966,10 +966,16 @@ public class HocsFormService {
         properties4.put("name", "MinisterSignOffDecision");
         properties4.put("label", "Minister Sign Off");
         properties4.put("choices", choices);
+        
+        Map<String, Object> signOffMinisterProps = new HashMap<>();
+        signOffMinisterProps.put("name", "SignOffMinister");
+        signOffMinisterProps.put("children", "Sign-off Minister: ");
 
         HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
+        HocsFormField signOffMinister = new HocsFormField("inset", new ArrayList<>(), signOffMinisterProps);
 
         List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(signOffMinister);
         formFields.add(fieldFour);
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Minister Sign Off", "Finish", formFields);
