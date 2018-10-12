@@ -13,6 +13,6 @@ import java.util.List;
 public class GetParentTopicResponse {
 
     @JsonProperty("parentTopics")
-    private List<Topic> parentTopics;
+    private List<ParentTopicAndTopics> parentTopics;
 
 }

@@ -1,21 +1,23 @@
 package uk.gov.digital.ho.hocs.workflow.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor()
 @NoArgsConstructor
 @Getter
-public class Topic {
+public class ParentTopicAndTopics {
 
     @JsonProperty("label")
-    private String label;
+    private String displayName;
 
     @JsonProperty("value")
-    private UUID value;
+    private UUID uuid;
+
+    @JsonProperty("options")
+    List<Topic> topics;
 
 }
