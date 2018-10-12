@@ -526,6 +526,7 @@ public class HocsFormService {
         Map<String, Object> properties6 = new HashMap<>();
         properties6.put("name", "SignOffMinister");
         properties6.put("label", "Sign-Off Minister");
+        properties6.put("choices", "MINISTERS");
 
         HocsFormField fieldSix = new HocsFormField("dropdown", validationList, properties6);
 
@@ -543,11 +544,12 @@ public class HocsFormService {
 
     private HocsForm getChangeMinister() {
         List<String> validationList = new ArrayList<>();
-//        validationList.add("required");
+        validationList.add("required");
 
         Map<String, Object> properties6 = new HashMap<>();
         properties6.put("name", "SignOffMinister");
         properties6.put("label", "Sign-Off Minister");
+        properties6.put("choices", "MINISTERS");
 
         HocsFormField fieldSix = new HocsFormField("dropdown", validationList, properties6);
 
