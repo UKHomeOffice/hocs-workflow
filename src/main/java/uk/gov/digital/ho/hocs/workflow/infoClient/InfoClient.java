@@ -60,7 +60,7 @@ public class InfoClient {
     }
 
     public GetParentTopicResponse getParentTopicsAndTopics(String caseType) {
-        ResponseEntity<GetParentTopicResponse> response = restHelper.get(serviceBaseURL, String.format("topics/%s", caseType), GetParentTopicResponse.class);
+        ResponseEntity<GetParentTopicResponse> response = restHelper.get(serviceBaseURL, String.format("/topics/%s", caseType), GetParentTopicResponse.class);
         GetParentTopicResponse topics = response.getBody();
         return topics;
     }
