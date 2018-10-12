@@ -811,7 +811,19 @@ public class HocsFormService {
 
     private HocsForm getUploadDraftDocument() {
 
+        Map<String, Object> properties9 = new HashMap<>();
+        properties9.put("name", "Documents");
+        properties9.put("label", "Which is the primary draft document?");
+        properties9.put("entity", "document");
+        properties9.put("hasRemoveLink", true);
+        properties9.put("hasAddLink", true);
+        properties9.put("choices", "CASE_DOCUMENT_LIST_DRAFT");
+
+        HocsFormField fieldNine = new HocsFormField("entity-list", new ArrayList<>(), properties9);
+
         List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldNine);
+
 
         HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Upload Draft", "Continue", formFields);
 
