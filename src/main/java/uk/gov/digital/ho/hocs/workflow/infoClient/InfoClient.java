@@ -29,9 +29,9 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
-   public Map<StageType, LocalDate> getDeadlines(CaseType caseType, LocalDate localDate) {
+   public Map<StageName, LocalDate> getDeadlines(CaseType caseType, LocalDate localDate) {
        ResponseEntity<InfoGetDeadlinesResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/deadlines/%s", caseType, localDate), InfoGetDeadlinesResponse.class);
-       Map<StageType, LocalDate> deadlines = response.getBody().getDeadlines();
+       Map<StageName, LocalDate> deadlines = response.getBody().getDeadlines();
        return deadlines;
    }
 

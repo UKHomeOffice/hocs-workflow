@@ -17,7 +17,7 @@ import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
 import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
-import uk.gov.digital.ho.hocs.workflow.model.StageType;
+import uk.gov.digital.ho.hocs.workflow.model.StageName;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -60,8 +60,8 @@ public class CaseworkClient {
         }
     }
 
-    public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID, UUID userUUID) {
-        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, new HashMap<>());
+    public UUID createStage(UUID caseUUID, StageName stageName, UUID teamUUID, UUID userUUID) {
+        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageName, teamUUID, userUUID, new HashMap<>());
         ResponseEntity<CreateCaseworkStageResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         if (response.getStatusCodeValue() == 200) {
             log.info("Created Stage: {} for Case {}", response.getBody().getUuid(), caseUUID);
@@ -112,7 +112,7 @@ public class CaseworkClient {
         }
     }
 
-    public void createDeadlines(UUID caseUUID, Map<StageType, LocalDate> deadlines) {
+    public void createDeadlines(UUID caseUUID, Map<StageName, LocalDate> deadlines) {
         UpdateCaseworkDeadlinesRequest request = new UpdateCaseworkDeadlinesRequest(caseUUID, deadlines);
 
         try {
