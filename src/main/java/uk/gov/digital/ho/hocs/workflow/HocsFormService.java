@@ -931,9 +931,14 @@ public class HocsFormService {
         choice2.put("label", "Reject");
         choice2.put("value", "REJECT");
 
+        Map<String, String> choice3 = new HashMap<>();
+        choice3.put("label", "Change Minister");
+        choice3.put("value", "CHANGE");
+
         List<Map<String, String>> choices = new ArrayList<>();
         choices.add(choice1);
         choices.add(choice2);
+        choices.add(choice3);
 
         Map<String, Object> properties4 = new HashMap<>();
         properties4.put("name", "PrivateOfficeDecision");
@@ -965,14 +970,9 @@ public class HocsFormService {
         choice2.put("label", "Reject");
         choice2.put("value", "REJECT");
 
-        Map<String, String> choice3 = new HashMap<>();
-        choice3.put("label", "Change Minister");
-        choice3.put("value", "CHANGE");
-
         List<Map<String, String>> choices = new ArrayList<>();
         choices.add(choice1);
         choices.add(choice2);
-        choices.add(choice3);
 
         Map<String, Object> properties4 = new HashMap<>();
         properties4.put("name", "MinisterSignOffDecision");
