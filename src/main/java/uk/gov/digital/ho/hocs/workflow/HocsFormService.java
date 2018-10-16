@@ -44,6 +44,7 @@ public class HocsFormService {
 
         //// Private Office
         forms.put("APPROVE_PRIVATE_OFFICE", getApprovePrivateOffice());
+        forms.put("APPROVE_PRIVATE_OFFICE_DTEN", getApprovePrivateOfficeDTEN());
 
         ////Minister
         forms.put("APPROVE_MINISTER_SIGN_OFF", getApproveMinisterSignOff());
@@ -939,6 +940,40 @@ public class HocsFormService {
         choices.add(choice1);
         choices.add(choice2);
         choices.add(choice3);
+
+        Map<String, Object> properties4 = new HashMap<>();
+        properties4.put("name", "PrivateOfficeDecision");
+        properties4.put("label", "Private Office Sign Off");
+        properties4.put("choices", choices);
+
+        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
+
+        List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldFour);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Private Office Sign Off", "Finish", formFields);
+
+        HocsForm form1 = new HocsForm(schema1);
+
+        return form1;
+    }
+
+    private HocsForm getApprovePrivateOfficeDTEN() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
+
+        Map<String, String> choice1 = new HashMap<>();
+        choice1.put("label", "Accept");
+        choice1.put("value", "ACCEPT");
+        choice1.put("checked", "checked");
+
+        Map<String, String> choice2 = new HashMap<>();
+        choice2.put("label", "Reject");
+        choice2.put("value", "REJECT");
+
+        List<Map<String, String>> choices = new ArrayList<>();
+        choices.add(choice1);
+        choices.add(choice2);
 
         Map<String, Object> properties4 = new HashMap<>();
         properties4.put("name", "PrivateOfficeDecision");
