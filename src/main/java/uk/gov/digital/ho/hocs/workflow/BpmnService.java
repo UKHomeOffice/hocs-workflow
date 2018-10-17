@@ -60,7 +60,7 @@ public class BpmnService implements JavaDelegate {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         LocalDate now = LocalDate.parse(dateReceivedString);
         CaseType caseType = CaseType.valueOf(caseTypeString);
-        Map<StageName, LocalDate> deadlines = infoClient.getDeadlines(caseType, now);
+        Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseType, now);
         caseworkClient.createDeadlines(caseUUID, deadlines);
         log.debug("######## Created Stage ########");
     }
@@ -87,7 +87,7 @@ public class BpmnService implements JavaDelegate {
             caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
         } else {
             // Create a stage in the casework service in order to get a UUID.
-            stageUUID = caseworkClient.createStage(caseUUID, StageName.valueOf(stageType), teamUUID, userUUID);
+            stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID);
         }
         log.debug("######## Created Stage ########");
         return stageUUID.toString();

@@ -1,7 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.digital.ho.hocs.workflow.model.StageName;
+import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -16,9 +16,9 @@ public class UpdateCaseworkDeadlinesRequest {
     private UUID caseUUID;
 
     @JsonProperty("deadlines")
-    private Map<StageName, LocalDate> deadlines;
+    private Map<StageType, LocalDate> deadlines;
 
-    public UpdateCaseworkDeadlinesRequest(UUID caseUUID, Map<StageName, LocalDate> deadlines) {
+    public UpdateCaseworkDeadlinesRequest(UUID caseUUID, Map<StageType, LocalDate> deadlines) {
         this.caseUUID = caseUUID;
         this.deadlines = deadlines;
     }

@@ -3,7 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import uk.gov.digital.ho.hocs.workflow.model.StageName;
+import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.util.UUID;
 
@@ -12,7 +12,7 @@ import java.util.UUID;
 public class GetCaseworkStageResponse {
 
     @JsonProperty("type")
-    private StageName type;
+    private StageType type;
 
     @JsonProperty("uuid")
     private UUID uuid;

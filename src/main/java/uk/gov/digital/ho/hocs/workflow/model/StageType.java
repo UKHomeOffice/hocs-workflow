@@ -2,7 +2,7 @@ package uk.gov.digital.ho.hocs.workflow.model;
 
 import lombok.Getter;
 
-public enum StageName {
+public enum StageType {
 
     RUSH_ONLY_STAGE("Stage"),
 
@@ -39,7 +39,7 @@ public enum StageName {
     @Getter
     private String displayValue;
 
-    StageName(String value){
+    StageType(String value){
         displayValue = value;
     }
 
