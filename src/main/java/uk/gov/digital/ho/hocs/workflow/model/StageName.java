@@ -25,6 +25,7 @@ public enum StageName {
     DCU_TRO_INITIAL_DRAFT("Initial Draft"),
     DCU_TRO_QA_RESPONSE("QA Response"),
     DCU_TRO_DISPATCH("Dispatch"),
+    DCU_TRO_COPY_NUMBER_TEN("Copy to Number Ten"),
     DCU_DTEN_DATA_INPUT("Data Input"),
     DCU_DTEN_DATA_INPUT_QA("Data Input QA"),
     DCU_DTEN_MARKUP("Markup"),
