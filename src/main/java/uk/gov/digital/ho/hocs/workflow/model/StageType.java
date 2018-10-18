@@ -34,7 +34,8 @@ public enum StageType {
     DCU_DTEN_INITIAL_DRAFT("Initial Draft"),
     DCU_DTEN_QA_RESPONSE("QA Response"),
     DCU_DTEN_PRIVATE_OFFICE("Private Office"),
-    DCU_DTEN_DISPATCH("Dispatch");
+    DCU_DTEN_DISPATCH("Dispatch"),
+    DCU_DTEN_COPY_NUMBER_TEN("Copy to Number Ten");
 
     @Getter
     private String displayValue;
