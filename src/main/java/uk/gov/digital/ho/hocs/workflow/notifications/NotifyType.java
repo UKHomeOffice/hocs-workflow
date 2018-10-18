@@ -10,7 +10,9 @@ public enum NotifyType {
     MINISTER_REJECT("78df9bff-9cb0-414a-bb82-32e26847cc5a"),
     DISPATCH_REJECT("0912ba97-1043-41c0-b583-68d6e65f3de7"),
     ALLOCATE_TEAM("f9716987-395e-453f-9a59-9a8a47f23152"),
-    ALLOCATE_INDIVIDUAL("3dfbd276-2bcc-4b08-81b1-d4f0583cdf39");
+    ALLOCATE_INDIVIDUAL("3dfbd276-2bcc-4b08-81b1-d4f0583cdf39"),
+    NRN_REJECT("8d4f8da4-a646-468b-8e91-3063c12ae812"),
+    TRANSFER_OGD_REJECT("d860dd8a-6873-4b07-be85-022aa505a9e2");
 
     @Getter
     private String displayValue;

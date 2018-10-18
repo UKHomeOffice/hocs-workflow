@@ -1,7 +1,8 @@
 package uk.gov.digital.ho.hocs.workflow.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 

@@ -3,16 +3,18 @@ package uk.gov.digital.ho.hocs.workflow.infoClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.dto.GetParentTopicResponse;
 import uk.gov.digital.ho.hocs.workflow.dto.Topic;
-import uk.gov.digital.ho.hocs.workflow.model.*;
+import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Component

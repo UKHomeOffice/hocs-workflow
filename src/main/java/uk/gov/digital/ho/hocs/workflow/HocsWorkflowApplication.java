@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class HocsWorkflowApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(HocsWorkflowApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(HocsWorkflowApplication.class, args);
+    }
 
 }
