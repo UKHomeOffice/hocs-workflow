@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.documentClient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
@@ -12,12 +12,17 @@ import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineListResponse;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateListResponse;
-import uk.gov.digital.ho.hocs.workflow.model.*;
+import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
+import uk.gov.digital.ho.hocs.workflow.model.CorrespondentType;
+import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
-
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j

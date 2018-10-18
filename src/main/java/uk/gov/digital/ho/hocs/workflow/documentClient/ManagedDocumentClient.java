@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.documentClient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
@@ -10,10 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.documentClient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.documentClient.dto.CreateCaseworkManagedDocumentRequest;
+import uk.gov.digital.ho.hocs.workflow.documentClient.dto.CreateCaseworkManagedDocumentResponse;
 import uk.gov.digital.ho.hocs.workflow.documentClient.model.ManagedDocumentType;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
-import uk.gov.digital.ho.hocs.workflow.documentClient.model.DocumentType;
 
 import java.util.UUID;
 
