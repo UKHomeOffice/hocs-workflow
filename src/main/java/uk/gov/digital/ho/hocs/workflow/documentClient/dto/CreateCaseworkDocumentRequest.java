@@ -15,6 +15,6 @@ public class CreateCaseworkDocumentRequest {
     @JsonProperty("type")
     private DocumentType type;
 
-    @JsonProperty("caseUUID")
-    private UUID caseUUID;
+    @JsonProperty("externalReferenceUUID")
+    private UUID externalReferenceUUID;
 }
