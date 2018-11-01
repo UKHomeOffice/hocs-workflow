@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.documentClient.dto.CreateCaseworkDocumentRequest;
@@ -15,7 +15,7 @@ import uk.gov.digital.ho.hocs.workflow.documentClient.dto.ProcessDocumentRequest
 import uk.gov.digital.ho.hocs.workflow.documentClient.model.DocumentType;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 
-import java.util.*;
+import java.util.UUID;
 
 @Slf4j
 @Component
