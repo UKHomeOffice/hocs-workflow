@@ -43,18 +43,6 @@ public class InfoClient {
        return nominatedPeople;
    }
 
-    public InfoGetTemplateResponse getTemplate(CaseType caseType, UUID templateUUID) {
-        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/template/%s", caseType, templateUUID), InfoGetTemplateResponse.class);
-        InfoGetTemplateResponse template = response.getBody();
-        return template;
-    }
-
-    public InfoGetStandardLineResponse getStandardLine(CaseType caseType, UUID standardLineUUID) {
-        ResponseEntity<InfoGetStandardLineResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/standardlinekey/%s", caseType, standardLineUUID), InfoGetStandardLineResponse.class);
-        InfoGetStandardLineResponse standardLineKey = response.getBody();
-        return standardLineKey;
-    }
-
     public GetParentTopicResponse getParentTopics(String caseType) {
         ResponseEntity<GetParentTopicResponse> response = restHelper.get(serviceBaseURL, String.format("/topic/parent/%s", caseType), GetParentTopicResponse.class);
         GetParentTopicResponse topics = response.getBody();
@@ -73,15 +61,15 @@ public class InfoClient {
         return topic;
     }
 
-    public InfoGetTemplateListResponse getTemplateList(CaseType caseType) {
-        ResponseEntity<InfoGetTemplateListResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/templates", caseType), InfoGetTemplateListResponse.class);
-        InfoGetTemplateListResponse template = response.getBody();
+    public InfoGetTemplateResponse getTemplate(CaseType caseType) {
+        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/templates/%s", caseType), InfoGetTemplateResponse.class);
+        InfoGetTemplateResponse template = response.getBody();
         return template;
     }
 
-    public InfoGetStandardLineListResponse getStandardLineList( UUID topicUUID) {
-        ResponseEntity<InfoGetStandardLineListResponse> response = restHelper.get(serviceBaseURL, String.format("/standardlines/%s", topicUUID), InfoGetStandardLineListResponse.class);
-        InfoGetStandardLineListResponse template = response.getBody();
+    public InfoGetStandardLineResponse getStandardLine( UUID topicUUID) {
+        ResponseEntity<InfoGetStandardLineResponse> response = restHelper.get(serviceBaseURL, String.format("/standardlines/%s", topicUUID), InfoGetStandardLineResponse.class);
+        InfoGetStandardLineResponse template = response.getBody();
         return template;
     }
 
