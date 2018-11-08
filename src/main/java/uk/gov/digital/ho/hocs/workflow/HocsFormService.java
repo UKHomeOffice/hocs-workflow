@@ -872,6 +872,20 @@ public class HocsFormService {
 
     private HocsForm getUploadDraftDocument() {
 
+        Map<String, Object> standardLine = new HashMap<>();
+        standardLine.put("name", "Documents");
+        standardLine.put("label", "Available Standard line");
+        standardLine.put("entity", "standard_line");
+        standardLine.put("hasDownloadLink", true);
+        standardLine.put("choices", "CASE_STANDARD_LINES");
+
+        Map<String, Object> template = new HashMap<>();
+        template.put("name", "Documents");
+        template.put("label", "Available Template");
+        template.put("entity", "template");
+        template.put("hasDownloadLink", true);
+        template.put("choices", "CASE_TEMPLATES");
+
         Map<String, Object> properties9 = new HashMap<>();
         properties9.put("name", "Documents");
         properties9.put("label", "Which is the primary draft document?");
@@ -881,12 +895,17 @@ public class HocsFormService {
         properties9.put("choices", "CASE_DOCUMENT_LIST_DRAFT");
 
         HocsFormField fieldNine = new HocsFormField("entity-list", new ArrayList<>(), properties9);
+        HocsFormField fieldTen = new HocsFormField("entity-manager", new ArrayList<>(), standardLine);
+        HocsFormField fieldEleven = new HocsFormField("entity-manager", new ArrayList<>(), template);
 
         List<HocsFormField> formFields = new ArrayList<>();
+        formFields.add(fieldTen);
+        formFields.add(fieldEleven);
         formFields.add(fieldNine);
 
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Upload Draft", "Continue", formFields);
+
+        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Draft a Response", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
