@@ -15,7 +15,6 @@ import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateListResponse;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
-
 import java.time.LocalDate;
 import java.util.*;
 
@@ -28,7 +27,6 @@ public class WorkflowService {
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
     private final HocsFormService hocsFormService;
-
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
@@ -43,35 +41,25 @@ public class WorkflowService {
         this.hocsFormService = hocsFormService;
     }
 
-    CreateCaseResponse createCase(CaseType caseType, LocalDate dateReceived, List<DocumentSummary> documents) {
+    CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, Set<DocumentSummary> documents) {
+
         // Create a case in the casework service in order to get a UUID.
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseType);
+        Map<String, String> data = new HashMap<>();
+        data.put("DateReceived", dateReceived.toString());
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data);
         UUID caseUUID = caseResponse.getUuid();
-        String caseReference = caseResponse.getReference();
 
         if (caseUUID != null) {
-            // Start a new case level workflow (caseUUID is the business key).
-            Map<String, Object> seedData = new HashMap<>();
-            seedData.put("DateReceived", dateReceived);
 
-            seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
-            seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
-            seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
-            seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("QAResponseTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("CopyNumberTenTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("CaseReference",caseReference);
-
-            Map<String, String> data = new HashMap<>();
-            data.put("DateReceived", dateReceived.toString());
-            caseworkClient.setInputData(caseUUID, data);
+            // Add Documents to the case
             createDocument(caseUUID, documents);
-            camundaClient.startCase(caseUUID, caseType, seedData);
+
+            // Start a new camunda workflow (caseUUID is the business key).
+            Map<String, Object> seedData = new HashMap<>();
+            seedData.put("CaseReference",caseResponse.getReference());
+            seedData.putAll(data);
+            seedData.putAll(tempUserTeamCode());
+            camundaClient.startCase(caseUUID, caseDataType, seedData);
 
         } else {
             throw new EntityCreationException("Failed to start case, invalid caseUUID!");
@@ -79,12 +67,10 @@ public class WorkflowService {
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
-        if (documents != null) {
-            // Add any Documents to the case
+    void createDocument(UUID caseUUID, Set<DocumentSummary> documents) {
+        if (documents.size() > 0) {
             for (DocumentSummary document : documents) {
                 UUID response = documentClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
-
                 documentClient.processDocument(response, document.getS3UntrustedUrl());
             }
         }
@@ -95,17 +81,13 @@ public class WorkflowService {
     }
 
     GetCorrespondentResponse getCorrespondentData(UUID caseUUID, UUID correspondentUUID) {
-        GetCorrespondentResponse correspondent = caseworkClient.getCorrespondentForCase(caseUUID, correspondentUUID);
+        GetCorrespondentResponse correspondent = caseworkClient.getCorrespondent(caseUUID, correspondentUUID);
         return correspondent;
     }
 
     void addCorrespondentToCase(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
-        Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email);
+        Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email, reference);
         caseworkClient.createCorrespondent(caseUUID, correspondent);
-
-        if(reference != null) {
-            caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, reference);
-        }
     }
 
     GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
@@ -114,10 +96,8 @@ public class WorkflowService {
 
         // If the stage is complete we have form as null.
         if (form != null) {
-            // TODO: permission check (active stage userID? TeamID ?)
             GetCaseworkStageResponse stageResponse = caseworkClient.getStage(caseUUID, stageUUID);
-            GetCaseworkInputResponse inputResponse = caseworkClient.getInput(caseUUID);
-            form.setData(inputResponse.getData());
+            form.setData(stageResponse.getData());
             return new GetStageResponse(stageUUID, stageResponse.getCaseReference(), form);
         } else {
             return new GetStageResponse(stageUUID, null, null);
@@ -127,7 +107,8 @@ public class WorkflowService {
     GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: permission check (active stage userID? TeamID ?)
         // TODO: validate Form
-        caseworkClient.setInputData(caseUUID, values);
+        caseworkClient.updateCase(caseUUID, values);
+
 
         camundaClient.updateStage(stageUUID, values);
 
@@ -136,16 +117,16 @@ public class WorkflowService {
 
     void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
         camundaClient.allocateStage(caseUUID, teamUUID, userUUID);
-        caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
+        caseworkClient.updateStage(caseUUID, stageUUID, teamUUID, userUUID, StageStatusType.UPDATED);
     }
 
     GetParentTopicResponse getParentTopicsAndTopics(UUID caseUUID) {
-        GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
+        GetCaseworkCaseResponse caseTypeResponse = caseworkClient.getCaseworkCase(caseUUID);
         return infoClient.getParentTopicsAndTopics(caseTypeResponse.getType().toString());
     }
 
     GetCaseTopicsResponse getCaseTopics(UUID caseUUID) {
-        GetCaseTopicsResponse caseTopicsResponse = caseworkClient.getCaseTopics(caseUUID);
+        GetCaseTopicsResponse caseTopicsResponse = caseworkClient.getTopics(caseUUID);
         return caseTopicsResponse;
     }
 
@@ -156,24 +137,44 @@ public class WorkflowService {
 
     void addTopicToCase(UUID caseUUID, UUID topicUUID) {
         Topic topic = infoClient.getTopic(topicUUID);
-        caseworkClient.addTopicToCase(caseUUID, topic.getValue(), topic.getLabel());
+        caseworkClient.createTopic(caseUUID, topic.getValue(), topic.getLabel());
     }
 
     void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
-        caseworkClient.deleteTopicFromCase(caseUUID, topicUUID);
+        caseworkClient.deleteTopic(caseUUID, topicUUID);
     }
 
-    public void deleteCorrespondentFromCase(UUID caseUUID, UUID correspondentUUID) {
-        caseworkClient.deleteCorrespondentFromCase(caseUUID,correspondentUUID);
+    void deleteCorrespondentFromCase(UUID caseUUID, UUID correspondentUUID) {
+        caseworkClient.deleteCorrespondent(caseUUID,correspondentUUID);
     }
 
-    public InfoGetTemplateListResponse getTemplatesList(UUID caseUUID) {
-        GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
-        return infoClient.getTemplateList(caseTypeResponse.getType());
+    InfoGetTemplateListResponse getTemplatesList(UUID caseUUID) {
+        GetCaseworkCaseResponse caseworkCaseResponse = caseworkClient.getCaseworkCase(caseUUID);
+        return infoClient.getTemplateList(caseworkCaseResponse.getType());
     }
 
-    public InfoGetStandardLineListResponse getStandardLineList(UUID caseUUID) {
-        GetPrimaryTopicResponse getPrimaryTopicResponse = caseworkClient.getCaseTypeAndTopicForCase(caseUUID);
-        return infoClient.getStandardLineList(getPrimaryTopicResponse.getTopicUUID());
+    InfoGetStandardLineListResponse getStandardLineList(UUID caseUUID) {
+        Topic topic = caseworkClient.getPrimaryTopic(caseUUID);
+        UUID primaryTopic = topic.getValue();
+        return infoClient.getStandardLineList(primaryTopic);
+
+    }
+
+    private Map<String,Object> tempUserTeamCode() {
+
+        Map<String, Object> seedData = new HashMap<>();
+        seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
+        seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
+        seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("QAResponseTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("CopyNumberTenTeamUUID", "33333333-3333-3333-3333-333333333333");
+
+        return seedData;
     }
 }

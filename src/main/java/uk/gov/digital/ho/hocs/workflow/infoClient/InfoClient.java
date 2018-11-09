@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.dto.GetParentTopicResponse;
 import uk.gov.digital.ho.hocs.workflow.dto.Topic;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.time.LocalDate;
@@ -31,8 +31,8 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
-   public Map<StageType, LocalDate> getDeadlines(CaseType caseType, LocalDate localDate) {
-       ResponseEntity<InfoGetDeadlinesResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/deadlines/%s", caseType, localDate), InfoGetDeadlinesResponse.class);
+   public Map<StageType, LocalDate> getDeadlines(CaseDataType caseDataType, LocalDate localDate) {
+       ResponseEntity<InfoGetDeadlinesResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/deadlines/%s", caseDataType, localDate), InfoGetDeadlinesResponse.class);
        Map<StageType, LocalDate> deadlines = response.getBody().getDeadlines();
        return deadlines;
    }
@@ -43,14 +43,14 @@ public class InfoClient {
        return nominatedPeople;
    }
 
-    public InfoGetTemplateResponse getTemplate(CaseType caseType, UUID templateUUID) {
-        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/template/%s", caseType, templateUUID), InfoGetTemplateResponse.class);
+    public InfoGetTemplateResponse getTemplate(CaseDataType caseDataType, UUID templateUUID) {
+        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/template/%s", caseDataType, templateUUID), InfoGetTemplateResponse.class);
         InfoGetTemplateResponse template = response.getBody();
         return template;
     }
 
-    public InfoGetStandardLineResponse getStandardLine(CaseType caseType, UUID standardLineUUID) {
-        ResponseEntity<InfoGetStandardLineResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/standardlinekey/%s", caseType, standardLineUUID), InfoGetStandardLineResponse.class);
+    public InfoGetStandardLineResponse getStandardLine(CaseDataType caseDataType, UUID standardLineUUID) {
+        ResponseEntity<InfoGetStandardLineResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/standardlinekey/%s", caseDataType, standardLineUUID), InfoGetStandardLineResponse.class);
         InfoGetStandardLineResponse standardLineKey = response.getBody();
         return standardLineKey;
     }
@@ -73,13 +73,13 @@ public class InfoClient {
         return topic;
     }
 
-    public InfoGetTemplateListResponse getTemplateList(CaseType caseType) {
-        ResponseEntity<InfoGetTemplateListResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/templates", caseType), InfoGetTemplateListResponse.class);
+    public InfoGetTemplateListResponse getTemplateList(CaseDataType caseDataType) {
+        ResponseEntity<InfoGetTemplateListResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/templates", caseDataType), InfoGetTemplateListResponse.class);
         InfoGetTemplateListResponse template = response.getBody();
         return template;
     }
 
-    public InfoGetStandardLineListResponse getStandardLineList( UUID topicUUID) {
+    public InfoGetStandardLineListResponse getStandardLineList(UUID topicUUID) {
         ResponseEntity<InfoGetStandardLineListResponse> response = restHelper.get(serviceBaseURL, String.format("/standardlines/%s", topicUUID), InfoGetStandardLineListResponse.class);
         InfoGetStandardLineListResponse template = response.getBody();
         return template;

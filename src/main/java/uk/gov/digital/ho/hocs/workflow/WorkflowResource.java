@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineListResponse;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateListResponse;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +34,7 @@ class WorkflowResource {
 
     @PostMapping(value = "/case/bulk", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseWithDocumentsRequest request) {
-        CaseType type = request.getCaseType();
+        CaseDataType type = request.getCaseDataType();
         List<DocumentSummary> list = request.getDocuments();
         list.forEach( (documentSummary) -> {
             workflowService.createCase(type, request.getDateReceived(), Collections.singletonList(documentSummary));

@@ -12,7 +12,6 @@ import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
 import uk.gov.digital.ho.hocs.workflow.notifications.NotifyType;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -40,29 +39,25 @@ public class BpmnService implements JavaDelegate {
         UUID caseUUID = UUID.fromString(caseUUIDString);
 
         CorrespondentType correspondentType = CorrespondentType.valueOf(cType);
-        Correspondent correspondent = new Correspondent(correspondentType, cFullName, cPostcode, cAddressOne, cAddressTwo, cAddressThree, cAddressCountry, cPhone, cEmail);
+        Correspondent correspondent = new Correspondent(correspondentType, cFullName, cPostcode, cAddressOne, cAddressTwo, cAddressThree, cAddressCountry, cPhone, cEmail, cReference);
         caseworkClient.createCorrespondent(caseUUID, correspondent);
-
-        if(cReference != null) {
-            caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, cReference);
-        }
     }
 
     public void addCaseNote(String caseUUIDString, String caseNote){
         log.debug("######## Add case note ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
-        caseworkClient.createCaseNote(caseUUID, caseNote);
+        caseworkClient.createCaseNote(caseUUID, CaseNoteType.MANUAL, caseNote);
         log.debug("######## Added case note ########");
     }
 
     public void calculateDeadlines(String caseUUIDString, String caseTypeString, String dateReceivedString) {
-        log.debug("######## Calculating Deadlines ########");
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        LocalDate now = LocalDate.parse(dateReceivedString);
-        CaseType caseType = CaseType.valueOf(caseTypeString);
-        Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseType, now);
-        caseworkClient.createDeadlines(caseUUID, deadlines);
-        log.debug("######## Created Stage ########");
+        //log.debug("######## Calculating Deadlines ########");
+        //UUID caseUUID = UUID.fromString(caseUUIDString);
+        //LocalDate now = LocalDate.parse(dateReceivedString);
+        //CaseDataType caseDataType = CaseDataType.valueOf(caseTypeString);
+        //Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseDataType, now);
+        //caseworkClient.createDeadlines(caseUUID, deadlines);
+        //log.debug("######## Created Stage ########");
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
@@ -84,10 +79,10 @@ public class BpmnService implements JavaDelegate {
             // Otherwise just allocate the stage.
             stageUUID = UUID.fromString(stageUUIDString);
 
-            caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
+            caseworkClient.updateStage(caseUUID, stageUUID, teamUUID, userUUID, StageStatusType.UPDATED);
         } else {
             // Create a stage in the casework service in order to get a UUID.
-            stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID);
+            stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID, LocalDate.now());
         }
         log.debug("######## Created Stage ########");
         return stageUUID.toString();
@@ -95,7 +90,7 @@ public class BpmnService implements JavaDelegate {
 
     public void completeStage(String caseUUIDString, String stageUUIDString) {
         log.debug("######## Updating Stage ########");
-        caseworkClient.completeStage(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString));
+        caseworkClient.updateStage(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), null, null, StageStatusType.COMPLETE);
         log.debug("######## Updated Stage ########");
     }
 

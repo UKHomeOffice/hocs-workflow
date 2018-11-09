@@ -3,14 +3,13 @@ package uk.gov.digital.ho.hocs.workflow.camundaClient;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
-import org.camunda.bpm.engine.runtime.Execution;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,10 +28,10 @@ public class CamundaClient {
         this.taskService = taskService;
     }
 
-    public void startCase(UUID caseUUID, CaseType caseType, Map<String,Object> seedData) {
-        log.debug("Starting case bpmn:  Case: '{}' Type: '{}'", caseUUID, caseType);
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseType.toString(), caseUUID.toString(), seedData);
-        log.info("Started case bpmn: Case: '{}' Type: '{}' id: '{}'", caseUUID, caseType, processInstance.getId());
+    public void startCase(UUID caseUUID, CaseDataType caseDataType, Map<String,Object> seedData) {
+        log.debug("Starting case bpmn:  Case: '{}' Type: '{}'", caseUUID, caseDataType);
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseDataType.toString(), caseUUID.toString(), seedData);
+        log.info("Started case bpmn: Case: '{}' Type: '{}' id: '{}'", caseUUID, caseDataType, processInstance.getId());
     }
 
     public String getScreenName(UUID stageUUID) {

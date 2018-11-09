@@ -24,4 +24,6 @@ public class Correspondent {
     private String telephone;
 
     private String email;
+
+    private String reference;
 }
