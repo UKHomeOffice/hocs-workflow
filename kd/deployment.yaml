@@ -79,7 +79,7 @@ spec:
               readOnly: true
 
         - name: proxy
-          image: quay.io/ukhomeofficedigital/nginx-proxy:v3.2.11
+          image: quay.io/ukhomeofficedigital/nginx-proxy:v3.4.2
           imagePullPolicy: Always
           securityContext:
             runAsNonRoot: true
@@ -89,11 +89,11 @@ spec:
                 - SETGID
           resources:
             limits:
-              memory: "100Mi"
-              cpu: 100m
+              memory: 512Mi
+              cpu: 250m
             requests:
-              memory: "50Mi"
-              cpu: 100m
+              memory: 256Mi
+              cpu: 150m
           env:
             - name: PROXY_SERVICE_HOST
               value: '127.0.0.1'
@@ -112,7 +112,7 @@ spec:
             - name: SERVER_KEY
               value: /certs/tls-key.pem
             - name: ADD_NGINX_SERVER_CFG
-              value: 'gzip off; location = /reload { allow 127.0.0.1; deny all; content_by_lua_block { os.execute("touch /tmp/nginx-reload-triggered; /usr/local/openresty/nginx/sbin/nginx -s reload; touch /tmp/nginx-reload-complete;") } }'
+              value: 'location = /reload { allow 127.0.0.1; deny all; content_by_lua_block { os.execute("touch /tmp/nginx-reload-triggered; /usr/local/openresty/nginx/sbin/nginx -s reload; touch /tmp/nginx-reload-complete;") } }'
           volumeMounts:
             - name: certs
               mountPath: /certs
@@ -140,7 +140,7 @@ spec:
                 name: hocs-queue-config
           env:
             - name: JAVA_OPTS
-              value: '-Xms384m -Xmx1536m -Djavax.net.ssl.trustStore=/etc/keystore/truststore.jks -Dhttps.proxyHost=hocs-outbound-proxy.{{.KUBE_NAMESPACE}}.svc.cluster.local -Dhttps.proxyPort=31290 -Dhttp.nonProxyHosts=*.{{.KUBE_NAMESPACE}}.svc.cluster.local'
+              value: '-Xms384m -Xmx1536m -XX:+UseG1GC -Djavax.net.ssl.trustStore=/etc/keystore/truststore.jks -Dhttps.proxyHost=hocs-outbound-proxy.{{.KUBE_NAMESPACE}}.svc.cluster.local -Dhttps.proxyPort=31290 -Dhttp.nonProxyHosts=*.{{.KUBE_NAMESPACE}}.svc.cluster.local'
             - name: JDK_TRUST_FILE
               value: '/etc/keystore/truststore.jks'
             - name: SERVER_PORT
@@ -227,7 +227,7 @@ spec:
               cpu: 850m
               memory: 2048Mi
             requests:
-              cpu: 100m
+              cpu: 200m
               memory: 512Mi
           ports:
             - name: http
