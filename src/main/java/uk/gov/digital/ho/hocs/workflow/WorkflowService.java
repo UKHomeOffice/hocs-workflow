@@ -50,32 +50,21 @@ public class WorkflowService {
 
     CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a UUID.
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType);
+        Map<String, String> data = new HashMap<>();
+        data.put("DateReceived", dateReceived.toString());
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data);
         UUID caseUUID = caseResponse.getUuid();
-        String caseReference = caseResponse.getReference();
 
         if (caseUUID != null) {
-            // Start a new case level workflow (caseUUID is the business key).
-            Map<String, Object> seedData = new HashMap<>();
-            seedData.put("DateReceived", dateReceived);
 
-            seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
-            seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
-            seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
-            seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("QAResponseTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("CopyNumberTenTeamUUID", "33333333-3333-3333-3333-333333333333");
-            seedData.put("CaseReference",caseReference);
-
-            Map<String, String> data = new HashMap<>();
-            data.put("DateReceived", dateReceived.toString());
-            caseworkClient.setInputData(caseUUID, data);
+            // Add Documents to the case
             createDocument(caseUUID, documents);
+
+            // Start a new camunda workflow (caseUUID is the business key).
+            Map<String, Object> seedData = new HashMap<>();
+            seedData.put("CaseReference",caseResponse.getReference());
+            seedData.putAll(data);
+            seedData.putAll(tempUserTeamCode());
             camundaClient.startCase(caseUUID, caseDataType, seedData);
 
         } else {
@@ -180,5 +169,23 @@ public class WorkflowService {
     public InfoGetStandardLineResponse getStandardLines(UUID caseUUID) {
         GetPrimaryTopicResponse getPrimaryTopicResponse = caseworkClient.getCaseTypeAndTopicForCase(caseUUID);
         return infoClient.getStandardLine(getPrimaryTopicResponse.getTopicUUID());
+    }
+
+    private static Map<String,Object> tempUserTeamCode() {
+
+        Map<String, Object> seedData = new HashMap<>();
+        seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
+        seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
+        seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("QAResponseTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("CopyNumberTenTeamUUID", "33333333-3333-3333-3333-333333333333");
+
+        return seedData;
     }
 }
