@@ -1,7 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
 import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 @AllArgsConstructor

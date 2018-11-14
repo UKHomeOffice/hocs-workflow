@@ -2,7 +2,6 @@ package uk.gov.digital.ho.hocs.workflow.documentClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.util.UUID;
 

@@ -4,10 +4,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Getter
 @NoArgsConstructor
 public class InfoGetStandardLineResponse {
 
-    @JsonProperty("documentKey")
-    private String documentKey;
+    @JsonProperty("label")
+    private String displayName;
+
+    @JsonProperty("value")
+    private UUID uuid;
 }
