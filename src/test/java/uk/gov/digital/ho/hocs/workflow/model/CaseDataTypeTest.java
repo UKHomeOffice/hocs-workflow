@@ -4,9 +4,9 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static uk.gov.digital.ho.hocs.workflow.model.CaseType.*;
+import static uk.gov.digital.ho.hocs.workflow.model.CaseDataType.*;
 
-public class CaseTypeTest {
+public class CaseDataTypeTest {
 
 
     @Test
@@ -25,19 +25,19 @@ public class CaseTypeTest {
 
     @Test
     public void shouldNotAccidentallyAddValues() {
-        for (CaseType caseType : CaseType.values()) {
-            switch (caseType) {
+        for (CaseDataType caseDataType : CaseDataType.values()) {
+            switch (caseDataType) {
                 case MIN:
                 case TRO:
                 case DTEN:
                     break;
                 default:
-                    fail("You've added a CaseType, make sure you've written all the tests!");
+                    fail("You've added a CaseDataType, make sure you've written all the tests!");
             }
         }
     }
 
-    private void assertOrderValue(CaseType caseType, int value) {
-        assertThat(caseType.ordinal()).isEqualTo(value);
+    private void assertOrderValue(CaseDataType caseDataType, int value) {
+        assertThat(caseDataType.ordinal()).isEqualTo(value);
     }
 }

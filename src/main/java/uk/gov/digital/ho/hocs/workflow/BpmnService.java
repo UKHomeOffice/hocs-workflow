@@ -59,8 +59,8 @@ public class BpmnService implements JavaDelegate {
         log.debug("######## Calculating Deadlines ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
         LocalDate now = LocalDate.parse(dateReceivedString);
-        CaseType caseType = CaseType.valueOf(caseTypeString);
-        Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseType, now);
+        CaseDataType caseDataType = CaseDataType.valueOf(caseTypeString);
+        Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseDataType, now);
         caseworkClient.createDeadlines(caseUUID, deadlines);
         log.debug("######## Created Stage ########");
     }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 public class CreateCaseRequest {
 
     @JsonProperty("type")
-    private CaseType type;
+    private CaseDataType type;
 
     @JsonProperty("dateReceived")
     private LocalDate dateReceived;

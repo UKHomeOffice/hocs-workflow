@@ -2,7 +2,7 @@ package uk.gov.digital.ho.hocs.workflow.model;
 
 import lombok.Getter;
 
-public enum CaseType {
+public enum CaseDataType {
     MIN("MIN"),
     TRO("TRO"),
     DTEN("DTEN");
@@ -10,7 +10,7 @@ public enum CaseType {
     @Getter
     private String displayValue;
 
-    CaseType(String value) {
+    CaseDataType(String value) {
         displayValue = value;
     }
 }

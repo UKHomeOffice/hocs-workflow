@@ -14,7 +14,7 @@ import uk.gov.digital.ho.hocs.workflow.dto.GetCaseTopicsResponse;
 import uk.gov.digital.ho.hocs.workflow.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
 import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
@@ -49,8 +49,8 @@ public class CaseworkClient {
         this.objectMapper = objectMapper;
     }
 
-    public CreateCaseworkCaseResponse createCase(CaseType caseType, Map<String,String> data) {
-        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseType, data);
+    public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType) {
+        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
             log.info("Created Case {}, {}", response.getBody().getUuid(), response.getBody().getReference());

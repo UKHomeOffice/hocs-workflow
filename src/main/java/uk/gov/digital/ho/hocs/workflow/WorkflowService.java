@@ -12,14 +12,17 @@ import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineResponse;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateResponse;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
 import uk.gov.digital.ho.hocs.workflow.model.CorrespondentType;
 import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -45,12 +48,11 @@ public class WorkflowService {
         this.hocsFormService = hocsFormService;
     }
 
-    CreateCaseResponse createCase(CaseType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
-
+    CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a UUID.
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType);
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {

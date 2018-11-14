@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.dto.GetParentTopicResponse;
 import uk.gov.digital.ho.hocs.workflow.dto.Topic;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
 import java.time.LocalDate;
@@ -31,8 +31,8 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
-   public Map<StageType, LocalDate> getDeadlines(CaseType caseType, LocalDate localDate) {
-       ResponseEntity<InfoGetDeadlinesResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/deadlines/%s", caseType, localDate), InfoGetDeadlinesResponse.class);
+   public Map<StageType, LocalDate> getDeadlines(CaseDataType caseDataType, LocalDate localDate) {
+       ResponseEntity<InfoGetDeadlinesResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/deadlines/%s", caseDataType, localDate), InfoGetDeadlinesResponse.class);
        Map<StageType, LocalDate> deadlines = response.getBody().getDeadlines();
        return deadlines;
    }
@@ -61,8 +61,8 @@ public class InfoClient {
         return topic;
     }
 
-    public InfoGetTemplateResponse getTemplate(CaseType caseType) {
-        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/templates/%s", caseType), InfoGetTemplateResponse.class);
+    public InfoGetTemplateResponse getTemplate(CaseDataType caseDataType) {
+        ResponseEntity<InfoGetTemplateResponse> response = restHelper.get(serviceBaseURL, String.format("/templates/%s", caseDataType), InfoGetTemplateResponse.class);
         InfoGetTemplateResponse template = response.getBody();
         return template;
     }
