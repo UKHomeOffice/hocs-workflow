@@ -1,7 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 
 import org.junit.Test;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ public class CreateCaseworkCaseRequestTest {
     @Test
     public void getCreateCaseRequest() {
 
-        CaseType caseDataType = CaseType.MIN;
+        CaseDataType caseDataType = CaseDataType.MIN;
         Map<String, String> data = new HashMap<>();
 
         CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseDataType, data);
