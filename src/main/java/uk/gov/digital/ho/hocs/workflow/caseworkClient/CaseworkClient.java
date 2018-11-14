@@ -19,7 +19,6 @@ import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
 import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -53,7 +52,7 @@ public class CaseworkClient {
         CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
-            log.info("Created Case {}, {}", response.getBody().getUuid(), response.getBody().getReference());
+            log.info("Created Case {}", response.getBody());
             return response.getBody();
         } else {
             throw new EntityCreationException("Could not create Case; response: %s ", response.getStatusCodeValue());
@@ -64,7 +63,7 @@ public class CaseworkClient {
         CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, new HashMap<>());
         ResponseEntity<CreateCaseworkStageResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         if (response.getStatusCodeValue() == 200) {
-            log.info("Created Stage: {} for Case {}", response.getBody().getUuid(), caseUUID);
+            log.info("Created Stage: {}", response.getBody());
             return response.getBody().getUuid();
         } else {
             throw new EntityCreationException("Could not create Stage; response: %s", response.getStatusCodeValue());
@@ -109,17 +108,6 @@ public class CaseworkClient {
             log.info("Set Case Note Data for Case {}", caseUUID);
         } catch (JsonProcessingException e) {
             throw new EntityCreationException("Could not set Case Note Data: %s", e.toString());
-        }
-    }
-
-    public void createDeadlines(UUID caseUUID, Map<StageType, LocalDate> deadlines) {
-        UpdateCaseworkDeadlinesRequest request = new UpdateCaseworkDeadlinesRequest(caseUUID, deadlines);
-
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Created Deadlines for Case {}", caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not create Deadlines: %s", e.toString());
         }
     }
 

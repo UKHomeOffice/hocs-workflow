@@ -6,13 +6,10 @@ import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
 import uk.gov.digital.ho.hocs.workflow.notifications.NotifyType;
 
-import java.time.LocalDate;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -20,15 +17,12 @@ import java.util.UUID;
 public class BpmnService implements JavaDelegate {
 
     private final CaseworkClient caseworkClient;
-    private final InfoClient infoClient;
     private final EmailService emailService;
 
     @Autowired
     public BpmnService(CaseworkClient caseworkClient,
-                       InfoClient infoClient,
                        EmailService emailService) {
         this.caseworkClient = caseworkClient;
-        this.infoClient = infoClient;
         this.emailService = emailService;
     }
 
@@ -56,13 +50,7 @@ public class BpmnService implements JavaDelegate {
     }
 
     public void calculateDeadlines(String caseUUIDString, String caseTypeString, String dateReceivedString) {
-        log.debug("######## Calculating Deadlines ########");
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        LocalDate now = LocalDate.parse(dateReceivedString);
-        CaseDataType caseDataType = CaseDataType.valueOf(caseTypeString);
-        Map<StageType, LocalDate> deadlines = infoClient.getDeadlines(caseDataType, now);
-        caseworkClient.createDeadlines(caseUUID, deadlines);
-        log.debug("######## Created Stage ########");
+        // Do Nothing!
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
