@@ -10,6 +10,7 @@ import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.notifications.EmailService;
 import uk.gov.digital.ho.hocs.workflow.notifications.NotifyType;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -60,6 +61,7 @@ public class BpmnService implements JavaDelegate {
         UUID stageUUID;
         UUID teamUUID = null;
         UUID userUUID = null;
+        LocalDate deadline = null;
 
         if (teamUUIDString != null) {
             teamUUID = UUID.fromString(teamUUIDString);
@@ -75,7 +77,7 @@ public class BpmnService implements JavaDelegate {
             caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
         } else {
             // Create a stage in the casework service in order to get a UUID.
-            stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID);
+            stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID, deadline);
         }
         log.debug("######## Created Stage ########");
         return stageUUID.toString();

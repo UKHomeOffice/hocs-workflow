@@ -6,11 +6,12 @@ import lombok.AllArgsConstructor;
 import java.util.UUID;
 
 @AllArgsConstructor
-public class AllocateCaseworkStageRequest {
+public class UpdateCaseworkStageRequest {
 
     @JsonProperty("teamUUID")
     private UUID teamUUID;
 
     @JsonProperty("userUUID")
     private UUID userUUID;
+
 }

@@ -19,7 +19,7 @@ import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
 import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
-import java.util.HashMap;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 
@@ -52,18 +52,18 @@ public class CaseworkClient {
         CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
-            log.info("Created Case {}", response.getBody());
+            log.info("Created Case {}", response.getBody().getUuid());
             return response.getBody();
         } else {
             throw new EntityCreationException("Could not create Case; response: %s ", response.getStatusCodeValue());
         }
     }
 
-    public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID, UUID userUUID) {
-        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, new HashMap<>());
+    public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID, UUID userUUID, LocalDate deadline) {
+        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, deadline);
         ResponseEntity<CreateCaseworkStageResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         if (response.getStatusCodeValue() == 200) {
-            log.info("Created Stage: {}", response.getBody());
+            log.info("Created Stage: {}", response.getBody().getUuid());
             return response.getBody().getUuid();
         } else {
             throw new EntityCreationException("Could not create Stage; response: %s", response.getStatusCodeValue());
@@ -71,8 +71,8 @@ public class CaseworkClient {
     }
 
     public void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
-        AllocateCaseworkStageRequest request = new AllocateCaseworkStageRequest(teamUUID, userUUID);
-        ResponseEntity<Void> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage/%s/allocate", caseUUID, stageUUID), request, Void.class);
+        UpdateCaseworkStageRequest request = new UpdateCaseworkStageRequest(teamUUID, userUUID);
+        ResponseEntity<Void> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage/%s", caseUUID, stageUUID), request, Void.class);
         if (response.getStatusCodeValue() == 200) {
             log.info("Allocated Stage: {} for Case {}", stageUUID, caseUUID);
         } else {
@@ -89,8 +89,8 @@ public class CaseworkClient {
         }
     }
 
-    public void setInputData(UUID caseUUID, Map<String, String> data) {
-        UpdateCaseworkInputDataRequest request = new UpdateCaseworkInputDataRequest(caseUUID, data);
+    public void updateCase(UUID caseUUID, Map<String, String> data) {
+        UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(caseUUID, data);
 
         try {
             producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
@@ -144,25 +144,14 @@ public class CaseworkClient {
         }
     }
 
-    public GetCaseworkInputResponse getInput(UUID caseUUID) {
-        ResponseEntity<GetCaseworkInputResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/input", caseUUID), GetCaseworkInputResponse.class);
+    public GetCaseworkCaseDataResponse getCase(UUID caseUUID) {
+        ResponseEntity<GetCaseworkCaseDataResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s", caseUUID), GetCaseworkCaseDataResponse.class);
 
         if (response.getStatusCodeValue() == 200) {
             log.info("Got Input for Case: {}", caseUUID);
             return response.getBody();
         } else {
             throw new EntityNotFoundException("Could not get Input; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public GetCaseworkCaseTypeResponse getCaseTypeForCase(UUID caseUUID) {
-        ResponseEntity<GetCaseworkCaseTypeResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/casetype", caseUUID), GetCaseworkCaseTypeResponse.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Got caseType for Case: {}", caseUUID);
-            return response.getBody();
-        } else {
-            throw new EntityNotFoundException("Could not get caseType; response: %s", response.getStatusCodeValue());
         }
     }
 

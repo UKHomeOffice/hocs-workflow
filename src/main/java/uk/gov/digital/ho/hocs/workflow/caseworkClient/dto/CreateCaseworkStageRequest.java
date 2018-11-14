@@ -2,16 +2,18 @@ package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import uk.gov.digital.ho.hocs.workflow.model.StageType;
 
-import java.util.Map;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @AllArgsConstructor
+@Getter
 public class CreateCaseworkStageRequest {
 
     @JsonProperty("type")
-    private StageType stageType;
+    private StageType type;
 
     @JsonProperty("teamUUID")
     private UUID teamUUID;
@@ -19,6 +21,6 @@ public class CreateCaseworkStageRequest {
     @JsonProperty("userUUID")
     private UUID userUUID;
 
-    @JsonProperty("data")
-    private Map<String, String> stageData;
+    @JsonProperty("deadline")
+    private LocalDate deadline;
 }
