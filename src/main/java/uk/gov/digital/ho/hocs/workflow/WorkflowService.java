@@ -12,7 +12,7 @@ import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineResponse;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateResponse;
-import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
 import uk.gov.digital.ho.hocs.workflow.model.CorrespondentType;
 import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
@@ -48,9 +48,9 @@ public class WorkflowService {
         this.hocsFormService = hocsFormService;
     }
 
-    CreateCaseResponse createCase(CaseType caseType, LocalDate dateReceived, List<DocumentSummary> documents) {
+    CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a UUID.
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseType);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType);
         UUID caseUUID = caseResponse.getUuid();
         String caseReference = caseResponse.getReference();
 
@@ -76,7 +76,7 @@ public class WorkflowService {
             data.put("DateReceived", dateReceived.toString());
             caseworkClient.setInputData(caseUUID, data);
             createDocument(caseUUID, documents);
-            camundaClient.startCase(caseUUID, caseType, seedData);
+            camundaClient.startCase(caseUUID, caseDataType, seedData);
 
         } else {
             throw new EntityCreationException("Failed to start case, invalid caseUUID!");
