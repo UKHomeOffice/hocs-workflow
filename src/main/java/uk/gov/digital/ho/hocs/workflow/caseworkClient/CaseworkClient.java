@@ -52,7 +52,7 @@ public class CaseworkClient {
         CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
-            log.info("Created Case {}", response.getBody().getUuid());
+            log.info("Created Case {}, {}", response.getBody().getUuid(), response.getBody().getReference());
             return response.getBody();
         } else {
             throw new EntityCreationException("Could not create Case; response: %s ", response.getStatusCodeValue());
