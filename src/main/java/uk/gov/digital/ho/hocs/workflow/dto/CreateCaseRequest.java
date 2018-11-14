@@ -8,7 +8,6 @@ import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor

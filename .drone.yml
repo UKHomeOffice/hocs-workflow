@@ -19,6 +19,11 @@ pipeline:
     when:
       event: [push, pull_request, tag]
 
+#  sonar-scanner:
+#    image: quay.io/ukhomeofficedigital/sonar-scanner:v3.0.1
+#    when:
+#      event: [push, pull_request, tag]
+
   docker-build:
     image: docker:17.09.1
     environment:
@@ -88,13 +93,14 @@ pipeline:
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
       - hocs_workflow_dev
+      - hocs_workflow_demo
       - hocs_workflow_qa
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
     when:
       event: deployment
-      environment: [dev, qa]
+      environment: [dev, qa, demo]
 
   deploy-to-prod:
     image: quay.io/ukhomeofficedigital/kd:v0.8.0
