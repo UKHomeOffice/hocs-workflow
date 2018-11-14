@@ -52,7 +52,7 @@ public class WorkflowService {
         // Create a case in the casework service in order to get a UUID.
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data);
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
