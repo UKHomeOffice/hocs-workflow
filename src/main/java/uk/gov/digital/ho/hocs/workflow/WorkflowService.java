@@ -4,19 +4,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.camundaClient.CamundaClient;
-import uk.gov.digital.ho.hocs.workflow.caseworkClient.*;
+import uk.gov.digital.ho.hocs.workflow.caseworkClient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.caseworkClient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.documentClient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.dto.*;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineListResponse;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateListResponse;
-import uk.gov.digital.ho.hocs.workflow.model.*;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineResponse;
+import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateResponse;
+import uk.gov.digital.ho.hocs.workflow.model.CaseType;
+import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
+import uk.gov.digital.ho.hocs.workflow.model.CorrespondentType;
+import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -152,29 +158,14 @@ public class WorkflowService {
         GetCaseworkCaseResponse caseworkCaseResponse = caseworkClient.getCaseworkCase(caseUUID);
         return infoClient.getTemplateList(caseworkCaseResponse.getType());
     }
-
-    InfoGetStandardLineListResponse getStandardLineList(UUID caseUUID) {
-        Topic topic = caseworkClient.getPrimaryTopic(caseUUID);
-        UUID primaryTopic = topic.getValue();
-        return infoClient.getStandardLineList(primaryTopic);
-
+  
+    public InfoGetTemplateResponse getTemplates(UUID caseUUID) {
+        GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
+        return infoClient.getTemplate(caseTypeResponse.getType());
     }
 
-    private Map<String,Object> tempUserTeamCode() {
-
-        Map<String, Object> seedData = new HashMap<>();
-        seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
-        seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
-        seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("QAResponseTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("CopyNumberTenTeamUUID", "33333333-3333-3333-3333-333333333333");
-
-        return seedData;
+    public InfoGetStandardLineResponse getStandardLines(UUID caseUUID) {
+        GetPrimaryTopicResponse getPrimaryTopicResponse = caseworkClient.getCaseTypeAndTopicForCase(caseUUID);
+        return infoClient.getStandardLine(getPrimaryTopicResponse.getTopicUUID());
     }
 }

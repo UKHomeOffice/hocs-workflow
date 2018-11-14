@@ -1,10 +1,8 @@
 package uk.gov.digital.ho.hocs.workflow.caseworkClient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
-
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import uk.gov.digital.ho.hocs.workflow.model.CaseType;
 
 @AllArgsConstructor
 public class CreateCaseworkCaseRequest {
