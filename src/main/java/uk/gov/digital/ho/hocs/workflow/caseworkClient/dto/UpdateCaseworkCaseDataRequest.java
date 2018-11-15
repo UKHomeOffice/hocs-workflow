@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 import java.util.UUID;
 
-public class UpdateCaseworkInputDataRequest {
+public class UpdateCaseworkCaseDataRequest {
 
     @JsonProperty("command")
-    private String command = "update_input_data_command";
+    private String command = "update_case_data_command";
 
     @JsonProperty("caseUUID")
     private UUID caseUUID;
@@ -16,7 +16,7 @@ public class UpdateCaseworkInputDataRequest {
     @JsonProperty("data")
     private Map<String, String> data;
 
-    public UpdateCaseworkInputDataRequest(UUID caseUUID, Map<String,String> data) {
+    public UpdateCaseworkCaseDataRequest(UUID caseUUID, Map<String,String> data) {
         this.caseUUID = caseUUID;
         this.data = data;
     }

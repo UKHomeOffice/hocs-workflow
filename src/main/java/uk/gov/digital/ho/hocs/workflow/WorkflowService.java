@@ -108,9 +108,8 @@ public class WorkflowService {
 
         // If the stage is complete we have form as null.
         if (form != null) {
-            // TODO: permission check (active stage userID? TeamID ?)
             GetCaseworkStageResponse stageResponse = caseworkClient.getStage(caseUUID, stageUUID);
-            GetCaseworkInputResponse inputResponse = caseworkClient.getInput(caseUUID);
+            GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
             form.setData(inputResponse.getData());
             return new GetStageResponse(stageUUID, stageResponse.getCaseReference(), form);
         } else {
@@ -119,9 +118,8 @@ public class WorkflowService {
     }
 
     GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
-        // TODO: permission check (active stage userID? TeamID ?)
         // TODO: validate Form
-        caseworkClient.setInputData(caseUUID, values);
+        caseworkClient.updateCase(caseUUID, values);
 
         camundaClient.updateStage(stageUUID, values);
 
@@ -134,7 +132,7 @@ public class WorkflowService {
     }
 
     GetParentTopicResponse getParentTopicsAndTopics(UUID caseUUID) {
-        GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
+        GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
         return infoClient.getParentTopicsAndTopics(caseTypeResponse.getType().toString());
     }
 
@@ -162,7 +160,7 @@ public class WorkflowService {
     }
 
     public InfoGetTemplateResponse getTemplates(UUID caseUUID) {
-        GetCaseworkCaseTypeResponse caseTypeResponse = caseworkClient.getCaseTypeForCase(caseUUID);
+        GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
         return infoClient.getTemplate(caseTypeResponse.getType());
     }
 
