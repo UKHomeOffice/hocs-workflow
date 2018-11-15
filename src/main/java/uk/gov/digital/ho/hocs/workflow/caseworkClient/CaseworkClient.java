@@ -59,6 +59,28 @@ public class CaseworkClient {
         }
     }
 
+    public void updateCase(UUID caseUUID, Map<String, String> data) {
+        UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(caseUUID, data);
+
+        try {
+            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
+            log.info("Set Input Data for Case {}", caseUUID);
+        } catch (JsonProcessingException e) {
+            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
+        }
+    }
+
+    public GetCaseworkCaseDataResponse getCase(UUID caseUUID) {
+        ResponseEntity<GetCaseworkCaseDataResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s", caseUUID), GetCaseworkCaseDataResponse.class);
+
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Got Input for Case: {}", caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get Input; response: %s", response.getStatusCodeValue());
+        }
+    }
+
     public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID, UUID userUUID, LocalDate deadline) {
         CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, deadline);
         ResponseEntity<CreateCaseworkStageResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
@@ -86,17 +108,6 @@ public class CaseworkClient {
             log.info("Completed Stage: {} for Case {}", stageUUID, caseUUID);
         } else {
             throw new EntityCreationException("Could not complete Stage; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public void updateCase(UUID caseUUID, Map<String, String> data) {
-        UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(caseUUID, data);
-
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Set Input Data for Case {}", caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
         }
     }
 
@@ -141,17 +152,6 @@ public class CaseworkClient {
             return response.getBody();
         } else {
             throw new EntityNotFoundException("Could not get Stage; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public GetCaseworkCaseDataResponse getCase(UUID caseUUID) {
-        ResponseEntity<GetCaseworkCaseDataResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s", caseUUID), GetCaseworkCaseDataResponse.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Got Input for Case: {}", caseUUID);
-            return response.getBody();
-        } else {
-            throw new EntityNotFoundException("Could not get Input; response: %s", response.getStatusCodeValue());
         }
     }
 
