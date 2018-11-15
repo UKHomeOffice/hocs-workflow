@@ -52,7 +52,7 @@ public class CaseworkClient {
         CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
-            log.info("Created Case {}", response.getBody().getUuid());
+            log.info("Created Case {}, {}", response.getBody().getUuid(), response.getBody().getReference());
             return response.getBody();
         } else {
             throw new EntityCreationException("Could not create Case; response: %s ", response.getStatusCodeValue());
@@ -85,7 +85,7 @@ public class CaseworkClient {
         CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, deadline);
         ResponseEntity<CreateCaseworkStageResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         if (response.getStatusCodeValue() == 200) {
-            log.info("Created Stage: {}", response.getBody().getUuid());
+            log.info("Created Stage: {} for Case {}", response.getBody().getUuid(), caseUUID);	
             return response.getBody().getUuid();
         } else {
             throw new EntityCreationException("Could not create Stage; response: %s", response.getStatusCodeValue());
