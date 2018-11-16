@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoNominatedPeople;
+import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoNominatedPeople;
 import uk.gov.service.notify.NotificationClient;
 import uk.gov.service.notify.NotificationClientException;
 

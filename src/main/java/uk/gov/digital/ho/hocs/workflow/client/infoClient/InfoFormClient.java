@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow;
+package uk.gov.digital.ho.hocs.workflow.client.infoClient;
 
 
 import org.springframework.stereotype.Service;
@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class HocsFormService {
+public class InfoFormClient {
 
     private Map<String, HocsForm> forms = new HashMap<>();
 
-    public HocsFormService() {
+    public InfoFormClient() {
 
         // DCU
 
