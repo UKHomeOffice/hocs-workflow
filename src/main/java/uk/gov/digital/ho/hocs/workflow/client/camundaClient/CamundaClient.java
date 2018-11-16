@@ -28,69 +28,70 @@ public class CamundaClient {
         this.taskService = taskService;
     }
 
-    public void startCase(UUID caseUUID, CaseDataType caseDataType, Map<String,Object> seedData) {
-        log.debug("Starting case bpmn:  Case: '{}' Type: '{}'", caseUUID, caseDataType);
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(caseDataType.toString(), caseUUID.toString(), seedData);
-        log.info("Started case bpmn: Case: '{}' Type: '{}' id: '{}'", caseUUID, caseDataType, processInstance.getId());
+    public void startCase(UUID caseUUID, CaseDataType caseDataType, Map<String,String> data) {
+        runtimeService.startProcessInstanceByKey(caseDataType.toString(), caseUUID.toString(), new HashMap<>(data));
+        log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType);
     }
 
-    public String getScreenName(UUID stageUUID) {
-        log.debug("Getting current screen for bpmn Stage: '{}'", stageUUID);
-        ProcessInstance businessKeyInstance = runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(stageUUID.toString())
+    /**
+     * This currently only supports sequential stages in BPMN diagrams,
+     * to support parallel stages we need expect multiple Task objects back from the task service
+     * (we can't call .singleResult() like we do now)
+     * We then need a way to determine which stage we are allocating (using stageUUID?)
+     */
+    public void allocateStage(UUID caseUUID, UUID teamUUID, UUID userUUID) {
+        String taskId = getTaskIdByBusinessKey(caseUUID);
+        taskService.complete(taskId, new HashMap<>());
+        log.info("Allocated Case {} to User {} of Team {}", caseUUID, userUUID, teamUUID);
+    }
+
+    public String getStageScreenName(UUID stageUUID) {
+        String screenName = getPropertyByBusinessKey(stageUUID, "screen");
+        log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName);
+        return screenName == null ? "FINISH" : screenName;
+    }
+
+    public void completeStage(UUID stageUUID, Map<String,String> data) {
+        String taskId = getTaskIdByBusinessKey(stageUUID);
+        taskService.complete(taskId, new HashMap<>(data));
+        log.info("Validated stage for bpmn Stage: '{}'", stageUUID);
+    }
+
+    private String getTaskIdByBusinessKey(UUID businessKey) {
+        Task task = taskService.createTaskQuery()
+                .processInstanceBusinessKey(businessKey.toString())
                 .singleResult();
 
-        if (businessKeyInstance != null) {
-            String screenName = getValueFromProcess(businessKeyInstance.getProcessInstanceId(), "screen");
-            log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName);
-            return screenName;
-        } else {
-            return "FINISH";
-        }
-    }
-
-    public void updateStage(UUID stageUUID, Map<String,String> values) {
-        log.debug("Validating stage for bpmn Stage: '{}'", stageUUID);
-
-        //TODO: REMOVE THIS DEMO CODE
-        values.put("valid", "true");
-
-        Task task = taskService.createTaskQuery().processInstanceBusinessKey(stageUUID.toString()).singleResult();
-
         if(task != null) {
-            taskService.complete(task.getId(), new HashMap<>(values));
-            log.info("Validated stage for bpmn Stage: '{}'", stageUUID);
+            return task.getId();
         } else {
-            throw new EntityNotFoundException("Failed to validate bpmn Stage: '%s', No tasks returned", stageUUID);
+        throw new EntityNotFoundException("No tasks returned", businessKey);
         }
     }
 
-    public void allocateStage(UUID caseUUID, UUID teamUUID, UUID userUUID) {
-        log.debug("Allocating Case {} to User {} of Team {}", caseUUID, userUUID, teamUUID);
+    private String getProcessIdByBusinessKey(UUID businessKey) {
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
+                .processInstanceBusinessKey(businessKey.toString())
+                .singleResult();
 
-        Task task = taskService.createTaskQuery().processInstanceBusinessKey(caseUUID.toString()).singleResult();
-
-        if(task != null) {
-            taskService.complete(task.getId(), new HashMap<>());
-            log.info("Allocated Case {} to User {} of Team {}", caseUUID, userUUID, teamUUID);
+        if(processInstance != null) {
+            return processInstance.getProcessInstanceId();
         } else {
-            throw new EntityNotFoundException("Failed to allocate Case %s, No tasks returned", caseUUID);
+            return null;
         }
     }
 
-    private String getValueFromProcess(String processInstanceId, String key) {
+    private String getPropertyByBusinessKey(UUID businessKey, String key) {
+
+        String processInstanceId = getProcessIdByBusinessKey(businessKey);
+
         VariableInstance instance = runtimeService.createVariableInstanceQuery()
                 .processInstanceIdIn(processInstanceId)
                 .variableName(key)
                 .singleResult();
 
         if (instance != null) {
-            String value = (String) instance.getValue();
-            if(value != null) {
-                return value;
-            } else {
-                throw new EntityNotFoundException("Value not found, processInstanceId: %s Key: %s", processInstanceId, key);
-            }
+            return (String) instance.getValue();
         } else {
             throw new EntityNotFoundException("VariableInstance not found, processInstanceId: %s Key: %s", processInstanceId, key);
         }
