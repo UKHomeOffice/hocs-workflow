@@ -3,16 +3,16 @@ package uk.gov.digital.ho.hocs.workflow.api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.ho.hocs.workflow.HocsFormService;
+import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoFormClient;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaClient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkClient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkClient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentClient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineResponse;
-import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateResponse;
+import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoGetStandardLineResponse;
+import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoGetTemplateResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
 
@@ -30,7 +30,7 @@ public class WorkflowService {
     private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
-    private final HocsFormService hocsFormService;
+    private final InfoFormClient infoFormClient;
 
 
     @Autowired
@@ -38,12 +38,12 @@ public class WorkflowService {
                            DocumentClient documentClient,
                            InfoClient infoClient,
                            CamundaClient camundaClient,
-                           HocsFormService hocsFormService) {
+                           InfoFormClient infoFormClient) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
-        this.hocsFormService = hocsFormService;
+        this.infoFormClient = infoFormClient;
     }
 
     CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
@@ -102,7 +102,7 @@ public class WorkflowService {
 
     GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getScreenName(stageUUID);
-        HocsForm form = hocsFormService.getForm(screenName);
+        HocsForm form = infoFormClient.getForm(screenName);
 
         // If the stage is complete we have form as null.
         if (form != null) {
