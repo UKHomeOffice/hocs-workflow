@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.client.camundaClient;
+package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;

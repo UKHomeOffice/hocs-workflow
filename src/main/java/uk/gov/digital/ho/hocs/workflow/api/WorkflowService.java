@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoFormClient;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
-import uk.gov.digital.ho.hocs.workflow.client.camundaClient.CamundaClient;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkClient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkClient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentClient.DocumentClient;
