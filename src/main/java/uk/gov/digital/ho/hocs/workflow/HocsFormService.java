@@ -2,10 +2,10 @@ package uk.gov.digital.ho.hocs.workflow;
 
 
 import org.springframework.stereotype.Service;
-import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
-import uk.gov.digital.ho.hocs.workflow.model.forms.HocsFormAction;
-import uk.gov.digital.ho.hocs.workflow.model.forms.HocsFormField;
-import uk.gov.digital.ho.hocs.workflow.model.forms.HocsSchema;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormAction;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
 import java.util.ArrayList;
 import java.util.HashMap;

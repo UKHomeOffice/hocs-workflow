@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.dto.GetParentTopicResponse;
-import uk.gov.digital.ho.hocs.workflow.dto.Topic;
-import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
-import uk.gov.digital.ho.hocs.workflow.model.StageType;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetParentTopicResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.Topic;
+import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
 import java.time.LocalDate;
 import java.util.Map;
