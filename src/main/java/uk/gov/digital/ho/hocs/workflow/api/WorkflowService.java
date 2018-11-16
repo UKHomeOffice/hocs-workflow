@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoFormClient;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
-import uk.gov.digital.ho.hocs.workflow.client.camundaClient.CamundaClient;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkClient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkClient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentClient.DocumentClient;
@@ -59,7 +59,7 @@ public class WorkflowService {
             createDocument(caseUUID, documents);
 
             // Start a new camunda workflow (caseUUID is the business key).
-            Map<String, Object> seedData = new HashMap<>();
+            Map<String, String> seedData = new HashMap<>();
             seedData.put("CaseReference",caseResponse.getReference());
             seedData.putAll(data);
             seedData.putAll(tempUserTeamCode());
@@ -101,7 +101,7 @@ public class WorkflowService {
     }
 
     GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
-        String screenName = camundaClient.getScreenName(stageUUID);
+        String screenName = camundaClient.getStageScreenName(stageUUID);
         HocsForm form = infoFormClient.getForm(screenName);
 
         // If the stage is complete we have form as null.
@@ -117,9 +117,10 @@ public class WorkflowService {
 
     GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: validate Form
+        values.put("valid", "true");
         caseworkClient.updateCase(caseUUID, values);
 
-        camundaClient.updateStage(stageUUID, values);
+        camundaClient.completeStage(stageUUID, values);
 
         return getStage(caseUUID, stageUUID);
     }
@@ -167,9 +168,9 @@ public class WorkflowService {
         return infoClient.getStandardLine(getPrimaryTopicResponse.getTopicUUID());
     }
 
-    private static Map<String,Object> tempUserTeamCode() {
+    private static Map<String,String> tempUserTeamCode() {
 
-        Map<String, Object> seedData = new HashMap<>();
+        Map<String, String> seedData = new HashMap<>();
         seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
         seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
         seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
