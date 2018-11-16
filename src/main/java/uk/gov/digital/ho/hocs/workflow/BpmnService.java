@@ -5,10 +5,10 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkClient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
-import uk.gov.digital.ho.hocs.workflow.client.notifications.EmailService;
-import uk.gov.digital.ho.hocs.workflow.client.notifications.NotifyType;
+import uk.gov.digital.ho.hocs.workflow.client.notificationclient.EmailService;
+import uk.gov.digital.ho.hocs.workflow.client.notificationclient.NotifyType;
 
 import java.time.LocalDate;
 import java.util.UUID;
