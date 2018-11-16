@@ -44,18 +44,12 @@ public class BpmnService implements JavaDelegate {
     }
 
     public void addCaseNote(String caseUUIDString, String caseNote){
-        log.debug("######## Add case note ########");
         UUID caseUUID = UUID.fromString(caseUUIDString);
         caseworkClient.createCaseNote(caseUUID, caseNote);
         log.debug("######## Added case note ########");
     }
 
-    public void calculateDeadlines(String caseUUIDString, String caseTypeString, String dateReceivedString) {
-        // Do Nothing!
-    }
-
     public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
-        log.debug("######## Creating Stage ########");
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID;
@@ -85,13 +79,11 @@ public class BpmnService implements JavaDelegate {
     }
 
     public void completeStage(String caseUUIDString, String stageUUIDString) {
-        log.debug("######## Updating Stage ########");
         caseworkClient.updateStage(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), null, null, StageStatusType.COMPLETED);
         log.debug("######## Updated Stage ########");
     }
 
     public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, NotifyType notifyType) {
-        log.debug("######## Sending {} Email ########", notifyType);
         emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
         log.debug("######## Sent {} Email ########", notifyType);
     }
