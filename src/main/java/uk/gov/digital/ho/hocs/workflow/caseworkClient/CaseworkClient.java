@@ -14,10 +14,7 @@ import uk.gov.digital.ho.hocs.workflow.dto.GetCaseTopicsResponse;
 import uk.gov.digital.ho.hocs.workflow.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.exception.EntityNotFoundException;
-import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
-import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
-import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
-import uk.gov.digital.ho.hocs.workflow.model.StageType;
+import uk.gov.digital.ho.hocs.workflow.model.*;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -92,22 +89,24 @@ public class CaseworkClient {
         }
     }
 
-    public void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
-        UpdateCaseworkStageRequest request = new UpdateCaseworkStageRequest(teamUUID, userUUID);
-        ResponseEntity<Void> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage/%s", caseUUID, stageUUID), request, Void.class);
+    public void updateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID, StageStatusType stageStatusType) {
+        UpdateCaseworkStageRequest request = new UpdateCaseworkStageRequest(teamUUID, userUUID, stageStatusType);
+        ResponseEntity<Void> response = restHelper.patch(serviceBaseURL, String.format("/case/%s/stage/%s", caseUUID, stageUUID), request, Void.class);
         if (response.getStatusCodeValue() == 200) {
-            log.info("Allocated Stage: {} for Case {}", stageUUID, caseUUID);
+            log.info("Updated Stage: {} for Case {}", stageUUID, caseUUID);
         } else {
-            throw new EntityCreationException("Could not allocate Stage; response: %s", response.getStatusCodeValue());
+            throw new EntityCreationException("Could not update Stage; response: %s", response.getStatusCodeValue());
         }
     }
 
-    public void completeStage(UUID caseUUID, UUID stageUUID) {
-        ResponseEntity<Void> response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/close", caseUUID, stageUUID), Void.class);
+    public GetCaseworkStageResponse getStage(UUID caseUUID, UUID stageUUID) {
+        ResponseEntity<GetCaseworkStageResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s", caseUUID, stageUUID), GetCaseworkStageResponse.class);
+
         if (response.getStatusCodeValue() == 200) {
-            log.info("Completed Stage: {} for Case {}", stageUUID, caseUUID);
+            log.info("Got Stage: {} for Case: {}", stageUUID, caseUUID);
+            return response.getBody();
         } else {
-            throw new EntityCreationException("Could not complete Stage; response: %s", response.getStatusCodeValue());
+            throw new EntityNotFoundException("Could not get Stage; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -141,17 +140,6 @@ public class CaseworkClient {
             log.info("Created Reference for Case {}", caseUUID);
         } catch (JsonProcessingException e) {
             throw new EntityCreationException("Could not create Reference: %s", e.toString());
-        }
-    }
-
-    public GetCaseworkStageResponse getStage(UUID caseUUID, UUID stageUUID) {
-        ResponseEntity<GetCaseworkStageResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s", caseUUID, stageUUID), GetCaseworkStageResponse.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Got Stage: {} for Case: {}", stageUUID, caseUUID);
-            return response.getBody();
-        } else {
-            throw new EntityNotFoundException("Could not get Stage; response: %s", response.getStatusCodeValue());
         }
     }
 

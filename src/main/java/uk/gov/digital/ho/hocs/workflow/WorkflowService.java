@@ -12,10 +12,7 @@ import uk.gov.digital.ho.hocs.workflow.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetStandardLineResponse;
 import uk.gov.digital.ho.hocs.workflow.infoClient.InfoGetTemplateResponse;
-import uk.gov.digital.ho.hocs.workflow.model.CaseDataType;
-import uk.gov.digital.ho.hocs.workflow.model.Correspondent;
-import uk.gov.digital.ho.hocs.workflow.model.CorrespondentType;
-import uk.gov.digital.ho.hocs.workflow.model.ReferenceType;
+import uk.gov.digital.ho.hocs.workflow.model.*;
 import uk.gov.digital.ho.hocs.workflow.model.forms.HocsForm;
 
 import java.time.LocalDate;
@@ -128,7 +125,7 @@ public class WorkflowService {
 
     void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
         camundaClient.allocateStage(caseUUID, teamUUID, userUUID);
-        caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
+        caseworkClient.updateStage(caseUUID, stageUUID, teamUUID, userUUID, StageStatusType.UPDATED);
     }
 
     GetParentTopicResponse getParentTopicsAndTopics(UUID caseUUID) {
