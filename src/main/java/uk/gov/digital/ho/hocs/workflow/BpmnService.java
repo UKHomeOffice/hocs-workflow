@@ -74,7 +74,8 @@ public class BpmnService implements JavaDelegate {
             // Otherwise just allocate the stage.
             stageUUID = UUID.fromString(stageUUIDString);
 
-            caseworkClient.allocateStage(caseUUID, stageUUID, teamUUID, userUUID);
+            // TODO: look at how we can give a better stage status
+            caseworkClient.updateStage(caseUUID, stageUUID, teamUUID, userUUID, StageStatusType.UPDATED);
         } else {
             // Create a stage in the casework service in order to get a UUID.
             stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID, deadline);
@@ -85,7 +86,7 @@ public class BpmnService implements JavaDelegate {
 
     public void completeStage(String caseUUIDString, String stageUUIDString) {
         log.debug("######## Updating Stage ########");
-        caseworkClient.completeStage(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString));
+        caseworkClient.updateStage(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), null, null, StageStatusType.COMPLETED);
         log.debug("######## Updated Stage ########");
     }
 

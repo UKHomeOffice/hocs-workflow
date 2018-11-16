@@ -24,6 +24,10 @@ public class RestHelper {
         this.basicAuth = basicAuth;
     }
 
+    public <T,R> ResponseEntity<R> patch(String serviceBaseURL, String url, T request, Class<R> responseType) {
+        return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.PATCH, new HttpEntity<>(request, createAuthHeaders()), responseType);
+    }
+
     public <T,R> ResponseEntity<R> post(String serviceBaseURL, String url, T request, Class<R> responseType) {
         return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.POST, new HttpEntity<>(request, createAuthHeaders()), responseType);
     }
