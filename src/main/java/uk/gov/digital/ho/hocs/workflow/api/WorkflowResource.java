@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
-import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoGetStandardLineResponse;
-import uk.gov.digital.ho.hocs.workflow.client.infoClient.InfoGetTemplateResponse;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetStandardLineResponse;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetTemplateResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.util.Collections;
