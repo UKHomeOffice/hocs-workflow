@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
   <bpmn:process id="TRO" isExecutable="true">
     <bpmn:startEvent id="DCU_TRO_START" name="Start Case">
       <bpmn:outgoing>SequenceFlow_1pepep6</bpmn:outgoing>
@@ -11,7 +11,7 @@
       <bpmn:incoming>SequenceFlow_163tdrh</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_18o5t1m</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_1pepep6" sourceRef="DCU_TRO_START" targetRef="Task_0eif473" />
+    <bpmn:sequenceFlow id="SequenceFlow_1pepep6" sourceRef="DCU_TRO_START" targetRef="CallActivity_0sc1113" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1j2nbeb">
       <bpmn:incoming>SequenceFlow_1kbehe7</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_04i3gn3</bpmn:outgoing>
@@ -38,9 +38,9 @@
         <camunda:in sourceExpression="DCU_TRO_MARKUP" target="StageType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0767qhb</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1vxko7g</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_10i82hu</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_19obfkm</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_18mb2fq</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1kbehe7</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="Task_0wqz5qj" name="Transfer Confirmation" calledElement="STAGE">
@@ -73,10 +73,10 @@
         <camunda:out source="CopyNumberTen_TRUE" target="CopyNumberTen_TRUE" />
         <camunda:in sourceExpression="DCU_TRO_DATA_INPUT" target="StageType" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_04dvzkv</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1pepep6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_18mb2fq</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_18mb2fq" sourceRef="CallActivity_0sc1113" targetRef="ServiceTask_041u543" />
+    <bpmn:sequenceFlow id="SequenceFlow_18mb2fq" sourceRef="CallActivity_0sc1113" targetRef="Task_1grynar" />
     <bpmn:callActivity id="CallActivity_1ket68y" name="Initial Draft" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="InitialDraftUUID" target="StageUUID" />
@@ -181,16 +181,6 @@
     <bpmn:sequenceFlow id="SequenceFlow_1fy5blc" name="REJECT" sourceRef="ExclusiveGateway_19ar4c1" targetRef="ServiceTask_1mz9cpm">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_04dvzkv" sourceRef="Task_0eif473" targetRef="CallActivity_0sc1113" />
-    <bpmn:serviceTask id="Task_0eif473" name="Calcualte Deadlines" camunda:expression="${bpmnService.calculateDeadlines(execution.processBusinessKey, &#34;TRO&#34;, execution.getVariable(&#34;DateReceived&#34;))}">
-      <bpmn:incoming>SequenceFlow_1pepep6</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_04dvzkv</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="ServiceTask_041u543" name="Recalculate Deadlines" camunda:expression="${bpmnService.calculateDeadlines(execution.processBusinessKey, &#34;TRO&#34;, execution.getVariable(&#34;DateReceived&#34;))}">
-      <bpmn:incoming>SequenceFlow_18mb2fq</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1vxko7g</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1vxko7g" sourceRef="ServiceTask_041u543" targetRef="Task_1grynar" />
     <bpmn:sequenceFlow id="SequenceFlow_1bi7lza" sourceRef="CallActivity_0ttmlei" targetRef="ExclusiveGateway_0aomnup" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_0aomnup">
       <bpmn:incoming>SequenceFlow_1bi7lza</bpmn:incoming>
@@ -284,9 +274,9 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TRO">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="DCU_TRO_START">
-        <dc:Bounds x="1057" y="602" width="36" height="36" />
+        <dc:Bounds x="1433" y="602" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1049" y="648" width="52" height="13" />
+          <dc:Bounds x="1425" y="648" width="52" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1y4bj2w_di" bpmnElement="DCU_TRO_END">
@@ -296,8 +286,8 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1pepep6_di" bpmnElement="SequenceFlow_1pepep6">
-        <di:waypoint x="1093" y="620" />
-        <di:waypoint x="1202" y="620" />
+        <di:waypoint x="1469" y="620" />
+        <di:waypoint x="1614" y="620" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1102.5" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
@@ -337,11 +327,11 @@
         <dc:Bounds x="2345" y="811" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_0sc1113_di" bpmnElement="CallActivity_0sc1113">
-        <dc:Bounds x="1416" y="580" width="100" height="80" />
+        <dc:Bounds x="1614" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_18mb2fq_di" bpmnElement="SequenceFlow_18mb2fq">
-        <di:waypoint x="1516" y="620" />
-        <di:waypoint x="1630" y="620" />
+        <di:waypoint x="1714" y="620" />
+        <di:waypoint x="1839" y="620" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1528" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
@@ -441,26 +431,6 @@
         <di:waypoint x="4314" y="851" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="4382" y="715.3350253807107" width="43" height="12" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_04dvzkv_di" bpmnElement="SequenceFlow_04dvzkv">
-        <di:waypoint x="1302" y="620" />
-        <di:waypoint x="1416" y="620" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1314" y="595" width="90" height="20" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_1rqk08l_di" bpmnElement="Task_0eif473">
-        <dc:Bounds x="1202" y="580" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_041u543_di" bpmnElement="ServiceTask_041u543">
-        <dc:Bounds x="1630" y="580" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_1vxko7g_di" bpmnElement="SequenceFlow_1vxko7g">
-        <di:waypoint x="1730" y="620" />
-        <di:waypoint x="1839" y="620" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1739.5" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1bi7lza_di" bpmnElement="SequenceFlow_1bi7lza">
