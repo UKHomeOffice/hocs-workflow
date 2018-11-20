@@ -1,8 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
@@ -15,7 +13,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class BpmnService implements JavaDelegate {
+public class BpmnService {
 
     private final CaseworkClient caseworkClient;
     private final EmailService emailService;
@@ -27,25 +25,9 @@ public class BpmnService implements JavaDelegate {
         this.emailService = emailService;
     }
 
-    @Override
-    public void execute(DelegateExecution execution) {
-    }
-
-    public void addCorrespondent(String caseUUIDString, String cType, String cFullName, String cPostcode, String cAddressOne, String cAddressTwo, String cAddressThree, String cAddressCountry, String cPhone, String cEmail, String cReference ){
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-
-        CorrespondentType correspondentType = CorrespondentType.valueOf(cType);
-        Correspondent correspondent = new Correspondent(correspondentType, cFullName, cPostcode, cAddressOne, cAddressTwo, cAddressThree, cAddressCountry, cPhone, cEmail);
-        caseworkClient.createCorrespondent(caseUUID, correspondent);
-
-        if(cReference != null) {
-            caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, cReference);
-        }
-    }
-
     public void addCaseNote(String caseUUIDString, String caseNote){
         UUID caseUUID = UUID.fromString(caseUUIDString);
-        caseworkClient.createCaseNote(caseUUID, caseNote);
+        caseworkClient.createCaseNote(caseUUID, caseNote, CaseNoteType.MANUAL);
         log.debug("######## Added case note ########");
     }
 

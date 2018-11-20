@@ -30,10 +30,10 @@ public class GetCaseworkCaseDataResponse {
     private Map<String,String> data;
 
     @JsonProperty("primaryTopic")
-    private String primaryTopic;
+    private UUID primaryTopic;
 
     @JsonProperty("primaryCorrespondent")
-    private String primaryCorrespondent;
+    private UUID primaryCorrespondent;
 
 
 }
