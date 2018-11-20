@@ -93,7 +93,7 @@ public class CamundaClient {
         if (instance != null) {
             return (String) instance.getValue();
         } else {
-            throw new EntityNotFoundException("VariableInstance not found, processInstanceId: %s Key: %s", processInstanceId, key);
+            return null;
         }
     }
 }

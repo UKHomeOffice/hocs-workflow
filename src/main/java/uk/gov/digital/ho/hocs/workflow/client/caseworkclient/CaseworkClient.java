@@ -10,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
-import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseTopicsResponse;
-import uk.gov.digital.ho.hocs.workflow.api.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityNotFoundException;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
@@ -110,9 +108,9 @@ public class CaseworkClient {
         }
     }
 
-    public void createCaseNote(UUID caseUUID, String caseNote) {
+    public void createCaseNote(UUID caseUUID, String caseNote, CaseNoteType caseNoteType) {
         log.info("caseUUID {}, case note - {}", caseUUID,caseNote);
-        AddCaseworkCaseNoteDataRequest request = new AddCaseworkCaseNoteDataRequest(caseUUID, caseNote);
+        AddCaseworkCaseNoteDataRequest request = new AddCaseworkCaseNoteDataRequest(caseUUID, caseNote, caseNoteType);
         try {
             producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
             log.info("Set Case Note Data for Case {}", caseUUID);
@@ -132,80 +130,15 @@ public class CaseworkClient {
         }
     }
 
-    public void createReference(UUID caseUUID, ReferenceType referenceType, String reference) {
-        CreateCaseworkReferenceRequest request = new CreateCaseworkReferenceRequest(caseUUID, reference, referenceType);
+    public void addTopicToCase(UUID caseUUID, UUID topicUUID, String topicName) {
+        AddTopicToCaseRequest request = new AddTopicToCaseRequest(caseUUID, topicUUID, topicName);
 
         try {
             producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Created Reference for Case {}", caseUUID);
+            log.info("Added Topic to Case {}", caseUUID);
         } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not create Reference: %s", e.toString());
+            throw new EntityCreationException("Could not aa Topic: %s", e.toString());
         }
     }
-
-    public GetCorrespondentResponse getCorrespondentForCase(UUID caseUUID, UUID correspondentUUID) {
-        ResponseEntity<GetCorrespondentResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/correspondent/%s", caseUUID, correspondentUUID), GetCorrespondentResponse.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Got correspondent for Case: {}", caseUUID);
-            return response.getBody();
-        } else {
-            throw new EntityNotFoundException("Could not get correspondent %s; response: %s", correspondentUUID, response.getStatusCodeValue());
-        }
-    }
-
-    public void deleteCorrespondentFromCase(UUID caseUUID, UUID correspondentUUID) {
-        ResponseEntity<Void> response = restHelper.delete(serviceBaseURL, String.format("/case/%s/correspondent/%s", caseUUID, correspondentUUID), Void.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Deleted correspondent {}, from Case {}", caseUUID, caseUUID);
-        } else {
-            throw new EntityCreationException("Could not delete correspondent; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public GetCaseTopicsResponse getCaseTopics(UUID caseUUID) {
-        ResponseEntity<GetCaseTopicsResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/topic", caseUUID), GetCaseTopicsResponse.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Got topics for Case: {}", caseUUID);
-            return response.getBody();
-        } else {
-            throw new EntityNotFoundException("Could not get topics; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public void addTopicToCase(UUID caseUUID, UUID topicUUID, String topicName) {
-        AddTopicToCaseRequest request = new AddTopicToCaseRequest(topicUUID, topicName);
-        ResponseEntity<Void> response = restHelper.post(serviceBaseURL, String.format("/case/%s/topic", caseUUID), request, Void.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Added Topic {}, to Case {}", topicUUID, caseUUID);
-        } else {
-            throw new EntityCreationException("Could not add Topic; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
-        ResponseEntity<Void> response = restHelper.delete(serviceBaseURL, String.format("/case/%s/topic/%s", caseUUID, topicUUID), Void.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Deleted Topic {}, from Case {}", topicUUID, caseUUID);
-        } else {
-            throw new EntityCreationException("Could not delete Topic; response: %s", response.getStatusCodeValue());
-        }
-    }
-
-    public GetPrimaryTopicResponse getCaseTypeAndTopicForCase(UUID caseUUID) {
-        ResponseEntity<GetPrimaryTopicResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/topiclist", caseUUID), GetPrimaryTopicResponse.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Got case type and topic for Case: {}", caseUUID);
-            return response.getBody();
-        } else {
-            throw new EntityNotFoundException("Could not get case type and topic; response: %s", response.getStatusCodeValue());
-        }
-    }
-
 
 }

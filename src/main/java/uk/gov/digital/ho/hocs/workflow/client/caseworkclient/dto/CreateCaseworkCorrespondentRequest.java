@@ -41,6 +41,9 @@ public class CreateCaseworkCorrespondentRequest {
     @JsonProperty("type")
     private CorrespondentType type;
 
+    @JsonProperty("reference")
+    private String reference;
+
     public CreateCaseworkCorrespondentRequest(UUID caseUUID, Correspondent correspondent) {
         this.caseUUID = caseUUID;
         this.fullName = correspondent.getFullname();
@@ -52,5 +55,6 @@ public class CreateCaseworkCorrespondentRequest {
         this.telephone = correspondent.getTelephone();
         this.email = correspondent.getEmail();
         this.type = correspondent.getCorrespondentType();
+        this.reference = correspondent.getReference();
     }
 }

@@ -9,10 +9,10 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetStandardLineResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetTemplateResponse;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
 
@@ -82,32 +82,15 @@ public class WorkflowService {
         }
     }
 
-    void deleteDocument(UUID caseUUID, UUID documentUUID) {
-         documentClient.deleteDocument(caseUUID, documentUUID);
-    }
-
-    GetCorrespondentResponse getCorrespondentData(UUID caseUUID, UUID correspondentUUID) {
-        GetCorrespondentResponse correspondent = caseworkClient.getCorrespondentForCase(caseUUID, correspondentUUID);
-        return correspondent;
-    }
-
-    void addCorrespondentToCase(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
-        Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email);
-        caseworkClient.createCorrespondent(caseUUID, correspondent);
-
-        if(reference != null) {
-            caseworkClient.createReference(caseUUID, ReferenceType.CORESPONDENT_REFERENCE, reference);
-        }
-    }
-
     GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getStageScreenName(stageUUID);
-        HocsForm form = infoFormClient.getForm(screenName);
 
-        // If the stage is complete we have form as null.
-        if (form != null) {
+        if(!screenName.equals("FINISH")) {
+
             GetCaseworkStageResponse stageResponse = caseworkClient.getStage(caseUUID, stageUUID);
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
+
+            HocsForm form = infoFormClient.getForm(screenName);
             form.setData(inputResponse.getData());
             return new GetStageResponse(stageUUID, stageResponse.getCaseReference(), form);
         } else {
@@ -130,43 +113,33 @@ public class WorkflowService {
         caseworkClient.updateStage(caseUUID, stageUUID, teamUUID, userUUID, StageStatusType.UPDATED);
     }
 
-    GetParentTopicResponse getParentTopicsAndTopics(UUID caseUUID) {
-        GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
-        return infoClient.getParentTopicsAndTopics(caseTypeResponse.getType().toString());
+    void createCorrespondent(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
+        Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email, reference);
+        caseworkClient.createCorrespondent(caseUUID, correspondent);
+
     }
 
-    GetCaseTopicsResponse getCaseTopics(UUID caseUUID) {
-        GetCaseTopicsResponse caseTopicsResponse = caseworkClient.getCaseTopics(caseUUID);
-        return caseTopicsResponse;
-    }
-
-    Topic getTopicData(UUID topicUUID) {
-        Topic topic = infoClient.getTopic(topicUUID);
-        return topic;
-    }
-
-    void addTopicToCase(UUID caseUUID, UUID topicUUID) {
+    void createTopic(UUID caseUUID, UUID topicUUID) {
         Topic topic = infoClient.getTopic(topicUUID);
         caseworkClient.addTopicToCase(caseUUID, topic.getValue(), topic.getLabel());
     }
 
-    void deleteTopicFromCase(UUID caseUUID, UUID topicUUID) {
-        caseworkClient.deleteTopicFromCase(caseUUID, topicUUID);
+
+    GetParentTopicResponse getTopicList(UUID caseUUID) {
+        GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
+        return infoClient.getParentTopicsAndTopics(caseTypeResponse.getType().toString());
     }
 
-    public void deleteCorrespondentFromCase(UUID caseUUID, UUID correspondentUUID) {
-        caseworkClient.deleteCorrespondentFromCase(caseUUID,correspondentUUID);
-    }
-
-    public InfoGetTemplateResponse getTemplates(UUID caseUUID) {
+    public InfoGetTemplateResponse getTemplateList(UUID caseUUID) {
         GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
         return infoClient.getTemplate(caseTypeResponse.getType());
     }
 
-    public InfoGetStandardLineResponse getStandardLines(UUID caseUUID) {
-        GetPrimaryTopicResponse getPrimaryTopicResponse = caseworkClient.getCaseTypeAndTopicForCase(caseUUID);
-        return infoClient.getStandardLine(getPrimaryTopicResponse.getTopicUUID());
+    public InfoGetStandardLineResponse getStandardLineList(UUID caseUUID) {
+        GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
+        return infoClient.getStandardLine(caseTypeResponse.getPrimaryTopic());
     }
+
 
     private static Map<String,String> tempUserTeamCode() {
 

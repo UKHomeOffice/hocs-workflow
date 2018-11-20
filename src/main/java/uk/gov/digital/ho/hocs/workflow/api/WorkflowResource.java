@@ -8,6 +8,7 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetStandardLineResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetTemplateResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.domain.model.CaseNoteType;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,12 +49,6 @@ class WorkflowResource {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(value = "/case/{caseUUID}/document/{documentUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity deleteDocument(@PathVariable UUID caseUUID, @PathVariable UUID documentUUID) {
-        workflowService.deleteDocument(caseUUID, documentUUID);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> updateStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
         GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request.getData());
@@ -72,63 +67,40 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/case/{caseUUID}/correspondent/{correspondentUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetCorrespondentResponse> getCorrespondentForCase(@PathVariable UUID caseUUID, @PathVariable UUID correspondentUUID) {
-        GetCorrespondentResponse response = workflowService.getCorrespondentData(caseUUID, correspondentUUID);
-        return ResponseEntity.ok(response);
+
+    /*
+    These need the UI to post directly to the queue
+     */
+    @PostMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity addTopicToCase(@PathVariable UUID caseUUID, @RequestBody AddTopicRequest request) {
+        workflowService.createTopic(caseUUID, request.getTopicUUID());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/case/{caseUUID}/correspondent", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity addCorrespondentToCase(@PathVariable UUID caseUUID, @RequestBody AddCorrespondentRequest request) {
-        workflowService.addCorrespondentToCase(caseUUID, request.getType(), request.getFullname(), request.getPostcode(), request.getAddress1(), request.getAddress2(), request.getAddress3(), request.getCountry(),request.getEmail(), request.getTelephone(), request.getReference());
+        workflowService.createCorrespondent(caseUUID, request.getType(), request.getFullname(), request.getPostcode(), request.getAddress1(), request.getAddress2(), request.getAddress3(), request.getCountry(),request.getEmail(), request.getTelephone(), request.getReference());
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(value = "/case/{caseUUID}/correspondent/{correspondentUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity deleteCorrespondentFromCase(@PathVariable UUID caseUUID, @PathVariable UUID correspondentUUID) {
-        workflowService.deleteCorrespondentFromCase(caseUUID, correspondentUUID);
-        return ResponseEntity.ok().build();
-    }
-
+    /*
+    These need moving to Info Service
+    */
     @GetMapping(value = "/case/{caseUUID}/topiclist", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetParentTopicResponse> getParentTopicsAndTopics(@PathVariable UUID caseUUID) {
-        GetParentTopicResponse response = workflowService.getParentTopicsAndTopics(caseUUID);
+        GetParentTopicResponse response = workflowService.getTopicList(caseUUID);
         return ResponseEntity.ok(response);
-    }
-
-    @GetMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetCaseTopicsResponse> getCaseTopics(@PathVariable UUID caseUUID) {
-        GetCaseTopicsResponse response = workflowService.getCaseTopics(caseUUID);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping(value = "/case/{caseUUID}/topic/{topicUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity getTopicData(@PathVariable UUID caseUUID, @PathVariable UUID topicUUID) {
-        Topic response = workflowService.getTopicData(topicUUID);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity addTopicToCase(@PathVariable UUID caseUUID, @RequestBody AddTopicRequest request) {
-        workflowService.addTopicToCase(caseUUID, request.getTopicUUID());
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping(value = "/case/{caseUUID}/topic/{topicUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity deleteTopicFromCase(@PathVariable UUID caseUUID, @PathVariable UUID topicUUID) {
-        workflowService.deleteTopicFromCase(caseUUID, topicUUID);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/case/{caseUUID}/templates", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<InfoGetTemplateResponse> getTemplate(@PathVariable UUID caseUUID) {
-        InfoGetTemplateResponse response = workflowService.getTemplates(caseUUID);
+        InfoGetTemplateResponse response = workflowService.getTemplateList(caseUUID);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping(value = "/case/{caseUUID}/standard_lines", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<InfoGetStandardLineResponse> getStandardLines(@PathVariable UUID caseUUID) {
-        InfoGetStandardLineResponse response = workflowService.getStandardLines(caseUUID);
+        InfoGetStandardLineResponse response = workflowService.getStandardLineList(caseUUID);
         return ResponseEntity.ok(response);
     }
 }
