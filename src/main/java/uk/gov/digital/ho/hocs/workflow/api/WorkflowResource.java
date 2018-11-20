@@ -8,7 +8,6 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetStandardLineResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetTemplateResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseNoteType;
 
 import java.util.Collections;
 import java.util.List;
