@@ -31,6 +31,12 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
+    public Deadline getDeadline(StageType stageType, LocalDate localDate) {
+        ResponseEntity<Deadline> response = restHelper.get(serviceBaseURL, String.format("/stagetype/%s/deadline/%s", stageType, localDate), Deadline.class);
+        Deadline deadlines = response.getBody();
+        return deadlines;
+    }
+
    public Map<StageType, LocalDate> getDeadlines(CaseDataType caseDataType, LocalDate localDate) {
        ResponseEntity<InfoGetDeadlinesResponse> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/deadlines/%s", caseDataType, localDate), InfoGetDeadlinesResponse.class);
        Map<StageType, LocalDate> deadlines = response.getBody().getDeadlines();
