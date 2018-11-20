@@ -3,16 +3,16 @@ package uk.gov.digital.ho.hocs.workflow.domain.model;
 import lombok.Getter;
 
 public enum CorrespondentType {
-    CORRESPONDENT("Correspondent"),
-    CONSTITUENT("Constituent"),
-    THIRD_PARY("Third Party"),
-    APPLICANT("Applicant"),
-    COMPLAINANT("Complainant"),
-    FAMILY("Family Relation"),
-    FRIEND("Friend"),
-    LEGAL_REP("Legal Representative"),
-    MEMBER("Member"),
-    OTHER("Other");
+    CORRESPONDENT("CORRESPONDENT"),
+    CONSTITUENT("CONSTITUENT"),
+    THIRD_PARTY("THIRD_PARTY"),
+    APPLICANT("APPLICANT"),
+    COMPLAINANT("COMPLAINANT"),
+    FAMILY("FAMILY_RELATION"),
+    FRIEND("FRIEND"),
+    LEGAL_REP("LEGAL_REP"),
+    MEMBER("MEMBER"),
+    OTHER("OTHER");
 
     @Getter
     private String displayValue;
@@ -21,4 +21,3 @@ public enum CorrespondentType {
         displayValue = value;
     }
 }
-
