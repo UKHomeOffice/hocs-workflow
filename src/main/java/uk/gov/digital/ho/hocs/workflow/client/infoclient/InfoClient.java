@@ -30,20 +30,17 @@ public class InfoClient {
 
     public Deadline getDeadline(StageType stageType, LocalDate localDate) {
         ResponseEntity<Deadline> response = restHelper.get(serviceBaseURL, String.format("/stagetype/%s/deadline/%s", stageType, localDate), Deadline.class);
-        Deadline deadlines = response.getBody();
-        return deadlines;
+        return response.getBody();
     }
 
     public Set<InfoNominatedPeople> getNominatedPeople(UUID teamUUID) {
         ResponseEntity<InfoGetNominatedPeopleResponse> response = restHelper.get(serviceBaseURL, String.format("/nominatedpeople/%s", teamUUID), InfoGetNominatedPeopleResponse.class);
-        Set<InfoNominatedPeople> nominatedPeople = response.getBody().getNominatedPeople();
-        return nominatedPeople;
+        return response.getBody().getNominatedPeople();
     }
 
     public Topic getTopic(UUID topicUUID) {
         ResponseEntity<Topic> response = restHelper.get(serviceBaseURL, String.format("/topic/%s", topicUUID), Topic.class);
-        Topic topic = response.getBody();
-        return topic;
+        return response.getBody();
     }
 
 }
