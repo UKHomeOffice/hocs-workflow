@@ -9,8 +9,6 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetStandardLineResponse;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoGetTemplateResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
@@ -122,23 +120,6 @@ public class WorkflowService {
         Topic topic = infoClient.getTopic(topicUUID);
         caseworkClient.addTopicToCase(caseUUID, topic.getValue(), topic.getLabel());
     }
-
-
-    GetParentTopicResponse getTopicList(UUID caseUUID) {
-        GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
-        return infoClient.getParentTopicsAndTopics(caseTypeResponse.getType().toString());
-    }
-
-    public InfoGetTemplateResponse getTemplateList(UUID caseUUID) {
-        GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
-        return infoClient.getTemplate(caseTypeResponse.getType());
-    }
-
-    public InfoGetStandardLineResponse getStandardLineList(UUID caseUUID) {
-        GetCaseworkCaseDataResponse caseTypeResponse = caseworkClient.getCase(caseUUID);
-        return infoClient.getStandardLine(caseTypeResponse.getPrimaryTopic());
-    }
-
 
     private static Map<String,String> tempUserTeamCode() {
 

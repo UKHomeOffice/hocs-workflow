@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.Deadline;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 import uk.gov.digital.ho.hocs.workflow.client.notificationclient.EmailService;
 import uk.gov.digital.ho.hocs.workflow.client.notificationclient.NotifyType;
@@ -16,12 +18,15 @@ import java.util.UUID;
 public class BpmnService {
 
     private final CaseworkClient caseworkClient;
+    private final InfoClient infoClient;
     private final EmailService emailService;
 
     @Autowired
     public BpmnService(CaseworkClient caseworkClient,
+                       InfoClient infoClient,
                        EmailService emailService) {
         this.caseworkClient = caseworkClient;
+        this.infoClient = infoClient;
         this.emailService = emailService;
     }
 
@@ -31,13 +36,12 @@ public class BpmnService {
         log.debug("######## Added case note ########");
     }
 
-    public String createStage(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDString, String userUUIDString) {
+    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String dateReceivedString, String teamUUIDString, String userUUIDString) {
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID;
         UUID teamUUID = null;
         UUID userUUID = null;
-        LocalDate deadline = null;
 
         if (teamUUIDString != null) {
             teamUUID = UUID.fromString(teamUUIDString);
@@ -54,7 +58,10 @@ public class BpmnService {
             caseworkClient.updateStage(caseUUID, stageUUID, teamUUID, userUUID, StageStatusType.UPDATED);
         } else {
             // Create a stage in the casework service in order to get a UUID.
-            stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageType), teamUUID, userUUID, deadline);
+            LocalDate now = LocalDate.parse(dateReceivedString);
+
+            Deadline deadline = infoClient.getDeadline(StageType.valueOf(stageTypeString), now);
+            stageUUID = caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, userUUID, deadline.getDate());
         }
         log.debug("######## Created Stage ########");
         return stageUUID.toString();
