@@ -39,22 +39,20 @@ public class CamundaClient {
      * (we can't call .singleResult() like we do now)
      * We then need a way to determine which stage we are allocating (using stageUUID?)
      */
-    public void allocateStage(UUID caseUUID, UUID teamUUID, UUID userUUID) {
-        String taskId = getTaskIdByBusinessKey(caseUUID);
-        taskService.complete(taskId, new HashMap<>());
-        log.info("Allocated Case {} to User {} of Team {}", caseUUID, userUUID, teamUUID);
+    public void completeTask(UUID key, Map<String,String> data) {
+        String taskId = getTaskIdByBusinessKey(key);
+        taskService.complete(taskId, new HashMap<>(data));
+        log.info("Completed task for key: '{}'", key);
+    }
+
+    public void completeTask(UUID key) {
+        completeTask(key, new HashMap<>());
     }
 
     public String getStageScreenName(UUID stageUUID) {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
         log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName);
         return screenName == null ? "FINISH" : screenName;
-    }
-
-    public void completeStage(UUID stageUUID, Map<String,String> data) {
-        String taskId = getTaskIdByBusinessKey(stageUUID);
-        taskService.complete(taskId, new HashMap<>(data));
-        log.info("Validated stage for bpmn Stage: '{}'", stageUUID);
     }
 
     private String getTaskIdByBusinessKey(UUID businessKey) {

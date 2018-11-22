@@ -52,9 +52,9 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/allocate", produces = APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/userUUID", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity allocateStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AllocateCaseRequest request) {
-        workflowService.allocateStage(caseUUID, stageUUID, request.getTeamUUID(), request.getUserUUID());
+        workflowService.allocateStage(caseUUID, stageUUID, request.getUserUUID());
         return ResponseEntity.ok().build();
     }
 
