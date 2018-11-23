@@ -13,6 +13,4 @@ public class AllocateCaseRequest {
     @JsonProperty("userUUID")
     private UUID userUUID;
 
-    @JsonProperty("teamUUID")
-    private UUID teamUUID;
 }

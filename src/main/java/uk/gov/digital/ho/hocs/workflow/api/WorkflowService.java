@@ -99,15 +99,15 @@ public class WorkflowService {
     GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: validate Form
         values.put("valid", "true");
-        camundaClient.completeStage(stageUUID, values);
+        camundaClient.completeTask(stageUUID, values);
         caseworkClient.updateCase(caseUUID, values);
 
         return getStage(caseUUID, stageUUID);
     }
 
-    void allocateStage(UUID caseUUID, UUID stageUUID, UUID teamUUID, UUID userUUID) {
-        camundaClient.allocateStage(caseUUID, teamUUID, userUUID);
-        caseworkClient.updateStage(caseUUID, stageUUID, teamUUID, userUUID, StageStatusType.UPDATED);
+    void allocateStage(UUID caseUUID, UUID stageUUID, UUID userUUID) {
+        camundaClient.completeTask(caseUUID);
+        caseworkClient.updateStageUser(caseUUID, stageUUID, userUUID);
     }
 
     void createCorrespondent(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){

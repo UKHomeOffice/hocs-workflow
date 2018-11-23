@@ -18,11 +18,10 @@ public class CreateCaseworkStageRequestTest {
         UUID userUUID = UUID.randomUUID();
         LocalDate deadline = LocalDate.now();
 
-        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, deadline);
+        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(stageType, teamUUID, deadline);
 
         assertThat(createStageRequest.getType()).isEqualTo(stageType);
         assertThat(createStageRequest.getTeamUUID()).isEqualTo(teamUUID);
-        assertThat(createStageRequest.getUserUUID()).isEqualTo(userUUID);
         assertThat(createStageRequest.getDeadline()).isEqualTo(deadline);
 
     }
@@ -30,11 +29,10 @@ public class CreateCaseworkStageRequestTest {
     @Test
     public void getCreateStageRequestNull() {
 
-        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(null, null, null, null);
+        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(null, null,  null);
 
         assertThat(createStageRequest.getType()).isNull();
         assertThat(createStageRequest.getTeamUUID()).isNull();
-        assertThat(createStageRequest.getUserUUID()).isNull();
         assertThat(createStageRequest.getDeadline()).isNull();
 
     }
