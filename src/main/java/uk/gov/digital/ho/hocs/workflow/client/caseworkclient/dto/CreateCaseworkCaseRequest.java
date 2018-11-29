@@ -6,14 +6,10 @@ import lombok.Getter;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.util.Map;
-import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
 public class CreateCaseworkCaseRequest {
-
-    @JsonProperty("caseUUID")
-    private UUID caseUUID;
 
     @JsonProperty("type")
     private CaseDataType type;

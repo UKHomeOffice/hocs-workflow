@@ -16,12 +16,10 @@ public class CreateCaseworkCaseRequestTest {
     public void getCreateCaseRequest() {
 
         CaseDataType caseDataType = CaseDataType.MIN;
-        UUID caseUUID = HocsCaseUUID.randomUUID(caseDataType);
         Map<String, String> data = new HashMap<>();
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseUUID,caseDataType, data);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseDataType, data);
 
-        assertThat(createCaseRequest.getCaseUUID()).isEqualTo(caseUUID);
         assertThat(createCaseRequest.getType()).isEqualTo(caseDataType);
         assertThat(createCaseRequest.getData()).isEqualTo(data);
 
@@ -30,9 +28,8 @@ public class CreateCaseworkCaseRequestTest {
     @Test
     public void getCreateCaseRequestNull() {
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(null,null, null);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(null, null);
 
-        assertThat(createCaseRequest.getCaseUUID()).isNull();
         assertThat(createCaseRequest.getType()).isNull();
         assertThat(createCaseRequest.getData()).isNull();
 

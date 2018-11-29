@@ -49,11 +49,11 @@ public class WorkflowService {
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
 
-        UUID caseUUID = HocsCaseUUID.randomUUID(caseDataType);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data);
 
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseUUID, caseDataType, data);
+        UUID caseUUID = caseResponse.getUuid();
 
-        if (caseResponse.getReference() != null) {
+        if (caseUUID != null) {
 
             // Add Documents to the case
             createDocument(caseUUID, documents);
@@ -66,7 +66,7 @@ public class WorkflowService {
             camundaClient.startCase(caseUUID, caseDataType, seedData);
 
         } else {
-            throw new EntityCreationException("Failed to start case, invalid Response!");
+            throw new EntityCreationException("Failed to start case, invalid caseUUID!");
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
