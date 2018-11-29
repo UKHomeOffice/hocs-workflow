@@ -43,8 +43,8 @@ public class CaseworkClient {
         this.objectMapper = objectMapper;
     }
 
-    public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType, Map<String, String> data) {
-        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data);
+    public CreateCaseworkCaseResponse createCase(UUID caseUUID, CaseDataType caseDataType, Map<String, String> data) {
+        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseUUID, caseDataType, data);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
             log.info("Created Case {}, {}", response.getBody().getUuid(), response.getBody().getReference());

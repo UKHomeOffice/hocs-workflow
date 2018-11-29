@@ -2,9 +2,11 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto;
 
 import org.junit.Test;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.domain.model.HocsCaseUUID;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,10 +16,12 @@ public class CreateCaseworkCaseRequestTest {
     public void getCreateCaseRequest() {
 
         CaseDataType caseDataType = CaseDataType.MIN;
+        UUID caseUUID = HocsCaseUUID.randomUUID(caseDataType);
         Map<String, String> data = new HashMap<>();
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseDataType, data);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseUUID,caseDataType, data);
 
+        assertThat(createCaseRequest.getCaseUUID()).isEqualTo(caseUUID);
         assertThat(createCaseRequest.getType()).isEqualTo(caseDataType);
         assertThat(createCaseRequest.getData()).isEqualTo(data);
 
@@ -26,8 +30,9 @@ public class CreateCaseworkCaseRequestTest {
     @Test
     public void getCreateCaseRequestNull() {
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(null, null);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(null,null, null);
 
+        assertThat(createCaseRequest.getCaseUUID()).isNull();
         assertThat(createCaseRequest.getType()).isNull();
         assertThat(createCaseRequest.getData()).isNull();
 

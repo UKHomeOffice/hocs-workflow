@@ -45,13 +45,15 @@ public class WorkflowService {
     }
 
     CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
-        // Create a case in the casework service in order to get a UUID.
+        // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data);
-        UUID caseUUID = caseResponse.getUuid();
 
-        if (caseUUID != null) {
+        UUID caseUUID = HocsCaseUUID.randomUUID(caseDataType);
+
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseUUID, caseDataType, data);
+
+        if (caseResponse.getReference() != null) {
 
             // Add Documents to the case
             createDocument(caseUUID, documents);
@@ -64,7 +66,7 @@ public class WorkflowService {
             camundaClient.startCase(caseUUID, caseDataType, seedData);
 
         } else {
-            throw new EntityCreationException("Failed to start case, invalid caseUUID!");
+            throw new EntityCreationException("Failed to start case, invalid Response!");
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
