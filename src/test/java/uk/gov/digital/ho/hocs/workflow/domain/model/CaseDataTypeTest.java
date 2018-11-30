@@ -10,10 +10,17 @@ public class CaseDataTypeTest {
 
 
     @Test
-    public void getDisplayValue() {
-        assertThat(MIN.getDisplayValue()).isEqualTo("MIN");
-        assertThat(TRO.getDisplayValue()).isEqualTo("TRO");
-        assertThat(DTEN.getDisplayValue()).isEqualTo("DTEN");
+    public void getDisplayName() {
+        assertThat(MIN.getDisplayName()).isEqualTo("MIN");
+        assertThat(TRO.getDisplayName()).isEqualTo("TRO");
+        assertThat(DTEN.getDisplayName()).isEqualTo("DTEN");
+    }
+
+    @Test
+    public void getValue() {
+        assertThat(MIN.getValue()).isEqualTo("a1");
+        assertThat(TRO.getValue()).isEqualTo("a2");
+        assertThat(DTEN.getValue()).isEqualTo("a3");
     }
 
     @Test

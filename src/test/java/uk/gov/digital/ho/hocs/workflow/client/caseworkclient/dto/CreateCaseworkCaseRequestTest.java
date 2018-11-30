@@ -2,9 +2,11 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto;
 
 import org.junit.Test;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.domain.model.HocsCaseUUID;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
