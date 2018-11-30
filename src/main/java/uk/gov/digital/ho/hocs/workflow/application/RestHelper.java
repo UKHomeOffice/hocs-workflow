@@ -18,10 +18,13 @@ public class RestHelper {
 
     private RestTemplate restTemplate;
 
+    private RequestData requestData;
+
     @Autowired
-    public RestHelper(RestTemplate restTemplate, @Value("${hocs.basicauth}") String basicAuth) {
+    public RestHelper(RestTemplate restTemplate, @Value("${hocs.basicauth}") String basicAuth, RequestData requestData) {
         this.restTemplate = restTemplate;
         this.basicAuth = basicAuth;
+        this.requestData = requestData;
     }
 
     public <T,R> ResponseEntity<R> post(String serviceBaseURL, String url, T request, Class<R> responseType) {
@@ -40,6 +43,9 @@ public class RestHelper {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add(AUTHORIZATION, getBasicAuth());
+        headers.add(RequestData.GROUP_HEADER, requestData.groups());
+        headers.add(RequestData.USER_ID_HEADER, requestData.userId());
+        headers.add(RequestData.CORRELATION_ID_HEADER, requestData.correlationId());
         return headers;
     }
 

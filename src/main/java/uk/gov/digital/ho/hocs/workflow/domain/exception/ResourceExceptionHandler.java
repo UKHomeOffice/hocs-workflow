@@ -25,4 +25,11 @@ public class ResourceExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), NOT_FOUND);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity handle(Exception e) {
+        log.error("Exception: {}", e.getMessage());
+        return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
+    }
+
+
 }
