@@ -2,6 +2,7 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto;
 
 import org.junit.Test;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.domain.model.CaseType;
 import uk.gov.digital.ho.hocs.workflow.domain.model.HocsCaseUUID;
 
 import java.util.HashMap;
@@ -16,11 +17,12 @@ public class CreateCaseworkCaseRequestTest {
     public void getCreateCaseRequest() {
 
         CaseDataType caseDataType = CaseDataType.MIN;
+        CaseType caseType = new CaseType(caseDataType.getDisplayName(), caseDataType.getValue());
         Map<String, String> data = new HashMap<>();
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseDataType, data);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseType, data);
 
-        assertThat(createCaseRequest.getType()).isEqualTo(caseDataType);
+        assertThat(createCaseRequest.getType()).isEqualTo(caseType);
         assertThat(createCaseRequest.getData()).isEqualTo(data);
 
     }
