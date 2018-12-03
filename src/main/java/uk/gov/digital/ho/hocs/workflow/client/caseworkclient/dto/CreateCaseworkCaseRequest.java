@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.domain.model.CaseType;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
 public class CreateCaseworkCaseRequest {
 
     @JsonProperty("type")
-    private CaseDataType type;
+    private CaseType type;
 
     @JsonProperty("data")
     private Map<String, String> data;
