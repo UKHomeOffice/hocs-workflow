@@ -49,7 +49,7 @@ public class WorkflowService {
         // Create a case in the casework service in order to get a UUID.
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
-        Deadline deadline = infoClient.getDeadline(StageType.valueOf("DCU_MIN_DISPATCH"), dateReceived);
+        Deadline deadline = infoClient.getCaseDeadline(caseDataType, dateReceived);
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, deadline.getDate());
         UUID caseUUID = caseResponse.getUuid();
 
