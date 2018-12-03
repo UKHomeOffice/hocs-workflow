@@ -44,7 +44,8 @@ public class CaseworkClient {
     }
 
     public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType, Map<String, String> data) {
-        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data);
+        CaseType caseType = new CaseType(caseDataType.getDisplayName(), caseDataType.getValue());
+        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseType, data);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
             log.info("Created Case {}, {}", response.getBody().getUuid(), response.getBody().getReference());
