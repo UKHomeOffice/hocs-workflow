@@ -27,6 +27,7 @@ public class CreateCaseworkCaseRequestTest {
         assertThat(createCaseRequest.getType()).isEqualTo(caseType);
         assertThat(createCaseRequest.getData()).isEqualTo(data);
         assertThat(createCaseRequest.getCaseDeadline()).isEqualTo(deadline);
+        assertThat(createCaseRequest.getDateReceived()).isEqualTo(dateReceived);
 
     }
 
@@ -38,6 +39,7 @@ public class CreateCaseworkCaseRequestTest {
         assertThat(createCaseRequest.getType()).isNull();
         assertThat(createCaseRequest.getData()).isNull();
         assertThat(createCaseRequest.getCaseDeadline()).isNull();
+        assertThat(createCaseRequest.getDateReceived()).isNull();
 
     }
 }
