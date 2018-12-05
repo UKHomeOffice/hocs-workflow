@@ -87,12 +87,11 @@ public class WorkflowService {
 
         if(!screenName.equals("FINISH")) {
 
-            GetCaseworkStageResponse stageResponse = caseworkClient.getStage(caseUUID, stageUUID);
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
 
             HocsForm form = infoFormClient.getForm(screenName);
             form.setData(inputResponse.getData());
-            return new GetStageResponse(stageUUID, stageResponse.getCaseReference(), form);
+            return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
         } else {
             return new GetStageResponse(stageUUID, null, null);
         }

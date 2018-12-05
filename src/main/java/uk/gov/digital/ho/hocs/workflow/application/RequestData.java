@@ -77,7 +77,6 @@ public class RequestData implements HandlerInterceptor {
         return !isNullOrEmpty(groups) ? groups : "/ANONYMOUS/ANONYMOUS";
     }
 
-
     public String correlationId() {
         return MDC.get(CORRELATION_ID_HEADER);
     }
@@ -93,5 +92,7 @@ public class RequestData implements HandlerInterceptor {
     public String groups() {
         return MDC.get(GROUP_HEADER);
     }
+
+    public String[] groupsArray() { return groups().split(","); }
 
 }

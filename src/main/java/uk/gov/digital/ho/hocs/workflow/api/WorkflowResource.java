@@ -64,7 +64,6 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
-
     /*
     These need the UI to post directly to the queue
      */

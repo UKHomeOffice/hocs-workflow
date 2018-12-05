@@ -43,8 +43,9 @@ public class CaseworkClient {
         this.objectMapper = objectMapper;
     }
 
+  
     public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType, Map<String, String> data, LocalDate deadline) {
-        CaseType caseType = new CaseType(caseDataType.getDisplayName(), caseDataType.getValue());
+        CaseType caseType = new CaseType(caseDataType.getDisplayCode(), caseDataType.getValue());
         CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseType, data, deadline);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
@@ -70,10 +71,21 @@ public class CaseworkClient {
         ResponseEntity<GetCaseworkCaseDataResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s", caseUUID), GetCaseworkCaseDataResponse.class);
 
         if (response.getStatusCodeValue() == 200) {
-            log.info("Got Input for Case: {}", caseUUID);
+            log.info("Got Case: {}", caseUUID);
             return response.getBody();
         } else {
-            throw new EntityNotFoundException("Could not get Input; response: %s", response.getStatusCodeValue());
+            throw new EntityNotFoundException("Could not get Case; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    public String getCaseType(UUID caseUUID) {
+        ResponseEntity<String> response = restHelper.get(serviceBaseURL, String.format("/case/%s/type", caseUUID), String.class);
+
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Got Type for Case: {}", caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get Case Type; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -129,6 +141,28 @@ public class CaseworkClient {
             return response.getBody();
         } else {
             throw new EntityNotFoundException("Could not get Stage; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    public UUID getStageUser(UUID caseUUID, UUID stageUUID) {
+        ResponseEntity<UUID> response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/user", caseUUID, stageUUID), UUID.class);
+
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Got User for Stage: {} for Case: {}", stageUUID, caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get Stage User; response: %s", response.getStatusCodeValue());
+        }
+    }
+
+    public UUID getStageTeam(UUID caseUUID, UUID stageUUID) {
+        ResponseEntity<UUID> response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), UUID.class);
+
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Got Team Stage: {} for Case: {}", stageUUID, caseUUID);
+            return response.getBody();
+        } else {
+            throw new EntityNotFoundException("Could not get Stage Team; response: %s", response.getStatusCodeValue());
         }
     }
 

@@ -8,13 +8,13 @@ public enum CaseDataType {
     DTEN("DTEN", "a3");
 
     @Getter
-    private String displayName;
+    private String displayCode;
 
     @Getter
     private String value;
 
     CaseDataType(String name, String val) {
-        displayName = name;
+        displayCode = name;
         value = val;
     }
 }
