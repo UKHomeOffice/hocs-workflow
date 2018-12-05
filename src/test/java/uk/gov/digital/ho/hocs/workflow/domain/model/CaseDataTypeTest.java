@@ -11,9 +11,9 @@ public class CaseDataTypeTest {
 
     @Test
     public void getDisplayName() {
-        assertThat(MIN.getDisplayName()).isEqualTo("MIN");
-        assertThat(TRO.getDisplayName()).isEqualTo("TRO");
-        assertThat(DTEN.getDisplayName()).isEqualTo("DTEN");
+        assertThat(MIN.getDisplayCode()).isEqualTo("MIN");
+        assertThat(TRO.getDisplayCode()).isEqualTo("TRO");
+        assertThat(DTEN.getDisplayCode()).isEqualTo("DTEN");
     }
 
     @Test
