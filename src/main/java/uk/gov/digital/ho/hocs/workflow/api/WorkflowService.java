@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.Deadline;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoFormClient;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
@@ -48,9 +49,8 @@ public class WorkflowService {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
-
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data);
-
+        Deadline deadline = infoClient.getCaseDeadline(caseDataType, dateReceived);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, deadline.getDate());
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
