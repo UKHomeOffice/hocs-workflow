@@ -19,8 +19,10 @@ public class CreateCaseworkCaseRequestTest {
         CaseType caseType = new CaseType(caseDataType.getDisplayCode(), caseDataType.getValue());
         Map<String, String> data = new HashMap<>();
         LocalDate deadline = LocalDate.now();
+        LocalDate dateReceived = LocalDate.now().minusDays(4);
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseType, data, deadline);
+
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseType, data, dateReceived, deadline);
 
         assertThat(createCaseRequest.getType()).isEqualTo(caseType);
         assertThat(createCaseRequest.getData()).isEqualTo(data);
@@ -31,7 +33,7 @@ public class CreateCaseworkCaseRequestTest {
     @Test
     public void getCreateCaseRequestNull() {
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(null, null, null);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(null, null, null, null);
 
         assertThat(createCaseRequest.getType()).isNull();
         assertThat(createCaseRequest.getData()).isNull();
