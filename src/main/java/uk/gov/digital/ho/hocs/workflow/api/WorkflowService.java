@@ -50,7 +50,7 @@ public class WorkflowService {
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
         Deadline deadline = infoClient.getCaseDeadline(caseDataType, dateReceived);
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, deadline.getDate());
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived, deadline.getDate());
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
