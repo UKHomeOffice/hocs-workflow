@@ -133,17 +133,6 @@ public class CaseworkClient {
         }
     }
 
-    public GetCaseworkStageResponse getStage(UUID caseUUID, UUID stageUUID) {
-        ResponseEntity<GetCaseworkStageResponse> response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s", caseUUID, stageUUID), GetCaseworkStageResponse.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Got Stage: {} for Case: {}", stageUUID, caseUUID);
-            return response.getBody();
-        } else {
-            throw new EntityNotFoundException("Could not get Stage; response: %s", response.getStatusCodeValue());
-        }
-    }
-
     public UUID getStageUser(UUID caseUUID, UUID stageUUID) {
         ResponseEntity<UUID> response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/user", caseUUID, stageUUID), UUID.class);
 
