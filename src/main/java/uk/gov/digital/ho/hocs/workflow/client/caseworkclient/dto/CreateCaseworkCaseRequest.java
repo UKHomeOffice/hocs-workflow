@@ -3,7 +3,6 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseType;
 
 import java.time.LocalDate;
@@ -19,6 +18,9 @@ public class CreateCaseworkCaseRequest {
     @JsonProperty("data")
     private Map<String, String> data;
 
-    @JsonProperty("caseDeadline")
+    @JsonProperty("received")
+    private LocalDate dateReceived;
+
+    @JsonProperty("deadline")
     private LocalDate caseDeadline;
 }
