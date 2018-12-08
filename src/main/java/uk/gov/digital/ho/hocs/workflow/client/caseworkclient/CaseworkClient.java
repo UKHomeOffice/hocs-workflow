@@ -101,18 +101,7 @@ public class CaseworkClient {
     }
 
     public void updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID) {
-        UpdateCaseworkStageUserRequest request = new UpdateCaseworkStageUserRequest(caseUUID, stageUUID, teamUUID);
-
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Updated User for Stage {} for case {}", stageUUID, caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
-        }
-    }
-
-    public void updateStageUser(UUID caseUUID, UUID stageUUID, UUID userUUID) {
-        UpdateCaseworkStageUserRequest request = new UpdateCaseworkStageUserRequest(caseUUID, stageUUID, userUUID);
+        UpdateCaseworkStageTeamRequest request = new UpdateCaseworkStageTeamRequest(caseUUID, stageUUID, teamUUID);
 
         try {
             producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));

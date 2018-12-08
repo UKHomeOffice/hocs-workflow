@@ -106,11 +106,6 @@ public class WorkflowService {
         return getStage(caseUUID, stageUUID);
     }
 
-    void allocateStage(UUID caseUUID, UUID stageUUID, UUID userUUID) {
-        camundaClient.completeTask(caseUUID);
-        caseworkClient.updateStageUser(caseUUID, stageUUID, userUUID);
-    }
-
     void createCorrespondent(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
         Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email, reference);
         caseworkClient.createCorrespondent(caseUUID, correspondent);
@@ -126,16 +121,16 @@ public class WorkflowService {
 
         Map<String, String> seedData = new HashMap<>();
         seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("DataInputQATeamUUID", "22222222-2222-2222-2222-222222222222");
-        seedData.put("MarkupTeamUUID", "11111111-1111-1111-1111-111111111111");
-        seedData.put("TransferConfirmationTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("NoReplyNeededTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("InitialDraftTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("QAResponseTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("PrivateOfficeTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("MinisterSignOffTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("DispatchTeamUUID", "33333333-3333-3333-3333-333333333333");
-        seedData.put("CopyNumberTenTeamUUID", "33333333-3333-3333-3333-333333333333");
+        seedData.put("DataInputQATeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("MarkupTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("TransferConfirmationTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("NoReplyNeededTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("InitialDraftTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("QAResponseTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("PrivateOfficeTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("MinisterSignOffTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("DispatchTeamUUID", "44444444-2222-2222-2222-222222222222");
+        seedData.put("CopyNumberTenTeamUUID", "44444444-2222-2222-2222-222222222222");
 
         return seedData;
     }
