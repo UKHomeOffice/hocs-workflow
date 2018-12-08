@@ -17,20 +17,8 @@ public class CreateCaseworkCorrespondentRequest {
     @JsonProperty("fullname")
     private String fullName;
 
-    @JsonProperty("postcode")
-    private String postcode;
-
-    @JsonProperty("address1")
-    private String address1;
-
-    @JsonProperty("address2")
-    private String address2;
-
-    @JsonProperty("address3")
-    private String address3;
-
-    @JsonProperty("country")
-    private String country;
+    @JsonProperty("address")
+    private AddressDto address;
 
     @JsonProperty("telephone")
     private String telephone;
@@ -47,11 +35,7 @@ public class CreateCaseworkCorrespondentRequest {
     public CreateCaseworkCorrespondentRequest(UUID caseUUID, Correspondent correspondent) {
         this.caseUUID = caseUUID;
         this.fullName = correspondent.getFullname();
-        this.postcode = correspondent.getPostcode();
-        this.address1 = correspondent.getAddress1();
-        this.address2 = correspondent.getAddress2();
-        this.address3 = correspondent.getAddress3();
-        this.country = correspondent.getCountry();
+        this.address = new AddressDto(correspondent.getPostcode(), correspondent.getAddress1(), correspondent.getAddress2(), correspondent.getAddress3(),correspondent.getCountry());
         this.telephone = correspondent.getTelephone();
         this.email = correspondent.getEmail();
         this.type = correspondent.getCorrespondentType();
