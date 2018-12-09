@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.api.dto.Topic;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
@@ -42,11 +41,6 @@ public class InfoClient {
     public Set<InfoNominatedPeople> getNominatedPeople(UUID teamUUID) {
         ResponseEntity<InfoGetNominatedPeopleResponse> response = restHelper.get(serviceBaseURL, String.format("/nominatedpeople/%s", teamUUID), InfoGetNominatedPeopleResponse.class);
         return response.getBody().getNominatedPeople();
-    }
-
-    public Topic getTopic(UUID topicUUID) {
-        ResponseEntity<Topic> response = restHelper.get(serviceBaseURL, String.format("/topic/%s", topicUUID), Topic.class);
-        return response.getBody();
     }
 
 }

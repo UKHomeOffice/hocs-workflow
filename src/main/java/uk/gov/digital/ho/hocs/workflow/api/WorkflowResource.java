@@ -57,25 +57,4 @@ class WorkflowResource {
         workflowService.createDocument(caseUUID, request.getDocuments());
         return ResponseEntity.ok().build();
     }
-
-
-
-
-
-
-    /*
-    These need the UI to post directly to the queue
-     */
-    @PostMapping(value = "/case/{caseUUID}/topic", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity addTopicToCase(@PathVariable UUID caseUUID, @RequestBody AddTopicRequest request) {
-        workflowService.createTopic(caseUUID, request.getTopicUUID());
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping(value = "/case/{caseUUID}/correspondent", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity addCorrespondentToCase(@PathVariable UUID caseUUID, @RequestBody AddCorrespondentRequest request) {
-        workflowService.createCorrespondent(caseUUID, request.getType(), request.getFullname(), request.getPostcode(), request.getAddress1(), request.getAddress2(), request.getAddress3(), request.getCountry(),request.getEmail(), request.getTelephone(), request.getReference());
-        return ResponseEntity.ok().build();
-    }
-
 }
