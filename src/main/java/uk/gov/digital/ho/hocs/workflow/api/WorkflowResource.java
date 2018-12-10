@@ -40,22 +40,10 @@ class WorkflowResource {
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }
 
-    @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
-        workflowService.createDocument(caseUUID, request.getDocuments());
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> updateStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
         GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request.getData());
         return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/userUUID", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity allocateStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AllocateCaseRequest request) {
-        workflowService.allocateStage(caseUUID, stageUUID, request.getUserUUID());
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
@@ -63,6 +51,17 @@ class WorkflowResource {
         GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
+        workflowService.createDocument(caseUUID, request.getDocuments());
+        return ResponseEntity.ok().build();
+    }
+
+
+
+
+
 
     /*
     These need the UI to post directly to the queue
