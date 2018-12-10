@@ -155,26 +155,4 @@ public class CaseworkClient {
         }
     }
 
-    public void createCorrespondent(UUID caseUUID, Correspondent correspondent) {
-        CreateCaseworkCorrespondentRequest request = new CreateCaseworkCorrespondentRequest(caseUUID, correspondent);
-
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Created Correspondent for Case {}", caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not create Correspondent: %s", e.toString());
-        }
-    }
-
-    public void addTopicToCase(UUID caseUUID, UUID topicUUID, String topicName) {
-        AddTopicToCaseRequest request = new AddTopicToCaseRequest(caseUUID, topicUUID, topicName);
-
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Added Topic to Case {}", caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not aa Topic: %s", e.toString());
-        }
-    }
-
 }

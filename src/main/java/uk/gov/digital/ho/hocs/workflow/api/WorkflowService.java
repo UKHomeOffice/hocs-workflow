@@ -106,17 +106,6 @@ public class WorkflowService {
         return getStage(caseUUID, stageUUID);
     }
 
-    void createCorrespondent(UUID caseUUID, CorrespondentType type, String fullName, String postcode, String addressOne, String addressTwo, String addressThree, String addressCountry, String phone, String email, String reference ){
-        Correspondent correspondent = new Correspondent(type, fullName, postcode, addressOne, addressTwo, addressThree, addressCountry, phone, email, reference);
-        caseworkClient.createCorrespondent(caseUUID, correspondent);
-
-    }
-
-    void createTopic(UUID caseUUID, UUID topicUUID) {
-        Topic topic = infoClient.getTopic(topicUUID);
-        caseworkClient.addTopicToCase(caseUUID, topic.getValue(), topic.getLabel());
-    }
-
     private static Map<String,String> tempUserTeamCode() {
 
         Map<String, String> seedData = new HashMap<>();
