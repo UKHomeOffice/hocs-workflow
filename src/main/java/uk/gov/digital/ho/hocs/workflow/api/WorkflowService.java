@@ -62,7 +62,6 @@ public class WorkflowService {
             Map<String, String> seedData = new HashMap<>();
             seedData.put("CaseReference",caseResponse.getReference());
             seedData.putAll(data);
-            seedData.putAll(tempUserTeamCode());
             camundaClient.startCase(caseUUID, caseDataType, seedData);
 
         } else {
@@ -104,23 +103,5 @@ public class WorkflowService {
         caseworkClient.updateCase(caseUUID, values);
 
         return getStage(caseUUID, stageUUID);
-    }
-
-    private static Map<String,String> tempUserTeamCode() {
-
-        Map<String, String> seedData = new HashMap<>();
-        seedData.put("DataInputTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("DataInputQATeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("MarkupTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("TransferConfirmationTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("NoReplyNeededTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("InitialDraftTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("QAResponseTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("PrivateOfficeTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("MinisterSignOffTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("DispatchTeamUUID", "44444444-2222-2222-2222-222222222222");
-        seedData.put("CopyNumberTenTeamUUID", "44444444-2222-2222-2222-222222222222");
-
-        return seedData;
     }
 }

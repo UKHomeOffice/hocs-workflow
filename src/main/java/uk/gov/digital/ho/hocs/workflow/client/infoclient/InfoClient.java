@@ -10,7 +10,6 @@ import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
 import java.time.LocalDate;
-import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -38,9 +37,12 @@ public class InfoClient {
         return response.getBody();
     }
 
-    public Set<InfoNominatedPeople> getNominatedPeople(UUID teamUUID) {
-        ResponseEntity<InfoGetNominatedPeopleResponse> response = restHelper.get(serviceBaseURL, String.format("/nominatedpeople/%s", teamUUID), InfoGetNominatedPeopleResponse.class);
-        return response.getBody().getNominatedPeople();
+    public UUID getTeam(String stageType) {
+        // TODO:
+        return UUID.fromString("44444444-2222-2222-2222-222222222222");
+        //ResponseEntity<UUID> response = restHelper.get(serviceBaseURL, String.format("/stagetype/%s/team", stageType), UUID.class);
+        //return response.getBody();
     }
+
 
 }

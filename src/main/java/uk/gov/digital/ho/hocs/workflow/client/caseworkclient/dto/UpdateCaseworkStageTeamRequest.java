@@ -18,9 +18,13 @@ public class UpdateCaseworkStageTeamRequest {
     @JsonProperty("teamUUID")
     private UUID teamUUID;
 
-    public UpdateCaseworkStageTeamRequest(UUID caseUUID, UUID stageUUID, UUID teamUUID) {
+    @JsonProperty("allocationType")
+    private String allocationType;
+
+    public UpdateCaseworkStageTeamRequest(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {
         this.caseUUID = caseUUID;
         this.stageUUID = stageUUID;
         this.teamUUID = teamUUID;
+        this.allocationType = allocationType;
     }
 }
