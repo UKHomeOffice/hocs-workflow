@@ -34,11 +34,12 @@
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="MarkupUUID" />
         <camunda:in sourceExpression="DCU_TRO_MARKUP" target="StageType" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_0767qhb</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_10i82hu</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_19obfkm</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_18mb2fq</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1ii85y3</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0br3a39</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0occ9ef</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1kbehe7</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="Task_0wqz5qj" name="Transfer Confirmation" calledElement="STAGE">
@@ -48,9 +49,9 @@
         <camunda:out source="TransferConfirmation" target="TransferConfirmation" />
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in variables="all" />
-        <camunda:out source="TransferConfirmation" target="NoReplyNeededConfirmation" />
         <camunda:out source="StageUUID" target="TransferConfirmationUUID" />
         <camunda:in sourceExpression="DCU_TRO_TRANSFER_CONFIRMATION" target="StageType" />
+        <camunda:out sourceExpression="${execution.getVariable(TransferConfirmation) == &#34;REJECT&#34; ?  &#34;TRANSFER_OGD_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_058p133</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1h7ckog</bpmn:outgoing>
@@ -63,9 +64,10 @@
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="DataInputUUID" />
         <camunda:out source="DateReceived" target="DateReceived" />
-        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
         <camunda:out source="CopyNumberTen_TRUE" target="CopyNumberTen_TRUE" />
         <camunda:in sourceExpression="DCU_TRO_DATA_INPUT" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1pepep6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_18mb2fq</bpmn:outgoing>
@@ -79,14 +81,14 @@
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="InitialDraftUUID" />
-        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
         <camunda:out source="ResponseChannel" target="ResponseChannel" />
         <camunda:out source="OfflineQA" target="OfflineQA" />
         <camunda:in sourceExpression="DCU_TRO_INITIAL_DRAFT" target="StageType" />
+        <camunda:out sourceExpression="${execution.getVariable(&#34;InitialDraftDecision&#34;) == &#34;REJECT&#34; ?  &#34;INITIAL_DRAFT_REJECT&#34; : execution.getVariable(&#34;OfflineQA&#34;) == &#34;TRUE&#34; ? &#34;ALLOCATE_PRIVATE_OFFICE&#34; : &#34;ALLOCATE_TEAM&#34; }" target="EmailType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_04i3gn3</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_16iu19n</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0n82rkh</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_094as2e</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1fy5blc</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1no0ocj</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:exclusiveGateway id="ExclusiveGateway_1wtjsxs">
@@ -95,7 +97,7 @@
       <bpmn:outgoing>SequenceFlow_0hodmse</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1no0ocj" sourceRef="CallActivity_1ket68y" targetRef="ExclusiveGateway_1wtjsxs" />
-    <bpmn:sequenceFlow id="SequenceFlow_0occ9ef" name="REJECT" sourceRef="ExclusiveGateway_1wtjsxs" targetRef="ServiceTask_0alvkso">
+    <bpmn:sequenceFlow id="SequenceFlow_0occ9ef" name="REJECT" sourceRef="ExclusiveGateway_1wtjsxs" targetRef="Task_1grynar">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${InitialDraftDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_0ttmlei" name="No Reply Needed Confirmation" calledElement="STAGE">
@@ -105,9 +107,9 @@
         <camunda:out source="NoReplyNeededConfirmation" target="NoReplyNeededConfirmation" />
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in variables="all" />
-        <camunda:out source="NoReplyNeededConfirmation" target="TransferConfirmation" />
         <camunda:out source="StageUUID" target="NoReplyNeededUUID" />
         <camunda:in sourceExpression="DCU_TRO_NO_REPLY_NEEDED_CONFIRMATION" target="StageType" />
+        <camunda:out sourceExpression="${execution.getVariable(NoReplyNeededConfirmation) == &#34;REJECT&#34; ?  &#34;NRN_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0lq9cg0</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1bi7lza</bpmn:outgoing>
@@ -126,8 +128,8 @@
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="QAResponseUUID" />
-        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
         <camunda:in sourceExpression="DCU_TRO_QA_RESPONSE" target="StageType" />
+        <camunda:out sourceExpression="${execution.getVariable(QAResponseDecision) == &#34;REJECT&#34; ?  &#34;QA_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0e38st4</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1gic80p</bpmn:outgoing>
@@ -138,7 +140,7 @@
       <bpmn:outgoing>SequenceFlow_0y1hwz5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1gic80p" sourceRef="CallActivity_151mthq" targetRef="ExclusiveGateway_1asbwik" />
-    <bpmn:sequenceFlow id="SequenceFlow_094as2e" name="REJECT" sourceRef="ExclusiveGateway_1asbwik" targetRef="ServiceTask_1nwyw0c">
+    <bpmn:sequenceFlow id="SequenceFlow_094as2e" name="REJECT" sourceRef="ExclusiveGateway_1asbwik" targetRef="CallActivity_1ket68y">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QAResponseDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_1rowgu5" name="Dispatch" calledElement="STAGE">
@@ -149,8 +151,8 @@
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="DispatchUUID" />
-        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
         <camunda:in sourceExpression="DCU_TRO_DISPATCH" target="StageType" />
+        <camunda:out sourceExpression="${execution.getVariable(DispatchDecision) == &#34;REJECT&#34; ?  &#34;DISPATCH_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0y1hwz5</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1p4ijz3</bpmn:outgoing>
@@ -164,7 +166,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0hrswjv" name="ACCEPT" sourceRef="ExclusiveGateway_19ar4c1" targetRef="ExclusiveGateway_03dipct">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1fy5blc" name="REJECT" sourceRef="ExclusiveGateway_19ar4c1" targetRef="ServiceTask_1mz9cpm">
+    <bpmn:sequenceFlow id="SequenceFlow_1fy5blc" name="REJECT" sourceRef="ExclusiveGateway_19ar4c1" targetRef="CallActivity_1ket68y">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1bi7lza" sourceRef="CallActivity_0ttmlei" targetRef="ExclusiveGateway_0aomnup" />
@@ -174,7 +176,7 @@
       <bpmn:outgoing>SequenceFlow_0tcxf89</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1h7ckog" sourceRef="Task_0wqz5qj" targetRef="ExclusiveGateway_1dfo58w" />
-    <bpmn:sequenceFlow id="SequenceFlow_1ii85y3" sourceRef="ExclusiveGateway_0aomnup" targetRef="ServiceTask_139k2kz">
+    <bpmn:sequenceFlow id="SequenceFlow_1ii85y3" sourceRef="ExclusiveGateway_0aomnup" targetRef="Task_1grynar">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${NoReplyNeededConfirmation == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0tcxf89" sourceRef="ExclusiveGateway_0aomnup" targetRef="DCU_TRO_END">
@@ -203,21 +205,6 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CopyNumberTen_TRUE == "true"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_163tdrh" sourceRef="Task_0fmrvz6" targetRef="DCU_TRO_END" />
-    <bpmn:serviceTask id="ServiceTask_0alvkso" name="Send Email" camunda:expression="${bpmnService.sendEmail(execution.processBusinessKey, execution.getVariable(&#34;CaseReference&#34;),MarkupUUID, MarkupTeamUUID, &#34;INITIAL_DRAFT_REJECT&#34;)}">
-      <bpmn:incoming>SequenceFlow_0occ9ef</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0767qhb</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0767qhb" sourceRef="ServiceTask_0alvkso" targetRef="Task_1grynar" />
-    <bpmn:serviceTask id="ServiceTask_1nwyw0c" name="Send Email" camunda:expression="${bpmnService.sendEmail(execution.processBusinessKey, execution.getVariable(&#34;CaseReference&#34;),InitialDraftUUID, InitialDraftTeamUUID, &#34;QA_REJECT&#34;)}">
-      <bpmn:incoming>SequenceFlow_094as2e</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_16iu19n</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_16iu19n" sourceRef="ServiceTask_1nwyw0c" targetRef="CallActivity_1ket68y" />
-    <bpmn:serviceTask id="ServiceTask_1mz9cpm" name="Send Email" camunda:expression="${bpmnService.sendEmail(execution.processBusinessKey, execution.getVariable(&#34;CaseReference&#34;), InitialDraftUUID, InitialDraftTeamUUID, &#34;DISPATCH_REJECT&#34;)}">
-      <bpmn:incoming>SequenceFlow_1fy5blc</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0n82rkh</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0n82rkh" sourceRef="ServiceTask_1mz9cpm" targetRef="CallActivity_1ket68y" />
     <bpmn:callActivity id="Task_0fmrvz6" name="Copy Number Ten" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in businessKey="#{execution.processBusinessKey}" />
@@ -226,6 +213,7 @@
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="CopyNumberTenUUID" />
         <camunda:in sourceExpression="DCU_TRO_COPY_NUMBER_TEN" target="StageType" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0y4nfck</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_163tdrh</bpmn:outgoing>
@@ -235,22 +223,12 @@
       <bpmn:outgoing>SequenceFlow_0br3a39</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_18o5t1m</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_0br3a39" sourceRef="ExclusiveGateway_1dfo58w" targetRef="ServiceTask_0r7sayr">
+    <bpmn:sequenceFlow id="SequenceFlow_0br3a39" sourceRef="ExclusiveGateway_1dfo58w" targetRef="Task_1grynar">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_18o5t1m" sourceRef="ExclusiveGateway_1dfo58w" targetRef="DCU_TRO_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="ServiceTask_0r7sayr" name="Send Email" camunda:expression="${bpmnService.sendEmail(execution.processBusinessKey, execution.getVariable(&#34;CaseReference&#34;),MarkupUUID, MarkupTeamUUID, &#34;TRANSFER_OGD_REJECT&#34;)}">
-      <bpmn:incoming>SequenceFlow_0br3a39</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_10i82hu</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_10i82hu" sourceRef="ServiceTask_0r7sayr" targetRef="Task_1grynar" />
-    <bpmn:serviceTask id="ServiceTask_139k2kz" name="Send Email" camunda:expression="${bpmnService.sendEmail(execution.processBusinessKey, execution.getVariable(&#34;CaseReference&#34;),MarkupUUID, MarkupTeamUUID, &#34;NRN_REJECT&#34;)}">
-      <bpmn:incoming>SequenceFlow_1ii85y3</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_19obfkm</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_19obfkm" sourceRef="ServiceTask_139k2kz" targetRef="Task_1grynar" />
     <bpmn:sequenceFlow id="SequenceFlow_0y1hwz5" name="ACCEPT" sourceRef="ExclusiveGateway_1asbwik" targetRef="CallActivity_1rowgu5">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QAResponseDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -339,9 +317,10 @@
       <bpmndi:BPMNEdge id="SequenceFlow_0occ9ef_di" bpmnElement="SequenceFlow_0occ9ef">
         <di:waypoint x="2729" y="595" />
         <di:waypoint x="2729" y="448" />
-        <di:waypoint x="2603" y="448" />
+        <di:waypoint x="1889" y="448" />
+        <di:waypoint x="1889" y="580" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2732" y="541" width="43" height="12" />
+          <dc:Bounds x="2732" y="541" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="CallActivity_0ttmlei_di" bpmnElement="CallActivity_0ttmlei">
@@ -381,9 +360,10 @@
       <bpmndi:BPMNEdge id="SequenceFlow_094as2e_di" bpmnElement="SequenceFlow_094as2e">
         <di:waypoint x="3389" y="645" />
         <di:waypoint x="3389" y="741" />
-        <di:waypoint x="2930" y="741" />
+        <di:waypoint x="2553" y="741" />
+        <di:waypoint x="2553" y="660" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="3392" y="691" width="43" height="12" />
+          <dc:Bounds x="3392" y="691" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="CallActivity_1rowgu5_di" bpmnElement="CallActivity_1rowgu5">
@@ -412,9 +392,10 @@
       <bpmndi:BPMNEdge id="SequenceFlow_1fy5blc_di" bpmnElement="SequenceFlow_1fy5blc">
         <di:waypoint x="4428" y="645" />
         <di:waypoint x="4428" y="851" />
-        <di:waypoint x="4314" y="851" />
+        <di:waypoint x="2553" y="851" />
+        <di:waypoint x="2553" y="660" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="4382" y="715.3350253807107" width="43" height="12" />
+          <dc:Bounds x="4375" y="666" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1bi7lza_di" bpmnElement="SequenceFlow_1bi7lza">
@@ -441,7 +422,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1ii85y3_di" bpmnElement="SequenceFlow_1ii85y3">
         <di:waypoint x="2167" y="1058" />
-        <di:waypoint x="2088" y="1058" />
+        <di:waypoint x="1889" y="1058" />
+        <di:waypoint x="1889" y="660" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2082.5" y="1033" width="90" height="20" />
         </bpmndi:BPMNLabel>
@@ -504,39 +486,6 @@
           <dc:Bounds x="4663" y="716" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_0alvkso_di" bpmnElement="ServiceTask_0alvkso">
-        <dc:Bounds x="2503" y="408" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0767qhb_di" bpmnElement="SequenceFlow_0767qhb">
-        <di:waypoint x="2503" y="448" />
-        <di:waypoint x="1889" y="448" />
-        <di:waypoint x="1889" y="580" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2151" y="426.5" width="90" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_1nwyw0c_di" bpmnElement="ServiceTask_1nwyw0c">
-        <dc:Bounds x="2830" y="701" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_16iu19n_di" bpmnElement="SequenceFlow_16iu19n">
-        <di:waypoint x="2830" y="741" />
-        <di:waypoint x="2553" y="741" />
-        <di:waypoint x="2553" y="660" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2647" y="719" width="90" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_1mz9cpm_di" bpmnElement="ServiceTask_1mz9cpm">
-        <dc:Bounds x="4214" y="811" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0n82rkh_di" bpmnElement="SequenceFlow_0n82rkh">
-        <di:waypoint x="4214" y="851" />
-        <di:waypoint x="2553" y="851" />
-        <di:waypoint x="2553" y="660" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="3338.5" y="829.5" width="90" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="CallActivity_19tslos_di" bpmnElement="Task_0fmrvz6">
         <dc:Bounds x="4509" y="701" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -548,7 +497,8 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0br3a39_di" bpmnElement="SequenceFlow_0br3a39">
         <di:waypoint x="2370" y="1171" />
-        <di:waypoint x="2088" y="1171" />
+        <di:waypoint x="1889" y="1171" />
+        <di:waypoint x="1889" y="660" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2229" y="1149.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
@@ -559,28 +509,6 @@
         <di:waypoint x="4807" y="638" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="3613.5" y="1149.5" width="0" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_0r7sayr_di" bpmnElement="ServiceTask_0r7sayr">
-        <dc:Bounds x="1988" y="1131" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_10i82hu_di" bpmnElement="SequenceFlow_10i82hu">
-        <di:waypoint x="1988" y="1171" />
-        <di:waypoint x="1889" y="1171" />
-        <di:waypoint x="1889" y="660" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1938.5" y="1149.5" width="0" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_139k2kz_di" bpmnElement="ServiceTask_139k2kz">
-        <dc:Bounds x="1988" y="1018" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_19obfkm_di" bpmnElement="SequenceFlow_19obfkm">
-        <di:waypoint x="1988" y="1058" />
-        <di:waypoint x="1889" y="1058" />
-        <di:waypoint x="1889" y="660" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1938.5" y="1036" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0y1hwz5_di" bpmnElement="SequenceFlow_0y1hwz5">

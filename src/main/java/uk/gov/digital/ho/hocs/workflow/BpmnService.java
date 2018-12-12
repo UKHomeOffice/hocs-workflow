@@ -46,16 +46,4 @@ public class BpmnService {
         log.debug("######## Updated Stage ########");
     }
 
-    public void sendEmail(String caseUUIDString, String caseRef, String stageUUIDString, String teamUUIDString, Object notifyType) {
-        // Commented out while we remove this call from the other BPMNs
-        //emailService.sendEmail(caseUUIDString,caseRef,stageUUIDString, teamUUIDString, notifyType);
-        log.debug("######## Sent {} Email ########", notifyType);
-    }
-
-    public void addCaseNote(String caseUUIDString, String caseNote){
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        caseworkClient.createCaseNote(caseUUID, caseNote, CaseNoteType.MANUAL);
-        log.debug("######## Added case note ########");
-    }
-
 }

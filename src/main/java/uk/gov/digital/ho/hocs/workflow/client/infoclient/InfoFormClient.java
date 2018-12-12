@@ -395,6 +395,8 @@ public class InfoFormClient {
 
 
     private HocsForm getSetPrimaryCorrespondent() {
+        List<String> validationList = new ArrayList<>();
+        validationList.add("required");
 
         Map<String, Object> properties9 = new HashMap<>();
         properties9.put("name", "Correspondents");
@@ -405,7 +407,7 @@ public class InfoFormClient {
         properties9.put("hasAddLink", true);
         properties9.put("choices", "CASE_CORRESPONDENTS");
 
-        HocsFormField fieldNine = new HocsFormField("entity-list", new ArrayList<>(), properties9);
+        HocsFormField fieldNine = new HocsFormField("entity-list", validationList, properties9);
 
         List<HocsFormField> formFields = new ArrayList<>();
 
