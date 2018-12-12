@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
   <bpmn:process id="DCU_DTEN_PRIVATE_OFFICE" isExecutable="true">
     <bpmn:startEvent id="DCU_DTEN_PRIVATE_OFFICE_START" name="Start Stage">
       <bpmn:outgoing>SequenceFlow_0tk7wiu</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="DCU_DTEN_PRIVATE_OFFICE_END" name="End Stage">
       <bpmn:incoming>SequenceFlow_1c1ha21</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0h4gxry</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_054gtv4</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0tk7wiu" sourceRef="DCU_DTEN_PRIVATE_OFFICE_START" targetRef="ServiceTask_0te5zh0" />
     <bpmn:serviceTask id="ServiceTask_0te5zh0" name="Approve Private Office" camunda:expression="APPROVE_PRIVATE_OFFICE_DTEN" camunda:resultVariable="screen">
@@ -50,10 +50,6 @@
       <bpmn:outgoing>SequenceFlow_0va9x39</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_054gtv4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="ServiceTask_0yyuxuh" name="Add Case Note" camunda:expression="${bpmnService.addCaseNote(CaseUUID,CaseNote_RejectionNote)}">
-      <bpmn:incoming>SequenceFlow_054gtv4</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0h4gxry</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_0c0b21h" name="REJECT" sourceRef="ExclusiveGateway_1i29zz4" targetRef="ServiceTask_0x8k4ex">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PrivateOfficeDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -62,13 +58,12 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0wl4a7x" sourceRef="ServiceTask_0x8k4ex" targetRef="UserTask_0l1q0db" />
     <bpmn:sequenceFlow id="SequenceFlow_058szbq" sourceRef="UserTask_0l1q0db" targetRef="ExclusiveGateway_1sxuqa2" />
-    <bpmn:sequenceFlow id="SequenceFlow_054gtv4" sourceRef="ExclusiveGateway_1sxuqa2" targetRef="ServiceTask_0yyuxuh">
+    <bpmn:sequenceFlow id="SequenceFlow_054gtv4" sourceRef="ExclusiveGateway_1sxuqa2" targetRef="DCU_DTEN_PRIVATE_OFFICE_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1c1ha21" name="ACCEPT" sourceRef="ExclusiveGateway_1i29zz4" targetRef="DCU_DTEN_PRIVATE_OFFICE_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PrivateOfficeDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0h4gxry" sourceRef="ServiceTask_0yyuxuh" targetRef="DCU_DTEN_PRIVATE_OFFICE_END" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_DTEN_PRIVATE_OFFICE">
@@ -139,9 +134,6 @@
           <dc:Bounds x="900" y="519" width="0" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_0yyuxuh_di" bpmnElement="ServiceTask_0yyuxuh">
-        <dc:Bounds x="1099" y="454" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0c0b21h_di" bpmnElement="SequenceFlow_0c0b21h">
         <di:waypoint x="825" y="228" />
         <di:waypoint x="825" y="383" />
@@ -174,7 +166,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_054gtv4_di" bpmnElement="SequenceFlow_054gtv4">
         <di:waypoint x="1015" y="494" />
-        <di:waypoint x="1099" y="494" />
+        <di:waypoint x="1891" y="494" />
+        <di:waypoint x="1891" y="221" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1057" y="472.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
@@ -184,14 +177,6 @@
         <di:waypoint x="1873" y="203" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="898" y="181" width="45" height="13" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0h4gxry_di" bpmnElement="SequenceFlow_0h4gxry">
-        <di:waypoint x="1199" y="494" />
-        <di:waypoint x="1891" y="494" />
-        <di:waypoint x="1891" y="221" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1500" y="472.5" width="90" height="13" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

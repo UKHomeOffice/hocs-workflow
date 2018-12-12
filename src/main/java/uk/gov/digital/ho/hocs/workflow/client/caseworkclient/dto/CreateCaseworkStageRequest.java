@@ -20,4 +20,7 @@ public class CreateCaseworkStageRequest {
 
     @JsonProperty("deadline")
     private LocalDate deadline;
+
+    @JsonProperty("allocationType")
+    private String allocationType;
 }

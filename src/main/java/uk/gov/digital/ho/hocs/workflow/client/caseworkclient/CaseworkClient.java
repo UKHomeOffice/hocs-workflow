@@ -89,8 +89,8 @@ public class CaseworkClient {
         }
     }
 
-    public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID , LocalDate deadline) {
-        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, deadline);
+    public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID , LocalDate deadline, String allocationType) {
+        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, deadline, allocationType);
         ResponseEntity<CreateCaseworkStageResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         if (response.getStatusCodeValue() == 200) {
             log.info("Created Stage: {} for Case {}", response.getBody().getUuid(), caseUUID);
@@ -100,8 +100,8 @@ public class CaseworkClient {
         }
     }
 
-    public void updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID) {
-        UpdateCaseworkStageTeamRequest request = new UpdateCaseworkStageTeamRequest(caseUUID, stageUUID, teamUUID);
+    public void updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {
+        UpdateCaseworkStageTeamRequest request = new UpdateCaseworkStageTeamRequest(caseUUID, stageUUID, teamUUID, allocationType);
 
         try {
             producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
