@@ -45,10 +45,6 @@ public class CamundaClient {
         log.info("Completed task for key: '{}'", key);
     }
 
-    public void completeTask(UUID key) {
-        completeTask(key, new HashMap<>());
-    }
-
     public String getStageScreenName(UUID stageUUID) {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
         log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName);

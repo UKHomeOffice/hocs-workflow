@@ -43,7 +43,6 @@ public class CaseworkClient {
         this.objectMapper = objectMapper;
     }
 
-  
     public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType, Map<String, String> data, LocalDate dateReceived, LocalDate deadline) {
         CaseType caseType = new CaseType(caseDataType.getDisplayCode(), caseDataType.getValue());
         CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseType, data, dateReceived, deadline);
@@ -56,14 +55,14 @@ public class CaseworkClient {
         }
     }
 
-    public void updateCase(UUID caseUUID, Map<String, String> data) {
-        UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(caseUUID, data);
+    public void updateCase(UUID caseUUID, UUID stageUUID, Map<String, String> data) {
+        UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
+        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID) , request, String.class);
 
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Set Input Data for Case {}", caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Set Case Data for Case {}", caseUUID);
+        } else {
+            throw new EntityCreationException("Could not Update Case; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -102,23 +101,11 @@ public class CaseworkClient {
 
     public void updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {
         UpdateCaseworkStageTeamRequest request = new UpdateCaseworkStageTeamRequest(caseUUID, stageUUID, teamUUID, allocationType);
-
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Updated User for Stage {} for case {}", stageUUID, caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
-        }
-    }
-
-    public void completeStage(UUID caseUUID, UUID stageUUID) {
-        CompleteCaseworkStageRequest request = new CompleteCaseworkStageRequest(caseUUID,stageUUID);
-
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Updated User for Stage {} for case {}", stageUUID, caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not set Input Data: %s", e.toString());
+        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), request, String.class);
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Updated Team {} on Stage: {} for Case {}", teamUUID, stageUUID, caseUUID);
+        } else {
+            throw new EntityCreationException("Could not create Stage; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -143,16 +130,4 @@ public class CaseworkClient {
             throw new EntityNotFoundException("Could not get Stage Team; response: %s", response.getStatusCodeValue());
         }
     }
-
-    public void createCaseNote(UUID caseUUID, String caseNote, CaseNoteType caseNoteType) {
-        log.info("caseUUID {}, case note - {}", caseUUID,caseNote);
-        AddCaseworkCaseNoteDataRequest request = new AddCaseworkCaseNoteDataRequest(caseUUID, caseNote, caseNoteType);
-        try {
-            producerTemplate.sendBody(caseQueue, objectMapper.writeValueAsString(request));
-            log.info("Set Case Note Data for Case {}", caseUUID);
-        } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not set Case Note Data: %s", e.toString());
-        }
-    }
-
 }

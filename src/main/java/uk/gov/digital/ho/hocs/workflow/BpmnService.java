@@ -42,7 +42,7 @@ public class BpmnService {
     }
 
     public void completeStage(String caseUUIDString, String stageUUIDString) {
-        caseworkClient.completeStage(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString));
+        caseworkClient.updateStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), null, null);
         log.debug("######## Updated Stage ########");
     }
 
