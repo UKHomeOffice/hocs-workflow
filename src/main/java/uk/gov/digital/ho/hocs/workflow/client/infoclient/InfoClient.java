@@ -38,8 +38,8 @@ public class InfoClient {
     }
 
     public UUID getTeam(String stageType) {
-        ResponseEntity<UUID> response = restHelper.get(serviceBaseURL, String.format("/stagetype/%s/team", stageType), UUID.class);
-        return response.getBody();
+        ResponseEntity<TeamDto> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType),  TeamDto.class);
+        return response.getBody().getUuid();
     }
 
 
