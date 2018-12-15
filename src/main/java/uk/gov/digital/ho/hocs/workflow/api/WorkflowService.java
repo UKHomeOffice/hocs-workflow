@@ -99,8 +99,8 @@ public class WorkflowService {
     GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: validate Form
         values.put("valid", "true");
+        caseworkClient.updateCase(caseUUID, stageUUID, values);
         camundaClient.completeTask(stageUUID, values);
-        caseworkClient.updateCase(caseUUID, values);
 
         return getStage(caseUUID, stageUUID);
     }

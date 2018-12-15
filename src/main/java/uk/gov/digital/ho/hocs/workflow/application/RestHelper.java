@@ -31,6 +31,10 @@ public class RestHelper {
         return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.POST, new HttpEntity<>(request, createAuthHeaders()), responseType);
     }
 
+    public <T,R> ResponseEntity<R> put(String serviceBaseURL, String url, T request, Class<R> responseType) {
+        return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.PUT, new HttpEntity<>(request, createAuthHeaders()), responseType);
+    }
+
     public <T,R> ResponseEntity<R> get(String serviceBaseURL, String url, Class<R> responseType) {
         return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
     }
