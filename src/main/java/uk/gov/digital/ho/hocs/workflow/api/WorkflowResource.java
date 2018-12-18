@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.security.Allocated;
+import uk.gov.digital.ho.hocs.workflow.security.AllocationLevel;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +48,7 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
+    @Allocated(allocatedTo = AllocationLevel.USER)
     @GetMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) {
         GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
