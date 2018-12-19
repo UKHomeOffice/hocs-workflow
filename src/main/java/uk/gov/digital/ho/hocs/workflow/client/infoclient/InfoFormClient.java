@@ -144,7 +144,7 @@ public class InfoFormClient {
         formFields.add(fieldOne);
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondence Details", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Record Correspondence Details", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -203,7 +203,7 @@ public class InfoFormClient {
         formFields.add(fieldTwo);
         formFields.add(fieldOne);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondence Details", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema( "Record Correspondence Details", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -232,7 +232,7 @@ public class InfoFormClient {
         formFields.add(fieldTen);
         formFields.add(fieldThree);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Correspondent Full Name", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Correspondent Full Name", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -351,7 +351,7 @@ public class InfoFormClient {
         formFields.add(fieldSix);
         formFields.add(fieldEleven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondent Details", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Record Correspondent Details", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -385,7 +385,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
 
         formFields.add(fieldFour);
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondent Details", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Record Correspondent Details", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -412,7 +412,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
 
         formFields.add(fieldNine);
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Record Correspondence Details", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Record Correspondence Details", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -446,7 +446,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Transfer Confirmation", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema( "Transfer Confirmation", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -480,7 +480,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "No Reply Needed Confirmation", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("No Reply Needed Confirmation", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -520,7 +520,7 @@ public class InfoFormClient {
         formFields.add(fieldFour);
         formFields.add(fieldFive);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Drafting Team Decision", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -563,7 +563,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Markup Decision", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Markup Decision", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -598,7 +598,7 @@ public class InfoFormClient {
         formFields.add(fieldFive);
         formFields.add(fieldSix);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Answering", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Answering", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -620,7 +620,7 @@ public class InfoFormClient {
 
         formFields.add(fieldSix);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Change Minister", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Change Minister", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -640,7 +640,7 @@ public class InfoFormClient {
         List<HocsFormField> fields = new ArrayList<>();
         fields.add(dropDown);
 
-        HocsSchema schema = new HocsSchema(HocsFormAction.SUBMIT, "Owning Member", "Continue", fields);
+        HocsSchema schema = new HocsSchema("Owning Member", "Continue", fields);
 
         HocsForm form1 = new HocsForm(schema);
         return form1;
@@ -667,7 +667,7 @@ public class InfoFormClient {
         formFields.add(fieldTwo);
         formFields.add(fieldThree);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Deadlines", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Deadlines", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -694,7 +694,7 @@ public class InfoFormClient {
         formFields.add(fieldSeven);
 
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Drafting Team Decision", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -715,7 +715,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Decision", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Decision", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -736,7 +736,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Decision", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Decision", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -759,7 +759,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, title + " Note", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema(title + " Note", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -785,7 +785,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldSeven);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Topics", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Topics", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -824,7 +824,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Initial Decision", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Initial Decision", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -865,7 +865,7 @@ public class InfoFormClient {
         formFields.add(fieldFour);
         formFields.add(fieldFive);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Drafting Team Decision", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Drafting Team Decision", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -907,7 +907,7 @@ public class InfoFormClient {
 
 
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Draft a Response", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Draft a Response", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -942,7 +942,7 @@ public class InfoFormClient {
         formFields.add(fieldFour);
 
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Offline QA Decision", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema( "Offline QA Decision", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -953,7 +953,7 @@ public class InfoFormClient {
 
         List<HocsFormField> formFields = new ArrayList<>();
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Offline QA Details", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("Offline QA Details", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -993,7 +993,7 @@ public class InfoFormClient {
         formFields.add(fieldFour);
         formFields.add(fieldFive);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "QA Response", "Continue", formFields);
+        HocsSchema schema1 = new HocsSchema("QA Response", "Continue", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -1032,7 +1032,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Private Office Sign Off", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Private Office Sign Off", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -1066,7 +1066,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Private Office Sign Off", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Private Office Sign Off", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -1106,7 +1106,7 @@ public class InfoFormClient {
         formFields.add(signOffMinister);
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Minister Sign Off", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Minister Sign Off", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -1140,7 +1140,7 @@ public class InfoFormClient {
         List<HocsFormField> formFields = new ArrayList<>();
         formFields.add(fieldFour);
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Dispatch", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Dispatch", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 
@@ -1151,7 +1151,7 @@ public class InfoFormClient {
 
         List<HocsFormField> formFields = new ArrayList<>();
 
-        HocsSchema schema1 = new HocsSchema(HocsFormAction.SUBMIT, "Dispatched", "Finish", formFields);
+        HocsSchema schema1 = new HocsSchema("Dispatched", "Finish", formFields);
 
         HocsForm form1 = new HocsForm(schema1);
 

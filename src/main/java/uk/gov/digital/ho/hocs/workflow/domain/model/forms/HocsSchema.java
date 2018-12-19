@@ -8,9 +8,6 @@ import java.util.List;
 @AllArgsConstructor
 public class HocsSchema {
 
-    @JsonProperty("action")
-    public HocsFormAction action;
-
     @JsonProperty("title")
     public String title;
 
