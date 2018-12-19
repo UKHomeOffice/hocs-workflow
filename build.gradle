@@ -1,7 +1,7 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.0.RELEASE'
-		camelVersion = '2.22.2'
+		springBootVersion = '2.1.1.RELEASE'
+		camelVersion = '2.23.0'
 	}
 	repositories {
 		mavenCentral()
@@ -36,36 +36,32 @@ repositories {
 
 dependencyManagement {
 	imports {
-		mavenBom 'org.camunda.bpm:camunda-bom:7.9.0'
+		mavenBom 'org.camunda.bpm:camunda-bom:7.10.0'
 	}
 }
 
 dependencies {
-	compile("org.springframework.boot:spring-boot-starter-web") {
-		exclude module: "spring-boot-starter-tomcat"
+
+	implementation('org.springframework.boot:spring-boot-starter-web') {
+		exclude(module: 'spring-boot-starter-tomcat')
 	}
+	implementation('org.springframework.boot:spring-boot-starter-undertow')
+	implementation('org.springframework.boot:spring-boot-starter-actuator')
+	implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+	implementation('org.springframework.boot:spring-boot-starter-json')
+	implementation('org.springframework.boot:spring-boot-starter-cache')
+	implementation("org.apache.camel:camel-spring-boot-starter:${camelVersion}")
+	implementation('com.github.ben-manes.caffeine:caffeine')
+	implementation('com.amazonaws:aws-java-sdk:1.11.470')
 
-	compile('org.springframework.boot:spring-boot-starter-actuator')
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('org.springframework.boot:spring-boot-starter-json')
-	compile('org.springframework.boot:spring-boot-starter-undertow')
+	implementation('net.logstash.logback:logstash-logback-encoder:5.2')
 
-	compile('net.logstash.logback:logstash-logback-encoder:5.2')
+	implementation('org.camunda.bpm:camunda-engine-spring:7.10.0')
 
-	compile group: 'org.apache.camel', name: 'camel-spring-boot', version: camelVersion
-	compile group: 'org.apache.camel', name: 'camel-jackson', version: camelVersion
-	compile group: 'org.apache.camel', name: 'camel-aws', version: camelVersion
-	compile group: 'org.apache.camel', name: 'camel-http4', version: camelVersion
-	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.6'
-	compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.455'
-
-	compile ('org.camunda.bpm:camunda-engine-spring:7.9.0')
-
-	runtime('org.postgresql:postgresql')
-
+	runtimeOnly('org.postgresql:postgresql')
 	compileOnly('org.projectlombok:lombok')
 
-	testCompile group: 'org.apache.camel', name: 'camel-test-spring', version: camelVersion
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.assertj:assertj-core')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	testImplementation("org.apache.camel:camel-test-spring:${camelVersion}")
+	testImplementation('org.assertj:assertj-core')
 }
