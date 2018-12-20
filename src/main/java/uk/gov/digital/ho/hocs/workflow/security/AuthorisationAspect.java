@@ -27,7 +27,6 @@ public class AuthorisationAspect {
 
     @Around("@annotation(authorised)")
     public Object validateUserAccess(ProceedingJoinPoint joinPoint, Authorised authorised) throws Throwable {
-
         if (getUserAccessLevel(joinPoint).getLevel() >= getRequiredAccessLevel(authorised).getLevel()) {
             return joinPoint.proceed();
         } else {
