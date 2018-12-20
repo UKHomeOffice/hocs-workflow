@@ -13,7 +13,6 @@ import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkD
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.ProcessDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.model.DocumentType;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
 
 import java.util.UUID;
 

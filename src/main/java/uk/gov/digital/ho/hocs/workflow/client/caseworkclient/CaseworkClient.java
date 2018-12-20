@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
@@ -10,8 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityNotFoundException;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 
 import java.time.LocalDate;
@@ -51,7 +49,7 @@ public class CaseworkClient {
             log.info("Created Case {}, {}", response.getBody().getUuid(), response.getBody().getReference());
             return response.getBody();
         } else {
-            throw new EntityCreationException("Could not create Case; response: %s ", response.getStatusCodeValue());
+            throw new ApplicationExceptions.EntityCreationException("Could not create Case; response: %s ", response.getStatusCodeValue());
         }
     }
 
@@ -62,7 +60,7 @@ public class CaseworkClient {
         if (response.getStatusCodeValue() == 200) {
             log.info("Set Case Data for Case {}", caseUUID);
         } else {
-            throw new EntityCreationException("Could not Update Case; response: %s", response.getStatusCodeValue());
+            throw new ApplicationExceptions.EntityCreationException("Could not Update Case; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -73,7 +71,7 @@ public class CaseworkClient {
             log.info("Got Case: {}", caseUUID);
             return response.getBody();
         } else {
-            throw new EntityNotFoundException("Could not get Case; response: %s", response.getStatusCodeValue());
+            throw new ApplicationExceptions.EntityNotFoundException("Could not get Case; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -84,7 +82,7 @@ public class CaseworkClient {
             log.info("Got Type for Case: {}", caseUUID);
             return response.getBody();
         } else {
-            throw new EntityNotFoundException("Could not get Case Type; response: %s", response.getStatusCodeValue());
+            throw new ApplicationExceptions.EntityNotFoundException("Could not get Case Type; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -95,7 +93,7 @@ public class CaseworkClient {
             log.info("Created Stage: {} for Case {}", response.getBody().getUuid(), caseUUID);
             return response.getBody().getUuid();
         } else {
-            throw new EntityCreationException("Could not create Stage; response: %s", response.getStatusCodeValue());
+            throw new ApplicationExceptions.EntityCreationException("Could not create Stage; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -105,7 +103,7 @@ public class CaseworkClient {
         if (response.getStatusCodeValue() == 200) {
             log.info("Updated Team {} on Stage: {} for Case {}", teamUUID, stageUUID, caseUUID);
         } else {
-            throw new EntityCreationException("Could not create Stage; response: %s", response.getStatusCodeValue());
+            throw new ApplicationExceptions.EntityCreationException("Could not create Stage; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -116,7 +114,7 @@ public class CaseworkClient {
             log.info("Got User for Stage: {} for Case: {}", stageUUID, caseUUID);
             return response.getBody();
         } else {
-            throw new EntityNotFoundException("Could not get Stage User; response: %s", response.getStatusCodeValue());
+            throw new ApplicationExceptions.EntityNotFoundException("Could not get Stage User; response: %s", response.getStatusCodeValue());
         }
     }
 
@@ -127,7 +125,7 @@ public class CaseworkClient {
             log.info("Got Team Stage: {} for Case: {}", stageUUID, caseUUID);
             return response.getBody();
         } else {
-            throw new EntityNotFoundException("Could not get Stage Team; response: %s", response.getStatusCodeValue());
+            throw new ApplicationExceptions.EntityNotFoundException("Could not get Stage Team; response: %s", response.getStatusCodeValue());
         }
     }
 }

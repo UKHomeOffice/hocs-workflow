@@ -25,9 +25,6 @@ public class SpringConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public RestTemplate createRestTemplate() { return new RestTemplate();}
-
-    @Bean
     public ObjectMapper initialiseObjectMapper() {
         ObjectMapper m = new ObjectMapper();
         m.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
@@ -39,14 +36,18 @@ public class SpringConfiguration implements WebMvcConfigurer {
         return m;
     }
 
+    @Bean
+    public RestTemplate createRestTemplate() { return new RestTemplate(); }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(createRequestData());
+    }
+
     @Bean(name = "json-jackson")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public JacksonDataFormat jacksonDataFormat(ObjectMapper objectMapper) {
         return new JacksonDataFormat(objectMapper, Object.class);
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(createRequestData());
-    }
 }

@@ -9,6 +9,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
+
 @Service
 @Slf4j
 public class UserPermissionsService {
@@ -25,7 +27,6 @@ public class UserPermissionsService {
     }
 
     public AccessLevel getMaxAccessLevel(String caseType) {
-
         return getUserPermission()
                 .flatMap(unit -> unit.getValue().values().stream())
                 .flatMap(type -> type.getOrDefault(caseType, new HashSet<>()).stream())
@@ -35,7 +36,6 @@ public class UserPermissionsService {
     }
 
     public Set<AccessLevel> getUserAccessLevels(String caseType) {
-
         return getUserPermission()
                 .flatMap(unit -> unit.getValue().values().stream())
                 .flatMap(type -> type.getOrDefault(caseType, new HashSet<>()).stream())
@@ -81,13 +81,21 @@ public class UserPermissionsService {
             String caseType = Optional.ofNullable(permission[3]).orElseThrow(() -> new SecurityExceptions.PermissionCheckException("Invalid case type Found"));
             String accessLevel = Optional.ofNullable(permission[4]).orElseThrow(() -> new SecurityExceptions.PermissionCheckException("Invalid access type Found"));
 
+            buildPermissions(permissions, unit, team, caseType, accessLevel);
+
+        } catch (SecurityExceptions.PermissionCheckException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private static void buildPermissions(Map<String, Map<String, Map<String, Set<AccessLevel>>>> permissions, String unit, String team, String caseType, String accessLevel) {
+        try{
             permissions.computeIfAbsent(unit, map -> new HashMap<>())
                     .computeIfAbsent(team, map -> new HashMap<>())
                     .computeIfAbsent(caseType, map -> new HashSet<>())
                     .add(AccessLevel.valueOf(accessLevel));
-
-        } catch (SecurityExceptions.PermissionCheckException e) {
-            log.error(e.getMessage());
+        } catch (IllegalArgumentException e){
+            log.error("invalid access level found - {}", accessLevel);
         }
     }
 

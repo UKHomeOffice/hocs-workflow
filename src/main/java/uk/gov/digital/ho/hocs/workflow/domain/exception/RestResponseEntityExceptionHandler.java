@@ -11,16 +11,16 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ControllerAdvice
 @Slf4j
-public class ResourceExceptionHandler {
+public class RestResponseEntityExceptionHandler {
 
-    @ExceptionHandler(EntityCreationException.class)
-    public ResponseEntity handle(EntityCreationException e) {
+    @ExceptionHandler(ApplicationExceptions.EntityCreationException.class)
+    public ResponseEntity handle(ApplicationExceptions.EntityCreationException e) {
         log.error("EntityCreationException: {}", e.getMessage());
         return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity handle(EntityNotFoundException e) {
+    @ExceptionHandler(ApplicationExceptions.EntityNotFoundException.class)
+    public ResponseEntity handle(ApplicationExceptions.EntityNotFoundException e) {
         log.error("EntityNotFoundException: {}", e.getMessage());
         return new ResponseEntity<>(e.getMessage(), NOT_FOUND);
     }

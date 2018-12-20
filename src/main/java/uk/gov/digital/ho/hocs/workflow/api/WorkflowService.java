@@ -10,7 +10,6 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
