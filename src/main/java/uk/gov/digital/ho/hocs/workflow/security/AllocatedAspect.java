@@ -11,6 +11,8 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import java.util.Set;
 import java.util.UUID;
 
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+
 @Aspect
 @Component
 @AllArgsConstructor
@@ -29,10 +31,10 @@ public class AllocatedAspect {
                 caseUUID = (UUID) joinPoint.getArgs()[0];
                 stageUUID = (UUID) joinPoint.getArgs()[1];
             } else {
-                throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters for type " + joinPoint.getArgs()[1].getClass().getName());
+                throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters for type " + joinPoint.getArgs()[1].getClass().getName(), SECURITY_PARSE_ERROR);
             }
         } else {
-            throw new SecurityExceptions.PermissionCheckException("Unable to check permission of method without stage UUID parameter");
+            throw new SecurityExceptions.PermissionCheckException("Unable to check permission of method without stage UUID parameter", SECURITY_PARSE_ERROR);
         }
 
         switch (allocated.allocatedTo()) {
@@ -40,18 +42,18 @@ public class AllocatedAspect {
                 UUID userId = userService.getUserId();
                 UUID assignedUser = caseworkClient.getStageUser(caseUUID, stageUUID);
                 if (!userId.equals(assignedUser)) {
-                    throw new SecurityExceptions.StageNotAssignedToLoggedInUserException("Stage " + stageUUID.toString() + " is assigned to " + assignedUser);
+                    throw new SecurityExceptions.StageNotAssignedToLoggedInUserException("Stage " + stageUUID.toString() + " is assigned to " + assignedUser, SECURITY_CASE_NOT_ALLOCATED_TO_USER);
                 }
                 break;
             case TEAM:
                 Set<UUID> teams = userService.getUserTeams();
                 UUID assignedTeam = caseworkClient.getStageTeam(caseUUID, stageUUID);
                 if (!teams.contains(assignedTeam)) {
-                    throw new SecurityExceptions.StageNotAssignedToUserTeamException("Stage " + stageUUID.toString() + " is assigned to " + assignedTeam);
+                    throw new SecurityExceptions.StageNotAssignedToUserTeamException("Stage " + stageUUID.toString() + " is assigned to " + assignedTeam, SECURITY_CASE_NOT_ALLOCATED_TO_TEAM);
                 }
                 break;
             default:
-                throw new SecurityExceptions.PermissionCheckException("Invalid Allocation type");
+                throw new SecurityExceptions.PermissionCheckException("Invalid Allocation type", SECURITY_PARSE_ERROR);
         }
 
         return joinPoint.proceed();

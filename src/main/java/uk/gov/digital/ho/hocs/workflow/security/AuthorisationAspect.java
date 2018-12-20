@@ -12,6 +12,9 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 
 import java.util.UUID;
 
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_PARSE_ERROR;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAUTHORISED;
+
 @Aspect
 @Component
 @Slf4j
@@ -31,7 +34,7 @@ public class AuthorisationAspect {
         if (getUserAccessLevel(joinPoint).getLevel() >= getRequiredAccessLevel(authorised).getLevel()) {
             return joinPoint.proceed();
         } else {
-            throw new SecurityExceptions.PermissionCheckException("User does not have access to the requested resource");
+            throw new SecurityExceptions.PermissionCheckException("User does not have access to the requested resource", SECURITY_UNAUTHORISED);
         }
     }
 
@@ -46,7 +49,7 @@ public class AuthorisationAspect {
             case "DELETE":
                 return AccessLevel.WRITE;
             default:
-                throw new SecurityExceptions.PermissionCheckException("Unknown access request type " + method);
+                throw new SecurityExceptions.PermissionCheckException("Unknown access request type " + method, SECURITY_PARSE_ERROR);
         }
     }
 
@@ -68,11 +71,11 @@ public class AuthorisationAspect {
                 CreateCaseRequest createCaseRequest = (CreateCaseRequest) joinPoint.getArgs()[0];
                 caseType = createCaseRequest.getType().getDisplayCode();
             } else {
-                throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters for type " + joinPoint.getArgs()[0].getClass().getName());
+                throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters for type " + joinPoint.getArgs()[0].getClass().getName(), SECURITY_PARSE_ERROR);
             }
             return userService.getMaxAccessLevel(caseType);
         } else {
-            throw new SecurityExceptions.PermissionCheckException("Unable to check permission of method without case UUID parameters");
+            throw new SecurityExceptions.PermissionCheckException("Unable to check permission of method without case UUID parameters", SECURITY_PARSE_ERROR);
         }
     }
 }

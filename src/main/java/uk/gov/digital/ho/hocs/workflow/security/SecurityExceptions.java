@@ -1,22 +1,33 @@
 package uk.gov.digital.ho.hocs.workflow.security;
 
+import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
+
 public interface SecurityExceptions {
     class StageNotAssignedToLoggedInUserException extends RuntimeException {
-        public StageNotAssignedToLoggedInUserException(String s) {
+        final LogEvent event;
+        StageNotAssignedToLoggedInUserException(String s, LogEvent event) {
             super(s);
+            this.event = event;
         }
+        public LogEvent getEvent() {return event;}
     }
 
     class StageNotAssignedToUserTeamException extends RuntimeException {
-        public StageNotAssignedToUserTeamException(String s) {
+        final LogEvent event;
+        StageNotAssignedToUserTeamException(String s, LogEvent event) {
             super(s);
+            this.event = event;
         }
+        public LogEvent getEvent() {return event;}
     }
 
     class PermissionCheckException extends RuntimeException {
-        public PermissionCheckException(String s) {
+        final LogEvent event;
+        PermissionCheckException(String s, LogEvent event) {
             super(s);
+            this.event = event;
         }
+        public LogEvent getEvent() {return event;}
     }
 
 
