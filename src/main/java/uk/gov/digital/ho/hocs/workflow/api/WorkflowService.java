@@ -10,8 +10,8 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
 
@@ -20,6 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 
 @Service
 @Slf4j
@@ -65,7 +69,8 @@ public class WorkflowService {
             camundaClient.startCase(caseUUID, caseDataType, seedData);
 
         } else {
-            throw new EntityCreationException("Failed to start case, invalid caseUUID!");
+            log.error("Failed to start case, invalid caseUUID!", value(EVENT, CASE_STARTED_FAILURE));
+            throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }

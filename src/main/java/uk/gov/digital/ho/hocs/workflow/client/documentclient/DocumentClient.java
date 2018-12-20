@@ -13,7 +13,7 @@ import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkD
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.ProcessDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.model.DocumentType;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
 import java.util.UUID;
 
@@ -51,7 +51,7 @@ public class DocumentClient {
             log.info("Created Document {}, Case {}", response.getBody().getUuid(), caseUUID, value(EVENT, DOCUMENT_CLIENT_CREATE_SUCCESS));
             return response.getBody().getUuid();
         } else {
-            throw new EntityCreationException(String.format("Could not create Document; response: %s", response.getStatusCodeValue()), DOCUMENT_CLIENT_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Document; response: %s", response.getStatusCodeValue()), DOCUMENT_CLIENT_FAILURE);
         }
     }
 
@@ -62,7 +62,7 @@ public class DocumentClient {
             producerTemplate.sendBody(documentQueue, objectMapper.writeValueAsString(request));
             log.info("Processed Document {}", documentUUID, value(EVENT, DOCUMENT_CLIENT_PROCESS_SUCCESS));
         } catch (JsonProcessingException e) {
-            throw new EntityCreationException(String.format("Could not process Document: %s", e.toString()), DOCUMENT_CLIENT_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not process Document: %s", e.toString()), DOCUMENT_CLIENT_FAILURE);
         }
     }
 
@@ -72,7 +72,7 @@ public class DocumentClient {
         if(response.getStatusCodeValue() == 200) {
             log.info("Deleted Document {}, Case {}", documentUUID, caseUUID, value(EVENT, DOCUMENT_CLIENT_DELETE_SUCCESS));
         } else {
-            throw new EntityCreationException(String.format("Could not delete Document; response: %s", response.getStatusCodeValue()), DOCUMENT_CLIENT_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not delete Document; response: %s", response.getStatusCodeValue()), DOCUMENT_CLIENT_FAILURE);
         }
     }
 }
