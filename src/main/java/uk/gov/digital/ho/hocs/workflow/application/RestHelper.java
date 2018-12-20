@@ -60,19 +60,4 @@ public class RestHelper {
     private String getBasicAuth() {
         return String.format("Basic %s", Base64.getEncoder().encodeToString(basicAuth.getBytes(Charset.forName("UTF-8"))));
     }
-
-    private static <T> T validateResponse(ResponseEntity<T>  responseEntity) {
-
-        if (responseEntity != null && responseEntity.getStatusCode() != null && responseEntity.hasBody()) {
-            if (responseEntity.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                throw new ApplicationExceptions.ClientException("Info service returned 404",REST_HELPER_NOT_FOUND);
-            } else if (responseEntity.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                throw new ApplicationExceptions.ClientException("Info service returned 500", REST_HELPER_INTERNAL_SERVER_ERROR );
-            }
-            return responseEntity.getBody();
-        } else {
-            throw new ApplicationExceptions.ClientException("Info service returned malformed response", REST_HELPER_MALFORMED_RESPONSE );
-        }
-    }
-
 }
