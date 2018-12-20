@@ -17,6 +17,9 @@ import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityCreationException;
 
 import java.util.UUID;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+
 @Slf4j
 @Component
 public class DocumentClient {
@@ -36,7 +39,6 @@ public class DocumentClient {
                           ObjectMapper objectMapper){
         this.restHelper = restHelper;
         this.serviceBaseURL = documentService;
-
         this.producerTemplate = producerTemplate;
         this.documentQueue = documentQueue;
         this.objectMapper = objectMapper;
@@ -46,10 +48,10 @@ public class DocumentClient {
         CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(displayName, type, caseUUID);
         ResponseEntity<CreateCaseworkDocumentResponse> response = restHelper.post(serviceBaseURL, "/document", request, CreateCaseworkDocumentResponse.class);
         if(response.getStatusCodeValue() == 200) {
-            log.info("Created Document {}, Case {}", response.getBody().getUuid(), caseUUID);
+            log.info("Created Document {}, Case {}", response.getBody().getUuid(), caseUUID, value(EVENT, DOCUMENT_CLIENT_CREATE_SUCCESS));
             return response.getBody().getUuid();
         } else {
-            throw new EntityCreationException("Could not create Document; response: %s", response.getStatusCodeValue());
+            throw new EntityCreationException(String.format("Could not create Document; response: %s", response.getStatusCodeValue()), DOCUMENT_CLIENT_FAILURE);
         }
     }
 
@@ -58,9 +60,9 @@ public class DocumentClient {
 
         try {
             producerTemplate.sendBody(documentQueue, objectMapper.writeValueAsString(request));
-            log.info("Processed Document {}", documentUUID);
+            log.info("Processed Document {}", documentUUID, value(EVENT, DOCUMENT_CLIENT_PROCESS_SUCCESS));
         } catch (JsonProcessingException e) {
-            throw new EntityCreationException("Could not process Document: %s", e.toString());
+            throw new EntityCreationException(String.format("Could not process Document: %s", e.toString()), DOCUMENT_CLIENT_FAILURE);
         }
     }
 
@@ -68,9 +70,9 @@ public class DocumentClient {
         ResponseEntity<Void> response = restHelper.delete(serviceBaseURL, String.format("/document/%s", documentUUID), Void.class);
 
         if(response.getStatusCodeValue() == 200) {
-            log.info("Deleted Document {}, Case {}", documentUUID, caseUUID);
+            log.info("Deleted Document {}, Case {}", documentUUID, caseUUID, value(EVENT, DOCUMENT_CLIENT_DELETE_SUCCESS));
         } else {
-            throw new EntityCreationException("Could not delete Document; response: %s", response.getStatusCodeValue());
+            throw new EntityCreationException(String.format("Could not delete Document; response: %s", response.getStatusCodeValue()), DOCUMENT_CLIENT_FAILURE);
         }
     }
 }

@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+
 @Slf4j
 @Component
 public class CamundaClient {
@@ -30,7 +33,7 @@ public class CamundaClient {
 
     public void startCase(UUID caseUUID, CaseDataType caseDataType, Map<String,String> data) {
         runtimeService.startProcessInstanceByKey(caseDataType.toString(), caseUUID.toString(), new HashMap<>(data));
-        log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType);
+        log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType, value(EVENT, CASE_STARTED_SUCCESS));
     }
 
     /**
@@ -42,12 +45,12 @@ public class CamundaClient {
     public void completeTask(UUID key, Map<String,String> data) {
         String taskId = getTaskIdByBusinessKey(key);
         taskService.complete(taskId, new HashMap<>(data));
-        log.info("Completed task for key: '{}'", key);
+        log.info("Completed task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
     }
 
     public String getStageScreenName(UUID stageUUID) {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
-        log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName);
+        log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName, value(EVENT, CURRENT_STAGE_RETRIEVED));
         return screenName == null ? "FINISH" : screenName;
     }
 
@@ -59,7 +62,7 @@ public class CamundaClient {
         if(task != null) {
             return task.getId();
         } else {
-        throw new EntityNotFoundException("No tasks returned", businessKey);
+        throw new EntityNotFoundException(String.format("No tasks returned", businessKey), TASK_RETRIEVAL_FALURE);
         }
     }
 
