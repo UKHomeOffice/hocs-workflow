@@ -11,9 +11,6 @@ import java.nio.charset.Charset;
 import java.util.Base64;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.REST_HELPER_INTERNAL_SERVER_ERROR;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.REST_HELPER_MALFORMED_RESPONSE;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.REST_HELPER_NOT_FOUND;
 
 @Component
 public class RestHelper {
@@ -56,5 +53,6 @@ public class RestHelper {
         headers.add(RequestData.CORRELATION_ID_HEADER, requestData.correlationId());
         return headers;
     }
-private String getBasicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(basicAuth.getBytes(Charset.forName("UTF-8")))); }
-}
+    
+    private String getBasicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(basicAuth.getBytes(Charset.forName("UTF-8")))); }
+    }
