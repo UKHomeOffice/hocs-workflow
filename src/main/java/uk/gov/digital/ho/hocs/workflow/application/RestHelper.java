@@ -53,6 +53,7 @@ public class RestHelper {
         headers.add(RequestData.CORRELATION_ID_HEADER, requestData.correlationId());
         return headers;
     }
-    
+
     private String getBasicAuth() { return String.format("Basic %s", Base64.getEncoder().encodeToString(basicAuth.getBytes(Charset.forName("UTF-8")))); }
-    }
+
+}
