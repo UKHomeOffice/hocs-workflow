@@ -8,7 +8,7 @@ import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.EntityNotFoundException;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public class CamundaClient {
         if(task != null) {
             return task.getId();
         } else {
-        throw new EntityNotFoundException(String.format("No tasks returned", businessKey), TASK_RETRIEVAL_FALURE);
+        throw new ApplicationExceptions.EntityNotFoundException(String.format("No tasks returned", businessKey), TASK_RETRIEVAL_FAILURE);
         }
     }
 
