@@ -26,7 +26,6 @@ public class InfoFormClient {
         forms.put("DCU_CORRESPONDENCE_DETAILS_DTEN", getDataInputDTEN());
         forms.put("DCU_CORRESPONDENT_LOOKUP", getCorrespondentLookup());
         forms.put("DCU_ADD_CORRESPONDENT", getAddCorrespondentPublic());
-        forms.put("DCU_ADD_ANOTHER_CORRESPONDENT", getAddAnotherCorrespondent());
         forms.put("DCU_SET_PRIMARY_CORRESPONDENT", getSetPrimaryCorrespondent());
 
         //// Draft
@@ -357,42 +356,6 @@ public class InfoFormClient {
 
         return form1;
     }
-
-    private HocsForm getAddAnotherCorrespondent() {
-        List<String> validationList = new ArrayList<>();
-        validationList.add("required");
-
-        Map<String, String> choice1 = new HashMap<>();
-        choice1.put("label", "Yes");
-        choice1.put("value", "TRUE");
-
-        Map<String, String> choice2 = new HashMap<>();
-        choice2.put("label", "No");
-        choice2.put("value", "FALSE");
-
-        List<Map<String, String>> choices = new ArrayList<>();
-        choices.add(choice1);
-        choices.add(choice2);
-
-        Map<String, Object> properties4 = new HashMap<>();
-        properties4.put("name", "TEMPAdditionalCorrespondent");
-        properties4.put("label", "Do you need to add another correspondent?");
-        properties4.put("choices", choices);
-
-        HocsFormField fieldFour = new HocsFormField("radio", validationList, properties4);
-
-
-        List<HocsFormField> formFields = new ArrayList<>();
-
-        formFields.add(fieldFour);
-        HocsSchema schema1 = new HocsSchema("Record Correspondent Details", "Continue", formFields);
-
-        HocsForm form1 = new HocsForm(schema1);
-
-        return form1;
-
-    }
-
 
     private HocsForm getSetPrimaryCorrespondent() {
         List<String> validationList = new ArrayList<>();

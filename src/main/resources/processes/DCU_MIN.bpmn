@@ -13,7 +13,7 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1pepep6" sourceRef="DCU_MIN_START" targetRef="CallActivity_0sc1113" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1j2nbeb">
-      <bpmn:incoming>SequenceFlow_1kbehe7</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1c791u6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_04i3gn3</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_058p133</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0lq9cg0</bpmn:outgoing>
@@ -24,7 +24,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_04i3gn3" name="FAQ OR MARKUP" sourceRef="ExclusiveGateway_1j2nbeb" targetRef="CallActivity_1ket68y">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MarkupDecision == "FAQ" || MarkupDecision == "PR"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1kbehe7" sourceRef="Task_1grynar" targetRef="ExclusiveGateway_1j2nbeb" />
+    <bpmn:sequenceFlow id="SequenceFlow_1kbehe7" sourceRef="Task_1grynar" targetRef="ServiceTask_0vyyqpm" />
     <bpmn:callActivity id="Task_1grynar" name="Mark Up" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="MarkupUUID" target="StageUUID" />
@@ -35,11 +35,12 @@
         <camunda:out source="StageUUID" target="MarkupUUID" />
         <camunda:in sourceExpression="DCU_MIN_MARKUP" target="StageType" />
         <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="Topics" target="Topics" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_18mb2fq</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0occ9ef</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1ii85y3</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0br3a39</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0o51d5e</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1kbehe7</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="Task_0wqz5qj" name="Transfer Confirmation" calledElement="STAGE">
@@ -68,11 +69,12 @@
         <camunda:in sourceExpression="DCU_MIN_DATA_INPUT" target="StageType" />
         <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
         <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="Correspondents" target="Correspondents" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1pepep6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_18mb2fq</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_18mb2fq" sourceRef="CallActivity_0sc1113" targetRef="Task_1grynar" />
+    <bpmn:sequenceFlow id="SequenceFlow_18mb2fq" sourceRef="CallActivity_0sc1113" targetRef="Task_0nm8fap" />
     <bpmn:callActivity id="CallActivity_1ket68y" name="Initial Draft" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="InitialDraftUUID" target="StageUUID" />
@@ -303,6 +305,16 @@
     <bpmn:sequenceFlow id="SequenceFlow_18o5t1m" sourceRef="ExclusiveGateway_1dfo58w" targetRef="DCU_MIN_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Task_0nm8fap" name="TEMP SET CORRESPONDENT" camunda:expression="${bpmnService.updatePrimaryCorrespondent(execution.processBusinessKey,execution.getVariable(&#34;DataInputUUID&#34;), execution.getVariable(&#34;Correspondents&#34;))}">
+      <bpmn:incoming>SequenceFlow_18mb2fq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0o51d5e</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="ServiceTask_0vyyqpm" name="TEMP SET TOPIC" camunda:expression="${bpmnService.updatePrimaryTopic(execution.processBusinessKey,execution.getVariable(&#34;DataInputUUID&#34;), execution.getVariable(&#34;Topics&#34;))}">
+      <bpmn:incoming>SequenceFlow_1kbehe7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1c791u6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0o51d5e" sourceRef="Task_0nm8fap" targetRef="Task_1grynar" />
+    <bpmn:sequenceFlow id="SequenceFlow_1c791u6" sourceRef="ServiceTask_0vyyqpm" targetRef="ExclusiveGateway_1j2nbeb" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MIN">
@@ -347,8 +359,10 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1kbehe7_di" bpmnElement="SequenceFlow_1kbehe7">
-        <di:waypoint x="1857" y="620" />
-        <di:waypoint x="2161" y="620" />
+        <di:waypoint x="1857" y="601" />
+        <di:waypoint x="1994" y="548" />
+        <di:waypoint x="1955" y="406" />
+        <di:waypoint x="1988" y="250" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2058" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
@@ -363,8 +377,9 @@
         <dc:Bounds x="1555" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_18mb2fq_di" bpmnElement="SequenceFlow_18mb2fq">
-        <di:waypoint x="1655" y="620" />
-        <di:waypoint x="1757" y="620" />
+        <di:waypoint x="1600" y="580" />
+        <di:waypoint x="1567" y="327" />
+        <di:waypoint x="1674" y="210" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1528" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
@@ -681,6 +696,24 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="3613.5" y="1149.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1oria50_di" bpmnElement="Task_0nm8fap">
+        <dc:Bounds x="1676" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0vyyqpm_di" bpmnElement="ServiceTask_0vyyqpm">
+        <dc:Bounds x="1942" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0o51d5e_di" bpmnElement="SequenceFlow_0o51d5e">
+        <di:waypoint x="1726" y="250" />
+        <di:waypoint x="1726" y="415" />
+        <di:waypoint x="1703" y="480" />
+        <di:waypoint x="1777" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1c791u6_di" bpmnElement="SequenceFlow_1c791u6">
+        <di:waypoint x="2004" y="250" />
+        <di:waypoint x="2045" y="388" />
+        <di:waypoint x="2045" y="568" />
+        <di:waypoint x="2168" y="613" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
