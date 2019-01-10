@@ -46,4 +46,14 @@ public class BpmnService {
         log.debug("######## Updated Stage ########");
     }
 
+    public void updatePrimaryCorrespondent(String caseUUIDString, String stageUUIDString, String correspondentUUIDString) {
+        caseworkClient.updatePrimaryCorrespondent(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(correspondentUUIDString));
+        log.debug("######## Updated Primary Correspondent ########");
+    }
+
+    public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
+        caseworkClient.updatePrimaryTopic(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(topicUUIDString));
+        log.debug("######## Updated Primary Topic ########");
+    }
+
 }

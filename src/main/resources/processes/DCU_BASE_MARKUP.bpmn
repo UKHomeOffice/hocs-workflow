@@ -52,7 +52,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0ovfo59" name="PR or FAQ" sourceRef="GatewayDecisionInitial" targetRef="TOPICS">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MarkupDecision == "PR" || MarkupDecision == "FAQ"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="FromGatewayValidateAllocationNote_ToEnd" name="true" sourceRef="ExclusiveGateway_0isj7ns" targetRef="DCU_BASE_MARKUP_END">
+    <bpmn:sequenceFlow id="FromGatewayValidateAllocationNote_ToEnd" name="true" sourceRef="ExclusiveGateway_0isj7ns" targetRef="ServiceTask_1qzc8nw">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="FromStart_ToInitial" sourceRef="DCU_BASE_MARKUP_START" targetRef="MARKUP_DECISION" />
@@ -96,7 +96,7 @@
       <bpmn:outgoing>SequenceFlow_0rmmslb</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:endEvent id="DCU_BASE_MARKUP_END" name="End Markup Stage">
-      <bpmn:incoming>FromGatewayValidateAllocationNote_ToEnd</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0bn7585</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:serviceTask id="ANSWERING" name="Answering" camunda:expression="ANSWERING" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_1e262jf</bpmn:incoming>
@@ -108,6 +108,11 @@
       <bpmn:outgoing>FromGatewayValidateAllocationNote_ToAllocationNote</bpmn:outgoing>
       <bpmn:outgoing>FromGatewayValidateAllocationNote_ToEnd</bpmn:outgoing>
     </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="ServiceTask_1qzc8nw" name="Save Primary Topic" camunda:expression="${bpmnService.updatePrimaryTopic(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;Topics&#34;))}">
+      <bpmn:incoming>FromGatewayValidateAllocationNote_ToEnd</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0bn7585</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0bn7585" sourceRef="ServiceTask_1qzc8nw" targetRef="DCU_BASE_MARKUP_END" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_BASE_MARKUP">
@@ -204,9 +209,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_14sf8cr_di" bpmnElement="FromGatewayValidateAllocationNote_ToEnd">
         <di:waypoint x="2181" y="481" />
-        <di:waypoint x="2413" y="481" />
+        <di:waypoint x="2322" y="481" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2189" y="460" width="19" height="14" />
+          <dc:Bounds x="2182" y="460" width="19" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_14bdz4q_di" bpmnElement="FromStart_ToInitial">
@@ -289,9 +294,9 @@
         <dc:Bounds x="1032" y="180" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_0m4p03w_di" bpmnElement="DCU_BASE_MARKUP_END">
-        <dc:Bounds x="2413" y="463" width="36" height="36" />
+        <dc:Bounds x="2553" y="463" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2402" y="426" width="60" height="25" />
+          <dc:Bounds x="2542" y="426" width="60" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_1n5cmed_di" bpmnElement="ANSWERING">
@@ -300,6 +305,13 @@
       <bpmndi:BPMNShape id="ExclusiveGateway_0isj7ns_di" bpmnElement="ExclusiveGateway_0isj7ns" isMarkerVisible="true">
         <dc:Bounds x="2131.25" y="456" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1qzc8nw_di" bpmnElement="ServiceTask_1qzc8nw">
+        <dc:Bounds x="2322" y="441" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0bn7585_di" bpmnElement="SequenceFlow_0bn7585">
+        <di:waypoint x="2422" y="481" />
+        <di:waypoint x="2553" y="481" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

@@ -8,7 +8,7 @@ public class HocsCaseUUID {
 
     public static UUID randomUUID(CaseDataType type){
         String uuid = UUID.randomUUID().toString().substring(0,33);
-        String hocsUUID = uuid.concat(type.getValue());
+        String hocsUUID = uuid.concat(type.getShortCode());
         return UUID.fromString(hocsUUID);
     }
 
@@ -19,7 +19,7 @@ public class HocsCaseUUID {
 
     private static CaseDataType findCaseDataType(String caseValue) {
         for(CaseDataType cd : CaseDataType.values()) {
-            if (cd.getValue().equals(caseValue)) {
+            if (cd.getShortCode().equals(caseValue)) {
                 return cd;
             }
         }

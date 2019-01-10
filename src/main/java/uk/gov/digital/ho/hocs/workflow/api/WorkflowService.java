@@ -53,8 +53,8 @@ public class WorkflowService {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
-        Deadline deadline = infoClient.getCaseDeadline(caseDataType, dateReceived);
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived, deadline.getDate());
+        LocalDate deadline = infoClient.getCaseDeadline(caseDataType, dateReceived);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived, deadline);
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {

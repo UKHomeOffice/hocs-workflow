@@ -27,13 +27,13 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
-    public Deadline getCaseDeadline(CaseDataType caseType, LocalDate localDate) {
-        ResponseEntity<Deadline> response = restHelper.get(serviceBaseURL, String.format("/casetype/%s/deadline/%s", caseType, localDate), Deadline.class);
+    public LocalDate getCaseDeadline(CaseDataType caseType, LocalDate localDate) {
+        ResponseEntity<LocalDate> response = restHelper.get(serviceBaseURL, String.format("/caseType/%s/deadline?received=%s", caseType, localDate), LocalDate.class);
         return response.getBody();
     }
 
     public Deadline getDeadline(StageType stageType, LocalDate localDate) {
-        ResponseEntity<Deadline> response = restHelper.get(serviceBaseURL, String.format("/stagetype/%s/deadline/%s", stageType, localDate), Deadline.class);
+        ResponseEntity<Deadline> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/deadline?received=%s", stageType, localDate), Deadline.class);
         return response.getBody();
     }
 

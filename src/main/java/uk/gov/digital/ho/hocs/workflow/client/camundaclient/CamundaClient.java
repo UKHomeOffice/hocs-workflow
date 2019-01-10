@@ -62,7 +62,7 @@ public class CamundaClient {
         if(task != null) {
             return task.getId();
         } else {
-        throw new ApplicationExceptions.EntityNotFoundException(String.format("No tasks returned", businessKey), TASK_RETRIEVAL_FAILURE);
+        throw new ApplicationExceptions.EntityNotFoundException(String.format("No tasks returned {}", businessKey), TASK_RETRIEVAL_FAILURE);
         }
     }
 

@@ -33,7 +33,7 @@ public class CaseworkClient {
     }
 
     public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType, Map<String, String> data, LocalDate dateReceived, LocalDate deadline) {
-        CaseType caseType = new CaseType(caseDataType.getDisplayCode(), caseDataType.getValue());
+        CaseType caseType = new CaseType(caseDataType.getType(), caseDataType.getShortCode(), caseDataType.getType());
         CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseType, data, dateReceived, deadline);
         ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         if (response.getStatusCodeValue() == 200) {
@@ -47,6 +47,26 @@ public class CaseworkClient {
     public void updateCase(UUID caseUUID, UUID stageUUID, Map<String, String> data) {
         UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
         ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID) , request, String.class);
+
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Set Case Data for Case {}", caseUUID);
+        } else {
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Case; response: %s", response.getStatusCodeValue()), CASE_UPDATE_FAILURE);
+        }
+    }
+
+    public void updatePrimaryCorrespondent(UUID caseUUID, UUID stageUUID, UUID primaryCorrespondent) {
+        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID) , primaryCorrespondent, String.class);
+
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Set Case Data for Case {}", caseUUID);
+        } else {
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Case; response: %s", response.getStatusCodeValue()), CASE_UPDATE_FAILURE);
+        }
+    }
+
+    public void updatePrimaryTopic(UUID caseUUID, UUID stageUUID, UUID primaryTopic) {
+        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID) , primaryTopic, String.class);
 
         if (response.getStatusCodeValue() == 200) {
             log.info("Set Case Data for Case {}", caseUUID);

@@ -16,7 +16,7 @@ public class CreateCaseworkCaseRequestTest {
     public void getCreateCaseRequest() {
 
         CaseDataType caseDataType = CaseDataType.MIN;
-        CaseType caseType = new CaseType(caseDataType.getDisplayCode(), caseDataType.getValue());
+        CaseType caseType = new CaseType(caseDataType.getType(), caseDataType.getShortCode(), caseDataType.getType());
         Map<String, String> data = new HashMap<>();
         LocalDate deadline = LocalDate.now();
         LocalDate dateReceived = LocalDate.now().minusDays(4);

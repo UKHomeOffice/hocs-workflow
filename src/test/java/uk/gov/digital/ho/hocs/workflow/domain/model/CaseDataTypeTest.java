@@ -11,16 +11,16 @@ public class CaseDataTypeTest {
 
     @Test
     public void getDisplayName() {
-        assertThat(MIN.getDisplayCode()).isEqualTo("MIN");
-        assertThat(TRO.getDisplayCode()).isEqualTo("TRO");
-        assertThat(DTEN.getDisplayCode()).isEqualTo("DTEN");
+        assertThat(MIN.getType()).isEqualTo("MIN");
+        assertThat(TRO.getType()).isEqualTo("TRO");
+        assertThat(DTEN.getType()).isEqualTo("DTEN");
     }
 
     @Test
     public void getValue() {
-        assertThat(MIN.getValue()).isEqualTo("a1");
-        assertThat(TRO.getValue()).isEqualTo("a2");
-        assertThat(DTEN.getValue()).isEqualTo("a3");
+        assertThat(MIN.getShortCode()).isEqualTo("a1");
+        assertThat(TRO.getShortCode()).isEqualTo("a2");
+        assertThat(DTEN.getShortCode()).isEqualTo("a3");
     }
 
     @Test
