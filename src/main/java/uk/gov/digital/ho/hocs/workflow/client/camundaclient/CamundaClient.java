@@ -48,6 +48,13 @@ public class CamundaClient {
         log.info("Completed task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
     }
 
+    public void updateTask(UUID key, Map<String,String> data) {
+        String taskId = getTaskIdByBusinessKey(key);
+        taskService.setVariables(taskId, new HashMap<>(data));
+        log.info("Updated task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
+    }
+
+
     public String getStageScreenName(UUID stageUUID) {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
         log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName, value(EVENT, CURRENT_STAGE_RETRIEVED));

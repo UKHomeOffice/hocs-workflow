@@ -3,12 +3,16 @@ package uk.gov.digital.ho.hocs.workflow;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.Deadline;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -16,19 +20,28 @@ import java.util.UUID;
 public class BpmnService {
 
     private final CaseworkClient caseworkClient;
+    private final CamundaClient camundaClient;
     private final InfoClient infoClient;
 
     @Autowired
     public BpmnService(CaseworkClient caseworkClient,
+                       CamundaClient camundaClient,
                        InfoClient infoClient) {
         this.caseworkClient = caseworkClient;
+        this.camundaClient = camundaClient;
         this.infoClient = infoClient;
     }
 
-    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String dateReceivedString, String allocationType) {
+    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String dateReceivedString, String allocationType, String allocationTeamString) {
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID teamUUID = infoClient.getTeam(stageTypeString);
+
+        UUID teamUUID;
+        if(allocationTeamString == null) {
+            teamUUID = infoClient.getTeam(stageTypeString);
+        } else {
+            teamUUID = UUID.fromString(allocationTeamString);
+        }
 
         if (stageUUIDString != null) {
             // This happens on a reject, so we need to update the team.
@@ -52,8 +65,29 @@ public class BpmnService {
     }
 
     public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
-        caseworkClient.updatePrimaryTopic(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(topicUUIDString));
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID topicUUID = UUID.fromString(topicUUIDString);
+
+        caseworkClient.updatePrimaryTopic(caseUUID, stageUUID, topicUUID);
+
+        Map<String, String> teamsForTopic = new HashMap<>();
+        TeamDto draftingTeam = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, "DCU_MIN_INITIAL_DRAFT");
+        TeamDto pOTeam = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, "DCU_MIN_PRIVATE_OFFICE");
+        teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
+        teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
+        teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
+        teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
+        camundaClient.updateTask(stageUUID, teamsForTopic);
+        caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
+
         log.debug("######## Updated Primary Topic ########");
+    }
+
+    public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote) {
+
+        //caseworkClient.updatePrimaryTopic(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(topicUUIDString));
+        log.debug("######## Save Allocation Note ########");
     }
 
 }

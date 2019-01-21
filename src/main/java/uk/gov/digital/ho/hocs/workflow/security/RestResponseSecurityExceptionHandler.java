@@ -1,17 +1,20 @@
 package uk.gov.digital.ho.hocs.workflow.security;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
+import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 
 @ControllerAdvice
 @Slf4j
+@Order(HIGHEST_PRECEDENCE)
 public class RestResponseSecurityExceptionHandler {
 
     @ExceptionHandler(SecurityExceptions.PermissionCheckException.class)
