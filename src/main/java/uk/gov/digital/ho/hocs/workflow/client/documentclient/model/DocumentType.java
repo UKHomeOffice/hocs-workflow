@@ -5,7 +5,8 @@ import lombok.Getter;
 public enum DocumentType {
 
     ORIGINAL("Original"),
-    DRAFT("Draft");
+    DRAFT("Draft"),
+    FINAL("Final");
 
     @Getter
     private String displayValue;

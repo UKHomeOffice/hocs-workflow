@@ -1,25 +1,27 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.Deadline;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoFormClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
@@ -33,20 +35,16 @@ public class WorkflowService {
     private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
-    private final InfoFormClient infoFormClient;
-
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
                            DocumentClient documentClient,
                            InfoClient infoClient,
-                           CamundaClient camundaClient,
-                           InfoFormClient infoFormClient) {
+                           CamundaClient camundaClient, ObjectMapper objectMapper) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
-        this.infoFormClient = infoFormClient;
     }
 
     CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
@@ -93,8 +91,10 @@ public class WorkflowService {
 
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
 
-            HocsForm form = infoFormClient.getForm(screenName);
-            form.setData(inputResponse.getData());
+            SchemaDto schemaDto = infoClient.getForm(screenName);
+            List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
+            HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields);
+            HocsForm form = new HocsForm(schema,inputResponse.getData());
             return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
         } else {
             return new GetStageResponse(stageUUID, null, null);
