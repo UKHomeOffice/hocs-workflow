@@ -104,7 +104,7 @@ public class CaseworkClient {
             log.info("Created Note: {} for Case {}", response.getBody(), caseUUID);
             return response.getBody();
         } else {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Note; response: %s", response.getStatusCodeValue()), CASE_CREATION_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Note; response: %s", response.getStatusCodeValue()), CASE_NOTE_CREATION_FAILURE);
         }
     }
 
@@ -115,7 +115,7 @@ public class CaseworkClient {
             log.info("Created Stage: {} for Case {}", response.getBody().getUuid(), caseUUID);
             return response.getBody().getUuid();
         } else {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Stage; response: %s", response.getStatusCodeValue()), CASE_CREATION_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Stage; response: %s", response.getStatusCodeValue()), STAGE_CREATION_FAILURE);
         }
     }
 
