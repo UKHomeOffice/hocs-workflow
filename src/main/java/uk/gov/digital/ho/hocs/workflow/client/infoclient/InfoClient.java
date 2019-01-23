@@ -38,13 +38,18 @@ public class InfoClient {
         return response.getBody();
     }
 
-    public UUID getTeam(String stageType) {
+    public UUID getTeamForStageType(String stageType) {
         ResponseEntity<TeamDto> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType),  TeamDto.class);
         return response.getBody().getUuid();
     }
 
     public TeamDto getTeamForTopicAndStage(UUID caseUUID, UUID topicUUID, String stageType) {
         ResponseEntity<TeamDto> response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/topic/%s/stage/%s", caseUUID, topicUUID, stageType),  TeamDto.class);
+        return response.getBody();
+    }
+
+    public TeamDto getTeam(UUID teamUUID) {
+        ResponseEntity<TeamDto> response = restHelper.get(serviceBaseURL, String.format("/team/%s", teamUUID),  TeamDto.class);
         return response.getBody();
     }
 
