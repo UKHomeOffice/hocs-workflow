@@ -97,6 +97,17 @@ public class CaseworkClient {
         }
     }
 
+    public UUID createCaseNote(UUID caseUUID, String type, String text) {
+        CreateCaseNoteRequest request = new CreateCaseNoteRequest(type,text);
+        ResponseEntity<UUID> response = restHelper.post(serviceBaseURL, String.format("/case/%s/note", caseUUID), request, UUID.class);
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Created Note: {} for Case {}", response.getBody(), caseUUID);
+            return response.getBody();
+        } else {
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Note; response: %s", response.getStatusCodeValue()), CASE_CREATION_FAILURE);
+        }
+    }
+
     public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID , LocalDate deadline, String allocationType) {
         CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, deadline, allocationType);
         ResponseEntity<CreateCaseworkStageResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);

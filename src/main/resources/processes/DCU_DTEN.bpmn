@@ -84,14 +84,16 @@
         <camunda:out source="OfflineQA" target="OfflineQA" />
         <camunda:in sourceExpression="DCU_DTEN_INITIAL_DRAFT" target="StageType" />
         <camunda:out sourceExpression="${execution.getVariable(&#34;InitialDraftDecision&#34;) == &#34;REJECT&#34; ?  &#34;INITIAL_DRAFT_REJECT&#34; : execution.getVariable(&#34;OfflineQA&#34;) == &#34;TRUE&#34; ? &#34;ALLOCATE_PRIVATE_OFFICE&#34; : &#34;ALLOCATE_TEAM&#34; }" target="EmailType" />
+        <camunda:in source="DraftingTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_04i3gn3</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1tlbpjq</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_094as2e</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1no0ocj</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:exclusiveGateway id="ExclusiveGateway_1wtjsxs">
       <bpmn:incoming>SequenceFlow_1no0ocj</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_094as2e</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0occ9ef</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0hodmse</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -126,6 +128,7 @@
         <camunda:out source="StageUUID" target="QAResponseUUID" />
         <camunda:in sourceExpression="DCU_DTEN_QA_RESPONSE" target="StageType" />
         <camunda:out sourceExpression="${execution.getVariable(QAResponseDecision) == &#34;REJECT&#34; ?  &#34;QA_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_06rxrum</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1gic80p</bpmn:outgoing>
@@ -140,6 +143,8 @@
         <camunda:out source="StageUUID" target="PrivateOfficeUUID" />
         <camunda:in sourceExpression="DCU_DTEN_PRIVATE_OFFICE" target="StageType" />
         <camunda:out sourceExpression="${execution.getVariable(PrivateOfficeDecision) == &#34;REJECT&#34; ? &#34;PRIVATE_OFFICE_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:in source="POTeamUUID" target="AllocationTeamUUID" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0y1hwz5</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_08od3ei</bpmn:incoming>
@@ -155,7 +160,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0y1hwz5" name="ACCEPT" sourceRef="ExclusiveGateway_1asbwik" targetRef="CallActivity_0pmeblj">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QAResponseDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_094as2e" name="REJECT" sourceRef="ExclusiveGateway_1asbwik" targetRef="ExclusiveGateway_1wtjsxs">
+    <bpmn:sequenceFlow id="SequenceFlow_094as2e" name="REJECT" sourceRef="ExclusiveGateway_1asbwik" targetRef="CallActivity_1ket68y">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QAResponseDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0uh5jth">
@@ -179,6 +184,7 @@
         <camunda:out source="StageUUID" target="DispatchUUID" />
         <camunda:in sourceExpression="DCU_DTEN_DISPATCH" target="StageType" />
         <camunda:out sourceExpression="${execution.getVariable(DispatchDecision) == &#34;REJECT&#34; ?  &#34;DISPATCH_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0ln7eru</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1p4ijz3</bpmn:outgoing>
@@ -365,8 +371,8 @@
       <bpmndi:BPMNEdge id="SequenceFlow_094as2e_di" bpmnElement="SequenceFlow_094as2e">
         <di:waypoint x="3723" y="650" />
         <di:waypoint x="3723" y="761" />
-        <di:waypoint x="3076" y="761" />
-        <di:waypoint x="3076" y="650" />
+        <di:waypoint x="2852" y="761" />
+        <di:waypoint x="2852" y="665" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="3730" y="665" width="43" height="14" />
         </bpmndi:BPMNLabel>
