@@ -38,7 +38,7 @@ public class BpmnService {
 
         UUID teamUUID;
         if(allocationTeamString == null) {
-            teamUUID = infoClient.getTeam(stageTypeString);
+            teamUUID = infoClient.getTeamForStageType(stageTypeString);
         } else {
             teamUUID = UUID.fromString(allocationTeamString);
         }
@@ -80,6 +80,32 @@ public class BpmnService {
         teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
         camundaClient.updateTask(stageUUID, teamsForTopic);
         caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
+
+        log.debug("######## Updated Primary Topic ########");
+    }
+
+    public void updateTeamSelection(String caseUUIDString, String stageUUIDString, String draftingUUIDString, String privateOfficeUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        Map<String, String> teamsForTopic = new HashMap<>();
+
+        if(draftingUUIDString != null) {
+            TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
+            teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
+            teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
+        }
+
+        if(privateOfficeUUIDString != null) {
+            TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
+            teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
+            teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
+        }
+
+        if(!teamsForTopic.isEmpty()) {
+            camundaClient.updateTask(stageUUID, teamsForTopic);
+            caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
+        }
 
         log.debug("######## Updated Primary Topic ########");
     }
