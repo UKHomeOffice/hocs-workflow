@@ -6,7 +6,7 @@
     </bpmn:startEvent>
     <bpmn:endEvent id="DCU_DTEN_PRIVATE_OFFICE_END" name="End Stage">
       <bpmn:incoming>SequenceFlow_1c1ha21</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_054gtv4</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1wlnyno</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0tk7wiu" sourceRef="DCU_DTEN_PRIVATE_OFFICE_START" targetRef="ServiceTask_0te5zh0" />
     <bpmn:serviceTask id="ServiceTask_0te5zh0" name="Approve Private Office" camunda:expression="APPROVE_PRIVATE_OFFICE_DTEN" camunda:resultVariable="screen">
@@ -58,12 +58,17 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0wl4a7x" sourceRef="ServiceTask_0x8k4ex" targetRef="UserTask_0l1q0db" />
     <bpmn:sequenceFlow id="SequenceFlow_058szbq" sourceRef="UserTask_0l1q0db" targetRef="ExclusiveGateway_1sxuqa2" />
-    <bpmn:sequenceFlow id="SequenceFlow_054gtv4" sourceRef="ExclusiveGateway_1sxuqa2" targetRef="DCU_DTEN_PRIVATE_OFFICE_END">
+    <bpmn:sequenceFlow id="SequenceFlow_054gtv4" sourceRef="ExclusiveGateway_1sxuqa2" targetRef="ServiceTask_0vqguen">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1c1ha21" name="ACCEPT" sourceRef="ExclusiveGateway_1i29zz4" targetRef="DCU_DTEN_PRIVATE_OFFICE_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PrivateOfficeDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="ServiceTask_0vqguen" name="Save Allocation Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_PrivateOfficeReject&#34;), &#34;REJECT&#34;)}">
+      <bpmn:incoming>SequenceFlow_054gtv4</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1wlnyno</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1wlnyno" sourceRef="ServiceTask_0vqguen" targetRef="DCU_DTEN_PRIVATE_OFFICE_END" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_DTEN_PRIVATE_OFFICE">
@@ -166,8 +171,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_054gtv4_di" bpmnElement="SequenceFlow_054gtv4">
         <di:waypoint x="1015" y="494" />
-        <di:waypoint x="1286" y="494" />
-        <di:waypoint x="1286" y="221" />
+        <di:waypoint x="1095" y="494" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1057" y="472.5" width="0" height="13" />
         </bpmndi:BPMNLabel>
@@ -178,6 +182,14 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="856" y="181" width="45" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0vqguen_di" bpmnElement="ServiceTask_0vqguen">
+        <dc:Bounds x="1095" y="454" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1wlnyno_di" bpmnElement="SequenceFlow_1wlnyno">
+        <di:waypoint x="1195" y="494" />
+        <di:waypoint x="1286" y="494" />
+        <di:waypoint x="1286" y="221" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

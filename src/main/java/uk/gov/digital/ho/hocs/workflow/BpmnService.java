@@ -84,10 +84,10 @@ public class BpmnService {
         log.debug("######## Updated Primary Topic ########");
     }
 
-    public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote) {
-
-        //caseworkClient.updatePrimaryTopic(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(topicUUIDString));
+    public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType) {
         log.debug("######## Save Allocation Note ########");
+        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
+        log.info("Adding Casenote to Case: {}", caseUUIDString);
     }
 
 }
