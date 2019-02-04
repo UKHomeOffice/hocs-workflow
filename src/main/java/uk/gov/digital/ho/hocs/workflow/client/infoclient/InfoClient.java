@@ -69,9 +69,9 @@ public class InfoClient {
     public Set<TeamDto> getTeams() {
         try {
             ResponseEntity<Set<TeamDto>> response = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {});
-            log.info("Got teamDtos", value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
+            log.info("Got teams {}", response.getBody().size(), value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
             return response.getBody();
-        } catch (ApplicationExceptions.ResourceException e) {
+        } catch (Exception e) {
             log.error("Could not get teams", value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
             throw new ApplicationExceptions.EntityNotFoundException("Could not get teams", INFO_CLIENT_GET_TEAMS_FAILURE);
         }
