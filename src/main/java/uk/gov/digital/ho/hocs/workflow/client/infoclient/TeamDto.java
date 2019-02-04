@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Set;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -21,4 +22,8 @@ public class TeamDto implements Serializable {
 
     @JsonProperty("active")
     private boolean active;
+
+    @JsonProperty("permissionDtos")
+    private Set<PermissionDto> permissionDtos;
+
 }
