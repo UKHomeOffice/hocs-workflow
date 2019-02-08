@@ -2,6 +2,7 @@ package uk.gov.digital.ho.hocs.workflow.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -38,6 +39,10 @@ public class RestHelper {
 
     public <T,R> ResponseEntity<R> get(String serviceBaseURL, String url, Class<R> responseType) {
         return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
+    }
+
+    public <T,R> ResponseEntity<R> get(String serviceBaseURL, String url, ParameterizedTypeReference<R> responseType) {
+       return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
     }
 
     public <R> ResponseEntity<R> delete(String serviceBaseURL, String url, Class<R> responseType) {

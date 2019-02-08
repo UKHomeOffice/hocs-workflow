@@ -47,7 +47,7 @@ public class WorkflowService {
         this.camundaClient = camundaClient;
     }
 
-    CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
+    public CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
@@ -73,7 +73,7 @@ public class WorkflowService {
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
+    public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
@@ -84,7 +84,7 @@ public class WorkflowService {
         }
     }
 
-    GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
+    public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getStageScreenName(stageUUID);
 
         if(!screenName.equals("FINISH")) {
@@ -101,7 +101,7 @@ public class WorkflowService {
         }
     }
 
-    GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
+    public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
         // TODO: validate Form
         values.put("valid", "true");
         caseworkClient.updateCase(caseUUID, stageUUID, values);
