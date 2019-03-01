@@ -10,6 +10,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -54,7 +55,7 @@ public class BpmnServiceTest {
 
         UUID draftingString = UUID.randomUUID();
 
-        when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", draftingString, true));
+        when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", draftingString, true, new HashSet<>()));
         doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)),any());
         doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),eq(UUID.fromString(stageUUID)),any());
 
@@ -74,7 +75,7 @@ public class BpmnServiceTest {
 
         UUID privateOfficeString = UUID.randomUUID();
 
-        when(infoClient.getTeam(privateOfficeString)).thenReturn(new TeamDto("Team1", privateOfficeString, true));
+        when(infoClient.getTeam(privateOfficeString)).thenReturn(new TeamDto("Team1", privateOfficeString, true, new HashSet<>()));
         doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)),any());
         doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),eq(UUID.fromString(stageUUID)),any());
 
@@ -95,8 +96,8 @@ public class BpmnServiceTest {
         UUID draftingString = UUID.randomUUID();
         UUID privateOfficeString = UUID.randomUUID();
 
-        when(infoClient.getTeam(privateOfficeString)).thenReturn(new TeamDto("Team1", privateOfficeString, true));
-        when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", privateOfficeString, true));
+        when(infoClient.getTeam(privateOfficeString)).thenReturn(new TeamDto("Team1", privateOfficeString, true, new HashSet<>()));
+        when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", privateOfficeString, true,  new HashSet<>()));
         doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)),any());
         doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),eq(UUID.fromString(stageUUID)),any());
 
