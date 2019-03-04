@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 
@@ -17,6 +18,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 @Component
 @AllArgsConstructor
 @Slf4j
+@Profile("!migration")
 public class AllocatedAspect {
 
     private CaseworkClient caseworkClient;
