@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
@@ -25,12 +26,15 @@ public class MigrationCaseworkClient {
 
     private final RestHelper restHelper;
     private final String serviceBaseURL;
+    private RequestData requestData;
 
     @Autowired
     public MigrationCaseworkClient(RestHelper restHelper,
-                                   @Value("${hocs.case-service}") String caseService) {
+                                   @Value("${hocs.case-service}") String caseService,
+                                   RequestData requestData) {
         this.restHelper = restHelper;
         this.serviceBaseURL = caseService;
+        this.requestData = requestData;
     }
 
     public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType, String caseReference, Map<String, String> data, LocalDate dateReceived, LocalDate deadline) {
@@ -60,7 +64,7 @@ public class MigrationCaseworkClient {
 
     public void updateCase(UUID caseUUID, UUID stageUUID, Map<String, String> data) {
         UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
-        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID) , request, String.class);
+        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/migration/case/%s/stage/%s/data", caseUUID, stageUUID) , request, String.class);
 
         if (response.getStatusCodeValue() == 200) {
             log.info("Set Case Data for Case {}", caseUUID);
@@ -93,6 +97,17 @@ public class MigrationCaseworkClient {
 
     public void updatePrimaryTopic(UUID caseUUID, UUID stageUUID, UUID primaryTopic) {
         ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID) , primaryTopic, String.class);
+
+        if (response.getStatusCodeValue() == 200) {
+            log.info("Set Case Data for Case {}", caseUUID);
+        } else {
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Case; response: %s", response.getStatusCodeValue()), CASE_UPDATE_FAILURE);
+        }
+    }
+
+    public void assignToMe(UUID caseUUID, UUID stageUUID){
+        MigrationUpdateStageUserRequest request = new MigrationUpdateStageUserRequest(UUID.fromString(requestData.userId()));
+        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/user", caseUUID, stageUUID) , request, String.class);
 
         if (response.getStatusCodeValue() == 200) {
             log.info("Set Case Data for Case {}", caseUUID);

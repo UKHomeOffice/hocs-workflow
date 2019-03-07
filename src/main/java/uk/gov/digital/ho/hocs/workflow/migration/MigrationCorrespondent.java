@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.NonNull;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -26,6 +24,9 @@ public class MigrationCorrespondent {
 
     @JsonProperty(value = "surname")
     String surname;
+
+    @JsonProperty(value = "fullname")
+    String fullname;
 
     @JsonProperty("postcode")
     String postcode;
