@@ -4,14 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
-import uk.gov.digital.ho.hocs.workflow.security.Allocated;
-import uk.gov.digital.ho.hocs.workflow.security.AllocationLevel;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
