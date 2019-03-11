@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
@@ -82,7 +83,8 @@ public class CaseworkClient {
             log.info("Got Case: {}", caseUUID);
             return response.getBody();
         } else {
-            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Case; response: %s", response.getStatusCodeValue()), CASE_NOT_FOUND);
+
+            throw new ApplicationExceptions.CaseworkException(String.format("Could not get Case; response: %s", response.getStatusCodeValue()), response.getStatusCode(), SECURITY_UNAUTHORISED);
         }
     }
 
