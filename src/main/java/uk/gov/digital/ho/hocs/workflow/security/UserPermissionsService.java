@@ -34,26 +34,30 @@ public class UserPermissionsService {
         Optional<PermissionDto> maxPermission = permissionDtos.stream()
                 .filter(e-> e.getCaseTypeCode().equals(caseType))
                 .max(Comparator.comparing(e -> e.getAccessLevel()));
+
+        maxPermission.ifPresent(p -> log.info("Max permission case type: {}, permission: {}", p.getCaseTypeCode(), p.getAccessLevel().toString()));
         return maxPermission.orElseThrow(
-                () -> new SecurityExceptions.PermissionCheckException("No permissionDtos found for case type",SECURITY_PARSE_ERROR)
+                () -> new SecurityExceptions.PermissionCheckException("No permissions found for case type",SECURITY_PARSE_ERROR)
         ).getAccessLevel();
     }
 
 
     public Set<UUID> getUserTeams() {
         String[] groups = requestData.groupsArray();
-        return Arrays.stream(groups)
+        Set<UUID> userTeams = Arrays.stream(groups)
                 .map(group -> getUUIDFromBase64(group))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+        userTeams.forEach(t -> log.info("User team: {}", t));
+        return userTeams;
     }
 
     public Set<String> getUserCaseTypes() {
-        return getUserPermission().stream()
+        Set<String> userCaseTypes = getUserPermission().stream()
                 .map(p -> p.getCaseTypeCode())
                 .collect(Collectors.toSet());
-
-
+        userCaseTypes.forEach(c -> log.info("User case type: {}", c));
+        return userCaseTypes;
     }
 
     Set<PermissionDto> getUserPermission() {
@@ -63,6 +67,8 @@ public class UserPermissionsService {
                 .filter(t -> userTeams.contains(t.getUuid()))
                 .flatMap(t -> t.getPermissionDtos().stream())
                 .collect(Collectors.toSet());
+        log.info("{} user permissions found", set.size());
+
         return set;
     }
 
