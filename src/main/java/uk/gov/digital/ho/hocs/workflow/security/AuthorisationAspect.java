@@ -70,6 +70,7 @@ public class AuthorisationAspect {
             String caseType;
             if (joinPoint.getArgs()[0] instanceof UUID) {
                 UUID caseUUID = (UUID) joinPoint.getArgs()[0];
+                log.info("Checking authorisation permissions for user {} and case type {}", userService.getUserId().toString(), caseUUID.toString());
                 caseType = caseworkClient.getCaseType(caseUUID);
             } else if (joinPoint.getArgs()[0] instanceof CreateCaseRequest) {
                 CreateCaseRequest createCaseRequest = (CreateCaseRequest) joinPoint.getArgs()[0];
