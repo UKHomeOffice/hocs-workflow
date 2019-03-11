@@ -62,7 +62,7 @@ public class AllocatedAspectTest {
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
 
         verify(caseworkClient, times(1)).getStageUser(caseUUID, stageUUID);
-        verify(userService, times(1)).getUserId();
+        verify(userService, times(2)).getUserId();
         verify(proceedingJoinPoint, atLeast(1)).getArgs();
     }
 
@@ -76,13 +76,13 @@ public class AllocatedAspectTest {
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
         when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
-
+        when(userService.getUserId()).thenReturn(userId);
         aspect = new AllocatedAspect(caseworkClient,userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
 
         verify(userService, times(1)).getUserTeams();
         verify(caseworkClient, times(1)).getStageTeam(caseUUID,stageUUID);
-        verify(userService, never()).getUserId();
+        verify(userService, times(1)).getUserId();
         verify(proceedingJoinPoint, atLeast(1)).getArgs();
     }
 
@@ -111,6 +111,7 @@ public class AllocatedAspectTest {
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
         when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
+        when(userService.getUserId()).thenReturn(userId);
         aspect = new AllocatedAspect(caseworkClient,userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
         verify(proceedingJoinPoint, times(1)).proceed();
@@ -143,6 +144,7 @@ public class AllocatedAspectTest {
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
         when(userService.getUserTeams()).thenReturn(new HashSet<UUID>(){{UUID.randomUUID();}});
+        when(userService.getUserId()).thenReturn(userId);
         aspect = new AllocatedAspect(caseworkClient,userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
         verify(proceedingJoinPoint, never()).proceed();

@@ -6,6 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 
@@ -19,6 +20,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 @AllArgsConstructor
 @Slf4j
 @Profile("!migration")
+@Order(value = 2)
 public class AllocatedAspect {
 
     private CaseworkClient caseworkClient;
@@ -38,6 +40,8 @@ public class AllocatedAspect {
         } else {
             throw new SecurityExceptions.PermissionCheckException("Unable to check permission of method without stage UUID parameter", SECURITY_PARSE_ERROR);
         }
+
+        log.info("Checking allocation permissions for user {} and case type {}", userService.getUserId().toString(), caseUUID.toString());
 
         switch (allocated.allocatedTo()) {
             case USER:
