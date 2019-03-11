@@ -4,10 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.UNCAUGHT_EXCEPTION;
 
@@ -27,10 +27,18 @@ public class RestResponseEntityExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), NOT_FOUND);
     }
 
+    @ExceptionHandler(ApplicationExceptions.CaseworkException.class)
+    public ResponseEntity handle(ApplicationExceptions.CaseworkException e) {
+        log.error("Exception: {}", e.getMessage(), value(EVENT, LogEvent.CASEWORK_CLIENT_FAILURE));
+        return new ResponseEntity<>(e.getMessage(), e.getStatusCode());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity handle(Exception e) {
         log.error("Exception: {}", e.getMessage(), value(EVENT, UNCAUGHT_EXCEPTION));
         return new ResponseEntity<>(e.getMessage(), INTERNAL_SERVER_ERROR);
     }
+
+
 
 }

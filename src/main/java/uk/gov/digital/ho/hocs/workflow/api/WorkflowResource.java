@@ -53,6 +53,7 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
+    @Authorised(accessLevel = AccessLevel.READ)
     @Allocated(allocatedTo = AllocationLevel.USER)
     @GetMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) {

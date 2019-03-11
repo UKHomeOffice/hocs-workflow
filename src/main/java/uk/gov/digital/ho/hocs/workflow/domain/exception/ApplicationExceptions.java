@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.domain.exception;
 
+import org.springframework.http.HttpStatus;
 import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 
 public interface ApplicationExceptions {
@@ -53,5 +54,20 @@ public interface ApplicationExceptions {
         public LogEvent getEvent() {
             return event;
         }
+    }
+
+    class CaseworkException extends RuntimeException {
+        private final LogEvent event;
+        private final HttpStatus statusCode;
+        public CaseworkException(String msg, HttpStatus statusCode, LogEvent event) {
+            super(msg);
+            this.event = event;
+            this.statusCode = statusCode;
+        }
+        public LogEvent getEvent() {
+            return event;
+        }
+
+        public HttpStatus getStatusCode() { return statusCode; }
     }
 }
