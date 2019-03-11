@@ -5,6 +5,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -20,6 +21,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAU
 @Component
 @Slf4j
 @Profile("!migration")
+@Order(value=1)
 public class AuthorisationAspect {
 
     private CaseworkClient caseworkClient;

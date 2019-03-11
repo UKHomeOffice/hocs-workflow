@@ -78,6 +78,7 @@ public class SecurityIntegrationTest {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(UUID.randomUUID());
+        when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity httpEntity = new HttpEntity(headers);
@@ -90,6 +91,7 @@ public class SecurityIntegrationTest {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenThrow(new ApplicationExceptions.EntityNotFoundException("Stage not found",LogEvent.CASE_NOT_FOUND));
+        when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity httpEntity = new HttpEntity(headers);
@@ -110,7 +112,6 @@ public class SecurityIntegrationTest {
 
     @Test
     public void shouldReturnUnauthrisedForCreateCaseWhenUserIsNotInGroup() {
-        UUID caseUUID = UUID.randomUUID();
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest(CaseDataType.TRO,LocalDate.now(), new ArrayList<>()), headers);
