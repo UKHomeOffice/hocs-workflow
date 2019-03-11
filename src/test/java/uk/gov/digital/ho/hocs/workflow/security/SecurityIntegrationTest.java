@@ -65,6 +65,7 @@ public class SecurityIntegrationTest {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
+        when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity httpEntity = new HttpEntity(headers);
