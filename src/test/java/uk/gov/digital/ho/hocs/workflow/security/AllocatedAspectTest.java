@@ -107,7 +107,7 @@ public class AllocatedAspectTest {
         Object[] args = new Object[2];
         args[0] = caseUUID;
         args[1] = stageUUID;
-        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
         when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
@@ -115,6 +115,63 @@ public class AllocatedAspectTest {
         aspect = new AllocatedAspect(caseworkClient,userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
         verify(proceedingJoinPoint, times(1)).proceed();
+
+    }
+
+
+    @Test
+    public void shouldProceedIfUserAndTeamIsAllocatedToCase() throws Throwable {
+
+        Object[] args = new Object[2];
+        args[0] = caseUUID;
+        args[1] = stageUUID;
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
+        when(userService.getUserId()).thenReturn(userId);
+        aspect = new AllocatedAspect(caseworkClient,userService);
+        aspect.validateUserAccess(proceedingJoinPoint, annotation);
+        verify(proceedingJoinPoint, times(1)).proceed();
+
+    }
+
+
+    @Test(expected = SecurityExceptions.StageNotAssignedToLoggedInUserException.class)
+    public void shouldNotProceedIfTeamHasPermissionButUserDoesNotHavePermission() throws Throwable {
+
+        Object[] args = new Object[2];
+        args[1] = stageUUID;
+        args[0] = caseUUID;
+
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
+        when(userService.getUserId()).thenReturn(UUID.randomUUID());
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
+        when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
+        aspect = new AllocatedAspect(caseworkClient,userService);
+        aspect.validateUserAccess(proceedingJoinPoint, annotation);
+        verify(proceedingJoinPoint, never()).proceed();
+
+    }
+
+    @Test(expected = SecurityExceptions.StageNotAssignedToUserTeamException.class)
+    public void shouldNotProceedIfUserHasPermissionButTeamDoesNotHavePermission() throws Throwable {
+
+        Object[] args = new Object[2];
+        args[1] = stageUUID;
+        args[0] = caseUUID;
+
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
+        when(userService.getUserTeams()).thenReturn(new HashSet<UUID>(){{UUID.randomUUID();}});
+        when(userService.getUserId()).thenReturn(userId);
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        aspect = new AllocatedAspect(caseworkClient,userService);
+        aspect.validateUserAccess(proceedingJoinPoint, annotation);
+        verify(proceedingJoinPoint, never()).proceed();
 
     }
 

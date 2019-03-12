@@ -21,7 +21,6 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAU
 @Component
 @Slf4j
 @Profile("!migration")
-@Order(value=1)
 public class AuthorisationAspect {
 
     private CaseworkClient caseworkClient;

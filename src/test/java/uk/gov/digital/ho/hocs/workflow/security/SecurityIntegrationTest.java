@@ -50,6 +50,7 @@ public class SecurityIntegrationTest {
     WorkflowService workflowService;
 
     UUID userId = UUID.randomUUID();
+    UUID teamUUID = UUID.fromString("44444444-2222-2222-2222-222222222222");
 
     @Autowired
     ObjectMapper mapper;
@@ -61,10 +62,11 @@ public class SecurityIntegrationTest {
 
 
     @Test
-    public void shouldGetStageDataWhenUserIsAllocated() {
+    public void shouldGetStageDataWhenUserAndTeamAreAllocated() {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamUUID);
         when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
@@ -77,6 +79,7 @@ public class SecurityIntegrationTest {
     public void shouldReturnForbiddenWhenUserIsNotAllocated() {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamUUID);
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(UUID.randomUUID());
         when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
@@ -87,11 +90,24 @@ public class SecurityIntegrationTest {
     }
 
     @Test
+    public void shouldReturnUnauthorisedWhenTeamIsNotAllocated() {
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(UUID.randomUUID());
+        when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
+        headers.add(RequestData.USER_ID_HEADER, userId.toString());
+        headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
+        HttpEntity httpEntity = new HttpEntity(headers);
+        ResponseEntity<String> result = restTemplate.exchange( getBasePath()  + "/case/" + caseUUID + "/stage/" + stageUUID, HttpMethod.GET, httpEntity, String.class);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+
+    @Test
     public void shouldReturnNotFoundIfCaseUUIDNotFound() {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
-        when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenThrow(new ApplicationExceptions.EntityNotFoundException("Stage not found",LogEvent.CASE_NOT_FOUND));
-        when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenThrow(new ApplicationExceptions.EntityNotFoundException("Stage not found",LogEvent.CASE_NOT_FOUND));
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity httpEntity = new HttpEntity(headers);
@@ -111,7 +127,7 @@ public class SecurityIntegrationTest {
     }
 
     @Test
-    public void shouldReturnUnauthrisedForCreateCaseWhenUserIsNotInGroup() {
+    public void shouldReturnUnauthorisedForCreateCaseWhenUserIsNotInGroup() {
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest(CaseDataType.TRO,LocalDate.now(), new ArrayList<>()), headers);
@@ -123,7 +139,7 @@ public class SecurityIntegrationTest {
         Set<TeamDto> teamDtos = new HashSet<>();
         Set<PermissionDto> permissions = new HashSet<>();
         permissions.add(new PermissionDto(caseType, AccessLevel.from(permission)));
-        TeamDto teamDto = new TeamDto("TEAM 1", UUID.fromString("44444444-2222-2222-2222-222222222222"), true, permissions);
+        TeamDto teamDto = new TeamDto("TEAM 1", teamUUID, true, permissions);
         teamDtos.add(teamDto);
         return teamDtos;
     }

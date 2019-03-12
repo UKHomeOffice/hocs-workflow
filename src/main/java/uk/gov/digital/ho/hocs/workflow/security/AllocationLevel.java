@@ -1,5 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.security;
 
 public enum AllocationLevel {
-    USER, TEAM
+    USER, TEAM, TEAM_USER
 }
