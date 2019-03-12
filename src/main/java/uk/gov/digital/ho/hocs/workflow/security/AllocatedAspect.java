@@ -20,7 +20,6 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 @AllArgsConstructor
 @Slf4j
 @Profile("!migration")
-@Order(value = 2)
 public class AllocatedAspect {
 
     private CaseworkClient caseworkClient;
@@ -45,18 +44,14 @@ public class AllocatedAspect {
 
         switch (allocated.allocatedTo()) {
             case USER:
-                UUID userId = userService.getUserId();
-                UUID assignedUser = caseworkClient.getStageUser(caseUUID, stageUUID);
-                if (!userId.equals(assignedUser)) {
-                    throw new SecurityExceptions.StageNotAssignedToLoggedInUserException("Stage " + stageUUID.toString() + " is assigned to " + assignedUser, SECURITY_CASE_NOT_ALLOCATED_TO_USER);
-                }
+                verifyAllocatedToUser(caseUUID, stageUUID);
                 break;
             case TEAM:
-                Set<UUID> teams = userService.getUserTeams();
-                UUID assignedTeam = caseworkClient.getStageTeam(caseUUID, stageUUID);
-                if (!teams.contains(assignedTeam)) {
-                    throw new SecurityExceptions.StageNotAssignedToUserTeamException("Stage " + stageUUID.toString() + " is assigned to " + assignedTeam, SECURITY_CASE_NOT_ALLOCATED_TO_TEAM);
-                }
+                verifyAllocatedToTeam(caseUUID, stageUUID);
+                break;
+            case TEAM_USER:
+                verifyAllocatedToTeam(caseUUID, stageUUID);
+                verifyAllocatedToUser(caseUUID, stageUUID);
                 break;
             default:
                 throw new SecurityExceptions.PermissionCheckException("Invalid Allocation type", SECURITY_PARSE_ERROR);
@@ -64,6 +59,23 @@ public class AllocatedAspect {
 
         return joinPoint.proceed();
 
+    }
+
+    private void verifyAllocatedToUser(UUID caseUUID, UUID stageUUID) {
+        UUID userId = userService.getUserId();
+        UUID assignedUser = caseworkClient.getStageUser(caseUUID, stageUUID);
+        if (!userId.equals(assignedUser)) {
+            throw new SecurityExceptions.StageNotAssignedToLoggedInUserException("Stage " + stageUUID.toString() + " is assigned to " + assignedUser, SECURITY_CASE_NOT_ALLOCATED_TO_USER);
+        }
+        return;
+    }
+
+    private void verifyAllocatedToTeam(UUID caseUUID, UUID stageUUID) {
+        Set<UUID> teams = userService.getUserTeams();
+        UUID assignedTeam = caseworkClient.getStageTeam(caseUUID, stageUUID);
+        if (!teams.contains(assignedTeam)) {
+            throw new SecurityExceptions.StageNotAssignedToUserTeamException("Stage " + stageUUID.toString() + " is assigned to " + assignedTeam, SECURITY_CASE_NOT_ALLOCATED_TO_TEAM);
+        }
     }
 }
 

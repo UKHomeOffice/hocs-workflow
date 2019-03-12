@@ -71,8 +71,6 @@ public class AuthorisationAspectTest {
         verifyNoMoreInteractions(caseService);
     }
 
-    //todo: fallback to checking database tests.
-
     @Test
     public void shouldNotCallCaseServiceWhenNewCase() throws Throwable {
         String type = "MIN";

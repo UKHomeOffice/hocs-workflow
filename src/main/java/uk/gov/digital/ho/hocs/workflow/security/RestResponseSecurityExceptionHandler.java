@@ -32,6 +32,6 @@ public class RestResponseSecurityExceptionHandler {
     @ExceptionHandler(SecurityExceptions.StageNotAssignedToUserTeamException.class)
     public ResponseEntity handle(SecurityExceptions.StageNotAssignedToUserTeamException e) {
         log.error("SecurityException: {}", e.getMessage(), value(EVENT, e.getEvent()));
-        return new ResponseEntity<>(e.getMessage(), FORBIDDEN);
+        return new ResponseEntity<>(e.getMessage(), UNAUTHORIZED);
     }
 }
