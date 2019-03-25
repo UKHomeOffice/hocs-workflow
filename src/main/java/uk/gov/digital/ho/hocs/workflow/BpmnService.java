@@ -91,12 +91,14 @@ public class BpmnService {
         Map<String, String> teamsForTopic = new HashMap<>();
 
         if(draftingUUIDString != null) {
+            log.info("Overwriting draft team with {}", draftingUUIDString);
             TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
             teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
             teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
         }
 
         if(privateOfficeUUIDString != null) {
+            log.info("Overwriting po team with {}", privateOfficeUUIDString);
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
             teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
             teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
@@ -107,7 +109,28 @@ public class BpmnService {
             caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
         }
 
-        log.debug("######## Updated Primary Topic ########");
+        log.debug("######## Updated Team Selection ########");
+    }
+
+    public void updatePOTeamSelection(String caseUUIDString, String stageUUIDString, String privateOfficeUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        Map<String, String> teamsForTopic = new HashMap<>();
+
+        if(privateOfficeUUIDString != null) {
+            log.info("Overwriting po team with {}", privateOfficeUUIDString);
+            TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
+            teamsForTopic.put("PrivateOfficeOverridePOTeamUUID", pOTeam.getUuid().toString());
+            teamsForTopic.put("PrivateOfficeOverridePOTeamName", pOTeam.getDisplayName());
+        }
+
+        if(!teamsForTopic.isEmpty()) {
+            camundaClient.updateTask(stageUUID, teamsForTopic);
+            caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
+        }
+
+        log.debug("######## Updated Team Selection at PO ########");
     }
 
     public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType) {
