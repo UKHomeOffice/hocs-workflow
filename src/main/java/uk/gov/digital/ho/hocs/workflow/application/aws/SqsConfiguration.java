@@ -16,13 +16,6 @@ import org.springframework.util.StringUtils;
 @Profile({ "sqs"})
 public class SqsConfiguration {
 
-    @Bean("caseSqsClient")
-    public AmazonSQS caseSqsClient(@Value("${case.aws.sqs.access.key}") String accessKey,
-                                    @Value("${case.aws.sqs.secret.key}") String secretKey,
-                                    @Value("${aws.region}") String region) {
-        return sqsClient(accessKey, secretKey, region);
-    }
-
     @Bean("docsSqsClient")
     public AmazonSQS docsSqsClient(@Value("${docs.aws.sqs.access.key}") String accessKey,
                                      @Value("${docs.aws.sqs.secret.key}") String secretKey,

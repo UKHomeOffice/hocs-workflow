@@ -10,7 +10,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
 import java.nio.BufferUnderflowException;
 import java.util.*;
 import java.util.stream.Collectors;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_PARSE_ERROR;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAUTHORISED;
 
 @Service
 @Slf4j
@@ -37,7 +37,7 @@ public class UserPermissionsService {
 
         maxPermission.ifPresent(p -> log.info("Max permission case type: {}, permission: {}", p.getCaseTypeCode(), p.getAccessLevel().toString()));
         return maxPermission.orElseThrow(
-                () -> new SecurityExceptions.PermissionCheckException("No permissions found for case type",SECURITY_PARSE_ERROR)
+                () -> new SecurityExceptions.PermissionCheckException("No permissions found for case type", SECURITY_UNAUTHORISED)
         ).getAccessLevel();
     }
 
