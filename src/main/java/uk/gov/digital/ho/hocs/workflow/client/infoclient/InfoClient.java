@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
@@ -65,6 +66,11 @@ public class InfoClient {
         return response.getBody();
     }
 
+    public Set<SchemaDto> getSchemasForCaseType(String caseType) {
+        ResponseEntity<Set<SchemaDto>> response = restHelper.get(serviceBaseURL, String.format("/schema/caseType/%s", caseType), new ParameterizedTypeReference<Set<SchemaDto>>() {});
+        return response.getBody();
+    }
+
     @Cacheable(value = "InfoClientGetTeams")
     public Set<TeamDto> getTeams() {
         try {
@@ -76,6 +82,4 @@ public class InfoClient {
             throw new ApplicationExceptions.EntityNotFoundException("Could not get teams", INFO_CLIENT_GET_TEAMS_FAILURE);
         }
     }
-
-
 }

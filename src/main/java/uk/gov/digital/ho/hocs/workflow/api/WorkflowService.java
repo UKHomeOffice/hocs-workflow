@@ -12,15 +12,13 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
@@ -99,6 +97,20 @@ public class WorkflowService {
         } else {
             return new GetStageResponse(stageUUID, null, null);
         }
+    }
+
+    public GetCaseResponse getAllCaseStages(UUID caseUUID) {
+
+            GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
+            Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType().getType());
+
+            Map<String, List<HocsFormField>> hocsFields = schemaDtos.stream().collect(Collectors.toMap(s-> s.getTitle(),
+                    s->s.getFields().stream().map(HocsFormField::from).collect(Collectors.toList())
+            ));
+
+            HocsCaseSchema schema = new HocsCaseSchema("View Case", hocsFields);
+
+            return new GetCaseResponse(inputResponse.getReference(), schema, inputResponse.getData());
     }
 
     public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
