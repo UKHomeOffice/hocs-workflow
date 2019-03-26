@@ -19,11 +19,6 @@ import org.springframework.context.annotation.Profile;
 @Profile({ "local"})
 public class LocalStackConfiguration {
 
-    @Bean("caseSqsClient")
-    public AmazonSQS caseSqsClient() {
-        return sqsClient();
-    }
-
     @Bean("docsSqsClient")
     public AmazonSQS docsSqsClient() {
         return sqsClient();
