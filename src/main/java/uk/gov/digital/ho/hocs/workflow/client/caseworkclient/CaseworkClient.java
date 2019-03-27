@@ -110,8 +110,8 @@ public class CaseworkClient {
         }
     }
 
-    public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID , LocalDate deadline, String allocationType) {
-        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, deadline, allocationType);
+    public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID, String allocationType) {
+        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, allocationType);
         ResponseEntity<CreateCaseworkStageResponse> response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         if (response.getStatusCodeValue() == 200) {
             log.info("Created Stage: {} for Case {}", response.getBody().getUuid(), caseUUID);

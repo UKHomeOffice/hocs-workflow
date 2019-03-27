@@ -18,9 +18,6 @@ public class CreateCaseworkStageRequest {
     @JsonProperty("teamUUID")
     private UUID teamUUID;
 
-    @JsonProperty("deadline")
-    private LocalDate deadline;
-
     @JsonProperty("allocationType")
     private String allocationType;
 }

@@ -31,7 +31,7 @@ public class BpmnService {
         this.infoClient = infoClient;
     }
 
-    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String dateReceivedString, String allocationType, String allocationTeamString) {
+    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString,  String allocationType, String allocationTeamString) {
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
 
@@ -47,9 +47,8 @@ public class BpmnService {
             caseworkClient.updateStageTeam(caseUUID, UUID.fromString(stageUUIDString), teamUUID, allocationType);
             return stageUUIDString;
         } else {
-            LocalDate dateReceived = LocalDate.parse(dateReceivedString);
-            LocalDate deadline = infoClient.getDeadline(StageType.valueOf(stageTypeString), dateReceived);
-            return caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, deadline, allocationType).toString();
+
+            return caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, allocationType).toString();
         }
     }
 
