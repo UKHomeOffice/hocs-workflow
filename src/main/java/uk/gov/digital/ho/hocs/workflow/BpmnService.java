@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.Deadline;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
@@ -49,8 +48,8 @@ public class BpmnService {
             return stageUUIDString;
         } else {
             LocalDate dateReceived = LocalDate.parse(dateReceivedString);
-            Deadline deadline = infoClient.getDeadline(StageType.valueOf(stageTypeString), dateReceived);
-            return caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, deadline.getDate(), allocationType).toString();
+            LocalDate deadline = infoClient.getDeadline(StageType.valueOf(stageTypeString), dateReceived);
+            return caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, deadline, allocationType).toString();
         }
     }
 

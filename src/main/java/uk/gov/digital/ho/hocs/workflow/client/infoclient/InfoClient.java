@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
 import java.time.LocalDate;
@@ -35,13 +34,8 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
-    public LocalDate getCaseDeadline(CaseDataType caseType, LocalDate localDate) {
-        ResponseEntity<LocalDate> response = restHelper.get(serviceBaseURL, String.format("/caseType/%s/deadline?received=%s", caseType, localDate), LocalDate.class);
-        return response.getBody();
-    }
-
-    public Deadline getDeadline(StageType stageType, LocalDate localDate) {
-        ResponseEntity<Deadline> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/deadline?received=%s", stageType, localDate), Deadline.class);
+    public LocalDate getDeadline(StageType stageType, LocalDate localDate) {
+        ResponseEntity<LocalDate> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/deadline?received=%s", stageType, localDate), LocalDate.class);
         return response.getBody();
     }
 
