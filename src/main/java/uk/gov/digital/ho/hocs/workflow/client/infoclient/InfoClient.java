@@ -12,7 +12,6 @@ import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,17 +25,11 @@ public class InfoClient {
     private final RestHelper restHelper;
     private final String serviceBaseURL;
 
-
     @Autowired
     public InfoClient(RestHelper restHelper,
                       @Value("${hocs.info-service}") String infoService) {
         this.restHelper = restHelper;
         this.serviceBaseURL = infoService;
-    }
-
-    public LocalDate getDeadline(StageType stageType, LocalDate localDate) {
-        ResponseEntity<LocalDate> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/deadline?received=%s", stageType, localDate), LocalDate.class);
-        return response.getBody();
     }
 
     public UUID getTeamForStageType(String stageType) {
@@ -70,6 +63,5 @@ public class InfoClient {
             throw new ApplicationExceptions.EntityNotFoundException("Could not get teams", INFO_CLIENT_GET_TEAMS_FAILURE);
         }
     }
-
 
 }
