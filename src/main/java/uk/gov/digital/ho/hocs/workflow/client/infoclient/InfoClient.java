@@ -32,11 +32,6 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
-    public LocalDate getDeadline(StageType stageType, LocalDate localDate) {
-        ResponseEntity<LocalDate> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/deadline?received=%s", stageType, localDate), LocalDate.class);
-        return response.getBody();
-    }
-
     public UUID getTeamForStageType(String stageType) {
         ResponseEntity<TeamDto> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType),  TeamDto.class);
         return response.getBody().getUuid();
