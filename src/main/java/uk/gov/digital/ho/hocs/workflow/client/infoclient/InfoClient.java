@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
+import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
 import java.util.Set;
 import java.util.UUID;
@@ -23,7 +24,6 @@ public class InfoClient {
 
     private final RestHelper restHelper;
     private final String serviceBaseURL;
-
 
     @Autowired
     public InfoClient(RestHelper restHelper,
@@ -63,6 +63,5 @@ public class InfoClient {
             throw new ApplicationExceptions.EntityNotFoundException("Could not get teams", INFO_CLIENT_GET_TEAMS_FAILURE);
         }
     }
-
 
 }

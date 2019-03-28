@@ -47,7 +47,6 @@ public class BpmnService {
             caseworkClient.updateStageTeam(caseUUID, UUID.fromString(stageUUIDString), teamUUID, allocationType);
             return stageUUIDString;
         } else {
-
             return caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, allocationType).toString();
         }
     }
