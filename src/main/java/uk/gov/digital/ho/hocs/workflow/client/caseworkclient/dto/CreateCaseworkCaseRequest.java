@@ -20,7 +20,4 @@ public class CreateCaseworkCaseRequest {
 
     @JsonProperty("received")
     private LocalDate dateReceived;
-
-    @JsonProperty("deadline")
-    private LocalDate caseDeadline;
 }
