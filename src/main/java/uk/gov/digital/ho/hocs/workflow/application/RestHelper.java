@@ -8,7 +8,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
 import java.nio.charset.Charset;
 import java.util.Base64;
