@@ -107,7 +107,7 @@ public class SecurityIntegrationTest {
     public void shouldReturnNotFoundIfCaseUUIDNotFound() {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
-        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenThrow(new ApplicationExceptions.EntityNotFoundException("Stage not found",LogEvent.CASE_NOT_FOUND));
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenThrow(new ApplicationExceptions.EntityNotFoundException("Stage not found",LogEvent.CASEWORK_CLIENT_CASE_NOT_FOUND));
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity httpEntity = new HttpEntity(headers);

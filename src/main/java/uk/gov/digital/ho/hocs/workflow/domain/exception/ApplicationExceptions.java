@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.domain.exception;
 
-import org.springframework.http.HttpStatus;
 import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 
 public interface ApplicationExceptions {
@@ -8,6 +7,19 @@ public interface ApplicationExceptions {
         private final LogEvent event;
 
         public EntityCreationException(String msg, LogEvent event, Object... args) {
+            super(String.format(msg, args));
+            this.event = event;
+        }
+
+        public LogEvent getEvent() {
+            return event;
+        }
+    }
+
+    class CorrespondentCreationException extends RuntimeException {
+        private final LogEvent event;
+
+        public CorrespondentCreationException(String msg, LogEvent event, Object... args) {
             super(String.format(msg, args));
             this.event = event;
         }
@@ -30,23 +42,10 @@ public interface ApplicationExceptions {
         }
     }
 
-    class ClientException extends RuntimeException {
-        private final LogEvent event;
-
-        public ClientException(String msg, LogEvent event, Object... args) {
-            super(String.format(msg, args));
-            this.event = event;
-        }
-
-        public LogEvent getEvent() {
-            return event;
-        }
-    }
-
     class ResourceException extends RuntimeException {
         private final LogEvent event;
 
-        ResourceException(String msg, LogEvent event, Object... args) {
+        public ResourceException(String msg, LogEvent event, Object... args) {
             super(String.format(msg, args));
             this.event = event;
         }
@@ -56,18 +55,19 @@ public interface ApplicationExceptions {
         }
     }
 
-    class CaseworkException extends RuntimeException {
-        private final LogEvent event;
-        private final HttpStatus statusCode;
-        public CaseworkException(String msg, HttpStatus statusCode, LogEvent event) {
-            super(msg);
-            this.event = event;
-            this.statusCode = statusCode;
-        }
-        public LogEvent getEvent() {
-            return event;
+    class ResourceNotFoundException extends ResourceException {
+
+        public ResourceNotFoundException(String msg, LogEvent event, Object... args) {
+            super(msg, event, args);
         }
 
-        public HttpStatus getStatusCode() { return statusCode; }
+    }
+
+    class ResourceServerException extends ResourceException {
+
+        public ResourceServerException(String msg, LogEvent event, Object... args) {
+            super(msg, event, args);
+        }
+
     }
 }

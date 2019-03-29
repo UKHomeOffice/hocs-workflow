@@ -13,6 +13,7 @@ import uk.gov.digital.ho.hocs.workflow.security.Authorised;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
@@ -48,8 +49,8 @@ class WorkflowResource {
 
     @Allocated(allocatedTo = AllocationLevel.USER)
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> updateStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
-        GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request.getData());
+    public ResponseEntity<GetStageResponse> updateStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody Map<String, String> request) {
+        GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request);
         return ResponseEntity.ok(response);
     }
 

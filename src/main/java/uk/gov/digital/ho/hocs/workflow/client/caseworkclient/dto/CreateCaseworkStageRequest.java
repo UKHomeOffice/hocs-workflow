@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @AllArgsConstructor
