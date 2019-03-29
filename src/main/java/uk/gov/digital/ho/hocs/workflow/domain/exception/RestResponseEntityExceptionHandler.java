@@ -26,12 +26,6 @@ public class RestResponseEntityExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), NOT_FOUND);
     }
 
-    @ExceptionHandler(ApplicationExceptions.CaseworkException.class)
-    public ResponseEntity handle(ApplicationExceptions.CaseworkException e) {
-        log.error("Exception: {}", e.getMessage(), value(EVENT, LogEvent.CASEWORK_CLIENT_FAILURE), value(EXCEPTION, e));
-        return new ResponseEntity<>(e.getMessage(), e.getStatusCode());
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity handle(Exception e) {
         log.error("Exception: {}", e.getMessage(), value(EVENT, UNCAUGHT_EXCEPTION), value(EXCEPTION, e));

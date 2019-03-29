@@ -69,7 +69,7 @@ public class CaseworkClient {
     public void updatePrimaryTopic(UUID caseUUID, UUID primaryTopic) {
         try {
             restHelper.put(serviceBaseURL, String.format("/case/%s/primaryTopic", caseUUID), primaryTopic, String.class);
-            log.info("Updating Primary Topic Case {}", caseUUID, value(EVENT, CASEWORK_CLIENT_CASE_UPDATE_SUCCESS));
+            log.info("Updated Primary Topic Case {}", caseUUID, value(EVENT, CASEWORK_CLIENT_CASE_UPDATE_SUCCESS));
         } catch (ApplicationExceptions.ResourceException e) {
             throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Primary Topic for Case %s", caseUUID), CASEWORK_CLIENT_CASE_UPDATE_FAILURE);
         }
@@ -82,7 +82,7 @@ public class CaseworkClient {
             log.info("Got Case: {}", caseUUID, value(EVENT, CASEWORK_CLIENT_CASE_FOUND));
             return response;
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Case %s", caseUUID), CASEWORK_CLIENT_CASE_NOT_FOUND);
+            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Case %s. %s", caseUUID, e.toString()), CASEWORK_CLIENT_CASE_NOT_FOUND);
         }
     }
 
@@ -99,7 +99,7 @@ public class CaseworkClient {
             restHelper.post(serviceBaseURL, String.format("/case/%s/note", caseUUID), request, String.class);
             log.info("Created Note for Case: {}", caseUUID, value(EVENT, CASEWORK_CLIENT_CASE_NOTE_CREATION_SUCCESS));
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Note for Case %s",  caseUUID), CASEWORK_CLIENT_CASE_NOTE_CREATION_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Note for Case %s. %s",  caseUUID, e.toString()), CASEWORK_CLIENT_CASE_NOTE_CREATION_FAILURE);
         }
     }
 
@@ -110,7 +110,7 @@ public class CaseworkClient {
             log.info("Created Stage: {} for Case: {}", response, caseUUID, value(EVENT, CASEWORK_CLIENT_STAGE_CREATION_SUCCESS));
             return response;
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Stage %s for Case %s", stageType, caseUUID), CASEWORK_CLIENT_STAGE_CREATION_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Stage %s for Case %s. %s", stageType, caseUUID, e.toString()), CASEWORK_CLIENT_STAGE_CREATION_FAILURE);
         }
     }
 
@@ -120,7 +120,7 @@ public class CaseworkClient {
             log.info("Got User {} for Stage: {} for Case: {}", response, stageUUID, caseUUID, value(EVENT, CASEWORK_CLIENT_STAGE_USER_FOUND));
             return response;
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get User for Stage %s;", stageUUID), CASEWORK_CLIENT_STAGE_USER_NOT_FOUND);
+            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get User for Stage %s. %s", stageUUID, e.toString()), CASEWORK_CLIENT_STAGE_USER_NOT_FOUND);
         }
     }
 
@@ -131,7 +131,7 @@ public class CaseworkClient {
             restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), request, String.class);
             log.info("Updated Team {} on Stage: {} for Case {}", teamUUID, stageUUID, caseUUID, value(EVENT, CASEWORK_CLIENT_STAGE_TEAM_UPDATE_SUCCESS));
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not update Stage %s Team to %s", stageUUID, teamUUID), CASEWORK_CLIENT_STAGE_TEAM_UPDATE_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not update Stage %s Team to %s. %s", stageUUID, teamUUID, e.toString()), CASEWORK_CLIENT_STAGE_TEAM_UPDATE_FAILURE);
         }
     }
 
@@ -142,7 +142,7 @@ public class CaseworkClient {
             log.info("Got Team {} Stage: {} for Case: {}", response, stageUUID, caseUUID, value(EVENT, CASEWORK_CLIENT_STAGE_FOUND));
             return response;
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Team for Stage %s", stageUUID), CASEWORK_CLIENT_STAGE_NOT_FOUND);
+            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Team for Stage %s. %s", stageUUID, e.toString()), CASEWORK_CLIENT_STAGE_NOT_FOUND);
         }
     }
 }

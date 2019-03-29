@@ -9,7 +9,6 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -57,8 +56,8 @@ public class BpmnService {
         log.debug("######## Updated Stage ########");
     }
 
-    public void updatePrimaryCorrespondent(String caseUUIDString, String stageUUIDString, String correspondentUUIDString) {
-        caseworkClient.updatePrimaryCorrespondent(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(correspondentUUIDString));
+    public void updatePrimaryCorrespondent(String caseUUIDString, String correspondentUUIDString) {
+        caseworkClient.updatePrimaryCorrespondent(UUID.fromString(caseUUIDString), UUID.fromString(correspondentUUIDString));
         log.debug("######## Updated Primary Correspondent ########");
     }
 
@@ -67,7 +66,7 @@ public class BpmnService {
         UUID stageUUID = UUID.fromString(stageUUIDString);
         UUID topicUUID = UUID.fromString(topicUUIDString);
 
-        caseworkClient.updatePrimaryTopic(caseUUID, stageUUID, topicUUID);
+        caseworkClient.updatePrimaryTopic(caseUUID, topicUUID);
 
         Map<String, String> teamsForTopic = new HashMap<>();
         TeamDto draftingTeam = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, "DCU_MIN_INITIAL_DRAFT");
@@ -77,7 +76,7 @@ public class BpmnService {
         teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
         teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
         camundaClient.updateTask(stageUUID, teamsForTopic);
-        caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
+        caseworkClient.updateCase(caseUUID, teamsForTopic);
 
         log.debug("######## Updated Primary Topic ########");
     }
@@ -104,7 +103,7 @@ public class BpmnService {
 
         if(!teamsForTopic.isEmpty()) {
             camundaClient.updateTask(stageUUID, teamsForTopic);
-            caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
+            caseworkClient.updateCase(caseUUID, teamsForTopic);
         }
 
         log.debug("######## Updated Team Selection ########");
@@ -125,7 +124,7 @@ public class BpmnService {
 
         if(!teamsForTopic.isEmpty()) {
             camundaClient.updateTask(stageUUID, teamsForTopic);
-            caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
+            caseworkClient.updateCase(caseUUID, teamsForTopic);
         }
 
         log.debug("######## Updated Team Selection at PO ########");

@@ -90,7 +90,7 @@ public class WorkflowService {
 
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
 
-            SchemaDto schemaDto = infoClient.getForm(screenName);
+            SchemaDto schemaDto = infoClient.getSchema(screenName);
             List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
             HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields);
             HocsForm form = new HocsForm(schema,inputResponse.getData());
