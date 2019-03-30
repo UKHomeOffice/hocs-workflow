@@ -38,7 +38,7 @@ public class InfoClient {
             log.info("Got Team for StageType {}", stageType, value(EVENT, INFO_CLIENT_GET_TEAM_BY_STAGE_SUCCESS));
             return response.getUuid();
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Team for StageType %s. %s", stageType, e.toString()), INFO_CLIENT_GET_TEAM_BY_STAGE_FAILURE);
+            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Team for StageType %s. %s", stageType, e.getMessage()), INFO_CLIENT_GET_TEAM_BY_STAGE_FAILURE);
         }
     }
 
@@ -49,7 +49,7 @@ public class InfoClient {
             log.info("Got Team for StageType {} and Topic {}", stageType, topicUUID, value(EVENT, INFO_CLIENT_GET_TEAM_BY_TOPIC_STAGE_SUCCESS));
             return response;
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Team for StageType %s and Topic %s. %s", stageType, topicUUID, e.toString()), INFO_CLIENT_GET_TEAM_BY_TOPIC_STAGE_FAILURE);
+            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Team for StageType %s and Topic %s. %s", stageType, topicUUID, e.getMessage()), INFO_CLIENT_GET_TEAM_BY_TOPIC_STAGE_FAILURE);
         }
     }
 
@@ -64,7 +64,7 @@ public class InfoClient {
                 log.info("Got Team {}", teamUUID, value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
                 return response;
             } catch (ApplicationExceptions.ResourceException e) {
-                throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Team %s. %s", teamUUID, e.toString()), INFO_CLIENT_GET_TEAM_FAILURE);
+                throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Team %s. %s", teamUUID, e.getMessage()), INFO_CLIENT_GET_TEAM_FAILURE);
             }
         }
     }
@@ -76,7 +76,7 @@ public class InfoClient {
             log.info("Got teams {}", response.size(), value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
             return response;
         } catch (Exception e) {
-            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get teams. %s", e.toString()), INFO_CLIENT_GET_TEAMS_FAILURE);
+            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get teams. %s", e.getMessage()), INFO_CLIENT_GET_TEAMS_FAILURE);
         }
     }
 
@@ -87,7 +87,7 @@ public class InfoClient {
             log.info("Got Schema {}", type, value(EVENT, INFO_CLIENT_GET_SCHEMA_SUCCESS));
             return response;
         } catch (Exception e) {
-            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Schema. %s", e.toString()), INFO_CLIENT_GET_SCHEMA_FAILURE);
+            throw new ApplicationExceptions.EntityNotFoundException(String.format("Could not get Schema. %s", e.getMessage()), INFO_CLIENT_GET_SCHEMA_FAILURE);
 
         }
     }

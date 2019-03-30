@@ -82,14 +82,14 @@ public class RestHelper {
             if(responseEntity.hasBody()) {
                 return responseEntity.getBody();
             } else {
-                log.error("Server returned malformed response %s", responseEntity.getStatusCodeValue() , value(EVENT, REST_HELPER_MALFORMED_RESPONSE));
+                log.error("Server returned malformed response {}", responseEntity.getStatusCodeValue() , value(EVENT, REST_HELPER_MALFORMED_RESPONSE));
                 throw new ApplicationExceptions.ResourceServerException("Server returned malformed response", REST_HELPER_MALFORMED_RESPONSE );
             }
         } else if(responseEntity.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-            log.error("Server returned not found response %s", responseEntity.getStatusCodeValue() , value(EVENT, REST_HELPER_MALFORMED_RESPONSE));
+            log.error("Server returned not found response {}", responseEntity.getStatusCodeValue() , value(EVENT, REST_HELPER_MALFORMED_RESPONSE));
             throw new ApplicationExceptions.ResourceNotFoundException("Server returned not found response", REST_HELPER_NOT_FOUND);
         } else {
-            log.error("Server returned invalid response %s", responseEntity.getStatusCodeValue() , value(EVENT, REST_HELPER_MALFORMED_RESPONSE));
+            log.error("Server returned invalid response {}", responseEntity.getStatusCodeValue() , value(EVENT, REST_HELPER_MALFORMED_RESPONSE));
             throw new ApplicationExceptions.ResourceServerException("Server returned invalid response", REST_HELPER_INTERNAL_SERVER_ERROR);
         }
     }

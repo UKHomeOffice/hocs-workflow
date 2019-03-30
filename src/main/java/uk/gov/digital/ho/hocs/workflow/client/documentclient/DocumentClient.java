@@ -50,7 +50,7 @@ public class DocumentClient {
             log.info("Created Document {}, Case {}", response.getUuid(), caseUUID, value(EVENT, DOCUMENT_CLIENT_CREATE_SUCCESS));
             return response.getUuid();
         } catch (ApplicationExceptions.ResourceException e) {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Document for Case %s. %s", caseUUID, e.toString()), DOCUMENT_CLIENT_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Document for Case %s. %s", caseUUID, e.getMessage()), DOCUMENT_CLIENT_FAILURE);
         }
     }
 
@@ -60,7 +60,7 @@ public class DocumentClient {
             producerTemplate.sendBody(documentQueue, objectMapper.writeValueAsString(request));
             log.info("Processed Document {}", documentUUID, value(EVENT, DOCUMENT_CLIENT_PROCESS_SUCCESS));
         } catch (JsonProcessingException e) {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not process Document: %s", e.toString()), DOCUMENT_CLIENT_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException(String.format("Could not process Document: %s", e.getMessage()), DOCUMENT_CLIENT_FAILURE);
         }
     }
 }
