@@ -57,13 +57,13 @@ public class BpmnServiceTest {
 
         when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", draftingString, true, new HashSet<>()));
         doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)),any());
-        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),eq(UUID.fromString(stageUUID)),any());
+        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),any());
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), null);
 
         verify(infoClient, times(1)).getTeam(draftingString);
         verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
-        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), any());
 
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
@@ -77,13 +77,13 @@ public class BpmnServiceTest {
 
         when(infoClient.getTeam(privateOfficeString)).thenReturn(new TeamDto("Team1", privateOfficeString, true, new HashSet<>()));
         doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)),any());
-        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),eq(UUID.fromString(stageUUID)),any());
+        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),any());
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, null, privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(privateOfficeString);
         verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
-        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), any());
 
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
@@ -99,14 +99,14 @@ public class BpmnServiceTest {
         when(infoClient.getTeam(privateOfficeString)).thenReturn(new TeamDto("Team1", privateOfficeString, true, new HashSet<>()));
         when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", privateOfficeString, true,  new HashSet<>()));
         doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)),any());
-        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),eq(UUID.fromString(stageUUID)),any());
+        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),any());
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(draftingString);
         verify(infoClient, times(1)).getTeam(privateOfficeString);
         verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
-        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), any());
 
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
