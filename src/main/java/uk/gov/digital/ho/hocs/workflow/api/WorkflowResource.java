@@ -66,4 +66,12 @@ class WorkflowResource {
         workflowService.createDocument(caseUUID, request.getDocuments());
         return ResponseEntity.ok().build();
     }
+
+    @Authorised(accessLevel = AccessLevel.READ)
+    @GetMapping(value = "/case/{caseUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetCaseResponse> getCase(@PathVariable UUID caseUUID) {
+        GetCaseResponse response = workflowService.getAllCaseStages(caseUUID);
+        return ResponseEntity.ok(response);
+    }
+
 }
