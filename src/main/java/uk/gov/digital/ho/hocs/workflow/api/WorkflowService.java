@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.logstash.logback.argument.StructuredArguments.f;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
@@ -102,15 +103,25 @@ public class WorkflowService {
     public GetCaseResponse getAllCaseStages(UUID caseUUID) {
 
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
+
             Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType().getType());
 
-            Map<String, List<HocsFormField>> hocsFields = schemaDtos.stream().collect(Collectors.toMap(s-> s.getTitle(),
-                    s->s.getFields().stream().map(HocsFormField::from).collect(Collectors.toList())
-            ));
+            Map<String, List<SchemaDto>> stageSchemas = schemaDtos.stream().collect(Collectors.groupingBy(SchemaDto::getStageType));
+
+            Map<String, List<HocsFormField>> hocsFields =  stageSchemas.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, c -> schemasToFormField(c.getValue())));
 
             HocsCaseSchema schema = new HocsCaseSchema("View Case", hocsFields);
 
             return new GetCaseResponse(inputResponse.getReference(), schema, inputResponse.getData());
+    }
+
+    private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
+        List<HocsFormField> fields = new ArrayList<>();
+        for(SchemaDto schemaDto : schemaDtos) {
+            fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
+            fields.addAll(schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toSet()));
+        }
+        return fields;
     }
 
     public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
