@@ -18,15 +18,12 @@ public class CreateCaseworkCaseRequestTest {
         CaseDataType caseDataType = CaseDataType.MIN;
         CaseType caseType = new CaseType(caseDataType.getType(), caseDataType.getShortCode(), caseDataType.getType());
         Map<String, String> data = new HashMap<>();
-        LocalDate deadline = LocalDate.now();
         LocalDate dateReceived = LocalDate.now().minusDays(4);
 
-
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseType, data, dateReceived, deadline);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseType, data, dateReceived);
 
         assertThat(createCaseRequest.getType()).isEqualTo(caseType);
         assertThat(createCaseRequest.getData()).isEqualTo(data);
-        assertThat(createCaseRequest.getCaseDeadline()).isEqualTo(deadline);
         assertThat(createCaseRequest.getDateReceived()).isEqualTo(dateReceived);
 
     }
@@ -34,11 +31,10 @@ public class CreateCaseworkCaseRequestTest {
     @Test
     public void getCreateCaseRequestNull() {
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(null, null, null, null);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(null, null, null);
 
         assertThat(createCaseRequest.getType()).isNull();
         assertThat(createCaseRequest.getData()).isNull();
-        assertThat(createCaseRequest.getCaseDeadline()).isNull();
         assertThat(createCaseRequest.getDateReceived()).isNull();
 
     }

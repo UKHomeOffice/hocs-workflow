@@ -11,10 +11,8 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,22 +26,11 @@ public class InfoClient {
     private final RestHelper restHelper;
     private final String serviceBaseURL;
 
-
     @Autowired
     public InfoClient(RestHelper restHelper,
                       @Value("${hocs.info-service}") String infoService) {
         this.restHelper = restHelper;
         this.serviceBaseURL = infoService;
-    }
-
-    public LocalDate getCaseDeadline(CaseDataType caseType, LocalDate localDate) {
-        ResponseEntity<LocalDate> response = restHelper.get(serviceBaseURL, String.format("/caseType/%s/deadline?received=%s", caseType, localDate), LocalDate.class);
-        return response.getBody();
-    }
-
-    public Deadline getDeadline(StageType stageType, LocalDate localDate) {
-        ResponseEntity<Deadline> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/deadline?received=%s", stageType, localDate), Deadline.class);
-        return response.getBody();
     }
 
     public UUID getTeamForStageType(String stageType) {

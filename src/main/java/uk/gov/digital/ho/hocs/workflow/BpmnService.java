@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.Deadline;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
@@ -32,7 +31,7 @@ public class BpmnService {
         this.infoClient = infoClient;
     }
 
-    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String dateReceivedString, String allocationType, String allocationTeamString) {
+    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString,  String allocationType, String allocationTeamString) {
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
 
@@ -48,9 +47,7 @@ public class BpmnService {
             caseworkClient.updateStageTeam(caseUUID, UUID.fromString(stageUUIDString), teamUUID, allocationType);
             return stageUUIDString;
         } else {
-            LocalDate dateReceived = LocalDate.parse(dateReceivedString);
-            Deadline deadline = infoClient.getDeadline(StageType.valueOf(stageTypeString), dateReceived);
-            return caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, deadline.getDate(), allocationType).toString();
+            return caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, allocationType).toString();
         }
     }
 
