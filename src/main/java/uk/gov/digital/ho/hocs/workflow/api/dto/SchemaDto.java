@@ -14,6 +14,9 @@ public class SchemaDto {
     @JsonProperty("uuid")
     private UUID uuid;
 
+    @JsonProperty("stageType")
+    private String stageType;
+
     @JsonProperty("type")
     private String type;
 
