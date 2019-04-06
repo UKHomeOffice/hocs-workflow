@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.logstash.logback.argument.StructuredArguments.f;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
@@ -89,7 +88,7 @@ public class WorkflowService {
 
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
 
-            SchemaDto schemaDto = infoClient.getForm(screenName);
+            SchemaDto schemaDto = infoClient.getSchema(screenName);
             List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
             HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields);
             HocsForm form = new HocsForm(schema,inputResponse.getData());

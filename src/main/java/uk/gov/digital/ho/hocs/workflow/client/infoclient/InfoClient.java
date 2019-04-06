@@ -5,13 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
 import java.util.Set;
 import java.util.UUID;
@@ -33,40 +29,45 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
-    public UUID getTeamForStageType(String stageType) {
-        ResponseEntity<TeamDto> response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType),  TeamDto.class);
-        return response.getBody().getUuid();
-    }
-
-    public TeamDto getTeamForTopicAndStage(UUID caseUUID, UUID topicUUID, String stageType) {
-        ResponseEntity<TeamDto> response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/topic/%s/stage/%s", caseUUID, topicUUID, stageType),  TeamDto.class);
-        return response.getBody();
-    }
-
-    public TeamDto getTeam(UUID teamUUID) {
-        ResponseEntity<TeamDto> response = restHelper.get(serviceBaseURL, String.format("/team/%s", teamUUID),  TeamDto.class);
-        return response.getBody();
-    }
-
-    public SchemaDto getForm(String type) {
-        ResponseEntity<SchemaDto> response = restHelper.get(serviceBaseURL, String.format("/schema/%s", type), SchemaDto.class);
-        return response.getBody();
-    }
-
+    @Cacheable(value = "InfoClientGetSchemasForCaseType", unless = "#result.size() == 0", key = "#caseType")
     public Set<SchemaDto> getSchemasForCaseType(String caseType) {
-        ResponseEntity<Set<SchemaDto>> response = restHelper.get(serviceBaseURL, String.format("/schema/caseType/%s", caseType), new ParameterizedTypeReference<Set<SchemaDto>>() {});
-        return response.getBody();
+        Set<SchemaDto> response = restHelper.get(serviceBaseURL, String.format("/schema/caseType/%s", caseType), new ParameterizedTypeReference<Set<SchemaDto>>() {});
+        log.info("Got {} schemas", response.size(), value(EVENT, INFO_CLIENT_GET_SCHEMAS_SUCCESS));
+        return response;
     }
 
-    @Cacheable(value = "InfoClientGetTeams")
+    @Cacheable(value = "InfoClientGetSchema", unless = "#result == null", key = "#type")
+    public SchemaDto getSchema(String type) {
+        SchemaDto response = restHelper.get(serviceBaseURL, String.format("/schema/%s", type), SchemaDto.class);
+        log.info("Got Form {}", type, value(EVENT, INFO_CLIENT_GET_FORM_SUCCESS));
+        return response;
+    }
+
+    @Cacheable(value = "InfoClientGetTeams", unless = "#result.size() == 0")
     public Set<TeamDto> getTeams() {
-        try {
-            ResponseEntity<Set<TeamDto>> response = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {});
-            log.info("Got teams {}", response.getBody().size(), value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
-            return response.getBody();
-        } catch (Exception e) {
-            log.error("Could not get teams", value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
-            throw new ApplicationExceptions.EntityNotFoundException("Could not get teams", INFO_CLIENT_GET_TEAMS_FAILURE);
-        }
+        Set<TeamDto> teams = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {});
+        log.info("Got {} teams", teams.size(), value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
+        return teams;
+    }
+
+    @Cacheable(value = "InfoClientGetTeam", unless = "#result == null", key = "#teamUUID")
+    public TeamDto getTeam(UUID teamUUID) {
+        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/%s", teamUUID),  TeamDto.class);
+        log.info("Got Team teamUUID {}", response.getUuid(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
+        return response;
+    }
+
+    @Cacheable(value = "InfoClientGetTeamForStageType", unless = "#result == null", key = "#stageType")
+    public UUID getTeamForStageType(String stageType) {
+        TeamDto response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType),  TeamDto.class);
+        log.info("Got Team teamUUID {} for Stage {}", response.getUuid(), stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_STAGE_SUCCESS));
+        return response.getUuid();
+    }
+
+    @Cacheable(value = "InfoClientGetTeamForTopicAndStage", unless = "#result == null", key = "{ #caseUUID, #topicUUID, #stageType}")
+    public TeamDto getTeamForTopicAndStage(UUID caseUUID, UUID topicUUID, String stageType) {
+        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/topic/%s/stage/%s", caseUUID, topicUUID, stageType),  TeamDto.class);
+        log.info("Got Team teamUUID {} for Topic {} and Stage {}", response.getUuid(), topicUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_TOPIC_STAGE_SUCCESS));
+        return response;
     }
 }
