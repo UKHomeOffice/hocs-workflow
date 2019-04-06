@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
@@ -60,6 +61,7 @@ public class CaseworkClient {
         return response;
     }
 
+    @Cacheable(value = "CaseworkClientGetCaseType", unless = "#result == null", key = "#caseUUID")
     public String getCaseType(UUID caseUUID) {
         String response = restHelper.get(serviceBaseURL, String.format("/case/%s/type", caseUUID), String.class);
         log.info("Got Type for Case: {}", caseUUID);
