@@ -10,8 +10,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.PermissionDto;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.PermissionDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 
 import java.util.HashSet;
 import java.util.Set;

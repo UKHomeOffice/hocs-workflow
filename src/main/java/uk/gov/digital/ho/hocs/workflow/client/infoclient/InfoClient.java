@@ -8,6 +8,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 
 import java.util.Set;
 import java.util.UUID;

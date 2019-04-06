@@ -8,7 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 
 import java.util.HashSet;
 import java.util.UUID;
