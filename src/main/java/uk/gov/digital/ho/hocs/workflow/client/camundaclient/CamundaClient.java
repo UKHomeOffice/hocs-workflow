@@ -9,7 +9,6 @@ import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +30,8 @@ public class CamundaClient {
         this.taskService = taskService;
     }
 
-    public void startCase(UUID caseUUID, CaseDataType caseDataType, Map<String,String> data) {
-        runtimeService.startProcessInstanceByKey(caseDataType.toString(), caseUUID.toString(), new HashMap<>(data));
+    public void startCase(UUID caseUUID, String caseDataType, Map<String,String> data) {
+        runtimeService.startProcessInstanceByKey(caseDataType, caseUUID.toString(), new HashMap<>(data));
         log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType, value(EVENT, CASE_STARTED_SUCCESS));
     }
 

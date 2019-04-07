@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.security.AccessLevel;
 import uk.gov.digital.ho.hocs.workflow.security.Allocated;
 import uk.gov.digital.ho.hocs.workflow.security.AllocationLevel;
@@ -38,10 +37,9 @@ class WorkflowResource {
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "/case/bulk", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseWithDocumentsRequest request) {
-        CaseDataType type = request.getCaseDataType();
         List<DocumentSummary> list = request.getDocuments();
         list.forEach( (documentSummary) -> {
-            workflowService.createCase(type, request.getDateReceived(), Collections.singletonList(documentSummary));
+            workflowService.createCase(request.getCaseDataType(), request.getDateReceived(), Collections.singletonList(documentSummary));
         });
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }

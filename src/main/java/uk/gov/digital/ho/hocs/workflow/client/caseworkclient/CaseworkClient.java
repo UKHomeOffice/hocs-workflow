@@ -31,9 +31,8 @@ public class CaseworkClient {
         this.serviceBaseURL = caseService;
     }
 
-    public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType, Map<String, String> data, LocalDate dateReceived) {
-        CaseType caseType = new CaseType(caseDataType.getType(), caseDataType.getShortCode(), caseDataType.getType());
-        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseType, data, dateReceived);
+    public CreateCaseworkCaseResponse createCase(String caseDataType, Map<String, String> data, LocalDate dateReceived) {
+        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data, dateReceived);
         CreateCaseworkCaseResponse response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         log.info("Created Case {}, {}", response.getUuid(), response.getReference(), value(EVENT, CREATE_CASE_SUCCESS));
         return response;
@@ -61,13 +60,6 @@ public class CaseworkClient {
         return response;
     }
 
-    @Cacheable(value = "CaseworkClientGetCaseType", unless = "#result == null", key = "#caseUUID")
-    public String getCaseType(UUID caseUUID) {
-        String response = restHelper.get(serviceBaseURL, String.format("/case/%s/type", caseUUID), String.class);
-        log.info("Got Type for Case: {}", caseUUID);
-        return response;
-    }
-
     public UUID createCaseNote(UUID caseUUID, String type, String text) {
         CreateCaseNoteRequest request = new CreateCaseNoteRequest(type,text);
         UUID response = restHelper.post(serviceBaseURL, String.format("/case/%s/note", caseUUID), request, UUID.class);
@@ -75,7 +67,7 @@ public class CaseworkClient {
         return response;
     }
 
-    public UUID createStage(UUID caseUUID, StageType stageType, UUID teamUUID, String allocationType) {
+    public UUID createStage(UUID caseUUID, String stageType, UUID teamUUID, String allocationType) {
         CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, allocationType);
         CreateCaseworkStageResponse response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         log.info("Created Stage: {} for Case {}", response.getUuid(), caseUUID);

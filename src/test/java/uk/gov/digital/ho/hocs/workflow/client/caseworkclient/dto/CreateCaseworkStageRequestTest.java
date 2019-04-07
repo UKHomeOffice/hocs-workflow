@@ -1,9 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto;
 
 import org.junit.Test;
-import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,7 +11,7 @@ public class CreateCaseworkStageRequestTest {
     @Test
     public void getCreateStageRequest() {
 
-        StageType stageType = StageType.DCU_MIN_MARKUP;
+        String stageType = "DCU_MIN_MARKUP";
         UUID teamUUID = UUID.randomUUID();
         String allocationType = "anyType";
 

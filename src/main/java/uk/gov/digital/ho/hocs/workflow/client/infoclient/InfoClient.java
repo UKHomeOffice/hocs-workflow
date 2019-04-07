@@ -3,12 +3,14 @@ package uk.gov.digital.ho.hocs.workflow.client.infoclient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +30,24 @@ public class InfoClient {
                       @Value("${hocs.info-service}") String infoService) {
         this.restHelper = restHelper;
         this.serviceBaseURL = infoService;
+    }
+
+    public Set<CaseDataType> getCaseTypesByShortCodeRequest() {
+        Set<CaseDataType> response = restHelper.get(serviceBaseURL, "/caseType", new ParameterizedTypeReference<Set<CaseDataType>>() {});
+        log.info("Got {} case types", response.size(), value(EVENT, INFO_CLIENT_GET_CASE_TYPES_SUCCESS));
+        return response;
+    }
+
+    @CachePut(value = "InfoClientGetCaseTypeByShortCode", unless = "#result == null", key = "#shortCode")
+    public CaseDataType populateCaseTypeByShortCode(String shortCode, CaseDataType caseDataType) {
+        return caseDataType;
+    }
+
+    @Cacheable(value = "InfoClientGetCaseTypeByShortCode", unless = "#result == null", key = "#shortCode")
+    public CaseDataType getCaseTypeByShortCode(String shortCode) {
+        CaseDataType caseDataType = restHelper.get(serviceBaseURL, String.format("/caseType/shortCode/%s", shortCode), CaseDataType.class);
+        log.info("Got CaseDataType {} for Short code {}", caseDataType.getDisplayCode(), shortCode, value(EVENT, INFO_CLIENT_GET_CASE_TYPE_SHORT_SUCCESS));
+        return caseDataType;
     }
 
     @Cacheable(value = "InfoClientGetSchemasForCaseType", unless = "#result.size() == 0", key = "#caseType")
