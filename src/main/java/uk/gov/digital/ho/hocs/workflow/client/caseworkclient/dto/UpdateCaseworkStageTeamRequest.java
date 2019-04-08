@@ -6,9 +6,6 @@ import java.util.UUID;
 
 public class UpdateCaseworkStageTeamRequest {
 
-    @JsonProperty("command")
-    private String command = "update_stage_team_command";
-
     @JsonProperty("caseUUID")
     private UUID caseUUID;
 
