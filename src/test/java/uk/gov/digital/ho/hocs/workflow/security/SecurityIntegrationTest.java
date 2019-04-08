@@ -19,10 +19,11 @@ import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.PermissionDto;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.PermissionDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+
 import java.time.LocalDate;
 import java.util.*;
 
@@ -67,7 +68,7 @@ public class SecurityIntegrationTest {
         UUID stageUUID = UUID.randomUUID();
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
         when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamUUID);
-        when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType("MIN", "al"));
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity httpEntity = new HttpEntity(headers);
@@ -81,7 +82,7 @@ public class SecurityIntegrationTest {
         UUID stageUUID = UUID.randomUUID();
         when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamUUID);
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(UUID.randomUUID());
-        when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType("MIN", "al"));
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity httpEntity = new HttpEntity(headers);
@@ -94,7 +95,7 @@ public class SecurityIntegrationTest {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
         when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(UUID.randomUUID());
-        when(caseworkClient.getCaseType(caseUUID)).thenReturn("MIN");
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType("MIN", "al"));
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity httpEntity = new HttpEntity(headers);
@@ -118,10 +119,10 @@ public class SecurityIntegrationTest {
     @Test
     public void shouldCreateCaseWhenUserIsInGroup() {
         UUID caseUUID = UUID.randomUUID();
-        when(workflowService.createCase(CaseDataType.MIN, LocalDate.now(),new ArrayList<>())).thenReturn(new CreateCaseResponse(caseUUID,"CASE_REF"));
+        when(workflowService.createCase("MIN", LocalDate.now(),new ArrayList<>())).thenReturn(new CreateCaseResponse(caseUUID,"CASE_REF"));
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
-        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest(CaseDataType.MIN,LocalDate.now(), new ArrayList<>()), headers);
+        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest("MIN",LocalDate.now(), new ArrayList<>()), headers);
         ResponseEntity<String> result = restTemplate.exchange( getBasePath()  + "/case", HttpMethod.POST, httpEntity, String.class);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -130,7 +131,7 @@ public class SecurityIntegrationTest {
     public void shouldReturnUnauthorisedForCreateCaseWhenUserIsNotInGroup() {
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
-        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest(CaseDataType.TRO,LocalDate.now(), new ArrayList<>()), headers);
+        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest("TRO",LocalDate.now(), new ArrayList<>()), headers);
         ResponseEntity<String> result = restTemplate.exchange( getBasePath()  + "/case", HttpMethod.POST, httpEntity, String.class);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }

@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.application;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -8,13 +9,15 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
 import java.nio.charset.Charset;
 import java.util.Base64;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 
+@Slf4j
 @Component
 public class RestHelper {
 
@@ -32,28 +35,38 @@ public class RestHelper {
     }
 
     @Retryable(maxAttemptsExpression = "${retry.maxAttempts}", backoff = @Backoff(delayExpression = "${retry.delay}"))
-    public <T,R> ResponseEntity<R> post(String serviceBaseURL, String url, T request, Class<R> responseType) {
-        return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.POST, new HttpEntity<>(request, createAuthHeaders()), responseType);
+    public <T,R> R post(String serviceBaseURL, String url, T request, Class<R> responseType) {
+        log.info("RestHelper making POST request to {}{}", serviceBaseURL, url, value(EVENT, REST_HELPER_POST));
+        ResponseEntity<R> response = restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.POST, new HttpEntity<>(request, createAuthHeaders()), responseType);
+        return response.getBody();
     }
 
     @Retryable(maxAttemptsExpression = "${retry.maxAttempts}", backoff = @Backoff(delayExpression = "${retry.delay}"))
-    public <T,R> ResponseEntity<R> put(String serviceBaseURL, String url, T request, Class<R> responseType) {
-        return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.PUT, new HttpEntity<>(request, createAuthHeaders()), responseType);
+    public <T,R> R put(String serviceBaseURL, String url, T request, Class<R> responseType) {
+        log.info("RestHelper making PUT request to {}{}", serviceBaseURL, url, value(EVENT, REST_HELPER_PUT));
+        ResponseEntity<R> response = restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.PUT, new HttpEntity<>(request, createAuthHeaders()), responseType);
+        return response.getBody();
     }
 
     @Retryable(maxAttemptsExpression = "${retry.maxAttempts}", backoff = @Backoff(delayExpression = "${retry.delay}"))
-    public <T,R> ResponseEntity<R> get(String serviceBaseURL, String url, Class<R> responseType) {
-        return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
+    public <R> R get(String serviceBaseURL, String url, Class<R> responseType) {
+        log.info("RestHelper making GET request to {}{}", serviceBaseURL, url, value(EVENT, REST_HELPER_GET));
+        ResponseEntity<R> response = restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
+        return response.getBody();
     }
 
     @Retryable(maxAttemptsExpression = "${retry.maxAttempts}", backoff = @Backoff(delayExpression = "${retry.delay}"))
-    public <T,R> ResponseEntity<R> get(String serviceBaseURL, String url, ParameterizedTypeReference<R> responseType) {
-       return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
+    public <R> R get(String serviceBaseURL, String url, ParameterizedTypeReference<R> responseType) {
+        log.info("RestHelper making GET request to {}{}", serviceBaseURL, url, value(EVENT, REST_HELPER_GET));
+        ResponseEntity<R> response = restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.GET, new HttpEntity<>(null, createAuthHeaders()), responseType);
+        return response.getBody();
     }
 
     @Retryable(maxAttemptsExpression = "${retry.maxAttempts}", backoff = @Backoff(delayExpression = "${retry.delay}"))
-    public <R> ResponseEntity<R> delete(String serviceBaseURL, String url, Class<R> responseType) {
-        return restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.DELETE, new HttpEntity<>(null, createAuthHeaders()), responseType);
+    public <R> R delete(String serviceBaseURL, String url, Class<R> responseType) {
+        log.info("RestHelper making DELETE request to {}{}", serviceBaseURL, url, value(EVENT, REST_HELPER_DELETE));
+        ResponseEntity<R> response = restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.DELETE, new HttpEntity<>(null, createAuthHeaders()), responseType);
+        return response.getBody();
     }
 
     private HttpHeaders createAuthHeaders() {

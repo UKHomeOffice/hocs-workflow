@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.client.infoclient;
+package uk.gov.digital.ho.hocs.workflow.client.infoclient.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

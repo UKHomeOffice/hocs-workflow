@@ -5,12 +5,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseRequest;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 
 import java.util.UUID;
 
@@ -23,11 +22,11 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAU
 @Profile("!migration")
 public class AuthorisationAspect {
 
-    private CaseworkClient caseworkClient;
+    private InfoClient infoClient;
     private UserPermissionsService userService;
 
-    public AuthorisationAspect(CaseworkClient caseworkClient, UserPermissionsService userService) {
-        this.caseworkClient = caseworkClient;
+    public AuthorisationAspect(InfoClient infoClient, UserPermissionsService userService) {
+        this.infoClient = infoClient;
         this.userService = userService;
     }
 
@@ -70,10 +69,11 @@ public class AuthorisationAspect {
             if (joinPoint.getArgs()[0] instanceof UUID) {
                 UUID caseUUID = (UUID) joinPoint.getArgs()[0];
                 log.info("Checking authorisation permissions for user {} and case type {}", userService.getUserId().toString(), caseUUID.toString());
-                caseType = caseworkClient.getCaseType(caseUUID);
+                String shortCode = caseUUID.toString().substring(34);
+                caseType = infoClient.getCaseTypeByShortCode(shortCode).getDisplayCode();
             } else if (joinPoint.getArgs()[0] instanceof CreateCaseRequest) {
                 CreateCaseRequest createCaseRequest = (CreateCaseRequest) joinPoint.getArgs()[0];
-                caseType = createCaseRequest.getType().getType();
+                caseType = createCaseRequest.getType();
             } else {
                 throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters for type " + joinPoint.getArgs()[0].getClass().getName(), SECURITY_PARSE_ERROR);
             }

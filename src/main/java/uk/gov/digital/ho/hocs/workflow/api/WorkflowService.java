@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.logstash.logback.argument.StructuredArguments.f;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
@@ -39,14 +38,14 @@ public class WorkflowService {
     public WorkflowService(CaseworkClient caseworkClient,
                            DocumentClient documentClient,
                            InfoClient infoClient,
-                           CamundaClient camundaClient, ObjectMapper objectMapper) {
+                           CamundaClient camundaClient) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
     }
 
-    public CreateCaseResponse createCase(CaseDataType caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
+    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>();
         data.put("DateReceived", dateReceived.toString());
@@ -89,7 +88,7 @@ public class WorkflowService {
 
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
 
-            SchemaDto schemaDto = infoClient.getForm(screenName);
+            SchemaDto schemaDto = infoClient.getSchema(screenName);
             List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
             HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields);
             HocsForm form = new HocsForm(schema,inputResponse.getData());
@@ -103,7 +102,7 @@ public class WorkflowService {
 
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
 
-            Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType().getType());
+            Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
 
             Map<String, List<SchemaDto>> stageSchemas = schemaDtos.stream().collect(Collectors.groupingBy(SchemaDto::getStageType));
 

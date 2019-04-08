@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -21,7 +20,7 @@ public class GetCaseworkCaseDataResponse {
     private LocalDateTime created;
 
     @JsonProperty("type")
-    private CaseDataType type;
+    private String type;
 
     @JsonProperty("reference")
     private String reference;

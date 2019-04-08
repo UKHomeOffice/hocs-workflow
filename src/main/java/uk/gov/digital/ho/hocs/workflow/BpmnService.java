@@ -6,10 +6,9 @@ import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -47,7 +46,7 @@ public class BpmnService {
             caseworkClient.updateStageTeam(caseUUID, UUID.fromString(stageUUIDString), teamUUID, allocationType);
             return stageUUIDString;
         } else {
-            return caseworkClient.createStage(caseUUID, StageType.valueOf(stageTypeString), teamUUID, allocationType).toString();
+            return caseworkClient.createStage(caseUUID, stageTypeString, teamUUID, allocationType).toString();
         }
     }
 

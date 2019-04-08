@@ -1,7 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.api.dto;
 
 import org.junit.Test;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ public class CreateCaseRequestTest {
     @Test
     public void getCreateCaseRequest() {
 
-        CaseDataType caseDataType = CaseDataType.MIN;
+        String caseDataType = "MIN";
         LocalDate dateReceived = LocalDate.now();
         List<DocumentSummary> documentSummaryList = new ArrayList<>();
 
