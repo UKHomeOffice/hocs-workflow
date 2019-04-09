@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
+import uk.gov.digital.ho.hocs.workflow.security.AccessLevel;
+import uk.gov.digital.ho.hocs.workflow.security.Authorised;
 
 import java.util.UUID;
 
@@ -21,30 +23,21 @@ class MigrationWorkflowResource {
         this.workflowService = workflowService;
     }
 
-//    @PostMapping(value = "migration/case", consumes = APPLICATION_JSON_UTF8_VALUE)
-//    public ResponseEntity<CreateCaseResponse> createCase(@RequestBody MigrationCreateCaseRequest request) {
-//        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getCaseReference(), request.getDateReceived(), request.getCaseDeadline(), request.getData(), request.getDocuments(), request.getCorrespondent(), request.getTopic());
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    @PostMapping(value = "migration/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
-//    public ResponseEntity createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
-//        workflowService.createDocument(caseUUID, request.getDocuments());
-//        return ResponseEntity.ok().build();
-//    }
-
+    @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "migration/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<MigrationCreateCaseResponse> createCase(@RequestBody MigrationCreateCaseRequest request) {
         MigrationCreateCaseResponse response = workflowService.createCase(request.getType(), request.getCaseReference(), request.getDateReceived(), request.getCaseDeadline(), request.getData(), request.getTopic());
         return ResponseEntity.ok(response);
     }
 
+    @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "migration/case/progress", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<MigrationProgressCaseResponse> createCase(@RequestBody MigrationProgressCaseRequest request) {
         MigrationProgressCaseResponse response = workflowService.progressCase(request.getCaseUUID(), request.getType(),  request.getData(), request.getSeedData(), request.getCorrespondent(), request.getDraftDocumentUUID(), request.getTopic());
         return ResponseEntity.ok(response);
     }
 
+    @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "migration/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UUID> createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
         workflowService.createDocument(caseUUID, request.getDocuments());

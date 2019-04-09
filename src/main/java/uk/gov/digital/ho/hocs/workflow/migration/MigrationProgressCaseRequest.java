@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.ho.hocs.workflow.api.dto.DocumentSummary;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,7 @@ public class MigrationProgressCaseRequest {
     private UUID caseUUID;
 
     @JsonProperty("type")
-    private CaseDataType type;
+    private String type;
 
     @JsonProperty("data")
     private Map<String, String> data;

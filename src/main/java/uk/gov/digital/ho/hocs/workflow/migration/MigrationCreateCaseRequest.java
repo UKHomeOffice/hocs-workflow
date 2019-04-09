@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.ho.hocs.workflow.api.dto.DocumentSummary;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.UUID;
 public class MigrationCreateCaseRequest {
 
     @JsonProperty("type")
-    private CaseDataType type;
+    private String type;
 
     @JsonProperty("ref")
     private String caseReference;

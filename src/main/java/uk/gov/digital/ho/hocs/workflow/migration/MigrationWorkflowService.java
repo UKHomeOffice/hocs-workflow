@@ -8,9 +8,8 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ public class MigrationWorkflowService {
         this.camundaClient = camundaClient;
     }
 
-    MigrationCreateCaseResponse createCase(CaseDataType caseDataType, String caseReference, LocalDate dateReceived, LocalDate caseDeadline, Map<String, String> data, UUID topicUUID) {
+    MigrationCreateCaseResponse createCase(String caseDataType, String caseReference, LocalDate dateReceived, LocalDate caseDeadline, Map<String, String> data, UUID topicUUID) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         data.put("DateReceived", dateReceived.toString());
         CreateCaseworkCaseResponse caseResponse = migrationCaseworkClient.createCase(caseDataType, caseReference, data, dateReceived, caseDeadline);
@@ -55,7 +54,7 @@ public class MigrationWorkflowService {
             seedData = new HashMap<>();
             seedData.put("CaseReference", caseResponse.getReference());
             seedData.put("Topics", String.valueOf(topicUUID));
-            seedData.put("CopyNumberTen_TRUE", String.valueOf(data.get("CopyNumberTen_TRUE")));
+            seedData.put("CopyNumberTen", String.valueOf(data.get("CopyNumberTen")).toUpperCase());
             seedData.putAll(data);
             camundaClient.startCase(caseUUID, caseDataType, seedData);
             log.info("Camunda Start");
@@ -67,73 +66,77 @@ public class MigrationWorkflowService {
         return new MigrationCreateCaseResponse(caseUUID, caseResponse.getReference(), seedData);
     }
 
-    MigrationProgressCaseResponse progressCase(UUID caseUUID, CaseDataType caseDataType, Map<String, String> data, Map<String, String> seedData, List<MigrationCorrespondent> correspondents, UUID draftDocumentUUID, UUID topicUUID) {
+    MigrationProgressCaseResponse progressCase(UUID caseUUID, String caseDataType, Map<String, String> data, Map<String, String> seedData, List<MigrationCorrespondent> correspondents, UUID draftDocumentUUID, UUID topicUUID) {
+        MigrationProgressCaseResponse migrationProgressCaseResponse = new MigrationProgressCaseResponse();
         UUID stageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
         UUID primaryCorrespondentUUID = null;
 
-        for (MigrationCorrespondent correspondent : correspondents) {
-            if (correspondent.getType() != null) {
-                correspondent.setUuid(saveCorrespondent(caseUUID, stageUUID, correspondent));
-                if (correspondent.getIsPrimary() == true) {
-                    primaryCorrespondentUUID = correspondent.getUuid();
+        if (correspondents != null) {
+            for (MigrationCorrespondent correspondent : correspondents) {
+                if (correspondent.getType() != null) {
+                    correspondent.setUuid(saveCorrespondent(caseUUID, stageUUID, correspondent));
+                    if (correspondent.getIsPrimary() == true) {
+                        primaryCorrespondentUUID = correspondent.getUuid();
+                    }
                 }
             }
         }
         if (primaryCorrespondentUUID != null) {
             migrationCaseworkClient.updatePrimaryCorrespondent(caseUUID, stageUUID, primaryCorrespondentUUID);
         }
-        UUID returnedTopicUUID = migrationCaseworkClient.addTopic(caseUUID, stageUUID, topicUUID);
-        migrationCaseworkClient.updatePrimaryTopic(caseUUID, stageUUID, returnedTopicUUID);
-
+        UUID returnedTopicUUID = null;
+        if (topicUUID != null) {
+            returnedTopicUUID = migrationCaseworkClient.addTopic(caseUUID, stageUUID, topicUUID);
+            migrationCaseworkClient.updatePrimaryTopic(caseUUID, stageUUID, returnedTopicUUID);
+        }
 // Set Response Channel to Letter if null
         if (data.get("ResponseChannel") == null) {
             data.replace("ResponseChannel", "LETTER");
         }
 
 
-//        if (caseDataType.getType().equals("MIN") && data.get("caseTask").equals("Create case")) {
         if (data.get("caseTask").equals("Create case")) {
             /* Complete nothing */
+            migrationProgressCaseResponse.setStage("data input");
         }
-//        if (caseDataType.getType().equals("MIN") && (data.get("caseTask").equals("Mark up") || data.get("caseTask").equals("QA case"))) {
         if (data.get("caseTask").equals("Mark up") || data.get("caseTask").equals("QA case")) {
             /* Complete data input*/
             completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
+            migrationProgressCaseResponse.setStage("Mark up");
         }
-//        if (caseDataType.getType().equals("MIN") && data.get("caseTask").equals("QA")) {
         if (data.get("caseTask").equals("QA")) {
-            /*Complete nfa*/
+            /*start nrn*/
             completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
-            startNFAMarkup(data, caseUUID);
+            startNRNMarkup(data, caseUUID);
+            migrationProgressCaseResponse.setStage("NRN");
         }
-//        if (caseDataType.getType().equals("MIN") && data.get("caseTask").equals("Transfer")) {
         if (data.get("caseTask").equals("Transfer")) {
-            /* Complete OGD*/
+            /* start OGD*/
             completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
             startOGDMarkup(data, caseUUID);
+            migrationProgressCaseResponse.setStage("OGD");
         }
-//        if (caseDataType.getType().equals("MIN") && (data.get("caseTask").equals("Amend response") || data.get("caseTask").equals("Draft response"))) {
         if (data.get("caseTask").equals("Amend response") || data.get("caseTask").equals("Draft response")) {
             /* Complete markUp*/
             completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
             completeMarkup(data, caseUUID, returnedTopicUUID);
+            migrationProgressCaseResponse.setStage("Initial Draft");
         }
-//        if (caseDataType.getType().equals("MIN") && data.get("caseTask").equals("QA review")) {
         if (data.get("caseTask").equals("QA review")) {
             /* Complete initial draft*/
             completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
             completeMarkup(data, caseUUID, returnedTopicUUID);
             completeInitialDraft(data, caseUUID, draftDocumentUUID, caseDataType);
+            migrationProgressCaseResponse.setStage("QA Response");
         }
-//        if (caseDataType.getType().equals("MIN") && (data.get("caseTask").equals("HS Private Office approval") || data.get("caseTask").equals("Private Office approval"))) {
         if (data.get("caseTask").equals("HS Private Office approval") || data.get("caseTask").equals("Private Office approval")) {
             /* Complete QA response */
             completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
             completeMarkup(data, caseUUID, returnedTopicUUID);
             completeInitialDraft(data, caseUUID, draftDocumentUUID, caseDataType);
             completeQAResponse(caseUUID);
+            migrationProgressCaseResponse.setStage("Private Office");
         }
-//        if (caseDataType.getType().equals("MIN") && (data.get("caseTask").equals("Home Sec's sign-off") || data.get("caseTask").equals("Minister's sign-off"))) {
         if (data.get("caseTask").equals("Home Sec's sign-off") || data.get("caseTask").equals("Minister's sign-off")) {
             /* Complete Private Office */
             completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
@@ -141,9 +144,9 @@ public class MigrationWorkflowService {
             completeInitialDraft(data, caseUUID, draftDocumentUUID, caseDataType);
             completeQAResponse(caseUUID);
             completePrivateOfficeSignoff(caseUUID, caseDataType);
+            migrationProgressCaseResponse.setStage("Minister Sign Off");
         }
-//        if (caseDataType.getType().equals("MIN") && data.get("caseTask").equals("Dispatch Response")) {
-        if (data.get("caseTask").equals("Dispatch Response")) {
+        if (data.get("caseTask").equals("Dispatch response")) {
             /* Complete Minister sign off*/
             completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
             completeMarkup(data, caseUUID, returnedTopicUUID);
@@ -151,8 +154,8 @@ public class MigrationWorkflowService {
             completeQAResponse(caseUUID);
             completePrivateOfficeSignoff(caseUUID, caseDataType);
             completeMinisterSignOff(caseUUID, caseDataType);
+            migrationProgressCaseResponse.setStage("Dispatch");
         }
-//        if (caseDataType.getType().equals("MIN") && data.get("caseTask").equals("None")) {
         if (data.get("caseTask").equals("None")) {
             /* Complete Dispatch*/
             if (data.get("MarkupDecision").equals("PR") || data.get("MarkupDecision").equals("FAQ")) {
@@ -165,16 +168,17 @@ public class MigrationWorkflowService {
                 completeDispatch(data, caseUUID, caseDataType);
             } else if (data.get("MarkupDecision").equals("NRN")) {
                 completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
-                startNFAMarkup(data, caseUUID);
+                startNRNMarkup(data, caseUUID);
                 completeNRNConfirmation(data, caseUUID);
-            }else if (data.get("MarkupDecision").equals("OGD")) {
+            } else if (data.get("MarkupDecision").equals("OGD")) {
                 completeDataInput(data, caseUUID, stageUUID, primaryCorrespondentUUID, seedData);
                 startOGDMarkup(data, caseUUID);
                 completeOGDConfirmation(data, caseUUID);
             }
+            migrationProgressCaseResponse.setStage("Completed");
         }
 
-        return null;
+        return migrationProgressCaseResponse;
     }
 
     UUID saveCorrespondent(UUID caseUUID, UUID stageUUID, MigrationCorrespondent correspondent) {
@@ -198,9 +202,7 @@ public class MigrationWorkflowService {
                 correspondent.getReference()
         );
 
-        UUID correspondentUUID = migrationCaseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
-
-        return correspondentUUID;
+        return migrationCaseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
     }
 
     void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
@@ -215,8 +217,13 @@ public class MigrationWorkflowService {
     }
 
     private void completeDataInput(Map<String, String> data, UUID caseUUID, UUID stageUUID, UUID primaryCorrespondentUUID, Map<String, String> seedData) {
-        migrationCaseworkClient.updateCase(caseUUID, stageUUID, data);
-        camundaClient.completeTask(stageUUID, seedData);
+        Map<String, String> dataInputData = new HashMap<>();
+        dataInputData.put("DateOfCorrespondence", String.valueOf(data.get("DateOfCorrespondence")));
+        dataInputData.put("DateReceived", String.valueOf(data.get("DateReceived")));
+        dataInputData.put("OriginalChannel", String.valueOf(data.get("OriginalChannel")));
+        dataInputData.put("CopyNumberTen", String.valueOf(data.get("CopyNumberTen")).toUpperCase());
+        migrationCaseworkClient.updateCase(caseUUID, stageUUID, dataInputData);
+        camundaClient.completeTask(stageUUID, dataInputData);
         Map<String, String> correspondentData = new HashMap<>();
         correspondentData.put("Correspondents", String.valueOf(primaryCorrespondentUUID));
         migrationCaseworkClient.updateCase(caseUUID, stageUUID, correspondentData);
@@ -246,7 +253,7 @@ public class MigrationWorkflowService {
         camundaClient.completeTask(markUpStageUUID, teamsForTopic);
     }
 
-    private void startNFAMarkup(Map<String, String> data, UUID caseUUID) {
+    private void startNRNMarkup(Map<String, String> data, UUID caseUUID) {
         UUID markUpStageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
 
         migrationCaseworkClient.assignToMe(caseUUID, markUpStageUUID);
@@ -298,14 +305,14 @@ public class MigrationWorkflowService {
         camundaClient.completeTask(ogdConfirmationStageUUID, ogdConfirmationData);
     }
 
-    private void completeInitialDraft(Map<String, String> data, UUID caseUUID, UUID documentUUID, CaseDataType caseDataType) {
+    private void completeInitialDraft(Map<String, String> data, UUID caseUUID, UUID documentUUID, String caseDataType) {
         UUID initialDraftStageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
         migrationCaseworkClient.assignToMe(caseUUID, initialDraftStageUUID);
         Map<String, String> teamAnswerData = new HashMap<>();
         teamAnswerData.put("InitialDraftDecision", "ACCEPT");
         migrationCaseworkClient.updateCase(caseUUID, initialDraftStageUUID, teamAnswerData);
         camundaClient.completeTask(initialDraftStageUUID, teamAnswerData);
-        if (caseDataType.getType().equals("MIN") || caseDataType.getType().equals("TRO")) {
+        if (caseDataType.equals("MIN") || caseDataType.equals("TRO")) {
             Map<String, String> responseData = new HashMap<>();
             responseData.put("ResponseChannel", data.get("ResponseChannel"));
             migrationCaseworkClient.updateCase(caseUUID, initialDraftStageUUID, responseData);
@@ -315,7 +322,7 @@ public class MigrationWorkflowService {
         draftDocumentData.put("DraftDocuments", String.valueOf(documentUUID));
         migrationCaseworkClient.updateCase(caseUUID, initialDraftStageUUID, draftDocumentData);
         camundaClient.completeTask(initialDraftStageUUID, draftDocumentData);
-        if (caseDataType.getType().equals("MIN") || caseDataType.getType().equals("DTEN")) {
+        if (caseDataType.equals("MIN") || caseDataType.equals("DTEN")) {
             Map<String, String> offlineQAData = new HashMap<>();
             offlineQAData.put("OfflineQA", "FALSE");
             migrationCaseworkClient.updateCase(caseUUID, initialDraftStageUUID, offlineQAData);
@@ -332,8 +339,8 @@ public class MigrationWorkflowService {
         camundaClient.completeTask(qaResponseStageUUID, qaResponseData);
     }
 
-    private void completePrivateOfficeSignoff(UUID caseUUID, CaseDataType caseDataType) {
-        if (caseDataType.getType().equals("MIN") || caseDataType.getType().equals("DTEN")) {
+    private void completePrivateOfficeSignoff(UUID caseUUID, String caseDataType) {
+        if (caseDataType.equals("MIN") || caseDataType.equals("DTEN")) {
             UUID privateOfficeSignOffStageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
             migrationCaseworkClient.assignToMe(caseUUID, privateOfficeSignOffStageUUID);
             Map<String, String> privateOfficeResponseData = new HashMap<>();
@@ -343,8 +350,8 @@ public class MigrationWorkflowService {
         }
     }
 
-    private void completeMinisterSignOff(UUID caseUUID, CaseDataType caseDataType) {
-        if (caseDataType.getType().equals("MIN")) {
+    private void completeMinisterSignOff(UUID caseUUID, String caseDataType) {
+        if (caseDataType.equals("MIN")) {
             UUID ministerSignOffStageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
             migrationCaseworkClient.assignToMe(caseUUID, ministerSignOffStageUUID);
             Map<String, String> ministerResponseData = new HashMap<>();
@@ -354,15 +361,16 @@ public class MigrationWorkflowService {
         }
     }
 
-    private void completeDispatch(Map<String, String> data, UUID caseUUID, CaseDataType caseDataType) {
+    private void completeDispatch(Map<String, String> data, UUID caseUUID, String caseDataType) {
         UUID dispatchStageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
         migrationCaseworkClient.assignToMe(caseUUID, dispatchStageUUID);
         Map<String, String> dispatchData = new HashMap<>();
-        dispatchData.put("ResponseChannel", data.get("ResponseChannel"));
         dispatchData.put("DispatchDecision", "ACCEPT");
+        dispatchData.put("ResponseChannel", data.get("ResponseChannel"));
+        dispatchData.put("valid", "true");
         migrationCaseworkClient.updateCase(caseUUID, dispatchStageUUID, dispatchData);
         camundaClient.completeTask(dispatchStageUUID, dispatchData);
-        if (data.get("CopyNumberTen_TRUE").equals("true") && ((caseDataType.getType().equals("MIN")) || (caseDataType.getType().equals("TRO")))) {
+        if (data.get("CopyNumberTen").equals("true") && ((caseDataType.equals("MIN")) || (caseDataType.equals("TRO")))) {
             completeCopyNumberTen(caseUUID);
         }
     }

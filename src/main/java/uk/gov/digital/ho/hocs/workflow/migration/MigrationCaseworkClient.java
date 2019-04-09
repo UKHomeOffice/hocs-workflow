@@ -3,22 +3,19 @@ package uk.gov.digital.ho.hocs.workflow.migration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseType;
-import uk.gov.digital.ho.hocs.workflow.domain.model.StageType;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkCaseDataRequest;
 
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CREATE_CASE_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 
 @Slf4j
 @Component
@@ -37,82 +34,53 @@ public class MigrationCaseworkClient {
         this.requestData = requestData;
     }
 
-    public CreateCaseworkCaseResponse createCase(CaseDataType caseDataType, String caseReference, Map<String, String> data, LocalDate dateReceived, LocalDate deadline) {
-        CaseType caseType = new CaseType(caseDataType.getType(), caseDataType.getShortCode(), caseDataType.getType());
-        MigrationCreateCaseworkCaseRequest request = new MigrationCreateCaseworkCaseRequest(caseType, caseReference, data, dateReceived, deadline);
-        ResponseEntity<CreateCaseworkCaseResponse> response = restHelper.post(serviceBaseURL, "/migration/case", request, CreateCaseworkCaseResponse.class);
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Created Case {}, {}", response.getBody().getUuid(), response.getBody().getReference(), value(EVENT, CREATE_CASE_SUCCESS));
-            return response.getBody();
-        } else {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not create Case; response: %s ", response.getStatusCodeValue()), CREATE_CASE_FAILURE);
-        }
+    public CreateCaseworkCaseResponse createCase(String caseDataType, String caseReference, Map<String, String> data, LocalDate dateReceived, LocalDate deadline) {
+        MigrationCreateCaseworkCaseRequest request = new MigrationCreateCaseworkCaseRequest(caseDataType, caseReference, data, dateReceived, deadline);
+        CreateCaseworkCaseResponse response = restHelper.post(serviceBaseURL, "/migration/case", request, CreateCaseworkCaseResponse.class);
+        log.info("Created Case {}, {}", response.getUuid(), response.getReference(), value(EVENT, CREATE_CASE_SUCCESS));
+        return response;
     }
 
-    public UUID getStageUUID (UUID caseUUID){
-        log.info(serviceBaseURL+String.format("/migration/case/%s", caseUUID));
-        ResponseEntity<UUID> stageUUID = restHelper.get(serviceBaseURL, String.format("/migration/case/%s", caseUUID), UUID.class);
-        return stageUUID.getBody();
+    public UUID getStageUUID(UUID caseUUID) {
+        log.info(serviceBaseURL + String.format("/migration/case/%s", caseUUID));
+        UUID stageUUID = restHelper.get(serviceBaseURL, String.format("/migration/case/%s", caseUUID), UUID.class);
+        return stageUUID;
     }
 
 
-    public UUID saveCorrespondent(UUID caseUUID, UUID stageUUID, MigrationCreateCaseworkCorrespondentRequest correspondent){
-        ResponseEntity<UUID> correspondentUUID = restHelper.post(serviceBaseURL, String.format("/migration/case/%s/stage/%s/correspondent", caseUUID, stageUUID), correspondent, UUID.class);
-        return correspondentUUID.getBody();
+    public UUID saveCorrespondent(UUID caseUUID, UUID stageUUID, MigrationCreateCaseworkCorrespondentRequest correspondent) {
+        UUID correspondentUUID = restHelper.post(serviceBaseURL, String.format("/migration/case/%s/stage/%s/correspondent", caseUUID, stageUUID), correspondent, UUID.class);
+        return correspondentUUID;
     }
 
 
     public void updateCase(UUID caseUUID, UUID stageUUID, Map<String, String> data) {
         UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
-        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/migration/case/%s/stage/%s/data", caseUUID, stageUUID) , request, String.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Set Case Data for Case {}", caseUUID);
-        } else {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Case; response: %s", response.getStatusCodeValue()), CASE_UPDATE_FAILURE);
-        }
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID) , request, Void.class);
+        log.info("Set Case Data for Case {}", caseUUID);
     }
 
     public void updatePrimaryCorrespondent(UUID caseUUID, UUID stageUUID, UUID primaryCorrespondent) {
-        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID) , primaryCorrespondent, String.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Set Case Data for Case {}", caseUUID);
-        } else {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Case; response: %s", response.getStatusCodeValue()), CASE_UPDATE_FAILURE);
-        }
+        String response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID), primaryCorrespondent, String.class);
+        log.info("Set Case Data for Case {}", caseUUID);
     }
 
     public UUID addTopic(UUID caseUUID, UUID stageUUID, UUID topic) {
         MigrationCreateCaseworkTopicRequest request = new MigrationCreateCaseworkTopicRequest(topic);
-        ResponseEntity<UUID> response = restHelper.post(serviceBaseURL, String.format("/migration/case/%s/stage/%s/topic", caseUUID, stageUUID) , request, UUID.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Set Case Data for Case {}", caseUUID);
-        } else {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Case; response: %s", response.getStatusCodeValue()), CASE_UPDATE_FAILURE);
-        }
-        return response.getBody();
+        UUID response = restHelper.post(serviceBaseURL, String.format("/migration/case/%s/stage/%s/topic", caseUUID, stageUUID), request, UUID.class);
+        log.info("Set Case Data for Case {}", caseUUID);
+        return response;
     }
 
     public void updatePrimaryTopic(UUID caseUUID, UUID stageUUID, UUID primaryTopic) {
-        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID) , primaryTopic, String.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Set Case Data for Case {}", caseUUID);
-        } else {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Case; response: %s", response.getStatusCodeValue()), CASE_UPDATE_FAILURE);
-        }
+        String response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID), primaryTopic, String.class);
+        log.info("Set Case Data for Case {}", caseUUID);
     }
 
-    public void assignToMe(UUID caseUUID, UUID stageUUID){
+    public void assignToMe(UUID caseUUID, UUID stageUUID) {
         MigrationUpdateStageUserRequest request = new MigrationUpdateStageUserRequest(UUID.fromString(requestData.userId()));
-        ResponseEntity<String> response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/user", caseUUID, stageUUID) , request, String.class);
-
-        if (response.getStatusCodeValue() == 200) {
-            log.info("Set Case Data for Case {}", caseUUID);
-        } else {
-            throw new ApplicationExceptions.EntityCreationException(String.format("Could not Update Case; response: %s", response.getStatusCodeValue()), CASE_UPDATE_FAILURE);
-        }
+        String response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/user", caseUUID, stageUUID), request, String.class);
+        log.info("Set Case Data for Case {}", caseUUID);
     }
 }
+
