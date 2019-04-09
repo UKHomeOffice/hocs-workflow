@@ -22,7 +22,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.PermissionDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 
 import java.time.LocalDate;
 import java.util.*;

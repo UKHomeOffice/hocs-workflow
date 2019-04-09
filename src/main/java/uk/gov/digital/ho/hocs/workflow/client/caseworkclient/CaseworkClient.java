@@ -3,6 +3,8 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
@@ -72,10 +74,12 @@ public class CaseworkClient {
         return response.getUuid();
     }
 
-    public void updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {
+    @CachePut(value = "CaseworkClientGetStageTeam", key = "{#caseUUID, #stageUUID}")
+    public UUID updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {
         UpdateCaseworkStageTeamRequest request = new UpdateCaseworkStageTeamRequest(caseUUID, stageUUID, teamUUID, allocationType);
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), request, Void.class);
         log.info("Updated Team {} on Stage: {} for Case {}", teamUUID, stageUUID, caseUUID);
+        return teamUUID;
     }
 
     public UUID getStageUser(UUID caseUUID, UUID stageUUID) {
@@ -84,6 +88,7 @@ public class CaseworkClient {
         return response;
     }
 
+    @Cacheable(value = "CaseworkClientGetStageTeam", unless = "#result == null", key = "{#caseUUID, #stageUUID}")
     public UUID getStageTeam(UUID caseUUID, UUID stageUUID) {
         UUID response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), UUID.class);
         log.info("Got Team Stage: {} for Case: {}", stageUUID, caseUUID);
