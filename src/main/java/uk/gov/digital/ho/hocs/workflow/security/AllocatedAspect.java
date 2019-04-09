@@ -67,7 +67,6 @@ public class AllocatedAspect {
         if (!userId.equals(assignedUser)) {
             throw new SecurityExceptions.StageNotAssignedToLoggedInUserException("Stage " + stageUUID.toString() + " is assigned to " + assignedUser, SECURITY_CASE_NOT_ALLOCATED_TO_USER);
         }
-        return;
     }
 
     private void verifyAllocatedToTeam(UUID caseUUID, UUID stageUUID) {
