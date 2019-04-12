@@ -7,7 +7,6 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
-import uk.gov.digital.ho.hocs.workflow.domain.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
