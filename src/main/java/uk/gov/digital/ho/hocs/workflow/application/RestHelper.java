@@ -62,13 +62,6 @@ public class RestHelper {
         return response.getBody();
     }
 
-    @Retryable(maxAttemptsExpression = "${retry.maxAttempts}", backoff = @Backoff(delayExpression = "${retry.delay}"))
-    public <R> R delete(String serviceBaseURL, String url, Class<R> responseType) {
-        log.info("RestHelper making DELETE request to {}{}", serviceBaseURL, url, value(EVENT, REST_HELPER_DELETE));
-        ResponseEntity<R> response = restTemplate.exchange(String.format("%s%s", serviceBaseURL, url), HttpMethod.DELETE, new HttpEntity<>(null, createAuthHeaders()), responseType);
-        return response.getBody();
-    }
-
     private HttpHeaders createAuthHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

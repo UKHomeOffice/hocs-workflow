@@ -8,9 +8,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.StageType;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
-import uk.gov.digital.ho.hocs.workflow.domain.model.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 
 import java.util.Set;
 import java.util.UUID;
@@ -32,7 +33,8 @@ public class InfoClient {
         this.serviceBaseURL = infoService;
     }
 
-    public Set<CaseDataType> getCaseTypesByShortCodeRequest() {
+    @Cacheable(value = "InfoClientGetCaseTypes", unless = "#result.size() == 0")
+    public Set<CaseDataType> getCaseTypes() {
         Set<CaseDataType> response = restHelper.get(serviceBaseURL, "/caseType", new ParameterizedTypeReference<Set<CaseDataType>>() {});
         log.info("Got {} case types", response.size(), value(EVENT, INFO_CLIENT_GET_CASE_TYPES_SUCCESS));
         return response;
@@ -50,11 +52,21 @@ public class InfoClient {
         return caseDataType;
     }
 
+    @CachePut(value = "InfoClientGetSchemasForCaseType", unless = "#result.size() == 0", key = "#caseType")
+    public Set<SchemaDto> populateSchemasForCaseType(String caseType) {
+        return getSchemasForCaseType(caseType);
+    }
+
     @Cacheable(value = "InfoClientGetSchemasForCaseType", unless = "#result.size() == 0", key = "#caseType")
     public Set<SchemaDto> getSchemasForCaseType(String caseType) {
         Set<SchemaDto> response = restHelper.get(serviceBaseURL, String.format("/schema/caseType/%s", caseType), new ParameterizedTypeReference<Set<SchemaDto>>() {});
         log.info("Got {} schemas", response.size(), value(EVENT, INFO_CLIENT_GET_SCHEMAS_SUCCESS));
         return response;
+    }
+
+    @Cacheable(value = "InfoClientGetSchema", unless = "#result == null", key = "#type")
+    public SchemaDto populateSchema(String type, SchemaDto schemaDto) {
+        return schemaDto;
     }
 
     @Cacheable(value = "InfoClientGetSchema", unless = "#result == null", key = "#type")
@@ -64,6 +76,11 @@ public class InfoClient {
         return response;
     }
 
+    @CachePut(value = "InfoClientGetTeams", unless = "#result.size() == 0")
+    public Set<TeamDto> populateTeams() {
+        return getTeams();
+    }
+
     @Cacheable(value = "InfoClientGetTeams", unless = "#result.size() == 0")
     public Set<TeamDto> getTeams() {
         Set<TeamDto> teams = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {});
@@ -71,11 +88,27 @@ public class InfoClient {
         return teams;
     }
 
+    @CachePut(value = "InfoClientGetTeam", unless = "#result == null", key = "#teamUUID")
+    public TeamDto populateTeam(UUID teamUUID, TeamDto teamDto) {
+        return teamDto;
+    }
+
     @Cacheable(value = "InfoClientGetTeam", unless = "#result == null", key = "#teamUUID")
     public TeamDto getTeam(UUID teamUUID) {
         TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/%s", teamUUID),  TeamDto.class);
         log.info("Got Team teamUUID {}", response.getUuid(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
         return response;
+    }
+
+    public Set<StageType> getAllStageTypes() {
+        Set<StageType> response = restHelper.get(serviceBaseURL, "/stageType",  new ParameterizedTypeReference<Set<StageType>>() {});
+        log.info("Got {} StageTypes", response.size(), value(EVENT, INFO_CLIENT_GET_TEAM_FOR_STAGE_SUCCESS));
+        return response;
+    }
+
+    @CachePut(value = "InfoClientGetTeamForStageType", unless = "#result == null", key = "#stageType")
+    public UUID populateTeamForStageType(String stageType) {
+        return getTeamForStageType(stageType);
     }
 
     @Cacheable(value = "InfoClientGetTeamForStageType", unless = "#result == null", key = "#stageType")

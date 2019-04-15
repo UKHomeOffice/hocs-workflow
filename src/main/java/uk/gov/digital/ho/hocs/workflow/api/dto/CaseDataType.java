@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.domain.model;
+package uk.gov.digital.ho.hocs.workflow.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
