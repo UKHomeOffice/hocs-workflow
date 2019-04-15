@@ -30,22 +30,23 @@ public class BpmnService {
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString,  String allocationType, String allocationTeamString) {
-
-        UUID caseUUID = UUID.fromString(caseUUIDString);
+        log.debug("Creating or Updating Stage {}", stageTypeString);
 
         UUID teamUUID;
         if(allocationTeamString == null) {
             teamUUID = infoClient.getTeamForStageType(stageTypeString);
         } else {
+            log.info("Overriding Team selection with {}", allocationTeamString);
             teamUUID = UUID.fromString(allocationTeamString);
         }
 
         if (stageUUIDString != null) {
-            // This happens on a reject, so we need to update the team.
-            caseworkClient.updateStageTeam(caseUUID, UUID.fromString(stageUUIDString), teamUUID, allocationType);
+            log.info("Stage {} already exists for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
+            caseworkClient.updateStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), teamUUID, allocationType);
             return stageUUIDString;
         } else {
-            return caseworkClient.createStage(caseUUID, stageTypeString, teamUUID, allocationType).toString();
+            log.info("Creating new stage {} for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
+            return caseworkClient.createStage(UUID.fromString(caseUUIDString), stageTypeString, teamUUID, allocationType).toString();
         }
     }
 
