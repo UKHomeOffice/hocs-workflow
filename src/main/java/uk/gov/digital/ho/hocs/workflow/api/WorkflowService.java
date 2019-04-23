@@ -56,10 +56,9 @@ public class WorkflowService {
             createDocument(caseUUID, documents);
 
             // Start a new camunda workflow (caseUUID is the business key).
-            Map<String, String> seedData = new HashMap<>();
-            seedData.put("CaseReference",caseResponse.getReference());
-            seedData.putAll(data);
-            camundaClient.startCase(caseUUID, caseDataType, seedData);
+            data.put("CaseReference",caseResponse.getReference());
+            data.putAll(data);
+            camundaClient.startCase(caseUUID, caseDataType, data);
 
         } else {
             log.error("Failed to start case, invalid caseUUID!", value(EVENT, CASE_STARTED_FAILURE));
@@ -72,9 +71,7 @@ public class WorkflowService {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                UUID response = documentClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
-
-                documentClient.processDocument(response, document.getS3UntrustedUrl());
+                documentClient.createDocument(caseUUID, document);
             }
         }
     }

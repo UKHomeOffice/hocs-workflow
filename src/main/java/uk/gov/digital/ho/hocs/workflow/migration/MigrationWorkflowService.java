@@ -209,9 +209,7 @@ public class MigrationWorkflowService {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                UUID response = documentClient.createDocument(caseUUID, document.getDisplayName(), document.getType());
-
-                documentClient.processDocument(response, document.getS3UntrustedUrl());
+                documentClient.createDocument(caseUUID, document);
             }
         }
     }
