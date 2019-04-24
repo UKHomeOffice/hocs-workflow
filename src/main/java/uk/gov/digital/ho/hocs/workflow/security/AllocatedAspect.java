@@ -34,7 +34,7 @@ public class AllocatedAspect {
                 caseUUID = (UUID) joinPoint.getArgs()[0];
                 stageUUID = (UUID) joinPoint.getArgs()[1];
             } else {
-                throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters for type " + joinPoint.getArgs()[1].getClass().getName(), SECURITY_PARSE_ERROR);
+                throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters (allocated) for type " + joinPoint.getArgs()[1].getClass().getName(), SECURITY_PARSE_ERROR);
             }
         } else {
             throw new SecurityExceptions.PermissionCheckException("Unable to check permission of method without stage UUID parameter", SECURITY_PARSE_ERROR);
