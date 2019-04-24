@@ -48,7 +48,10 @@ public class UserPermissionsService {
                 .map(group -> getUUIDFromBase64(group))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        userTeams.forEach(t -> log.info("User team: {}", t));
+        if(log.isDebugEnabled()) {
+            userTeams.forEach(t -> log.debug("User team: {}", t));
+        }
+        log.info("Found {} User teams", userTeams.size());
         return userTeams;
     }
 
@@ -56,7 +59,10 @@ public class UserPermissionsService {
         Set<String> userCaseTypes = getUserPermission().stream()
                 .map(p -> p.getCaseTypeCode())
                 .collect(Collectors.toSet());
-        userCaseTypes.forEach(c -> log.info("User case type: {}", c));
+        if(log.isDebugEnabled()) {
+            userCaseTypes.forEach(c -> log.debug("User case type: {}", c));
+        }
+        log.info("Found {} User case types", userCaseTypes.size());
         return userCaseTypes;
     }
 
@@ -67,7 +73,7 @@ public class UserPermissionsService {
                 .filter(t -> userTeams.contains(t.getUuid()))
                 .flatMap(t -> t.getPermissionDtos().stream())
                 .collect(Collectors.toSet());
-        log.info("{} user permissions found", set.size());
+        log.info("{} User permissions", set.size());
 
         return set;
     }
