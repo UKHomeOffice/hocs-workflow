@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
@@ -30,34 +31,40 @@ public class BpmnService {
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString,  String allocationType, String allocationTeamString) {
-        log.debug("Creating or Updating Stage {}", stageTypeString);
+        log.debug("Creating or Updating Stage {} for case {}", stageTypeString, caseUUIDString);
 
         UUID teamUUID;
-        if(allocationTeamString == null) {
+        if(StringUtils.isEmpty(allocationTeamString)) {
+            log.debug("Getting Team selection from Info Service for stage {} for case {}", stageTypeString, caseUUIDString);
             teamUUID = infoClient.getTeamForStageType(stageTypeString);
         } else {
-            log.info("Overriding Team selection with {}", allocationTeamString);
+            log.debug("Overriding Team selection with {} for stage {} for case {}", allocationTeamString, stageTypeString, caseUUIDString);
             teamUUID = UUID.fromString(allocationTeamString);
         }
 
+        String stageUUID;
         if (stageUUIDString != null) {
-            log.info("Stage {} already exists for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
+            log.debug("Stage {} already exists for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
             caseworkClient.updateStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), teamUUID, allocationType);
-            return stageUUIDString;
+            stageUUID = stageUUIDString;
+            log.info("Updated Stage {} for Case {}", stageUUID, caseUUIDString);
         } else {
-            log.info("Creating new stage {} for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
-            return caseworkClient.createStage(UUID.fromString(caseUUIDString), stageTypeString, teamUUID, allocationType).toString();
+            log.debug("Creating new stage {} for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
+            stageUUID = caseworkClient.createStage(UUID.fromString(caseUUIDString), stageTypeString, teamUUID, allocationType).toString();
+            log.info("Created Stage {} for Case {}", stageUUID, caseUUIDString);
         }
+
+        return stageUUID;
     }
 
     public void completeStage(String caseUUIDString, String stageUUIDString) {
         caseworkClient.updateStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), null, null);
-        log.debug("######## Updated Stage ########");
+        log.info("Completed Stage {} for Case {}", stageUUIDString, caseUUIDString);
     }
 
     public void updatePrimaryCorrespondent(String caseUUIDString, String stageUUIDString, String correspondentUUIDString) {
         caseworkClient.updatePrimaryCorrespondent(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(correspondentUUIDString));
-        log.debug("######## Updated Primary Correspondent ########");
+        log.info("Updated Primary Correspondent for Case {}", caseUUIDString);
     }
 
     public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
@@ -66,14 +73,17 @@ public class BpmnService {
         UUID topicUUID = UUID.fromString(topicUUIDString);
 
         caseworkClient.updatePrimaryTopic(caseUUID, stageUUID, topicUUID);
+    }
+
+    public void updateTeamsForPrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString, String stageType, String teamNameKey, String teamUUIDKey) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID topicUUID = UUID.fromString(topicUUIDString);
 
         Map<String, String> teamsForTopic = new HashMap<>();
-        TeamDto draftingTeam = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, "DCU_MIN_INITIAL_DRAFT");
-        TeamDto pOTeam = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, "DCU_MIN_PRIVATE_OFFICE");
-        teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
-        teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
-        teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
-        teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
+        TeamDto teamDto = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, stageType);
+        teamsForTopic.put(teamNameKey, teamDto.getUuid().toString());
+        teamsForTopic.put(teamUUIDKey, teamDto.getDisplayName());
         camundaClient.updateTask(stageUUID, teamsForTopic);
         caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
 
