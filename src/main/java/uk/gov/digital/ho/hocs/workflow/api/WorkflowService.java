@@ -53,9 +53,9 @@ public class WorkflowService {
         if (caseUUID != null) {
 
             // Add Documents to the case
-            createDocument(caseUUID, documents);
+            createDocuments(caseUUID, documents);
 
-            // Start a new camunda workflow (caseUUID is the business key).
+            // Start a new Camunda workflow (caseUUID is the business key).
             data.put("CaseReference",caseResponse.getReference());
             data.putAll(data);
             camundaClient.startCase(caseUUID, caseDataType, data);
@@ -67,7 +67,7 @@ public class WorkflowService {
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
+    public void createDocuments(UUID caseUUID, List<DocumentSummary> documents) {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {

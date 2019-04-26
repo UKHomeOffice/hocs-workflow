@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.DocumentSummary;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
-import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.ProcessDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
@@ -47,10 +46,10 @@ public class DocumentClient {
 
     public UUID createDocument(UUID caseUUID, DocumentSummary document){
         CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(document.getDisplayName(), document.getType(), caseUUID);
-        CreateCaseworkDocumentResponse response = restHelper.post(serviceBaseURL, "/document", request, CreateCaseworkDocumentResponse.class);
-        processDocument(response.getUuid(), document.getS3UntrustedUrl());
-        log.info("Created Document {}, Case {}", response.getUuid(), caseUUID, value(EVENT, DOCUMENT_CLIENT_CREATE_SUCCESS));
-        return response.getUuid();
+        UUID response = restHelper.post(serviceBaseURL, "/document", request, UUID.class);
+        processDocument(response, document.getS3UntrustedUrl());
+        log.info("Created Document {}, Case {}", response, caseUUID, value(EVENT, DOCUMENT_CLIENT_CREATE_SUCCESS));
+        return response;
     }
 
     private void processDocument(UUID documentUUID, String fileLocation) {
