@@ -25,6 +25,33 @@ spec:
       imagePullSecrets:
         - name: registry-credentials
       initContainers:
+        - name: truststore
+          image: quay.io/ukhomeofficedigital/cfssl-sidekick-jks:v0.0.6
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          args:
+            - --certs=/certs
+            - --command=/usr/bin/create-keystore.sh /certs/tls.pem /certs/tls-key.pem /etc/ssl/certs/acp-root.crt
+            - --domain=hocs-workflow.${KUBE_NAMESPACE}.svc.cluster.local
+            - --domain=localhost
+            - --onetime=true
+          env:
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+            - name: keystore
+              mountPath: /etc/keystore
+            - name: bundle
+              mountPath: /etc/ssl/certs
+              readOnly: true
         - name: db-initialise
           image: docker.digital.homeoffice.gov.uk/hocs-db-provision:latest
           securityContext:
@@ -73,34 +100,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: hocs-db-readonly
-                  key: rds_password
-        - name: truststore
-          image: quay.io/ukhomeofficedigital/cfssl-sidekick-jks:v0.0.6
-          securityContext:
-            runAsNonRoot: true
-            capabilities:
-              drop:
-                - SETUID
-                - SETGID
-          args:
-            - --certs=/certs
-            - --command=/usr/bin/create-keystore.sh /certs/tls.pem /certs/tls-key.pem /etc/ssl/certs/acp-root.crt
-            - --domain=hocs-workflow.${KUBE_NAMESPACE}.svc.cluster.local
-            - --domain=localhost
-            - --onetime=true
-          env:
-            - name: KUBE_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          volumeMounts:
-            - name: certs
-              mountPath: /certs
-            - name: keystore
-              mountPath: /etc/keystore
-            - name: bundle
-              mountPath: /etc/ssl/certs
-              readOnly: true
+                  key: rds_password     
       containers:
         - name: certs
           image: quay.io/ukhomeofficedigital/cfssl-sidekick:v0.0.6
@@ -128,7 +128,7 @@ spec:
               readOnly: true
 
         - name: proxy
-          image: quay.io/ukhomeofficedigital/nginx-proxy:v3.4.9
+          image: quay.io/ukhomeofficedigital/nginx-proxy:v3.4.12
           imagePullPolicy: Always
           securityContext:
             runAsNonRoot: true
@@ -224,6 +224,11 @@ spec:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-rds
                   key: db_name
+            - name: DB_SCHEMA_NAME		
+              valueFrom:		
+                secretKeyRef:		
+                  name: hocs-workflow	
+                  key: rds_schema      
             - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -272,7 +277,7 @@ spec:
               httpHeaders:
                 - name: X-probe
                   value: kubelet
-            initialDelaySeconds: 45
+            initialDelaySeconds: 60
             periodSeconds: 20
             timeoutSeconds: 10
           readinessProbe:
@@ -282,7 +287,7 @@ spec:
               httpHeaders:
                 - name: X-probe
                   value: kubelet
-            initialDelaySeconds: 45
+            initialDelaySeconds: 60
             periodSeconds: 20
             timeoutSeconds: 10
           volumeMounts:
