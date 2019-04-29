@@ -22,7 +22,6 @@ The source for this service can be found on [GitHub](https://github.com/UKHomeOf
 
 ## Getting Started
 
-
 ### Prerequisites
 
 * ```Java 8```
