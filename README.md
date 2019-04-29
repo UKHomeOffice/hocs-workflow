@@ -6,7 +6,6 @@
  
  To start local instances run `./docker/docker-compose up`.
  
-
 This is the Home Office Correspondence Service (HOCS) workflow service.
 
 The HOCS project is comprised of a set of micro-services:
