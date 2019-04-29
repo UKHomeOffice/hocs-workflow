@@ -108,8 +108,6 @@ To stop and clear the service containers run
 ```
 ## Using the Service
 
-
-
 ### Versioning
 
 For versioning this project uses [SemVer](https://semver.org/).
