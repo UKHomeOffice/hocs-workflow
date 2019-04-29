@@ -9,6 +9,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -60,6 +61,10 @@ public class BpmnService {
     public void completeStage(String caseUUIDString, String stageUUIDString) {
         caseworkClient.updateStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), null, null);
         log.info("Completed Stage {} for Case {}", stageUUIDString, caseUUIDString);
+    }
+
+    public void updateDeadline(String caseUUIDString, String stageUUIDString, String dateReceived) {
+        caseworkClient.updateDateReceived(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), LocalDate.parse(dateReceived));
     }
 
     public void updatePrimaryCorrespondent(String caseUUIDString, String stageUUIDString, String correspondentUUIDString) {

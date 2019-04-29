@@ -44,14 +44,19 @@ public class CaseworkClient {
         log.info("Set Case Data for Case {}", caseUUID);
     }
 
+    public void updateDateReceived(UUID caseUUID, UUID stageUUID, LocalDate dateReceived) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dateReceived", caseUUID, stageUUID) , dateReceived, Void.class);
+        log.info("Set Date Received for Case {}", caseUUID);
+    }
+
     public void updatePrimaryCorrespondent(UUID caseUUID, UUID stageUUID, UUID primaryCorrespondent) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID) , primaryCorrespondent, Void.class);
-        log.info("Set Case Data for Case {}", caseUUID);
+        log.info("Set Primary Correspondent for Case {}", caseUUID);
     }
 
     public void updatePrimaryTopic(UUID caseUUID, UUID stageUUID, UUID primaryTopic) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID) , primaryTopic, Void.class);
-        log.info("Set Case Data for Case {}", caseUUID);
+        log.info("Set Primary Topic for Case {}", caseUUID);
     }
 
     public GetCaseworkCaseDataResponse getCase(UUID caseUUID) {
