@@ -29,7 +29,6 @@ The source for this service can be found on [GitHub](https://github.com/UKHomeOf
 * ```AWS SQS queues``` (document and case output) or localstack
 * ```Postgres``` 
  
-
 ## Build and Run the Service
 
 ### Preparation
