@@ -25,6 +25,55 @@ spec:
       imagePullSecrets:
         - name: registrykey
       initContainers:
+        - name: db-initialise
+          image: docker.digital.homeoffice.gov.uk/hocs-db-provision:latest
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          env:
+            - name: DB_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: endpoint
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: db_name
+            - name: ROOT_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: password
+            - name: DB_SCHEMA_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_schema
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_password
+            - name: DB_READONLY_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-db-readonly
+                  key: rds_user
+            - name: DB_READONLY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-db-readonly
+                  key: rds_password
         - name: truststore
           image: quay.io/ukhomeofficedigital/cfssl-sidekick-jks:v0.0.6
           securityContext:
@@ -178,12 +227,12 @@ spec:
             - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: username
+                  name: hocs-worfklow
+                  key: rds_username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
+                  name: hocs-workflow
                   key: password
             - name: DOCS_QUEUE_NAME
               value:
