@@ -137,16 +137,25 @@ pipeline:
       environment: prod
 services:
   postgres:
-    image: quay.io/ukhomeofficedigital/postgres
+    image: quay.io/ukhomeofficedigital/postgres-alpine
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: dev
+
   localstack:
     image: localstack/localstack:latest
+    ports:
+      - 9000:8080
+      - 4572:4572
+      - 4576:4576
+      - 4575:4575
+    networks:
+      - hocs-network
     environment:
       HOSTNAME_EXTERNAL: localstack
       DEFAULT_REGION: eu-west-2
       SERVICES: sqs,s3
+
   aws_cli:
     image: garland/aws-cli-docker
     command:
