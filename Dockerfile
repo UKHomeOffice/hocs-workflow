@@ -1,8 +1,7 @@
 FROM quay.io/ukhomeofficedigital/openjdk11
 
-
 ENV USER user_hocs_workflow
-ENV USER_ID 999
+ENV USER_ID 1000
 ENV GROUP group_hocs_workflow
 ENV NAME hocs-workflow
 ENV JAR_PATH build/libs
@@ -24,7 +23,7 @@ ADD scripts /app/scripts
 
 RUN chmod a+x /app/scripts/*
 
-EXPOSE 8000
+EXPOSE 8080
 
 USER ${USER_ID}
 
