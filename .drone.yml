@@ -141,35 +141,3 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: dev
-
-  localstack:
-    image: localstack/localstack:latest
-    environment:
-      HOSTNAME_EXTERNAL: localstack
-      DEFAULT_REGION: eu-west-2
-      SERVICES: sns,sqs,s3
-
-    aws_cli:
-      image: garland/aws-cli-docker
-      networks:
-        - hocs-network
-      command:
-        - /bin/sh
-        - -c
-        - |
-          aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name audit-queue
-          aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name audit-queue-dlq
-          aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name search-queue
-          aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name search-queue-dlq
-          aws --endpoint-url=http://localstack:4575 sns create-topic --name hocs-audit-topic
-          aws --endpoint-url=http://localstack:4575 sns subscribe --topic-arn arn:aws:sns:eu-west-2:123456789012:hocs-audit-topic --protocol sqs --notification-endpoint arn:aws:sns:eu-west-2:123456789012:audit-queue
-          aws --endpoint-url=http://localstack:4575 sns subscribe --topic-arn arn:aws:sns:eu-west-2:123456789012:hocs-audit-topic --protocol sqs --notification-endpoint arn:aws:sns:eu-west-2:123456789012:search-queue
-          aws --endpoint-url=http://localstack:4575 sns list-subscriptions
-          aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name document-queue
-          aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name document-queue-dlq
-          aws --endpoint-url=http://localstack:4572 s3 mb s3://untrusted-bucket
-          aws --endpoint-url=http://localstack:4572 s3 mb s3://trusted-bucket
-      environment:
-        AWS_ACCESS_KEY_ID: UNSET
-        AWS_SECRET_ACCESS_KEY: UNSET
-        AWS_DEFAULT_REGION: 'eu-west-2'
