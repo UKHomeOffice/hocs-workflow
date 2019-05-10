@@ -63,6 +63,11 @@ public class BpmnService {
         log.info("Completed Stage {} for Case {}", stageUUIDString, caseUUIDString);
     }
 
+    public void completeCase(String caseUUIDString) {
+        caseworkClient.completeCase(UUID.fromString(caseUUIDString), true);
+        log.info("Completed Case {}", caseUUIDString);
+    }
+
     public void updateDeadline(String caseUUIDString, String stageUUIDString, String dateReceived) {
         caseworkClient.updateDateReceived(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), LocalDate.parse(dateReceived));
     }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetFullCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
@@ -42,6 +43,11 @@ public class CaseworkClient {
         UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID) , request, Void.class);
         log.info("Set Case Data for Case {}", caseUUID);
+    }
+
+    public void completeCase(UUID caseUUID, boolean completed) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/complete", caseUUID) , completed, Void.class);
+        log.info("Completed Case {}", caseUUID);
     }
 
     public void updateDateReceived(UUID caseUUID, UUID stageUUID, LocalDate dateReceived) {
@@ -97,6 +103,12 @@ public class CaseworkClient {
     public UUID getStageTeam(UUID caseUUID, UUID stageUUID) {
         UUID response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), UUID.class);
         log.info("Got Team Stage: {} for Case: {}", stageUUID, caseUUID);
+        return response;
+    }
+
+    public GetFullCaseResponse getFullCase(UUID caseUUID) {
+        GetFullCaseResponse response = restHelper.get(serviceBaseURL, String.format("/case/%s/full", caseUUID), GetFullCaseResponse.class);
+        log.info("Got Full Case: {}", caseUUID);
         return response;
     }
 }
