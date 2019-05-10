@@ -44,6 +44,11 @@ public class CaseworkClient {
         log.info("Set Case Data for Case {}", caseUUID);
     }
 
+    public void completeCase(UUID caseUUID, boolean completed) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/complete", caseUUID) , completed, Void.class);
+        log.info("Completed Case {}", caseUUID);
+    }
+
     public void updateDateReceived(UUID caseUUID, UUID stageUUID, LocalDate dateReceived) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dateReceived", caseUUID, stageUUID) , dateReceived, Void.class);
         log.info("Set Date Received for Case {}", caseUUID);
