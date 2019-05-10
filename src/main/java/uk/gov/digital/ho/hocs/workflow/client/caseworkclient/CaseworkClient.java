@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetFullCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
@@ -97,6 +98,12 @@ public class CaseworkClient {
     public UUID getStageTeam(UUID caseUUID, UUID stageUUID) {
         UUID response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), UUID.class);
         log.info("Got Team Stage: {} for Case: {}", stageUUID, caseUUID);
+        return response;
+    }
+
+    public GetFullCaseResponse getFullCase(UUID caseUUID) {
+        GetFullCaseResponse response = restHelper.get(serviceBaseURL, String.format("/case/%s/full", caseUUID), GetFullCaseResponse.class);
+        log.info("Got Full Case: {}", caseUUID);
         return response;
     }
 }
