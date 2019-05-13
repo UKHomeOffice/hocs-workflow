@@ -2,7 +2,6 @@ package uk.gov.digital.ho.hocs.workflow.client.documentclient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import uk.gov.digital.ho.hocs.workflow.client.documentclient.model.DocumentType;
 
 import java.util.UUID;
 
@@ -13,7 +12,10 @@ public class CreateCaseworkDocumentRequest {
     private String name;
 
     @JsonProperty("type")
-    private DocumentType type;
+    private String type;
+
+    @JsonProperty("fileLink")
+    private String fileLink;
 
     @JsonProperty("externalReferenceUUID")
     private UUID externalReferenceUUID;
