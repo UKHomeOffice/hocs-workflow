@@ -30,7 +30,8 @@ public enum LogEvent {
     REST_HELPER_GET_FORBIDDEN,
     REST_HELPER_GET_NOT_FOUND,
     REST_HELPER_GET_BAD_REQUEST,
-    CACHE_PRIME_FAILED;
+    CACHE_PRIME_FAILED,
+    MIGRATION_EVENT;
     public static final String EVENT = "event_id";
     public static final String EXCEPTION = "exception";
 }
