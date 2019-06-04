@@ -32,7 +32,7 @@ class MigrationWorkflowResource {
 
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "migration/case/progress", consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<MigrationProgressCaseResponse> createCase(@RequestBody MigrationProgressCaseRequest request) {
+    public ResponseEntity<MigrationProgressCaseResponse> progressCase(@RequestBody MigrationProgressCaseRequest request) {
         MigrationProgressCaseResponse response = workflowService.progressCase(request.getCaseUUID(), request.getType(),  request.getData(), request.getSeedData(), request.getCorrespondent(), request.getDraftDocumentUUID(), request.getTopic());
         return ResponseEntity.ok(response);
     }
