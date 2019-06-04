@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
-  <bpmn:process id="DCU_BASE_MARKUP" isExecutable="true">
-    <bpmn:startEvent id="DCU_BASE_MARKUP_START" name="Start Markup Stage">
+  <bpmn:process id="DCU_MIN_MARKUP" isExecutable="true">
+    <bpmn:startEvent id="DCU_MIN_MARKUP_START" name="Start Markup Stage">
       <bpmn:outgoing>FromStart_ToInitial</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="FromInitial_ToValidateInitial" sourceRef="DCU_MARKUP_DECISION" targetRef="VALIDATE_DCU_MARKUP_DECISION" />
@@ -52,7 +52,7 @@
     <bpmn:sequenceFlow id="FromGatewayValidateAllocationNote_ToEnd" name="true" sourceRef="ExclusiveGateway_0isj7ns" targetRef="ServiceTask_19v0oal">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="FromStart_ToInitial" sourceRef="DCU_BASE_MARKUP_START" targetRef="DCU_MARKUP_DECISION" />
+    <bpmn:sequenceFlow id="FromStart_ToInitial" sourceRef="DCU_MIN_MARKUP_START" targetRef="DCU_MARKUP_DECISION" />
     <bpmn:sequenceFlow id="SequenceFlow_0rmmslb" sourceRef="TOPICS" targetRef="VALIDATE_TOPICS" />
     <bpmn:userTask id="VALIDATE_TOPICS" name="Validate Topics">
       <bpmn:incoming>SequenceFlow_0rmmslb</bpmn:incoming>
@@ -92,7 +92,7 @@
       <bpmn:incoming>SequenceFlow_0ovfo59</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0rmmslb</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="DCU_BASE_MARKUP_END" name="End Markup Stage">
+    <bpmn:endEvent id="DCU_MIN_MARKUP_END" name="End Markup Stage">
       <bpmn:incoming>SequenceFlow_0luze1a</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1ouoepu</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_04enxe9</bpmn:incoming>
@@ -143,17 +143,17 @@
       <bpmn:incoming>SequenceFlow_0avevl9</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0luze1a</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0luze1a" sourceRef="ServiceTask_0320mje" targetRef="DCU_BASE_MARKUP_END" />
+    <bpmn:sequenceFlow id="SequenceFlow_0luze1a" sourceRef="ServiceTask_0320mje" targetRef="DCU_MIN_MARKUP_END" />
     <bpmn:serviceTask id="ServiceTask_19v0oal" name="Save Allocation Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_NRN&#34;), &#34;ALLOCATE&#34;)}">
       <bpmn:incoming>FromGatewayValidateAllocationNote_ToEnd</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1ouoepu</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1ouoepu" sourceRef="ServiceTask_19v0oal" targetRef="DCU_BASE_MARKUP_END" />
+    <bpmn:sequenceFlow id="SequenceFlow_1ouoepu" sourceRef="ServiceTask_19v0oal" targetRef="DCU_MIN_MARKUP_END" />
     <bpmn:serviceTask id="ServiceTask_1rph0yy" name="Update Allocation Teams" camunda:expression="${bpmnService.updateTeamSelection(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;OverrideDraftingTeamUUID&#34;), execution.getVariable(&#34;OverridePOTeamUUID&#34;))}">
       <bpmn:incoming>SequenceFlow_05qp3gc</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_04enxe9</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_04enxe9" sourceRef="ServiceTask_1rph0yy" targetRef="DCU_BASE_MARKUP_END" />
+    <bpmn:sequenceFlow id="SequenceFlow_04enxe9" sourceRef="ServiceTask_1rph0yy" targetRef="DCU_MIN_MARKUP_END" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1bkqzq1">
       <bpmn:incoming>SequenceFlow_1brnx8a</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0nc27f2</bpmn:outgoing>
@@ -201,7 +201,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0lk864m" sourceRef="ServiceTask_0bdoeaw" targetRef="UserTask_1r9rg7w" />
-    <bpmn:sequenceFlow id="SequenceFlow_1maoafn" sourceRef="ServiceTask_0jb3reg" targetRef="DCU_BASE_MARKUP_END" />
+    <bpmn:sequenceFlow id="SequenceFlow_1maoafn" sourceRef="ServiceTask_0jb3reg" targetRef="DCU_MIN_MARKUP_END" />
     <bpmn:serviceTask id="ServiceTask_082gadk" name="Update Teams for Topic" camunda:expression="${bpmnService.updateTeamsForPrimaryTopic(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;Topics&#34;), &#34;DCU_MIN_PRIVATE_OFFICE&#34;, &#34;POTeamUUID&#34;, &#34;POTeamName&#34;)}">
       <bpmn:incoming>SequenceFlow_16iebso</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1so03as</bpmn:outgoing>
@@ -214,8 +214,8 @@
     <bpmn:sequenceFlow id="SequenceFlow_1o6638l" sourceRef="ServiceTask_0i4k7uv" targetRef="ServiceTask_0bdoeaw" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_BASE_MARKUP">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="DCU_BASE_MARKUP_START">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_MIN_MARKUP">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="DCU_MIN_MARKUP_START">
         <dc:Bounds x="-36" y="-20" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="-47" y="16" width="63" height="27" />
@@ -383,7 +383,7 @@
       <bpmndi:BPMNShape id="ServiceTask_042b2bc_di" bpmnElement="TOPICS">
         <dc:Bounds x="823" y="58" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_0m4p03w_di" bpmnElement="DCU_BASE_MARKUP_END">
+      <bpmndi:BPMNShape id="EndEvent_0m4p03w_di" bpmnElement="DCU_MIN_MARKUP_END">
         <dc:Bounds x="2778" y="491" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2824" y="495.5" width="60" height="27" />
