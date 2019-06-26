@@ -96,7 +96,7 @@ public class WorkflowService {
 
     public GetCaseResponse getAllCaseStages(UUID caseUUID) {
 
-            GetFullCaseResponse inputResponse = caseworkClient.getFullCase(caseUUID);
+            GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
 
             Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
 
