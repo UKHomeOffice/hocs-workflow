@@ -2,13 +2,17 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRawValue;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Getter
 public class GetCaseworkCaseDataResponse {
@@ -26,14 +30,27 @@ public class GetCaseworkCaseDataResponse {
     @JsonProperty("reference")
     private String reference;
 
-    @JsonRawValue
-    private Map<String,String> data;
+    @JsonProperty("data")
+    private Map<String, String> data;
+
+    @JsonProperty("caseDeadline")
+    private LocalDate caseDeadline;
+
+    @JsonProperty("dateReceived")
+    private LocalDate dateReceived;
+
+    @JsonProperty("primaryTopicUUID")
+    private UUID primaryTopicUUID;
 
     @JsonProperty("primaryTopic")
-    private UUID primaryTopic;
+    private GetTopicResponse primaryTopic;
+
+    @JsonProperty("primaryCorrespondentUUID")
+    private UUID primaryCorrespondentUUID;
 
     @JsonProperty("primaryCorrespondent")
-    private UUID primaryCorrespondent;
-
+    private GetCorrespondentResponse primaryCorrespondent;
 
 }
+
+
