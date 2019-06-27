@@ -45,11 +45,11 @@ public class GetCaseworkCaseDataResponse {
     @JsonProperty("primaryTopic")
     private GetTopicResponse primaryTopic;
 
-    @JsonProperty("primaryCorrespondent")
-    private GetCorrespondentResponse primaryCorrespondent;
-
     @JsonProperty("primaryCorrespondentUUID")
     private UUID primaryCorrespondentUUID;
+
+    @JsonProperty("primaryCorrespondent")
+    private GetCorrespondentResponse primaryCorrespondent;
 
 }
 
