@@ -19,7 +19,4 @@ public class CreateCaseworkDocumentRequest {
 
     @JsonProperty("externalReferenceUUID")
     private UUID externalReferenceUUID;
-
-    @JsonProperty("convertToPdf")
-    private boolean convertToPdf;
 }
