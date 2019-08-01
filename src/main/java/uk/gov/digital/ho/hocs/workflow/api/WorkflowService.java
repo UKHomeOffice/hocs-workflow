@@ -1,6 +1,8 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+//import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
@@ -9,6 +11,7 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
@@ -106,7 +109,32 @@ public class WorkflowService {
 
             HocsCaseSchema schema = new HocsCaseSchema("View Case", hocsFields);
 
-            return new GetCaseResponse(inputResponse.getReference(), schema, inputResponse.getData());
+            Map<String, String> dataMap = convertDataToSchema(schemaDtos, inputResponse.getData());
+
+            return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
+    }
+
+    private Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap){
+        for(SchemaDto schemaDto : schemaDtos){
+            for(FieldDto fieldDto : schemaDto.getFields()){
+                if (fieldDto.getComponent().equals("dropdown")){
+                    String keyString = fieldDto.getName();
+                    String uuidString = dataMap.getOrDefault(keyString,null);
+                    if (uuidString != null && uuidString.contains(("-"))){
+                        String choices = fieldDto.getProps().getOrDefault("choices", null).toString();
+                        if (choices.contains("TEAMS")){
+                            TeamDto teamDto = infoClient.getTeam(UUID.fromString(uuidString));
+                            if (teamDto != null) {
+                                dataMap.put(keyString, teamDto.getDisplayName());
+                            }
+                        } else if (choices.contains("USERS")) {
+
+                        }
+                    }
+                }
+            }
+        }
+        return dataMap;
     }
 
     private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
