@@ -118,7 +118,7 @@ public class WorkflowService {
             return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
     }
 
-    private Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap){
+    public Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap){
         for(SchemaDto schemaDto : schemaDtos){
             for(FieldDto fieldDto : schemaDto.getFields()){
                 if (fieldDto.getComponent().equals("dropdown")){
