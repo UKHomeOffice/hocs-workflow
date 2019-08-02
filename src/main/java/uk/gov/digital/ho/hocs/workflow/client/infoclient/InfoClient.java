@@ -3,15 +3,14 @@ package uk.gov.digital.ho.hocs.workflow.client.infoclient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.StageType;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 
 import java.util.Set;
 import java.util.UUID;
@@ -27,8 +26,7 @@ public class InfoClient {
     private final String serviceBaseURL;
 
     @Autowired
-    public InfoClient(RestHelper restHelper,
-                      @Value("${hocs.info-service}") String infoService) {
+    public InfoClient(RestHelper restHelper, @Value("${hocs.info-service}") String infoService) {
         this.restHelper = restHelper;
         this.serviceBaseURL = infoService;
     }
@@ -80,5 +78,12 @@ public class InfoClient {
         TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/topic/%s/stage/%s", caseUUID, topicUUID, stageType),  TeamDto.class);
         log.info("Got Team teamUUID {} for Topic {} and Stage {}", response.getUuid(), topicUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_TOPIC_STAGE_SUCCESS));
         return response;
+    }
+
+    @Cacheable(value = "InfoClientGetUser", unless = "#result == null", key = "{ #userUUID}")
+    public UserDto getUser(UUID userUUID) {
+        UserDto userDto = restHelper.get(serviceBaseURL, String.format("/user/%s", userUUID), UserDto.class);
+        log.info("Got User for UUID {}", userUUID, value(EVENT, INFO_CLIENT_GET_USER_SUCESS));
+        return userDto;
     }
 }

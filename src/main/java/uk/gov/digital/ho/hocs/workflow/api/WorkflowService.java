@@ -3,12 +3,15 @@ package uk.gov.digital.ho.hocs.workflow.api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
@@ -31,6 +34,10 @@ public class WorkflowService {
     private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
+
+    private static final String CHOICES_PROPERTY = "choices";
+    private static final String CONTENT_TYPE_TEAMS = "TEAMS";
+    private static final String CONTENT_TYPE_USERS = "USERS";
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
@@ -106,7 +113,38 @@ public class WorkflowService {
 
             HocsCaseSchema schema = new HocsCaseSchema("View Case", hocsFields);
 
-            return new GetCaseResponse(inputResponse.getReference(), schema, inputResponse.getData());
+            Map<String, String> dataMap = convertDataToSchema(schemaDtos, inputResponse.getData());
+
+            return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
+    }
+
+    public Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap){
+        for(SchemaDto schemaDto : schemaDtos){
+            for(FieldDto fieldDto : schemaDto.getFields()){
+                if (fieldDto.getComponent().equals("dropdown")){
+                    String keyString = fieldDto.getName();
+                    String uuidString = dataMap.getOrDefault(keyString,null);
+                    if (uuidString != null && uuidString.contains(("-"))){
+                        final Object choicesProperty = fieldDto.getProps().getOrDefault(CHOICES_PROPERTY, null);
+                        if (choicesProperty != null) {
+                            String choices = choicesProperty.toString();
+                            if (choices.contains(CONTENT_TYPE_TEAMS)){
+                                TeamDto teamDto = infoClient.getTeam(UUID.fromString(uuidString));
+                                if (teamDto != null) {
+                                    dataMap.put(keyString, teamDto.getDisplayName());
+                                }
+                            } else if (choices.contains(CONTENT_TYPE_USERS)) {
+                                final UserDto user = infoClient.getUser(UUID.fromString(uuidString));
+                                if (user != null) {
+                                    dataMap.put(keyString, user.displayFormat());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return dataMap;
     }
 
     private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
