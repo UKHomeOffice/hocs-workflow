@@ -35,6 +35,8 @@ public class WorkflowService {
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
 
+    private static final String COMPONENT_ENTITY_LIST = "entity-list";
+    private static final String COMPONENT_DROPDOWN = "dropdown";
     private static final String CHOICES_PROPERTY = "choices";
     private static final String CONTENT_TYPE_TEAMS = "TEAMS";
     private static final String CONTENT_TYPE_USERS = "USERS";
@@ -126,7 +128,7 @@ public class WorkflowService {
                 String keyString = fieldDto.getName();
                 String uuidString = dataMap.getOrDefault(keyString,null);
                 if (uuidString != null && uuidString.contains(("-"))){
-                    if (fieldDto.getComponent().equals("dropdown")){
+                    if (fieldDto.getComponent().equals(COMPONENT_DROPDOWN)){
                         final Object choicesProperty = fieldDto.getProps().getOrDefault(CHOICES_PROPERTY, null);
                         if (choicesProperty != null) {
                             String choices = choicesProperty.toString();
@@ -142,7 +144,7 @@ public class WorkflowService {
                                 }
                             }
                         }
-                    } else if (fieldDto.getComponent().equals("entity-list")){
+                    } else if (fieldDto.getComponent().equals(COMPONENT_ENTITY_LIST)){
                         final Object entityProperty = fieldDto.getProps().getOrDefault(ENTITY_PROPERTY, null);
                         if (entityProperty != null){
                             if (entityProperty.equals(ENTITY_TYPE_DOCUMENT)){
