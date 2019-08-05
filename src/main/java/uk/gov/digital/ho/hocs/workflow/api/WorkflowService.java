@@ -35,9 +35,13 @@ public class WorkflowService {
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
 
+    private static final String COMPONENT_ENTITY_LIST = "entity-list";
+    private static final String COMPONENT_DROPDOWN = "dropdown";
     private static final String CHOICES_PROPERTY = "choices";
     private static final String CONTENT_TYPE_TEAMS = "TEAMS";
     private static final String CONTENT_TYPE_USERS = "USERS";
+    private static final String ENTITY_PROPERTY = "entity";
+    private static final String ENTITY_TYPE_DOCUMENT = "document";
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
@@ -121,10 +125,10 @@ public class WorkflowService {
     public Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap){
         for(SchemaDto schemaDto : schemaDtos){
             for(FieldDto fieldDto : schemaDto.getFields()){
-                if (fieldDto.getComponent().equals("dropdown")){
-                    String keyString = fieldDto.getName();
-                    String uuidString = dataMap.getOrDefault(keyString,null);
-                    if (uuidString != null && uuidString.contains(("-"))){
+                String keyString = fieldDto.getName();
+                String uuidString = dataMap.getOrDefault(keyString,null);
+                if (uuidString != null && uuidString.contains(("-"))){
+                    if (fieldDto.getComponent().equals(COMPONENT_DROPDOWN)){
                         final Object choicesProperty = fieldDto.getProps().getOrDefault(CHOICES_PROPERTY, null);
                         if (choicesProperty != null) {
                             String choices = choicesProperty.toString();
@@ -138,6 +142,14 @@ public class WorkflowService {
                                 if (user != null) {
                                     dataMap.put(keyString, user.displayFormat());
                                 }
+                            }
+                        }
+                    } else if (fieldDto.getComponent().equals(COMPONENT_ENTITY_LIST)){
+                        final Object entityProperty = fieldDto.getProps().getOrDefault(ENTITY_PROPERTY, null);
+                        if (entityProperty != null){
+                            if (entityProperty.equals(ENTITY_TYPE_DOCUMENT)){
+                                String documentName = documentClient.getDocumentName(UUID.fromString(uuidString));
+                                dataMap.put(keyString, documentName);
                             }
                         }
                     }

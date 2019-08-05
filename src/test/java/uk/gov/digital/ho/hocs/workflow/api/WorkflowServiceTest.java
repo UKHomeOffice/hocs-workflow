@@ -34,7 +34,7 @@ public class WorkflowServiceTest {
     private InfoClient infoClient;
 
     @Test
-    public void getCreateCaseRequest() {
+    public void getCreateCaseRequest_WhenDropdownTeams() {
 
         Map<String, Object> props = new HashMap<>();
         props.put("choices", "TEAMS");
@@ -73,5 +73,45 @@ public class WorkflowServiceTest {
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(documentClient);
+    }
+
+    @Test
+    public void getCreateCaseRequest_WhenEntitylistDocuments() {
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("entity", "document");
+        FieldDto fieldDto = mock(FieldDto.class);
+        when(fieldDto.getComponent()).thenReturn("entity-list");
+        when(fieldDto.getName()).thenReturn("uuid");
+        when(fieldDto.getProps()).thenReturn(props);
+        List<FieldDto> fieldDtos = new ArrayList<>();
+        fieldDtos.add(fieldDto);
+        SchemaDto schemaDto = mock(SchemaDto.class);
+        when(schemaDto.getFields()).thenReturn(fieldDtos);
+        Set<SchemaDto> schemaDtos = new HashSet<>();
+        schemaDtos.add(schemaDto);
+        // assign data map
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("uuid", "11111111-1111-1111-1111-111111111111");
+        // assign info client
+        UUID uuid = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        assertThat(uuid).isNotNull();
+        when(documentClient.getDocumentName(uuid)).thenReturn("Document Name");
+        // assign service
+        WorkflowService workflowService = new WorkflowService(
+                caseworkClient,
+                documentClient,
+                infoClient,
+                camundaClient);
+
+        Map<String, String> dataMapResult = workflowService.convertDataToSchema(schemaDtos, dataMap);
+
+        assertThat(dataMapResult).isNotNull();
+        assertThat(dataMapResult.size()).isEqualTo(1);
+        assertThat(dataMapResult.get("uuid")).isEqualTo("Document Name");
+        // assert nothing else happened
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
     }
 }
