@@ -19,7 +19,7 @@ public class UserDto {
     @JsonProperty("lastName")
     private String lastName;
 
-    @JsonProperty("notify")
+    @JsonProperty("email")
     private String email;
 
     public String displayFormat() {
