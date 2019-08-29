@@ -100,6 +100,35 @@ public class BpmnService {
         log.debug("######## Updated Primary Topic ########");
     }
 
+    public void updateTeamForUnitAndStage(String caseUUIDString, String stageUUIDString, String unitId, String stageType, String teamNameKey, String teamUUIDKey) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID unitUUID = UUID.fromString(unitId);
+
+        Map<String, String> teamsForUnits = new HashMap<>();
+        TeamDto teamDto = infoClient.getTeamForUnitAndStage(caseUUID, unitUUID, stageType);
+        teamsForUnits.put(teamNameKey, teamDto.getUuid().toString());
+        teamsForUnits.put(teamUUIDKey, teamDto.getDisplayName());
+
+        camundaClient.updateTask(stageUUID, teamsForUnits);
+        caseworkClient.updateCase(caseUUID, stageUUID, teamsForUnits);
+
+    }
+
+    public void updateTeamForConstituencyAndStage(String caseUUIDString, String stageUUIDString, String constituencyId, String stageType, String teamNameKey, String teamUUIDKey){
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID constituencyUUID = UUID.fromString(constituencyId);
+
+        Map<String, String> teams = new HashMap<>();
+        TeamDto teamDto = infoClient.getTeamForConstituencyAndStage(caseUUID, constituencyUUID, stageType);
+        teams.put(teamNameKey, teamDto.getUuid().toString());
+        teams.put(teamUUIDKey, teamDto.getDisplayName());
+
+        camundaClient.updateTask(stageUUID, teams);
+        caseworkClient.updateCase(caseUUID, stageUUID, teams);
+    }
+
     public void updateTeamSelection(String caseUUIDString, String stageUUIDString, String draftingUUIDString, String privateOfficeUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
