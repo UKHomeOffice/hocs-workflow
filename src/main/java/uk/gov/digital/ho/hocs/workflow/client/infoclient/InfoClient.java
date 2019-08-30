@@ -83,14 +83,14 @@ public class InfoClient {
     @Cacheable(value = "InfoClientGetTeamForUnitAndStage", unless = "#result == null", key = "{ #caseUUID, #unitUUID, #stageType}")
     public TeamDto getTeamForUnitAndStage(UUID caseUUID, UUID unitUUID, String stageType) {
         TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/unit/%s/stage/%s", caseUUID, unitUUID, stageType),  TeamDto.class);
-        log.info("Got Team teamUUID {} for Topic {} and Stage {}", response.getUuid(), unitUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_UNIT_STAGE_SUCCESS));
+        log.info("Got Team teamUUID {} for Unit {} and Stage {}", response.getUuid(), unitUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_UNIT_STAGE_SUCCESS));
         return response;
     }
 
     @Cacheable(value = "InfoClientGetTeamForConstituencyAndStage", unless = "#result == null", key = "{ #caseUUID, #constituencyUUID, #stageType}")
     public TeamDto getTeamForConstituencyAndStage(UUID caseUUID, UUID constituencyUUID, String stageType) {
         TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/constituency/%s/stage/%s", caseUUID, constituencyUUID, stageType),  TeamDto.class);
-        log.info("Got Team teamUUID {} for Topic {} and Stage {}", response.getUuid(), constituencyUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_CONSTITUENCY_STAGE_SUCCESS));
+        log.info("Got Team teamUUID {} for Constituency {} and Stage {}", response.getUuid(), constituencyUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_CONSTITUENCY_STAGE_SUCCESS));
         return response;
     }
 
