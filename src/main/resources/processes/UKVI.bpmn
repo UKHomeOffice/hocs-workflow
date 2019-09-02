@@ -4,7 +4,7 @@
     <bpmn:startEvent id="UKVI_START" name="Start Case">
       <bpmn:outgoing>SequenceFlow_1pepep6</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:endEvent id="DCU_MIN_END" name="End Case">
+    <bpmn:endEvent id="UKVI_END" name="End Case">
       <bpmn:incoming>SequenceFlow_0b8hmwm</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_14c0dsh</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0lke0v5</bpmn:incoming>
@@ -50,7 +50,7 @@
       <bpmn:incoming>SequenceFlow_1p4ijz3</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0b8hmwm</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0b8hmwm" sourceRef="Task_0aiawho" targetRef="DCU_MIN_END" />
+    <bpmn:sequenceFlow id="SequenceFlow_0b8hmwm" sourceRef="Task_0aiawho" targetRef="UKVI_END" />
     <bpmn:sequenceFlow id="SequenceFlow_1dnbjnh" sourceRef="CallActivity_0sc1113" targetRef="ExclusiveGateway_1cxhewo" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1cxhewo">
       <bpmn:incoming>SequenceFlow_1dnbjnh</bpmn:incoming>
@@ -75,12 +75,12 @@
     <bpmn:callActivity id="CallActivity_0miftiw" name="Transfer Confirmation" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="TransferConfirmationUUID" target="StageUUID" />
-        <camunda:in sourceExpression="DCU_BASE_TRANSFER_CONFIRMATION" target="StageWorkFlow" />
+        <camunda:in sourceExpression="UKVI_TRANSFER_CONFIRMATION" target="StageWorkFlow" />
         <camunda:out source="TransferConfirmation" target="TransferConfirmation" />
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in variables="all" />
         <camunda:out source="StageUUID" target="TransferConfirmationUUID" />
-        <camunda:in sourceExpression="DCU_DTEN_TRANSFER_CONFIRMATION" target="StageType" />
+        <camunda:in sourceExpression="UKVI_TRANSFER_CONFIRMATION" target="StageType" />
         <camunda:out sourceExpression="${execution.getVariable(TransferConfirmation) == &#34;REJECT&#34; ?  &#34;TRANSFER_OGD_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0vfd902</bpmn:incoming>
@@ -101,7 +101,7 @@
       <bpmn:outgoing>SequenceFlow_14c0dsh</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1y2pvoz" sourceRef="CallActivity_1o4fnj7" targetRef="ExclusiveGateway_1l9cosg" />
-    <bpmn:sequenceFlow id="SequenceFlow_0bidbus" sourceRef="ExclusiveGateway_1l9cosg" targetRef="CallActivity_0sc1113">
+    <bpmn:sequenceFlow id="SequenceFlow_0bidbus" name="Reject" sourceRef="ExclusiveGateway_1l9cosg" targetRef="CallActivity_0sc1113">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${NoReplyNeededConfirmation == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_1u1snbv">
@@ -110,13 +110,13 @@
       <bpmn:outgoing>SequenceFlow_0lke0v5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_09sdq1x" sourceRef="CallActivity_0miftiw" targetRef="ExclusiveGateway_1u1snbv" />
-    <bpmn:sequenceFlow id="SequenceFlow_1p61kel" sourceRef="ExclusiveGateway_1u1snbv" targetRef="CallActivity_0sc1113">
+    <bpmn:sequenceFlow id="SequenceFlow_1p61kel" name="Reject" sourceRef="ExclusiveGateway_1u1snbv" targetRef="CallActivity_0sc1113">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_14c0dsh" sourceRef="ExclusiveGateway_1l9cosg" targetRef="DCU_MIN_END">
+    <bpmn:sequenceFlow id="SequenceFlow_14c0dsh" name="Accept" sourceRef="ExclusiveGateway_1l9cosg" targetRef="UKVI_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${NoReplyNeededConfirmation == "ACCEPT" || TransferConfirmation == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0lke0v5" sourceRef="ExclusiveGateway_1u1snbv" targetRef="DCU_MIN_END">
+    <bpmn:sequenceFlow id="SequenceFlow_0lke0v5" name="Accept" sourceRef="ExclusiveGateway_1u1snbv" targetRef="UKVI_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
@@ -128,7 +128,7 @@
           <dc:Bounds x="156" y="149" width="52" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_1y4bj2w_di" bpmnElement="DCU_MIN_END">
+      <bpmndi:BPMNShape id="EndEvent_1y4bj2w_di" bpmnElement="UKVI_END">
         <dc:Bounds x="1734" y="103" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1779" y="114" width="49" height="14" />
@@ -205,6 +205,9 @@
         <di:waypoint x="536" y="512" />
         <di:waypoint x="347" y="512" />
         <di:waypoint x="347" y="161" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="484" y="494" width="32" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_1u1snbv_di" bpmnElement="ExclusiveGateway_1u1snbv" isMarkerVisible="true">
         <dc:Bounds x="774" y="562" width="50" height="50" />
@@ -217,16 +220,25 @@
         <di:waypoint x="774" y="587" />
         <di:waypoint x="347" y="587" />
         <di:waypoint x="347" y="161" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="707" y="566" width="32" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_14c0dsh_di" bpmnElement="SequenceFlow_14c0dsh">
         <di:waypoint x="586" y="512" />
         <di:waypoint x="1752" y="512" />
         <di:waypoint x="1752" y="139" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="622" y="493" width="34" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0lke0v5_di" bpmnElement="SequenceFlow_0lke0v5">
         <di:waypoint x="824" y="587" />
         <di:waypoint x="1752" y="587" />
         <di:waypoint x="1752" y="139" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="860" y="565" width="34" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
