@@ -178,6 +178,27 @@ public class BpmnService {
         log.debug("######## Updated Team Selection at PO ########");
     }
 
+    public void updateTeamSelectionByTeamId(String caseUUIDString, String stageUUIDString, String teamUUID, String teamNameKey, String teamUUIDKey) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        Map<String, String> data = new HashMap<>();
+
+        if(teamUUID != null) {
+            log.info("Updating {} team variable with {}", teamUUIDKey, teamUUID);
+            TeamDto team = infoClient.getTeam(UUID.fromString(teamUUID));
+            data.put(teamNameKey, team.getDisplayName());
+            data.put(teamUUIDKey, team.getUuid().toString());
+        }
+
+        if(!data.isEmpty()) {
+            camundaClient.updateTask(stageUUID, data);
+            caseworkClient.updateCase(caseUUID, stageUUID, data);
+        }
+
+        log.debug("######## Updated Team Selection By Team Id ########");
+    }
+
     public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType) {
         log.debug("######## Save Allocation Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
