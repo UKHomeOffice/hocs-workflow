@@ -178,17 +178,17 @@ public class BpmnService {
         log.debug("######## Updated Team Selection at PO ########");
     }
 
-    public void updateTeamSelectionByTeamId(String caseUUIDString, String stageUUIDString, String teamUUID, String teamNameKey, String teamUUIDKey) {
+    public void updateTeamSelectionByTeamId(String caseUUIDString, String stageUUIDString, String teamUUID, String teamNameProperty, String teamUUIDProperty) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
 
         Map<String, String> data = new HashMap<>();
 
         if(teamUUID != null) {
-            log.info("Updating {} team variable with {}", teamUUIDKey, teamUUID);
+            log.info("Updating {} team variable with {}", teamUUIDProperty, teamUUID);
             TeamDto team = infoClient.getTeam(UUID.fromString(teamUUID));
-            data.put(teamNameKey, team.getDisplayName());
-            data.put(teamUUIDKey, team.getUuid().toString());
+            data.put(teamNameProperty, team.getDisplayName());
+            data.put(teamUUIDProperty, team.getUuid().toString());
         }
 
         if(!data.isEmpty()) {
