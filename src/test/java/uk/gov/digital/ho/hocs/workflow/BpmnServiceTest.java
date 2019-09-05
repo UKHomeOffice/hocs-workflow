@@ -10,7 +10,9 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -105,6 +107,32 @@ public class BpmnServiceTest {
 
         verify(infoClient, times(1)).getTeam(draftingString);
         verify(infoClient, times(1)).getTeam(privateOfficeString);
+        verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
+        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldUpdateTeamSelectionByTeamId(){
+        UUID teamUUID = UUID.randomUUID();
+        String teamNameProperty= "NewTestStageTeamName";
+        String teamIdProperty = "NewTestStageTeamId";
+        String teamName = "Team1";
+
+        Map<String, String> expectedData = new HashMap<>();
+        expectedData.put(teamIdProperty, teamUUID.toString());
+        expectedData.put(teamNameProperty, teamName);
+
+        when(infoClient.getTeam(teamUUID)).thenReturn(new TeamDto(teamName, teamUUID, true, new HashSet<>()));
+        doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)),eq(expectedData));
+        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)),eq(UUID.fromString(stageUUID)),eq(expectedData));
+
+        bpmnService.updateTeamSelectionByTeamId(caseUUID, stageUUID, teamUUID.toString(), teamNameProperty, teamIdProperty);
+
+        verify(infoClient, times(1)).getTeam(teamUUID);
         verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
         verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
 

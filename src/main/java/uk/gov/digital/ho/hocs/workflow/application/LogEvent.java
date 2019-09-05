@@ -2,6 +2,7 @@ package uk.gov.digital.ho.hocs.workflow.application;
 
 public enum LogEvent {
     TASK_COMPLETED,
+    TASK_UPDATED,
     CURRENT_STAGE_RETRIEVED,
     TASK_RETRIEVAL_FAILURE,
     CASE_STARTED_SUCCESS,

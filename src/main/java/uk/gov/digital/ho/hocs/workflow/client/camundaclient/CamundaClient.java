@@ -32,7 +32,7 @@ public class CamundaClient {
 
     public void startCase(UUID caseUUID, String caseDataType, Map<String,String> data) {
         runtimeService.startProcessInstanceByKey(caseDataType, caseUUID.toString(), new HashMap<>(data));
-        log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType, value(EVENT, CASE_STARTED_SUCCESS));
+        log.info("Started case bpmn: Case: '{}' Type: '{}' and event: '{}'", caseUUID, caseDataType, value(EVENT, CASE_STARTED_SUCCESS));
     }
 
     /**
@@ -44,19 +44,19 @@ public class CamundaClient {
     public void completeTask(UUID key, Map<String,String> data) {
         String taskId = getTaskIdByBusinessKey(key);
         taskService.complete(taskId, new HashMap<>(data));
-        log.info("Completed task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
+        log.info("Completed task for key: '{}' and event: '{}'", key, value(EVENT, TASK_COMPLETED));
     }
 
     public void updateTask(UUID key, Map<String,String> data) {
         String taskId = getTaskIdByBusinessKey(key);
         taskService.setVariables(taskId, new HashMap<>(data));
-        log.info("Updated task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
+        log.info("Updated task for key: '{}' and event: '{}'", key, value(EVENT, TASK_UPDATED));
     }
 
 
     public String getStageScreenName(UUID stageUUID) {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
-        log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName, value(EVENT, CURRENT_STAGE_RETRIEVED));
+        log.info("Got current stage for bpmn Stage: '{}' Screen: '{}' and event: '{}'", stageUUID, screenName, value(EVENT, CURRENT_STAGE_RETRIEVED));
         return screenName == null ? "FINISH" : screenName;
     }
 
