@@ -80,10 +80,10 @@ public class InfoClient {
         return response;
     }
 
-    @Cacheable(value = "InfoClientGetTeamForUnitAndStage", unless = "#result == null", key = "{ #caseUUID, #unitUUID, #stageType}")
-    public TeamDto getTeamForUnitAndStage(UUID caseUUID, UUID unitUUID, String stageType) {
-        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/unit/%s/stage/%s", caseUUID, unitUUID, stageType),  TeamDto.class);
-        log.info("Got Team teamUUID {} for Unit {} and Stage {}", response.getUuid(), unitUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_UNIT_STAGE_SUCCESS));
+    @Cacheable(value = "InfoClientGetTeamForRegionAndStage", unless = "#result == null", key = "{ #caseUUID, #regionUUID, #stageType}")
+    public TeamDto getTeamForRegionAndStage(UUID caseUUID, UUID regionUUID, String stageType) {
+        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/region/%s/stage/%s", caseUUID, regionUUID, stageType),  TeamDto.class);
+        log.info("Got Team teamUUID {} for Case{} and Region {} and Stage {}", response.getUuid(), caseUUID, regionUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_REGION_STAGE_SUCCESS));
         return response;
     }
 

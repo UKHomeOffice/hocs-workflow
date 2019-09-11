@@ -53,6 +53,25 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shouldUpdateTeamForRegionAndStage(){
+        UUID regionUUID = UUID.randomUUID();
+        TeamDto teamDto = mock(TeamDto.class);
+        when(teamDto.getUuid()).thenReturn(UUID.fromString("387ceb7a-ac90-417c-a510-a22260981ca7"));
+        when(teamDto.getDisplayName()).thenReturn("teamDisplayName");
+        when(infoClient.getTeamForRegionAndStage(UUID.fromString(caseUUID),regionUUID,"stageType")).thenReturn(teamDto);
+
+        bpmnService.updateTeamForRegionAndStage(caseUUID, stageUUID, regionUUID.toString(), "stageType", "teamKeyName", "teamUUIDKey");
+
+        verify(infoClient, times(1)).getTeamForRegionAndStage(UUID.fromString(caseUUID),regionUUID,"stageType");
+        verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
+        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+
+        verifyZeroInteractions(infoClient);
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+    }
+
+    @Test
     public void shouldUpdateDataNewDraftingTeams() {
 
         UUID draftingString = UUID.randomUUID();

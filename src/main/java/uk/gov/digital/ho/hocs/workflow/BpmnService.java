@@ -77,6 +77,29 @@ public class BpmnService {
         log.info("Updated Primary Correspondent for Case {}", caseUUIDString);
     }
 
+    public void updateRegionForPrimaryCorrespondent(String caseUUIDString, String stageUUIDString) {
+
+        String regionUUIDString = caseworkClient.getRegionForCase(UUID.fromString(caseUUIDString)).toString();
+        updateRegion(caseUUIDString, stageUUIDString, regionUUIDString);
+    }
+
+    public void updateRegion(String caseUUIDString, String stageUUIDString, String regionUUIDString) {
+
+        log.info("Update Case {} with Region {}", caseUUIDString, regionUUIDString);
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        Map<String, String> data = new HashMap<>();
+
+        if(regionUUIDString != null) {
+            log.info("Populating Region with {}", regionUUIDString);
+            data.put("RegionUUID", regionUUIDString);
+        }
+
+        camundaClient.updateTask(stageUUID, data);
+        caseworkClient.updateCase(caseUUID, stageUUID, data);
+    }
+
     public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
@@ -100,19 +123,18 @@ public class BpmnService {
         log.debug("######## Updated Primary Topic ########");
     }
 
-    public void updateTeamForUnitAndStage(String caseUUIDString, String stageUUIDString, String unitId, String stageType, String teamNameKey, String teamUUIDKey) {
+    public void updateTeamForRegionAndStage(String caseUUIDString, String stageUUIDString, String regionUUIDString, String stageType, String teamNameKey, String teamUUIDKey) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
-        UUID unitUUID = UUID.fromString(unitId);
+        UUID regionUUID = UUID.fromString(regionUUIDString);
 
-        Map<String, String> teamsForUnits = new HashMap<>();
-        TeamDto teamDto = infoClient.getTeamForUnitAndStage(caseUUID, unitUUID, stageType);
-        teamsForUnits.put(teamNameKey, teamDto.getUuid().toString());
-        teamsForUnits.put(teamUUIDKey, teamDto.getDisplayName());
+        Map<String, String> data = new HashMap<>();
+        TeamDto teamDto = infoClient.getTeamForRegionAndStage(caseUUID, regionUUID, stageType);
+        data.put(teamNameKey, teamDto.getUuid().toString());
+        data.put(teamUUIDKey, teamDto.getDisplayName());
 
-        camundaClient.updateTask(stageUUID, teamsForUnits);
-        caseworkClient.updateCase(caseUUID, stageUUID, teamsForUnits);
-
+        camundaClient.updateTask(stageUUID, data);
+        caseworkClient.updateCase(caseUUID, stageUUID, data);
     }
 
     public void updateTeamForConstituencyAndStage(String caseUUIDString, String stageUUIDString, String constituencyId, String stageType, String teamNameKey, String teamUUIDKey){

@@ -99,6 +99,12 @@ public class CaseworkClient {
         return teamUUID;
     }
 
+    public UUID getRegionForCase(UUID caseUUID) {
+        UUID response = restHelper.get(serviceBaseURL, String.format("/case/%s/region", caseUUID), UUID.class);
+        log.info("Got Region for Case: {}", caseUUID);
+        return response;
+    }
+
     public UUID getStageUser(UUID caseUUID, UUID stageUUID) {
         UUID response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/user", caseUUID, stageUUID), UUID.class);
         log.info("Got User for Stage: {} for Case: {}", stageUUID, caseUUID);
