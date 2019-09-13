@@ -78,9 +78,8 @@ public class BpmnService {
     }
 
     public void updateRegionForPrimaryCorrespondent(String caseUUIDString, String stageUUIDString) {
-
-        String regionUUIDString = caseworkClient.getRegionForCase(UUID.fromString(caseUUIDString)).toString();
-        updateRegion(caseUUIDString, stageUUIDString, regionUUIDString);
+        UUID regionUUID = caseworkClient.getRegionForCase(UUID.fromString(caseUUIDString));
+        updateRegion(caseUUIDString, stageUUIDString, regionUUID == null ? null : regionUUID.toString());
     }
 
     public void updateRegion(String caseUUIDString, String stageUUIDString, String regionUUIDString) {
@@ -91,10 +90,8 @@ public class BpmnService {
 
         Map<String, String> data = new HashMap<>();
 
-        if(regionUUIDString != null) {
-            log.info("Populating Region with {}", regionUUIDString);
-            data.put("RegionUUID", regionUUIDString);
-        }
+        log.info("Populating Region with {}", regionUUIDString);
+        data.put("RegionUUID", regionUUIDString);
 
         camundaClient.updateTask(stageUUID, data);
         caseworkClient.updateCase(caseUUID, stageUUID, data);
