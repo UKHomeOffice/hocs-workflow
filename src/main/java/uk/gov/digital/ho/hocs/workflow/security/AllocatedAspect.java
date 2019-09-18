@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.annotation.Order;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.application.NonMigrationEnvCondition;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 
 import java.util.Set;
@@ -19,7 +19,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 @Component
 @AllArgsConstructor
 @Slf4j
-@Profile("!migration")
+@Conditional(value = {NonMigrationEnvCondition.class})
 public class AllocatedAspect {
 
     private CaseworkClient caseworkClient;
