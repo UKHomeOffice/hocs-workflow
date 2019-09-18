@@ -4,11 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseRequest;
+import uk.gov.digital.ho.hocs.workflow.application.NonMigrationEnvCondition;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 
 import java.util.UUID;
@@ -19,7 +20,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAU
 @Aspect
 @Component
 @Slf4j
-@Profile("!migration")
+@Conditional(value = {NonMigrationEnvCondition.class})
 public class AuthorisationAspect {
 
     private InfoClient infoClient;
