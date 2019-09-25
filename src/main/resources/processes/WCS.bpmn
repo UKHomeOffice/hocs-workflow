@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0wg7ans" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.1.2">
+  <bpmn:process id="WCS" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_WCS" name="Start claim">
+      <bpmn:outgoing>SequenceFlow_16fw7qq</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:callActivity id="CallActivity_0itv8jg" name="Registration" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="RegistrationUUID" target="StageUUID" />
+        <camunda:in sourceExpression="WCS_REGISTRATION" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="RegistrationUUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="WCS_REGISTRATION" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_16fw7qq</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1p2dvke</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="SequenceFlow_16fw7qq" sourceRef="StartEvent_WCS" targetRef="CallActivity_0itv8jg" />
+    <bpmn:endEvent id="EndEvent_WCS" name="End Claim">
+      <bpmn:incoming>SequenceFlow_0u8ottx</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1p2dvke" sourceRef="CallActivity_0itv8jg" targetRef="CallActivity_02so1k2" />
+    <bpmn:callActivity id="CallActivity_02so1k2" name="Dispatch" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="DispatchUUID" target="StageUUID" />
+        <camunda:in sourceExpression="DCU_BASE_DISPATCH" target="StageWorkFlow" />
+        <camunda:out source="DispatchDecision" target="DispatchDecision" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="DispatchUUID" />
+        <camunda:in sourceExpression="DCU_MIN_DISPATCH" target="StageType" />
+        <camunda:out sourceExpression="${execution.getVariable(DispatchDecision) == &#34;REJECT&#34; ?  &#34;DISPATCH_REJECT&#34; : &#34;ALLOCATE_TEAM&#34;}" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1p2dvke</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_00o4ehh</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="SequenceFlow_00o4ehh" sourceRef="CallActivity_02so1k2" targetRef="ServiceTask_1bk24p1" />
+    <bpmn:serviceTask id="ServiceTask_1bk24p1" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
+      <bpmn:incoming>SequenceFlow_00o4ehh</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0u8ottx</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0u8ottx" sourceRef="ServiceTask_1bk24p1" targetRef="EndEvent_WCS" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="WCS">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_WCS">
+        <dc:Bounds x="179" y="103" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="176" y="146" width="43" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_0itv8jg_di" bpmnElement="CallActivity_0itv8jg">
+        <dc:Bounds x="305" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_16fw7qq_di" bpmnElement="SequenceFlow_16fw7qq">
+        <di:waypoint x="215" y="121" />
+        <di:waypoint x="305" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0w4cna4_di" bpmnElement="EndEvent_WCS">
+        <dc:Bounds x="1032" y="103" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1025" y="146" width="51" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1p2dvke_di" bpmnElement="SequenceFlow_1p2dvke">
+        <di:waypoint x="405" y="121" />
+        <di:waypoint x="719" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="CallActivity_02so1k2_di" bpmnElement="CallActivity_02so1k2">
+        <dc:Bounds x="719" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_00o4ehh_di" bpmnElement="SequenceFlow_00o4ehh">
+        <di:waypoint x="819" y="121" />
+        <di:waypoint x="875" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1bk24p1_di" bpmnElement="ServiceTask_1bk24p1">
+        <dc:Bounds x="875" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0u8ottx_di" bpmnElement="SequenceFlow_0u8ottx">
+        <di:waypoint x="975" y="121" />
+        <di:waypoint x="1032" y="121" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
