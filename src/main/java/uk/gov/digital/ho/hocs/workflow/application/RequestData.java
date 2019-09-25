@@ -15,7 +15,7 @@ public class RequestData implements HandlerInterceptor {
 
 
     public static final String CORRELATION_ID_HEADER = "X-Correlation-Id";
-    public static final String USER_ID_HEADER = "X-Auth-Userid";
+    public static final String USER_ID_HEADER = "X-Auth-UserId";
     public static final String USERNAME_HEADER = "X-Auth-Username";
     public static final String GROUP_HEADER = "X-Auth-Groups";
 

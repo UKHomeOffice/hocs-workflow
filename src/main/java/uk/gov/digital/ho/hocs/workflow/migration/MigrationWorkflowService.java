@@ -248,24 +248,27 @@ public class MigrationWorkflowService {
         log.info("Migration - Markup for Case: '{}'", caseUUID, value(EVENT, MIGRATION_EVENT));
         UUID markUpStageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
 
+        String markupDecision = String.valueOf(data.get("MarkupDecision"));
         migrationCaseworkClient.assignToMe(caseUUID, markUpStageUUID);
         Map<String, String> markupData = new HashMap<>();
-        markupData.put("MarkupDecision", String.valueOf(data.get("MarkupDecision")));
+        markupData.put("MarkupDecision", markupDecision);
         migrationCaseworkClient.updateCase(caseUUID, markUpStageUUID, markupData);
         camundaClient.completeTask(markUpStageUUID, markupData);
         Map<String, String> topicData = new HashMap<>();
         topicData.put("Topics", String.valueOf(returnedTopicUUID));
         migrationCaseworkClient.updateCase(caseUUID, markUpStageUUID, topicData);
         camundaClient.completeTask(markUpStageUUID, topicData);
-        Map<String, String> teamsForTopic = new HashMap<>();
-        TeamDto draftingTeam = infoClient.getTeamForTopicAndStage(caseUUID, returnedTopicUUID, "DCU_MIN_INITIAL_DRAFT");
-        TeamDto pOTeam = infoClient.getTeamForTopicAndStage(caseUUID, returnedTopicUUID, "DCU_MIN_PRIVATE_OFFICE");
-        teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
-        teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
-        teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
-        teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
-        migrationCaseworkClient.updateCase(caseUUID, markUpStageUUID, teamsForTopic);
-        camundaClient.completeTask(markUpStageUUID, teamsForTopic);
+        if("PR".equals(markupDecision)){
+            Map<String, String> teamsForTopic = new HashMap<>();
+            TeamDto draftingTeam = infoClient.getTeamForTopicAndStage(caseUUID, returnedTopicUUID, "DCU_MIN_INITIAL_DRAFT");
+            TeamDto pOTeam = infoClient.getTeamForTopicAndStage(caseUUID, returnedTopicUUID, "DCU_MIN_PRIVATE_OFFICE");
+            teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
+            teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
+            teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
+            teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
+            migrationCaseworkClient.updateCase(caseUUID, markUpStageUUID, teamsForTopic);
+            camundaClient.completeTask(markUpStageUUID, teamsForTopic);
+        }
     }
 
     private void startNRNMarkup(Map<String, String> data, UUID caseUUID) {
@@ -343,12 +346,12 @@ public class MigrationWorkflowService {
         draftDocumentData.put("DraftDocuments", String.valueOf(documentUUID));
         migrationCaseworkClient.updateCase(caseUUID, initialDraftStageUUID, draftDocumentData);
         camundaClient.completeTask(initialDraftStageUUID, draftDocumentData);
-        if (caseDataType.equals("MIN") || caseDataType.equals("DTEN")) {
-            Map<String, String> offlineQAData = new HashMap<>();
-            offlineQAData.put("OfflineQA", "FALSE");
-            migrationCaseworkClient.updateCase(caseUUID, initialDraftStageUUID, offlineQAData);
-            camundaClient.completeTask(initialDraftStageUUID, offlineQAData);
-        }
+
+        Map<String, String> offlineQAData = new HashMap<>();
+        offlineQAData.put("OfflineQA", "FALSE");
+        migrationCaseworkClient.updateCase(caseUUID, initialDraftStageUUID, offlineQAData);
+        camundaClient.completeTask(initialDraftStageUUID, offlineQAData);
+
     }
 
     private void completeQAResponse(UUID caseUUID) {
