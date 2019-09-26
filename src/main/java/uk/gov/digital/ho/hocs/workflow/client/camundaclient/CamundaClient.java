@@ -57,7 +57,7 @@ public class CamundaClient {
     public String getStageScreenName(UUID stageUUID) {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
         log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName, value(EVENT, CURRENT_STAGE_RETRIEVED));
-        return screenName == null ? "FINISH" : screenName;
+        return screenName == null || screenName.equals("null") ? "FINISH" : screenName;
     }
 
     private String getTaskIdByBusinessKey(UUID businessKey) {
