@@ -148,8 +148,12 @@ public class WorkflowService {
                         final Object entityProperty = fieldDto.getProps().getOrDefault(ENTITY_PROPERTY, null);
                         if (entityProperty != null){
                             if (entityProperty.equals(ENTITY_TYPE_DOCUMENT)){
-                                String documentName = documentClient.getDocumentName(UUID.fromString(uuidString));
-                                dataMap.put(keyString, documentName);
+                                try {
+                                    String documentName = documentClient.getDocumentName(UUID.fromString(uuidString));
+                                    dataMap.put(keyString, documentName);
+                                } catch (Exception e) {
+                                    dataMap.put(keyString, "");
+                                }
                             }
                         }
                     }

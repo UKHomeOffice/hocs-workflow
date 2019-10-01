@@ -56,31 +56,31 @@ public class MigrationCaseworkClient {
 
     public void updateCase(UUID caseUUID, UUID stageUUID, Map<String, String> data) {
         UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
-        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID) , request, Void.class);
-        log.info("Set Case Data for Case {}", caseUUID);
+        restHelper.put(serviceBaseURL, String.format("/migration/case/%s/stage/%s/data", caseUUID, stageUUID) , request, Void.class);
+        log.info("Update Data for Case {}", caseUUID);
     }
 
     public void updatePrimaryCorrespondent(UUID caseUUID, UUID stageUUID, UUID primaryCorrespondent) {
         String response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID), primaryCorrespondent, String.class);
-        log.info("Set Case Data for Case {}", caseUUID);
+        log.info("Update Correspondent for Case {}", caseUUID);
     }
 
     public UUID addTopic(UUID caseUUID, UUID stageUUID, UUID topic) {
         MigrationCreateCaseworkTopicRequest request = new MigrationCreateCaseworkTopicRequest(topic);
         UUID response = restHelper.post(serviceBaseURL, String.format("/migration/case/%s/stage/%s/topic", caseUUID, stageUUID), request, UUID.class);
-        log.info("Set Case Data for Case {}", caseUUID);
+        log.info("Add Topic for Case {}", caseUUID);
         return response;
     }
 
     public void updatePrimaryTopic(UUID caseUUID, UUID stageUUID, UUID primaryTopic) {
         String response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID), primaryTopic, String.class);
-        log.info("Set Case Data for Case {}", caseUUID);
+        log.info("Update Primary Topic for Case {}", caseUUID);
     }
 
     public void assignToMe(UUID caseUUID, UUID stageUUID) {
         MigrationUpdateStageUserRequest request = new MigrationUpdateStageUserRequest(UUID.fromString(requestData.userId()));
         String response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/user", caseUUID, stageUUID), request, String.class);
-        log.info("Set Case Data for Case {}", caseUUID);
+        log.info("Assign Case to User {}", caseUUID);
     }
 }
 
