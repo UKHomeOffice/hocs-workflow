@@ -28,7 +28,7 @@ pipeline:
     commands:
       - docker build -t hocs-workflow .
     when:
-      branch: [master, refs/tags/*]
+      branch: [feature/WCS, refs/tags/*]
       event: [push, tag]
 
   install-docker-image:
@@ -44,7 +44,7 @@ pipeline:
       - docker push quay.io/ukhomeofficedigital/hocs-workflow:build-$${DRONE_BUILD_NUMBER}
       - docker push quay.io/ukhomeofficedigital/hocs-workflow:latest
     when:
-      branch: master
+      branch: feature/WCS
       event: push
 
 
@@ -73,7 +73,7 @@ pipeline:
   deploy-to-dev-from-build-number:
     image: quay.io/ukhomeofficedigital/kd:v1.12.2
     environment:
-      - KUBE_NAMESPACE=cs-dev
+      - KUBE_NAMESPACE=wcs-dev
       - ENVIRONMENT=dev
       - VERSION=build-${DRONE_BUILD_NUMBER}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
@@ -83,13 +83,13 @@ pipeline:
       - cd kube-hocs-workflow
       - ./deploy.sh
     when:
-      branch: master
+      branch: feature/WCS
       event: [push, tag]
 
   deployment:
     image: quay.io/ukhomeofficedigital/kd:v1.12.2
     environment:
-      - KUBE_NAMESPACE=cs-${DRONE_DEPLOY_TO}
+      - KUBE_NAMESPACE=wcs-${DRONE_DEPLOY_TO}
       - ENVIRONMENT=${DRONE_DEPLOY_TO}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
@@ -105,7 +105,7 @@ pipeline:
   deploy-to-qa:
     image: quay.io/ukhomeofficedigital/kd:v1.12.2
     environment:
-      - KUBE_NAMESPACE=cs-qa
+      - KUBE_NAMESPACE=wcs-qa
       - ENVIRONMENT=qa
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
@@ -122,7 +122,7 @@ pipeline:
   deploy-to-prod:
     image: quay.io/ukhomeofficedigital/kd:v1.12.2
     environment:
-      - KUBE_NAMESPACE=cs-prod
+      - KUBE_NAMESPACE=wcs-prod
       - ENVIRONMENT=prod
       - KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
     secrets:
