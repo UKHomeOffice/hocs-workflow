@@ -98,7 +98,7 @@
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_02wpfty</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1crb1b1</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0t4nyuy</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_13g9keh</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1wqc35k</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_1wqc35k" sourceRef="CallActivity_0su7o0r" targetRef="CallActivity_0dhyvig" />
@@ -152,6 +152,7 @@
         <camunda:out source="ResponseStatus" target="ResponseStatus" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_07lu5sx</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0b9oebc</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0ye7r0x</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_0ye7r0x" sourceRef="CallActivity_17swvny" targetRef="ExclusiveGateway_0cjdsp3" />
@@ -247,8 +248,37 @@
     <bpmn:sequenceFlow id="SequenceFlow_0pwb3w2" name="Accept" sourceRef="ExclusiveGateway_0cjdsp3" targetRef="CallActivity_1wqd2d8">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ResponseStatus == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0t4nyuy" name="Reject" sourceRef="ExclusiveGateway_0cjdsp3" targetRef="CallActivity_0su7o0r">
+    <bpmn:sequenceFlow id="SequenceFlow_0t4nyuy" name="Reject" sourceRef="ExclusiveGateway_0cjdsp3" targetRef="CallActivity_0viljw4">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ResponseStatus == "REJECT"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:callActivity id="CallActivity_0viljw4" name="Tier 1 Review" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="Tier1UUID" target="StageUUID" />
+        <camunda:in sourceExpression="WCS_TIER1" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="Tier1UUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="WCS_TIER1" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out source="Tier1Status" target="Tier1Status" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0t4nyuy</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_02gz6hu</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_086g1ko" name="Decision?">
+      <bpmn:incoming>SequenceFlow_02gz6hu</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0b9oebc</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_13g9keh</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_02gz6hu" sourceRef="CallActivity_0viljw4" targetRef="ExclusiveGateway_086g1ko" />
+    <bpmn:sequenceFlow id="SequenceFlow_0b9oebc" name="Upheld" sourceRef="ExclusiveGateway_086g1ko" targetRef="CallActivity_17swvny">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Tier1Status == "UPHELD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_13g9keh" name="Review" sourceRef="ExclusiveGateway_086g1ko" targetRef="CallActivity_0su7o0r">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Tier1Status == "REVIEW"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -435,7 +465,7 @@
       <bpmndi:BPMNShape id="ExclusiveGateway_0cjdsp3_di" bpmnElement="ExclusiveGateway_0cjdsp3" isMarkerVisible="true">
         <dc:Bounds x="1521" y="181" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1518" y="165" width="56" height="14" />
+          <dc:Bounds x="1518" y="157" width="56" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0pwb3w2_di" bpmnElement="SequenceFlow_0pwb3w2">
@@ -447,11 +477,37 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0t4nyuy_di" bpmnElement="SequenceFlow_0t4nyuy">
         <di:waypoint x="1546" y="231" />
-        <di:waypoint x="1546" y="333" />
-        <di:waypoint x="882" y="333" />
+        <di:waypoint x="1546" y="286" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1552" y="228" width="32" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="CallActivity_0viljw4_di" bpmnElement="CallActivity_0viljw4">
+        <dc:Bounds x="1496" y="286" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_086g1ko_di" bpmnElement="ExclusiveGateway_086g1ko" isMarkerVisible="true">
+        <dc:Bounds x="1400" y="301" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1401" y="358" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_02gz6hu_di" bpmnElement="SequenceFlow_02gz6hu">
+        <di:waypoint x="1496" y="326" />
+        <di:waypoint x="1450" y="326" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0b9oebc_di" bpmnElement="SequenceFlow_0b9oebc">
+        <di:waypoint x="1425" y="301" />
+        <di:waypoint x="1425" y="246" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1385" y="274" width="35" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_13g9keh_di" bpmnElement="SequenceFlow_13g9keh">
+        <di:waypoint x="1400" y="326" />
+        <di:waypoint x="882" y="327" />
         <di:waypoint x="882" y="246" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1554" y="238" width="32" height="14" />
+          <dc:Bounds x="1355" y="308" width="37" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
