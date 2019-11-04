@@ -2,18 +2,20 @@ package uk.gov.digital.ho.hocs.workflow.domain.model.forms;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
 
 import java.util.*;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public class HocsFormField {
 
-    public String component;
+    private String component;
 
-    public String[] validation;
+    private String[] validation;
 
-    public Map<String,Object> props;
+    private Map<String,Object> props;
 
     public static HocsFormField from(FieldDto fieldDto) {
         Map<String, Object> props = fieldDto.getProps();

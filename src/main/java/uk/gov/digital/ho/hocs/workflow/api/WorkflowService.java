@@ -161,9 +161,16 @@ public class WorkflowService {
 
     private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
         List<HocsFormField> fields = new ArrayList<>();
+        Set<String> uniqueFieldNames = new HashSet<>();
         for(SchemaDto schemaDto : schemaDtos) {
             fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
-            fields.addAll(schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toSet()));
+            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
+            for(HocsFormField fieldToAdd : fieldsToAdd){
+                if(fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(String.valueOf(fieldToAdd.getProps().get("name")))){
+                    uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
+                    fields.add(fieldToAdd);
+                }
+            }
         }
         return fields;
     }
