@@ -13,10 +13,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -97,6 +94,7 @@ public class WorkflowService {
 
             SchemaDto schemaDto = infoClient.getSchema(screenName);
             List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
+            fields = HocsFormAccordion.loadFormAccordions(fields);
             HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields);
             HocsForm form = new HocsForm(schema,inputResponse.getData());
             return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
