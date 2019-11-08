@@ -5,9 +5,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
@@ -113,5 +115,63 @@ public class WorkflowServiceTest {
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void updateStage_forwardDirection() {
+
+        UUID caseUUID = java.util.UUID.randomUUID();
+        UUID stageUUID = java.util.UUID.randomUUID();
+        Map<String, String> values = new HashMap<>();
+        Direction direction = Direction.FORWARD;
+
+        Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("valid", "true");
+        expectedValues.put("DIRECTION", "FORWARD");
+
+        WorkflowService workflowService = new WorkflowService(
+                caseworkClient,
+                documentClient,
+                infoClient,
+                camundaClient);
+
+        workflowService.updateStage(caseUUID, stageUUID, values, direction);
+
+        verify(caseworkClient).updateCase(caseUUID, stageUUID, expectedValues);
+        verify(camundaClient).completeTask(stageUUID, expectedValues);
+
+        verifyNoMoreInteractions(caseworkClient);
+        verifyNoMoreInteractions(camundaClient);
+        verifyNoMoreInteractions(infoClient);
+        verifyNoMoreInteractions(documentClient);
+    }
+
+    @Test
+    public void updateStage_backwardDirection() {
+
+        UUID caseUUID = java.util.UUID.randomUUID();
+        UUID stageUUID = java.util.UUID.randomUUID();
+        Map<String, String> values = new HashMap<>();
+        Direction direction = Direction.BACKWARD;
+
+        Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put("valid", "false");
+        expectedValues.put("DIRECTION", "BACKWARD");
+
+
+        WorkflowService workflowService = new WorkflowService(
+                caseworkClient,
+                documentClient,
+                infoClient,
+                camundaClient);
+
+        workflowService.updateStage(caseUUID, stageUUID, values, direction);
+
+        verify(camundaClient).completeTask(stageUUID, expectedValues);
+
+        verifyNoMoreInteractions(caseworkClient);
+        verifyNoMoreInteractions(camundaClient);
+        verifyNoMoreInteractions(infoClient);
+        verifyNoMoreInteractions(documentClient);
     }
 }

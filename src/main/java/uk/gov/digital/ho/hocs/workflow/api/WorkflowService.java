@@ -13,10 +13,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -97,7 +94,9 @@ public class WorkflowService {
 
             SchemaDto schemaDto = infoClient.getSchema(screenName);
             List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
-            HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields);
+            List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(Collectors.toList());
+
+            HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions);
             HocsForm form = new HocsForm(schema,inputResponse.getData());
             return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
         } else {
@@ -175,12 +174,17 @@ public class WorkflowService {
         return fields;
     }
 
-    public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
-        // TODO: validate Form
-        values.put("valid", "true");
-        caseworkClient.updateCase(caseUUID, stageUUID, values);
-        camundaClient.completeTask(stageUUID, values);
+    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values, Direction direction) {
 
-        return getStage(caseUUID, stageUUID);
+        values.put("DIRECTION", direction.getValue());
+
+        if(Direction.FORWARD == direction){
+            values.put("valid", "true");
+            caseworkClient.updateCase(caseUUID, stageUUID, values);
+        }else{
+            values.put("valid", "false");
+        }
+
+        camundaClient.completeTask(stageUUID, values);
     }
 }

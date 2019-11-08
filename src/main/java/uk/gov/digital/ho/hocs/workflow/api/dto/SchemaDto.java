@@ -31,4 +31,8 @@ public class SchemaDto {
 
     @JsonProperty("fields")
     private List<FieldDto> fields;
+
+    @JsonProperty("secondaryActions")
+    private List<SecondaryActionDto> secondaryActions;
+
 }
