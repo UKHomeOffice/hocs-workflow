@@ -94,8 +94,9 @@ public class WorkflowService {
 
             SchemaDto schemaDto = infoClient.getSchema(screenName);
             List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
+            List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(Collectors.toList());
             fields = HocsFormAccordion.loadFormAccordions(fields);
-            HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields);
+            HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions);
             HocsForm form = new HocsForm(schema,inputResponse.getData());
             return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
         } else {
@@ -159,19 +160,31 @@ public class WorkflowService {
 
     private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
         List<HocsFormField> fields = new ArrayList<>();
+        Set<String> uniqueFieldNames = new HashSet<>();
         for(SchemaDto schemaDto : schemaDtos) {
             fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
-            fields.addAll(schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toSet()));
+            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
+            for(HocsFormField fieldToAdd : fieldsToAdd){
+                if(fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(String.valueOf(fieldToAdd.getProps().get("name")))){
+                    uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
+                    fields.add(fieldToAdd);
+                }
+            }
         }
         return fields;
     }
 
-    public GetStageResponse updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values) {
-        // TODO: validate Form
-        values.put("valid", "true");
-        caseworkClient.updateCase(caseUUID, stageUUID, values);
-        camundaClient.completeTask(stageUUID, values);
+    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values, Direction direction) {
 
-        return getStage(caseUUID, stageUUID);
+        values.put("DIRECTION", direction.getValue());
+
+        if(Direction.FORWARD == direction){
+            values.put("valid", "true");
+            caseworkClient.updateCase(caseUUID, stageUUID, values);
+        }else{
+            values.put("valid", "false");
+        }
+
+        camundaClient.completeTask(stageUUID, values);
     }
 }

@@ -16,4 +16,7 @@ public class HocsSchema {
 
     @JsonProperty("fields")
     public List<HocsFormField> fields;
+
+    @JsonProperty("secondaryActions")
+    private List<HocsFormSecondaryAction> secondaryActions;
 }

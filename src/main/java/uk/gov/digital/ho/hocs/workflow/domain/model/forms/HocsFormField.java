@@ -10,15 +10,14 @@ import java.util.*;
 
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public class HocsFormField {
 
-    @Getter
-    public String component;
+    protected String component;
 
-    public String[] validation;
+    protected String[] validation;
 
-    @Getter
-    public Map<String,Object> props;
+    protected Map<String,Object> props;
 
     public static HocsFormField from(FieldDto fieldDto) {
         Map<String, Object> props = fieldDto.getProps();

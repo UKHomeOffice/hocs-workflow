@@ -11,6 +11,7 @@ import uk.gov.digital.ho.hocs.workflow.security.AllocationLevel;
 import uk.gov.digital.ho.hocs.workflow.security.Authorised;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,9 +47,16 @@ class WorkflowResource {
 
     @Allocated(allocatedTo = AllocationLevel.USER)
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> updateStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
-        GetStageResponse response = workflowService.updateStage(caseUUID, stageUUID, request.getData());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<GetStageResponse> updateStageForward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
+        workflowService.updateStage(caseUUID, stageUUID, request.getData(), Direction.FORWARD);
+        return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
+    }
+
+    @Allocated(allocatedTo = AllocationLevel.USER)
+    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/back", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetStageResponse> updateStageBackward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) {
+        workflowService.updateStage(caseUUID, stageUUID, new HashMap<>(), Direction.BACKWARD);
+        return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
 
     @Allocated(allocatedTo = AllocationLevel.TEAM_USER)
