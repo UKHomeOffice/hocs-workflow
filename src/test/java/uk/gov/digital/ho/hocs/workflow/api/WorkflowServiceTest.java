@@ -122,12 +122,14 @@ public class WorkflowServiceTest {
 
         UUID caseUUID = java.util.UUID.randomUUID();
         UUID stageUUID = java.util.UUID.randomUUID();
+        UUID userUUID = java.util.UUID.randomUUID();
         Map<String, String> values = new HashMap<>();
         Direction direction = Direction.FORWARD;
 
         Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("valid", "true");
-        expectedValues.put("DIRECTION", "FORWARD");
+        expectedValues.put(WorkflowConstants.VALID, "true");
+        expectedValues.put(WorkflowConstants.DIRECTION, "FORWARD");
+        expectedValues.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
         WorkflowService workflowService = new WorkflowService(
                 caseworkClient,
@@ -135,7 +137,7 @@ public class WorkflowServiceTest {
                 infoClient,
                 camundaClient);
 
-        workflowService.updateStage(caseUUID, stageUUID, values, direction);
+        workflowService.updateStage(caseUUID, stageUUID, values, direction, userUUID);
 
         verify(caseworkClient).updateCase(caseUUID, stageUUID, expectedValues);
         verify(camundaClient).completeTask(stageUUID, expectedValues);
@@ -151,12 +153,15 @@ public class WorkflowServiceTest {
 
         UUID caseUUID = java.util.UUID.randomUUID();
         UUID stageUUID = java.util.UUID.randomUUID();
+        UUID userUUID = java.util.UUID.randomUUID();
         Map<String, String> values = new HashMap<>();
         Direction direction = Direction.BACKWARD;
 
+
         Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("valid", "false");
-        expectedValues.put("DIRECTION", "BACKWARD");
+        expectedValues.put(WorkflowConstants.VALID, "false");
+        expectedValues.put(WorkflowConstants.DIRECTION, "BACKWARD");
+        expectedValues.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
 
         WorkflowService workflowService = new WorkflowService(
@@ -165,7 +170,7 @@ public class WorkflowServiceTest {
                 infoClient,
                 camundaClient);
 
-        workflowService.updateStage(caseUUID, stageUUID, values, direction);
+        workflowService.updateStage(caseUUID, stageUUID, values, direction, userUUID);
 
         verify(camundaClient).completeTask(stageUUID, expectedValues);
 

@@ -84,8 +84,8 @@ public class CaseworkClient {
         return response;
     }
 
-    public UUID createStage(UUID caseUUID, String stageType, UUID teamUUID, String allocationType) {
-        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, allocationType);
+    public UUID createStage(UUID caseUUID, String stageType, UUID teamUUID, UUID userUUID, String allocationType) {
+        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, allocationType);
         CreateCaseworkStageResponse response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         log.info("Created Stage: {} for Case {}", response.getUuid(), caseUUID);
         return response.getUuid();
@@ -97,6 +97,13 @@ public class CaseworkClient {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), request, Void.class);
         log.info("Updated Team {} on Stage: {} for Case {}", teamUUID, stageUUID, caseUUID);
         return teamUUID;
+    }
+
+    public void updateStageUser(UUID caseUUID, UUID stageUUID, UUID userUUID) {
+        UpdateCaseworkStageUserRequest request = new UpdateCaseworkStageUserRequest(userUUID);
+
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/user", caseUUID, stageUUID), request, Void.class);
+        log.info("Updated User {} for Stage: {} for Case: {}", userUUID, stageUUID, caseUUID);
     }
 
     public UUID getStageUser(UUID caseUUID, UUID stageUUID) {

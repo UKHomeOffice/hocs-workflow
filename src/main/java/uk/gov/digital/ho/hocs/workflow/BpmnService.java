@@ -32,6 +32,10 @@ public class BpmnService {
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString,  String allocationType, String allocationTeamString) {
+        return createStage(caseUUIDString, stageUUIDString, stageTypeString, allocationType, allocationTeamString, null);
+    }
+
+    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString,  String allocationType, String allocationTeamString, String allocatedUserId) {
         log.debug("Creating or Updating Stage {} for case {}", stageTypeString, caseUUIDString);
 
         UUID teamUUID;
@@ -43,19 +47,31 @@ public class BpmnService {
             teamUUID = UUID.fromString(allocationTeamString);
         }
 
-        String stageUUID;
+        UUID userUUID = null;
+        if(!StringUtils.isEmpty(allocatedUserId)) {
+            log.debug("Assigning user {} to stage {} for case {}", allocatedUserId, stageTypeString, caseUUIDString);
+            userUUID = UUID.fromString(allocatedUserId);
+        }
+
+        String resultStageUUID;
         if (stageUUIDString != null) {
+            UUID caseUUID = UUID.fromString(caseUUIDString);
+            UUID stageUUID = UUID.fromString(stageUUIDString);
             log.debug("Stage {} already exists for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
-            caseworkClient.updateStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), teamUUID, allocationType);
-            stageUUID = stageUUIDString;
+            caseworkClient.updateStageTeam(caseUUID, stageUUID, teamUUID, allocationType);
+
+            if(userUUID != null){
+                caseworkClient.updateStageUser(caseUUID, stageUUID, userUUID);
+            }
+            resultStageUUID = stageUUIDString;
             log.info("Updated Stage {} for Case {}", stageUUID, caseUUIDString);
         } else {
             log.debug("Creating new stage {} for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
-            stageUUID = caseworkClient.createStage(UUID.fromString(caseUUIDString), stageTypeString, teamUUID, allocationType).toString();
-            log.info("Created Stage {} for Case {}", stageUUID, caseUUIDString);
+            resultStageUUID = caseworkClient.createStage(UUID.fromString(caseUUIDString), stageTypeString, teamUUID, userUUID, allocationType).toString();
+            log.info("Created Stage {} for Case {}", resultStageUUID, caseUUIDString);
         }
 
-        return stageUUID;
+        return resultStageUUID;
     }
 
     public void completeStage(String caseUUIDString, String stageUUIDString) {

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
+import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.security.AccessLevel;
 import uk.gov.digital.ho.hocs.workflow.security.Allocated;
 import uk.gov.digital.ho.hocs.workflow.security.AllocationLevel;
@@ -30,32 +31,30 @@ class WorkflowResource {
 
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request) {
-        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments());
+    public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
+        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments(), userUUID);
         return ResponseEntity.ok(response);
     }
 
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "/case/bulk", consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseRequest request) {
+    public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
         List<DocumentSummary> list = request.getDocuments();
-        list.forEach( (documentSummary) -> {
-            workflowService.createCase(request.getType(), request.getDateReceived(), Collections.singletonList(documentSummary));
-        });
+        list.forEach( (documentSummary) -> workflowService.createCase(request.getType(), request.getDateReceived(), Collections.singletonList(documentSummary), userUUID));
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }
 
     @Allocated(allocatedTo = AllocationLevel.USER)
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> updateStageForward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request) {
-        workflowService.updateStage(caseUUID, stageUUID, request.getData(), Direction.FORWARD);
+    public ResponseEntity<GetStageResponse> updateStageForward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
+        workflowService.updateStage(caseUUID, stageUUID, request.getData(), Direction.FORWARD, userUUID);
         return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
 
     @Allocated(allocatedTo = AllocationLevel.USER)
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/back", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> updateStageBackward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) {
-        workflowService.updateStage(caseUUID, stageUUID, new HashMap<>(), Direction.BACKWARD);
+    public ResponseEntity<GetStageResponse> updateStageBackward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
+        workflowService.updateStage(caseUUID, stageUUID, new HashMap<>(), Direction.BACKWARD, userUUID);
         return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
 
