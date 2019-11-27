@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.RecreateCaseworkStageRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkStageUserRequest;
 
 import java.util.UUID;
@@ -24,6 +25,10 @@ public class CaseworkClientTest {
 
     private String caseServiceUrl = "http://localhost:8082";
 
+    private UUID caseUUID = UUID.randomUUID();
+    private UUID stageUUID = UUID.randomUUID();
+    private UUID userUUID = UUID.randomUUID();
+
     @Before
     public void setup() {
         caseworkClient = new CaseworkClient(restHelper, caseServiceUrl);
@@ -31,10 +36,6 @@ public class CaseworkClientTest {
 
     @Test
     public void updateStageUser(){
-        UUID caseUUID = UUID.randomUUID();
-        UUID stageUUID = UUID.randomUUID();
-        UUID userUUID = UUID.randomUUID();
-
         String expectedUrl = String.format("/case/%s/stage/%s/user", caseUUID, stageUUID);
         UpdateCaseworkStageUserRequest expectedBody = new UpdateCaseworkStageUserRequest(userUUID);
 
@@ -43,5 +44,18 @@ public class CaseworkClientTest {
         verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(expectedBody), eq(Void.class));
 
         verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void recreateStage(){
+        String expectedUrl = String.format("/case/%s/stage/%s/recreate", caseUUID, stageUUID);
+        RecreateCaseworkStageRequest expectedBody = new RecreateCaseworkStageRequest(stageUUID);
+
+        caseworkClient.recreateStage(caseUUID, stageUUID);
+
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(expectedBody), eq(Void.class));
+
+        verifyNoMoreInteractions(restHelper);
+
     }
 }

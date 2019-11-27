@@ -35,7 +35,7 @@ public class CaseworkClient {
     public CreateCaseworkCaseResponse createCase(String caseDataType, Map<String, String> data, LocalDate dateReceived) {
         CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data, dateReceived);
         CreateCaseworkCaseResponse response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
-        log.info("Created Case {}, {}", response.getUuid(), response.getReference(), value(EVENT, CREATE_CASE_SUCCESS));
+        log.info("Created Case {}, {}, {}", response.getUuid(), response.getReference(), value(EVENT, CREATE_CASE_SUCCESS));
         return response;
     }
 
@@ -89,6 +89,12 @@ public class CaseworkClient {
         CreateCaseworkStageResponse response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         log.info("Created Stage: {} for Case {}", response.getUuid(), caseUUID);
         return response.getUuid();
+    }
+
+    public void recreateStage(UUID caseUUID, UUID stageUUID) {
+        RecreateCaseworkStageRequest request = new RecreateCaseworkStageRequest(stageUUID);
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/recreate", caseUUID, stageUUID), request, Void.class);
+        log.info("Recreated Stage: {} for Case {}", stageUUID, caseUUID);
     }
 
     @CachePut(value = "CaseworkClientGetStageTeam", key = "{#caseUUID, #stageUUID}")
