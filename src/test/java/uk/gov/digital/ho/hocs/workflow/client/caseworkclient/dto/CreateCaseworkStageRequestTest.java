@@ -13,12 +13,14 @@ public class CreateCaseworkStageRequestTest {
 
         String stageType = "DCU_MIN_MARKUP";
         UUID teamUUID = UUID.randomUUID();
+        UUID userUUID = UUID.randomUUID();
         String allocationType = "anyType";
 
-        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(stageType, teamUUID, allocationType);
+        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, allocationType);
 
         assertThat(createStageRequest.getType()).isEqualTo(stageType);
         assertThat(createStageRequest.getTeamUUID()).isEqualTo(teamUUID);
+        assertThat(createStageRequest.getUserUUID()).isEqualTo(userUUID);
         assertThat(createStageRequest.getAllocationType()).isEqualTo(allocationType);
 
     }
@@ -26,10 +28,11 @@ public class CreateCaseworkStageRequestTest {
     @Test
     public void getCreateStageRequestNull() {
 
-        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(null, null, null);
+        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(null, null, null, null);
 
         assertThat(createStageRequest.getType()).isNull();
         assertThat(createStageRequest.getTeamUUID()).isNull();
+        assertThat(createStageRequest.getUserUUID()).isNull();
         assertThat(createStageRequest.getAllocationType()).isNull();
     }
 
