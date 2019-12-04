@@ -80,7 +80,7 @@ public class WorkflowService {
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    private void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
+    public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
@@ -108,7 +108,7 @@ public class WorkflowService {
         }
     }
 
-    private GetCaseResponse getAllCaseStages(UUID caseUUID) {
+    public GetCaseResponse getAllCaseStages(UUID caseUUID) {
 
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
 
