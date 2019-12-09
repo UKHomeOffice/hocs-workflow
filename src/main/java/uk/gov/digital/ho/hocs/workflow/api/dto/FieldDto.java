@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 import java.util.UUID;
 
+@AllArgsConstructor()
 @NoArgsConstructor()
 @Getter
 public class FieldDto {
