@@ -17,4 +17,7 @@ public class RecreateCaseworkStageRequest {
     @JsonProperty("stageUUID")
     private UUID stageUUID;
 
+    @JsonProperty("stageType")
+    private String stageType;
+
 }
