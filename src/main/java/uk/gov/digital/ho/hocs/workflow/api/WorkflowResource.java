@@ -29,14 +29,14 @@ class WorkflowResource {
         this.workflowService = workflowService;
     }
 
-    @Authorised(accessLevel = AccessLevel.WRITE)
+    @Authorised(accessLevel = AccessLevel.OWNER)
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
         CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments(), userUUID);
         return ResponseEntity.ok(response);
     }
 
-    @Authorised(accessLevel = AccessLevel.WRITE)
+    @Authorised(accessLevel = AccessLevel.OWNER)
     @PostMapping(value = "/case/bulk", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
         List<DocumentSummary> list = request.getDocuments();
