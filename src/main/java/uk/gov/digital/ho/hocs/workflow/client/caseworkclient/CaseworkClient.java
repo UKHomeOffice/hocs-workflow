@@ -91,8 +91,8 @@ public class CaseworkClient {
         return response.getUuid();
     }
 
-    public void recreateStage(UUID caseUUID, UUID stageUUID) {
-        RecreateCaseworkStageRequest request = new RecreateCaseworkStageRequest(stageUUID);
+    public void recreateStage(UUID caseUUID, UUID stageUUID, String stageType) {
+        RecreateCaseworkStageRequest request = new RecreateCaseworkStageRequest(stageUUID, stageType);
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/recreate", caseUUID, stageUUID), request, Void.class);
         log.info("Recreated Stage: {} for Case {}", stageUUID, caseUUID);
     }

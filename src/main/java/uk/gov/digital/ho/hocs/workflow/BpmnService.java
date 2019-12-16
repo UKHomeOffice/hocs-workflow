@@ -42,9 +42,9 @@ public class BpmnService {
         UUID userUUID = deriveUserUUID(caseUUIDString, stageTypeString, allocatedUserId);
 
         String resultStageUUID;
-        if (stageUUIDString != null) {
+        if (StringUtils.hasText(stageUUIDString)) {
             log.debug("Stage {} already exists for case {}, recreating stage {}", stageTypeString, caseUUIDString, stageUUIDString);
-            recreateStage(caseUUIDString, stageUUIDString, allocationType, teamUUID, userUUID);
+            recreateStage(caseUUIDString, stageUUIDString, stageTypeString, allocationType, teamUUID, userUUID);
             resultStageUUID = stageUUIDString;
             log.info("Updated Stage {} for Case {}", stageUUIDString, caseUUIDString);
         } else {
@@ -104,14 +104,14 @@ public class BpmnService {
 
         Map<String, String> teamsForTopic = new HashMap<>();
 
-        if (draftingUUIDString != null) {
+        if (StringUtils.hasText(draftingUUIDString)) {
             log.info("Overwriting draft team with {}", draftingUUIDString);
             TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
             teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
             teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
         }
 
-        if (privateOfficeUUIDString != null) {
+        if (StringUtils.hasText(privateOfficeUUIDString)) {
             log.info("Overwriting po team with {}", privateOfficeUUIDString);
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
             teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
@@ -132,7 +132,7 @@ public class BpmnService {
 
         Map<String, String> teamsForTopic = new HashMap<>();
 
-        if (privateOfficeUUIDString != null) {
+        if (StringUtils.hasText(privateOfficeUUIDString)) {
             log.info("Overwriting po team with {}", privateOfficeUUIDString);
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
             teamsForTopic.put("PrivateOfficeOverridePOTeamUUID", pOTeam.getUuid().toString());
@@ -176,12 +176,12 @@ public class BpmnService {
         return userUUID;
     }
 
-    private void recreateStage(String caseUUIDString, String stageUUIDString, String allocationType, UUID teamUUID, UUID userUUID) {
+    private void recreateStage(String caseUUIDString, String stageUUIDString, String stageType, String allocationType, UUID teamUUID, UUID userUUID) {
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
 
-        caseworkClient.recreateStage(caseUUID, stageUUID);
+        caseworkClient.recreateStage(caseUUID, stageUUID, stageType);
 
         log.debug("Stage already exists for case {}, assigning to team {}", caseUUID, teamUUID);
         caseworkClient.updateStageTeam(caseUUID, stageUUID, teamUUID, allocationType);

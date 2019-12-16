@@ -28,6 +28,7 @@ public class CaseworkClientTest {
     private UUID caseUUID = UUID.randomUUID();
     private UUID stageUUID = UUID.randomUUID();
     private UUID userUUID = UUID.randomUUID();
+    private String stageType = "TypeA";
 
     @Before
     public void setup() {
@@ -49,9 +50,9 @@ public class CaseworkClientTest {
     @Test
     public void recreateStage(){
         String expectedUrl = String.format("/case/%s/stage/%s/recreate", caseUUID, stageUUID);
-        RecreateCaseworkStageRequest expectedBody = new RecreateCaseworkStageRequest(stageUUID);
+        RecreateCaseworkStageRequest expectedBody = new RecreateCaseworkStageRequest(stageUUID, stageType);
 
-        caseworkClient.recreateStage(caseUUID, stageUUID);
+        caseworkClient.recreateStage(caseUUID, stageUUID, stageType);
 
         verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(expectedBody), eq(Void.class));
 

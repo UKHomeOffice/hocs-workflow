@@ -179,7 +179,7 @@ public class BpmnServiceTest {
         String resultUUID = bpmnService.createStage(caseUUID, stageUUID, stageType, allocationType, allocationTeam, allocatedUserId);
 
         assertThat(resultUUID).isEqualTo(stageUUID);
-        verify(caseworkClient).recreateStage(UUID.fromString(caseUUID), UUID.fromString(stageUUID));
+        verify(caseworkClient).recreateStage(UUID.fromString(caseUUID), UUID.fromString(stageUUID), stageType);
         verify(caseworkClient).updateStageTeam(UUID.fromString(caseUUID), UUID.fromString(stageUUID), UUID.fromString(allocationTeam), allocationType);
         verify(caseworkClient).updateStageUser(UUID.fromString(caseUUID), UUID.fromString(stageUUID), UUID.fromString(allocatedUserId));
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
@@ -195,7 +195,7 @@ public class BpmnServiceTest {
         String resultUUID = bpmnService.createStage(caseUUID, stageUUID, stageType, allocationType, allocationTeam, null);
 
         assertThat(resultUUID).isEqualTo(stageUUID);
-        verify(caseworkClient).recreateStage(UUID.fromString(caseUUID), UUID.fromString(stageUUID));
+        verify(caseworkClient).recreateStage(UUID.fromString(caseUUID), UUID.fromString(stageUUID), stageType);
         verify(caseworkClient).updateStageTeam(UUID.fromString(caseUUID), UUID.fromString(stageUUID), UUID.fromString(allocationTeam), allocationType);
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
 
