@@ -2,7 +2,9 @@ package uk.gov.digital.ho.hocs.workflow.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
@@ -40,6 +42,8 @@ public class WorkflowService {
     private static final String ENTITY_PROPERTY = "entity";
     private static final String ENTITY_TYPE_DOCUMENT = "document";
 
+    private static final String DOCUMENT_NOT_FOUND = "Document not found";
+
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
                            DocumentClient documentClient,
@@ -66,12 +70,12 @@ public class WorkflowService {
 
             // Start a new camunda workflow (caseUUID is the business key).
             Map<String, String> seedData = new HashMap<>();
-            seedData.put(WorkflowConstants.CASE_REFERENCE,caseResponse.getReference());
+            seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
             seedData.putAll(data);
             camundaClient.startCase(caseUUID, caseDataType, seedData);
 
         } else {
-            log.error("Failed to start case, invalid caseUUID!", value(EVENT, CASE_STARTED_FAILURE));
+            log.error("Failed to start case, invalid caseUUID!, event: {}", value(EVENT, CASE_STARTED_FAILURE));
             throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
@@ -89,7 +93,7 @@ public class WorkflowService {
     public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getStageScreenName(stageUUID);
 
-        if(!screenName.equals("FINISH")) {
+        if (!screenName.equals("FINISH")) {
 
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
 
@@ -98,7 +102,7 @@ public class WorkflowService {
             List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(Collectors.toList());
             fields = HocsFormAccordion.loadFormAccordions(fields);
             HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions);
-            HocsForm form = new HocsForm(schema,inputResponse.getData());
+            HocsForm form = new HocsForm(schema, inputResponse.getData());
             return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
         } else {
             return new GetStageResponse(stageUUID, null, null);
@@ -107,32 +111,32 @@ public class WorkflowService {
 
     public GetCaseResponse getAllCaseStages(UUID caseUUID) {
 
-            GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
+        GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
 
-            Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
+        Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
 
-            Map<String, List<SchemaDto>> stageSchemas = schemaDtos.stream().collect(Collectors.groupingBy(SchemaDto::getStageType));
+        Map<String, List<SchemaDto>> stageSchemas = schemaDtos.stream().collect(Collectors.groupingBy(SchemaDto::getStageType));
 
-            Map<String, List<HocsFormField>> hocsFields =  stageSchemas.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, c -> schemasToFormField(c.getValue())));
+        Map<String, List<HocsFormField>> hocsFields = stageSchemas.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, c -> schemasToFormField(c.getValue())));
 
-            HocsCaseSchema schema = new HocsCaseSchema("View Case", hocsFields);
+        HocsCaseSchema schema = new HocsCaseSchema("View Case", hocsFields);
 
-            Map<String, String> dataMap = convertDataToSchema(schemaDtos, inputResponse.getData());
+        Map<String, String> dataMap = convertDataToSchema(schemaDtos, inputResponse.getData());
 
-            return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
+        return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
     }
 
-    public Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap){
-        for(SchemaDto schemaDto : schemaDtos){
-            for(FieldDto fieldDto : schemaDto.getFields()){
+    public Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap) {
+        for (SchemaDto schemaDto : schemaDtos) {
+            for (FieldDto fieldDto : schemaDto.getFields()) {
                 String keyString = fieldDto.getName();
-                String uuidString = dataMap.getOrDefault(keyString,null);
-                if (uuidString != null && uuidString.contains(("-"))){
-                    if (fieldDto.getComponent().equals(COMPONENT_DROPDOWN)){
+                String uuidString = dataMap.getOrDefault(keyString, null);
+                if (uuidString != null && uuidString.contains(("-"))) {
+                    if (fieldDto.getComponent().equals(COMPONENT_DROPDOWN)) {
                         final Object choicesProperty = fieldDto.getProps().getOrDefault(CHOICES_PROPERTY, null);
                         if (choicesProperty != null) {
                             String choices = choicesProperty.toString();
-                            if (choices.contains(CONTENT_TYPE_TEAMS)){
+                            if (choices.contains(CONTENT_TYPE_TEAMS)) {
                                 TeamDto teamDto = infoClient.getTeam(UUID.fromString(uuidString));
                                 if (teamDto != null) {
                                     dataMap.put(keyString, teamDto.getDisplayName());
@@ -144,12 +148,11 @@ public class WorkflowService {
                                 }
                             }
                         }
-                    } else if (fieldDto.getComponent().equals(COMPONENT_ENTITY_LIST)){
+                    } else if (fieldDto.getComponent().equals(COMPONENT_ENTITY_LIST)) {
                         final Object entityProperty = fieldDto.getProps().getOrDefault(ENTITY_PROPERTY, null);
-                        if (entityProperty != null){
-                            if (entityProperty.equals(ENTITY_TYPE_DOCUMENT)){
-                                String documentName = documentClient.getDocumentName(UUID.fromString(uuidString));
-                                dataMap.put(keyString, documentName);
+                        if (entityProperty != null) {
+                            if (entityProperty.equals(ENTITY_TYPE_DOCUMENT)) {
+                                dataMap.put(keyString, fetchDocumentName(UUID.fromString(uuidString)));
                             }
                         }
                     }
@@ -159,14 +162,30 @@ public class WorkflowService {
         return dataMap;
     }
 
+    private String fetchDocumentName(UUID documentUUID) {
+
+        try {
+            return documentClient.getDocumentName(documentUUID);
+        } catch (HttpClientErrorException exception) {
+
+            if (HttpStatus.NOT_FOUND.equals(exception.getStatusCode())) {
+                log.warn("Document name not found for document {}", documentUUID);
+                return DOCUMENT_NOT_FOUND;
+            }
+            throw exception;
+        }
+
+
+    }
+
     private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
         List<HocsFormField> fields = new ArrayList<>();
         Set<String> uniqueFieldNames = new HashSet<>();
-        for(SchemaDto schemaDto : schemaDtos) {
+        for (SchemaDto schemaDto : schemaDtos) {
             fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
             Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
-            for(HocsFormField fieldToAdd : fieldsToAdd){
-                if(fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(String.valueOf(fieldToAdd.getProps().get("name")))){
+            for (HocsFormField fieldToAdd : fieldsToAdd) {
+                if (fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(String.valueOf(fieldToAdd.getProps().get("name")))) {
                     uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
                     fields.add(fieldToAdd);
                 }
@@ -180,10 +199,10 @@ public class WorkflowService {
         values.put(WorkflowConstants.DIRECTION, direction.getValue());
         values.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
-        if(Direction.FORWARD == direction){
+        if (Direction.FORWARD == direction) {
             values.put(WorkflowConstants.VALID, "true");
             caseworkClient.updateCase(caseUUID, stageUUID, values);
-        }else{
+        } else {
             values.put(WorkflowConstants.VALID, "false");
         }
 
