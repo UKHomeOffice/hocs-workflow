@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -134,6 +136,63 @@ public class WorkflowResourceTest {
         verify(workflowService).createCase(caseType, dateReceived, List.of(doc1), userUUID);
         verify(workflowService).createCase(caseType, dateReceived, List.of(doc2), userUUID);
         verifyNoMoreInteractions(workflowService);
+
+    }
+
+
+    @Test
+    public void getCase(){
+        UUID caseUUID = UUID.randomUUID();
+        String caseRef = "Ref123";
+        HocsCaseSchema hocsCaseSchema = new HocsCaseSchema("Title", null);
+        GetCaseResponse response = new GetCaseResponse(caseRef, hocsCaseSchema, Map.of("key1", "value1"));
+
+        when(workflowService.getAllCaseStages(caseUUID)).thenReturn(response);
+
+        ResponseEntity<GetCaseResponse> result = workflowResource.getCase(caseUUID);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatusCodeValue()).isEqualTo(200);
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().getCaseReference()).isEqualTo(caseRef);
+        assertThat(result.getBody().getSchema()).isNotNull();
+        assertThat(result.getBody().getData().get("key1")).isEqualTo("value1");
+
+        verify(workflowService).getAllCaseStages(caseUUID);
+        verifyNoMoreInteractions(workflowService);
+
+
+    }
+
+    @Test
+    public void getReadOnlyCaseDetails(){
+        UUID caseUUID = UUID.randomUUID();
+        String caseRef = "Ref123";
+        HocsCaseSchema hocsCaseSchema = new HocsCaseSchema("Title", null);
+        GetCaseResponse response = new GetCaseResponse(caseRef, hocsCaseSchema, Map.of("key1", "value1"));
+
+        when(workflowService.getReadOnlyCaseDetails(caseUUID)).thenReturn(response);
+
+        ResponseEntity<GetCaseResponse> result = workflowResource.getReadOnlyCaseDetails(caseUUID);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatusCodeValue()).isEqualTo(200);
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().getCaseReference()).isEqualTo(caseRef);
+        assertThat(result.getBody().getSchema()).isNotNull();
+        assertThat(result.getBody().getData().get("key1")).isEqualTo("value1");
+
+        verify(workflowService).getReadOnlyCaseDetails(caseUUID);
+        verifyNoMoreInteractions(workflowService);
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getReadOnlyCaseDetails_throwsException() {
+        UUID caseUUID = UUID.randomUUID();
+        when(workflowService.getReadOnlyCaseDetails(caseUUID)).thenThrow(new IllegalArgumentException("Test Exception"));
+
+        workflowResource.getReadOnlyCaseDetails(caseUUID);
 
     }
 
