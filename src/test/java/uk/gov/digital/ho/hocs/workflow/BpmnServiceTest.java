@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
@@ -11,6 +12,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,6 +111,22 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
         verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
 
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldUpdateValue() {
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        bpmnService.updateValue(caseUUID, stageUUID, "testKey", "testValue");
+
+        verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), valueCapture.capture());
+        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        assertThat(valueCapture.getValue().size()).isEqualTo(1);
+        assertThat(valueCapture.getValue().keySet()).contains("testKey");
+        assertThat(valueCapture.getValue().values()).contains("testValue");
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
