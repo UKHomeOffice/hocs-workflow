@@ -152,8 +152,7 @@ public class BpmnService {
         UUID stageUUID = UUID.fromString(stageUUIDString);
         log.info("Update {} key to {} value", key, value);
         if (StringUtils.hasText(key)){
-            Map<String, String> updateValue = new HashMap<>();
-            updateValue.put(key, value);
+            Map<String, String> updateValue = Map.of(key, value);
             camundaClient.updateTask(stageUUID, updateValue);
             caseworkClient.updateCase(caseUUID, stageUUID, updateValue);
         }
