@@ -5,8 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,7 +20,7 @@ public class HocsFormField {
 
     protected String[] validation;
 
-    protected Map<String,Object> props;
+    protected Map<String, Object> props;
 
     public static HocsFormField from(FieldDto fieldDto) {
         Map<String, Object> props = fieldDto.getProps();
@@ -25,6 +28,13 @@ public class HocsFormField {
         props.put("name", fieldDto.getName());
 
         return new HocsFormField(fieldDto.getComponent(), fieldDto.getValidation(), props);
+    }
+
+    public static HocsFormField from(CaseDetailsFieldDto caseDetailsFieldDto) {
+        Map<String, Object> props = caseDetailsFieldDto.getProps();
+        props.put("name", caseDetailsFieldDto.getName());
+        props.put("disabled", true);
+        return new HocsFormField(caseDetailsFieldDto.getComponent(), null, props);
     }
 
     public static HocsFormField fromTitle(String title) {

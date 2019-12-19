@@ -12,6 +12,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkC
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
@@ -124,6 +125,23 @@ public class WorkflowService {
         Map<String, String> dataMap = convertDataToSchema(schemaDtos, inputResponse.getData());
 
         return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
+    }
+
+    public GetCaseResponse getReadOnlyCaseDetails(UUID caseUUID) {
+        GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
+
+        List<CaseDetailsFieldDto> fields = infoClient.getCaseDetailsFieldsByCaseType(inputResponse.getType());
+        List<HocsFormField> fieldsToAdd = fields.stream().map(HocsFormField::from).collect(Collectors.toList());
+
+        Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
+
+        Map<String, List<HocsFormField>> caseDetailsFields = Map.of("Case Details", fieldsToAdd);
+        HocsCaseSchema schema = new HocsCaseSchema("View Case", caseDetailsFields);
+
+        Map<String, String> dataMappings = convertDataToSchema(schemaDtos, inputResponse.getData());
+
+        return new GetCaseResponse(inputResponse.getReference(), schema, dataMappings);
+
     }
 
     public Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap) {

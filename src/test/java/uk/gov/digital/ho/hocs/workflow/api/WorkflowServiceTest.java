@@ -7,12 +7,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponseBuilder;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 
 import java.util.*;
@@ -189,6 +191,63 @@ public class WorkflowServiceTest {
 
         verify(camundaClient).completeTask(stageUUID, expectedValues);
 
+        verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient, documentClient);
+    }
+
+    @Test
+    public void getReadOnlyCaseDetails() {
+        UUID caseUUID = java.util.UUID.randomUUID();
+        String caseType = "TypeC";
+        String caseRef = "Ref321";
+
+        String nameA = "nameA";
+        String componentA = "componentA";
+        Map<String, Object> propertyA = new HashMap<>(Map.of("colour", "red"));
+        String nameB = "nameB";
+        String componentB = "componentB";
+        Map<String, Object> propertyB = new HashMap<>(Map.of("colour", "blue"));
+
+        Map<String, String> data = new HashMap<>();
+        data.put(nameA, "value1");
+        data.put(nameB, "value2");
+
+        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = GetCaseworkCaseDataResponseBuilder.aGetCaseworkCaseDataResponse()
+                .withUuid(caseUUID).withType(caseType).withData(data).withReference(caseRef).build();
+
+        CaseDetailsFieldDto caseDetailsFieldDtoA = new CaseDetailsFieldDto(nameA, componentA, propertyA);
+        CaseDetailsFieldDto caseDetailsFieldDtoB = new CaseDetailsFieldDto(nameB, componentB, propertyB);
+
+        FieldDto fieldDtoA = FieldDtoBuilder.aFieldDto().withName(nameA).withComponent(componentA).withProps(propertyA).build();
+        FieldDto fieldDtoB = FieldDtoBuilder.aFieldDto().withName(nameB).withComponent(componentB).withProps(propertyB).build();
+
+        SchemaDto schemaDto = SchemaDtoBuilder.aSchemaDto().withFields(List.of(fieldDtoA, fieldDtoB)).build();
+
+        when(caseworkClient.getFullCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
+        when(infoClient.getCaseDetailsFieldsByCaseType(caseType)).thenReturn(List.of(caseDetailsFieldDtoA, caseDetailsFieldDtoB));
+        when(infoClient.getSchemasForCaseType(caseType)).thenReturn(Set.of(schemaDto));
+
+        GetCaseResponse result = workflowService.getReadOnlyCaseDetails(caseUUID);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getCaseReference()).isEqualTo(caseRef);
+        assertThat(result.getSchema()).isNotNull();
+        assertThat(result.getSchema().getFields()).isNotNull();
+        assertThat(result.getSchema().getFields().get("Case Details")).isNotNull();
+        assertThat(result.getSchema().getFields().get("Case Details").size()).isEqualTo(2);
+        assertThat(result.getSchema().getFields().get("Case Details").get(0).getComponent()).isEqualTo(componentA);
+        assertThat(result.getSchema().getFields().get("Case Details").get(0).getProps().get("name")).isEqualTo(nameA);
+        assertThat(result.getSchema().getFields().get("Case Details").get(0).getProps().get("disabled")).isEqualTo(true);
+        assertThat(result.getSchema().getFields().get("Case Details").get(1).getComponent()).isEqualTo(componentB);
+        assertThat(result.getSchema().getFields().get("Case Details").get(1).getProps().get("name")).isEqualTo(nameB);
+        assertThat(result.getSchema().getFields().get("Case Details").get(1).getProps().get("disabled")).isEqualTo(true);
+        assertThat(result.getData()).isNotNull();
+        assertThat(result.getData().size()).isEqualTo(2);
+        assertThat(result.getData().get(nameA)).isEqualTo("value1");
+        assertThat(result.getData().get(nameB)).isEqualTo("value2");
+
+        verify(caseworkClient).getFullCase(caseUUID);
+        verify(infoClient).getCaseDetailsFieldsByCaseType(caseType);
+        verify(infoClient).getSchemasForCaseType(caseType);
         verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient, documentClient);
     }
 
