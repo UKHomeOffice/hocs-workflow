@@ -16,9 +16,11 @@ public class HocsFormAccordion extends HocsFormField {
         List<HocsFormField> returnFields = new ArrayList();
         List<HocsFormSection> accordion = null;
         HocsFormSection section = null;
+        List<HocsFormField> expandableItems = null;
 
         for (HocsFormField field : fields) {
             if (field.getComponent().equals("accordion")) {
+                expandableItems = null;
                 if (accordion == null) {
                     accordion = new ArrayList();
                     returnFields.add(new HocsFormAccordion(accordion));
@@ -26,10 +28,21 @@ public class HocsFormAccordion extends HocsFormField {
                 section = new HocsFormSection(field);
                 accordion.add(section);
             } else if (field.getComponent().equals("accordion-end")) {
+                expandableItems = null;
                 section = null;
                 accordion = null;
-            } else {
+            } else if (field.getComponent().equals("expandable-checkbox")) {
+                expandableItems = new ArrayList<HocsFormField>();
+                field.props.put("items", expandableItems);
                 if (section != null) {
+                    section.items.add(field);
+                } else {
+                    returnFields.add(field);
+                }
+            } else {
+                if (expandableItems != null) {
+                    expandableItems.add(field);
+                } else if (section != null) {
                     section.items.add(field);
                 } else {
                     returnFields.add(field);
