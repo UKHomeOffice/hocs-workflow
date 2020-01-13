@@ -18,7 +18,7 @@ public class HocsFormField {
 
     protected String component;
 
-    protected String[] validation;
+    protected Object[] validation;
 
     protected Map<String, Object> props;
 
