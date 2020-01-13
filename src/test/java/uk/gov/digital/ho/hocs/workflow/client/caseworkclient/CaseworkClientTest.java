@@ -36,6 +36,16 @@ public class CaseworkClientTest {
     }
 
     @Test
+    public void calculateTotalsWcs(){
+        String expectedUrl = String.format("/case/%s/stage/%s/calculateTotalsWcs", caseUUID, stageUUID);
+
+        caseworkClient.calculateTotalsWcs(caseUUID, stageUUID);
+
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(null), eq(Void.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
     public void updateStageUser(){
         String expectedUrl = String.format("/case/%s/stage/%s/user", caseUUID, stageUUID);
         UpdateCaseworkStageUserRequest expectedBody = new UpdateCaseworkStageUserRequest(userUUID);

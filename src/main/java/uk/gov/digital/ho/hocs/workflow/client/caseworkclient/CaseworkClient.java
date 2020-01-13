@@ -50,6 +50,11 @@ public class CaseworkClient {
         log.info("Completed Case {}", caseUUID);
     }
 
+    public void calculateTotalsWcs(UUID caseUUID, UUID stageUUID){
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/calculateTotalsWcs", caseUUID, stageUUID), null, Void.class);
+        log.info("Calculate totals WCS for Case {}", caseUUID);
+    }
+
     public void updateDateReceived(UUID caseUUID, UUID stageUUID, LocalDate dateReceived) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dateReceived", caseUUID, stageUUID) , dateReceived, Void.class);
         log.info("Set Date Received for Case {}", caseUUID);
