@@ -8,7 +8,7 @@ public final class FieldDtoBuilder {
     private String name;
     private String label;
     private String component;
-    private String[] validation;
+    private Object[] validation;
     private Map<String, Object> props;
     private boolean summary;
     private boolean active;
@@ -40,7 +40,7 @@ public final class FieldDtoBuilder {
         return this;
     }
 
-    public FieldDtoBuilder withValidation(String[] validation) {
+    public FieldDtoBuilder withValidation(Object[] validation) {
         this.validation = validation;
         return this;
     }
