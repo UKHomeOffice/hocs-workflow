@@ -46,7 +46,7 @@ public class BpmnServiceTest {
 
     @Test
     public void shoudCalculateTotalsWcs(){
-        doNothing().when(caseworkClient).calculateTotalsWcs(UUID.fromString(caseUUID), UUID.fromString(stageUUID));
+        when(caseworkClient.calculateTotalsWcs(UUID.fromString(caseUUID), UUID.fromString(stageUUID))).thenReturn(null);
 
         bpmnService.calculateTotalsWcs(caseUUID, stageUUID);
 

@@ -9,6 +9,7 @@ import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.RecreateCaseworkStageRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkStageUserRequest;
 
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -41,7 +42,7 @@ public class CaseworkClientTest {
 
         caseworkClient.calculateTotalsWcs(caseUUID, stageUUID);
 
-        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(null), eq(Void.class));
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(null), eq(Map.class));
         verifyNoMoreInteractions(restHelper);
     }
 
