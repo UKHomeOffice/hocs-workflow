@@ -67,7 +67,11 @@ public class BpmnService {
     }
 
     public void calculateTotalsWcs(String caseUUIDString, String stageUUIDString){
-        caseworkClient.calculateTotalsWcs(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString));
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        Map<String, String> totals = caseworkClient.calculateTotalsWcs(caseUUID, stageUUID);
+        camundaClient.updateTask(stageUUID, totals);
+        caseworkClient.updateCase(caseUUID, stageUUID, totals);
         log.info("Calculated totals WCS for Case {}", caseUUIDString);
     }
 

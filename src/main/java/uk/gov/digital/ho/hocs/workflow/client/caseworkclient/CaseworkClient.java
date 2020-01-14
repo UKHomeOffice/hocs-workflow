@@ -50,9 +50,10 @@ public class CaseworkClient {
         log.info("Completed Case {}", caseUUID);
     }
 
-    public void calculateTotalsWcs(UUID caseUUID, UUID stageUUID){
-        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/calculateTotalsWcs", caseUUID, stageUUID), null, Void.class);
+    public Map<String, String> calculateTotalsWcs(UUID caseUUID, UUID stageUUID){
+        Map<String, String> totals = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/calculateTotalsWcs", caseUUID, stageUUID), null, Map.class);
         log.info("Calculate totals WCS for Case {}", caseUUID);
+        return totals;
     }
 
     public void updateDateReceived(UUID caseUUID, UUID stageUUID, LocalDate dateReceived) {
