@@ -31,31 +31,29 @@ public class BpmnService {
         this.infoClient = infoClient;
     }
 
-    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString,  String allocationType, String allocationTeamString) {
+    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String allocationType, String allocationTeamString) {
+        return createStage(caseUUIDString, stageUUIDString, stageTypeString, allocationType, allocationTeamString, null);
+    }
+
+    public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String allocationType, String allocationTeamString, String allocatedUserId) {
         log.debug("Creating or Updating Stage {} for case {}", stageTypeString, caseUUIDString);
 
-        UUID teamUUID;
-        if(StringUtils.isEmpty(allocationTeamString)) {
-            log.debug("Getting Team selection from Info Service for stage {} for case {}", stageTypeString, caseUUIDString);
-            teamUUID = infoClient.getTeamForStageType(stageTypeString);
-        } else {
-            log.debug("Overriding Team selection with {} for stage {} for case {}", allocationTeamString, stageTypeString, caseUUIDString);
-            teamUUID = UUID.fromString(allocationTeamString);
-        }
+        UUID teamUUID = deriveTeamUUID(caseUUIDString, stageTypeString, allocationTeamString);
+        UUID userUUID = deriveUserUUID(caseUUIDString, stageTypeString, allocatedUserId);
 
-        String stageUUID;
-        if (stageUUIDString != null) {
-            log.debug("Stage {} already exists for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
-            caseworkClient.updateStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), teamUUID, allocationType);
-            stageUUID = stageUUIDString;
-            log.info("Updated Stage {} for Case {}", stageUUID, caseUUIDString);
+        String resultStageUUID;
+        if (StringUtils.hasText(stageUUIDString)) {
+            log.debug("Stage {} already exists for case {}, recreating stage {}", stageTypeString, caseUUIDString, stageUUIDString);
+            recreateStage(caseUUIDString, stageUUIDString, stageTypeString, allocationType, teamUUID, userUUID);
+            resultStageUUID = stageUUIDString;
+            log.info("Updated Stage {} for Case {}", stageUUIDString, caseUUIDString);
         } else {
             log.debug("Creating new stage {} for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
-            stageUUID = caseworkClient.createStage(UUID.fromString(caseUUIDString), stageTypeString, teamUUID, allocationType).toString();
-            log.info("Created Stage {} for Case {}", stageUUID, caseUUIDString);
+            resultStageUUID = caseworkClient.createStage(UUID.fromString(caseUUIDString), stageTypeString, teamUUID, userUUID, allocationType).toString();
+            log.info("Created Stage {} for Case {}", resultStageUUID, caseUUIDString);
         }
 
-        return stageUUID;
+        return resultStageUUID;
     }
 
     public void completeStage(String caseUUIDString, String stageUUIDString) {
@@ -106,21 +104,21 @@ public class BpmnService {
 
         Map<String, String> teamsForTopic = new HashMap<>();
 
-        if(draftingUUIDString != null) {
+        if (StringUtils.hasText(draftingUUIDString)) {
             log.info("Overwriting draft team with {}", draftingUUIDString);
             TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
             teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
             teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
         }
 
-        if(privateOfficeUUIDString != null) {
+        if (StringUtils.hasText(privateOfficeUUIDString)) {
             log.info("Overwriting po team with {}", privateOfficeUUIDString);
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
             teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
             teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
         }
 
-        if(!teamsForTopic.isEmpty()) {
+        if (!teamsForTopic.isEmpty()) {
             camundaClient.updateTask(stageUUID, teamsForTopic);
             caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
         }
@@ -134,14 +132,14 @@ public class BpmnService {
 
         Map<String, String> teamsForTopic = new HashMap<>();
 
-        if(privateOfficeUUIDString != null) {
+        if (StringUtils.hasText(privateOfficeUUIDString)) {
             log.info("Overwriting po team with {}", privateOfficeUUIDString);
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
             teamsForTopic.put("PrivateOfficeOverridePOTeamUUID", pOTeam.getUuid().toString());
             teamsForTopic.put("PrivateOfficeOverridePOTeamName", pOTeam.getDisplayName());
         }
 
-        if(!teamsForTopic.isEmpty()) {
+        if (!teamsForTopic.isEmpty()) {
             camundaClient.updateTask(stageUUID, teamsForTopic);
             caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
         }
@@ -149,10 +147,60 @@ public class BpmnService {
         log.debug("######## Updated Team Selection at PO ########");
     }
 
+    public void updateValue(String caseUUIDString, String stageUUIDString, String key, String value) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        log.info("Update {} key to {} value", key, value);
+        if (StringUtils.hasText(key)){
+            Map<String, String> updateValue = Map.of(key, value);
+            camundaClient.updateTask(stageUUID, updateValue);
+            caseworkClient.updateCase(caseUUID, stageUUID, updateValue);
+        }
+    }
+
     public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType) {
         log.debug("######## Save Allocation Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
         log.info("Adding Casenote to Case: {}", caseUUIDString);
+    }
+
+    private UUID deriveTeamUUID(String caseUUIDString, String stageTypeString, String allocationTeamString) {
+        UUID teamUUID;
+        if (StringUtils.isEmpty(allocationTeamString)) {
+            log.debug("Getting Team selection from Info Service for stage {} for case {}", stageTypeString, caseUUIDString);
+            teamUUID = infoClient.getTeamForStageType(stageTypeString);
+        } else {
+            log.debug("Overriding Team selection with {} for stage {} for case {}", allocationTeamString, stageTypeString, caseUUIDString);
+            teamUUID = UUID.fromString(allocationTeamString);
+        }
+
+        return teamUUID;
+
+    }
+
+    private UUID deriveUserUUID(String caseUUIDString, String stageTypeString, String allocatedUserId) {
+        UUID userUUID = null;
+        if (!StringUtils.isEmpty(allocatedUserId)) {
+            log.debug("Assigning user {} to stage {} for case {}", allocatedUserId, stageTypeString, caseUUIDString);
+            userUUID = UUID.fromString(allocatedUserId);
+        }
+        return userUUID;
+    }
+
+    private void recreateStage(String caseUUIDString, String stageUUIDString, String stageType, String allocationType, UUID teamUUID, UUID userUUID) {
+
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        caseworkClient.recreateStage(caseUUID, stageUUID, stageType);
+
+        log.debug("Stage already exists for case {}, assigning to team {}", caseUUID, teamUUID);
+        caseworkClient.updateStageTeam(caseUUID, stageUUID, teamUUID, allocationType);
+
+        if (userUUID != null) {
+            caseworkClient.updateStageUser(caseUUID, stageUUID, userUUID);
+        }
+
     }
 
 }

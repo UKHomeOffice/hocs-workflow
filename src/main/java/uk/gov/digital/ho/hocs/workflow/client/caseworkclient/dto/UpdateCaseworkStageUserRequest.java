@@ -2,23 +2,16 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.UUID;
 
 @AllArgsConstructor
+@EqualsAndHashCode
 @Getter
-public class CreateCaseworkStageRequest {
-
-    @JsonProperty("type")
-    private String type;
-
-    @JsonProperty("teamUUID")
-    private UUID teamUUID;
+public class UpdateCaseworkStageUserRequest {
 
     @JsonProperty("userUUID")
     private UUID userUUID;
-
-    @JsonProperty("allocationType")
-    private String allocationType;
 }

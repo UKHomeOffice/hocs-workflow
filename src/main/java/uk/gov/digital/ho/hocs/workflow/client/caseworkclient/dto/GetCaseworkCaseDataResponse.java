@@ -12,7 +12,7 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor()
 @NoArgsConstructor
 @Getter
 public class GetCaseworkCaseDataResponse {
