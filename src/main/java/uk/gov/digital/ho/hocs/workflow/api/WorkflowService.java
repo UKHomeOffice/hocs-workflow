@@ -73,7 +73,8 @@ public class WorkflowService {
             Map<String, String> seedData = new HashMap<>();
             seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
             seedData.putAll(data);
-            camundaClient.startCase(caseUUID, caseDataType, seedData);
+            //camundaClient.startCase(caseUUID, caseDataType, seedData);
+            camundaClient.startCaseWithActivity(caseUUID, caseDataType, "WCS_CASEWORK", seedData);
 
         } else {
             log.error("Failed to start case, invalid caseUUID!, event: {}", value(EVENT, CASE_STARTED_FAILURE));

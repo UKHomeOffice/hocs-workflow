@@ -35,6 +35,13 @@ public class CamundaClient {
         log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType, value(EVENT, CASE_STARTED_SUCCESS));
     }
 
+    public void startCaseWithActivity(UUID caseUUID, String caseDataType, String activityId, Map<String,String> data) {
+        //String message = caseDataType + "#" + activityId;
+        String message = activityId;
+        runtimeService.startProcessInstanceByMessage(message, caseUUID.toString(), new HashMap<>(data));
+        log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType, value(EVENT, CASE_STARTED_SUCCESS));
+    }
+
     /**
      * This currently only supports sequential stages in BPMN diagrams,
      * to support parallel stages we need expect multiple Task objects back from the task service
