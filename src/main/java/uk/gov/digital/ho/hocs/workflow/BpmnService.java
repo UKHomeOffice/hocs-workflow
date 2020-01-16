@@ -66,8 +66,8 @@ public class BpmnService {
         log.info("Completed Case {}", caseUUIDString);
     }
 
-    public void calculateTotalsWcs(String caseUUIDString, String stageUUIDString){
-        caseworkClient.calculateTotalsWcs(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString));
+    public void calculateTotals(String caseUUIDString, String stageUUIDString, String listName){
+        caseworkClient.calculateTotals(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), listName);
         log.info("Calculated totals WCS for Case {}", caseUUIDString);
     }
 

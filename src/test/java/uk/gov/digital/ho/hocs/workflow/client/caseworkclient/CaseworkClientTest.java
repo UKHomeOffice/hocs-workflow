@@ -37,12 +37,12 @@ public class CaseworkClientTest {
     }
 
     @Test
-    public void calculateTotalsWcs(){
-        String expectedUrl = String.format("/case/%s/stage/%s/calculateTotalsWcs", caseUUID, stageUUID);
+    public void calculateTotals(){
+        String expectedUrl = String.format("/case/%s/stage/%s/calculateTotals", caseUUID, stageUUID);
 
-        caseworkClient.calculateTotalsWcs(caseUUID, stageUUID);
+        caseworkClient.calculateTotals(caseUUID, stageUUID, "list");
 
-        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(null), eq(Map.class));
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq("list"), eq(Map.class));
         verifyNoMoreInteractions(restHelper);
     }
 

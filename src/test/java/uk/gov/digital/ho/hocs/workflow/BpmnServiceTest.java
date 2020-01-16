@@ -45,12 +45,12 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shoudCalculateTotalsWcs(){
-        when(caseworkClient.calculateTotalsWcs(UUID.fromString(caseUUID), UUID.fromString(stageUUID))).thenReturn(null);
+    public void shoudCalculateTotals(){
+        when(caseworkClient.calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list")).thenReturn(null);
 
-        bpmnService.calculateTotalsWcs(caseUUID, stageUUID);
+        bpmnService.calculateTotals(caseUUID, stageUUID, "list");
 
-        verify(caseworkClient).calculateTotalsWcs(UUID.fromString(caseUUID), UUID.fromString(stageUUID));
+        verify(caseworkClient).calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list");
         verifyNoMoreInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
