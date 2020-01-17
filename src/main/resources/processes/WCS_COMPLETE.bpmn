@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0ra6lm1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.1.2">
   <bpmn:process id="WCS_COMPLETE" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_1">
+    <bpmn:startEvent id="StartEvent_1" name="Start">
       <bpmn:outgoing>SequenceFlow_07browk</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:userTask id="UserTask_1376v55" name="Validate User Input">
@@ -23,7 +23,7 @@
       <bpmn:incoming>SequenceFlow_03ata1c</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0713781" name="Complete?">
-      <bpmn:incoming>SequenceFlow_1o29se2</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0axujg8</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0o8rktc</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_03ata1c</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -35,18 +35,26 @@
     <bpmn:sequenceFlow id="SequenceFlow_0o8rktc" name="No" sourceRef="ExclusiveGateway_0713781" targetRef="ServiceTask_0u79ry4">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ClaimComplete == "No"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1o29se2" sourceRef="ExclusiveGateway_04nz5hv" targetRef="ExclusiveGateway_0713781">
+    <bpmn:sequenceFlow id="SequenceFlow_1o29se2" sourceRef="ExclusiveGateway_04nz5hv" targetRef="ServiceTask_1n3i3ci">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_07browk" sourceRef="StartEvent_1" targetRef="ServiceTask_0u79ry4" />
     <bpmn:sequenceFlow id="SequenceFlow_03ata1c" name="Yes" sourceRef="ExclusiveGateway_0713781" targetRef="EndEvent_1yv41kc">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ClaimComplete == "Yes"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="ServiceTask_1n3i3ci" name="Recalculate totals" camunda:expression="${bpmnService.calculateTotals(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;WCS_TOTALS&#34;)}">
+      <bpmn:incoming>SequenceFlow_1o29se2</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0axujg8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0axujg8" sourceRef="ServiceTask_1n3i3ci" targetRef="ExclusiveGateway_0713781" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="WCS_COMPLETE">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="179" y="103" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="185" y="146" width="24" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="UserTask_1376v55_di" bpmnElement="UserTask_1376v55">
         <dc:Bounds x="272" y="255" width="100" height="80" />
@@ -58,12 +66,12 @@
         <dc:Bounds x="434" y="183" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1yv41kc_di" bpmnElement="EndEvent_1yv41kc">
-        <dc:Bounds x="747" y="190" width="36" height="36" />
+        <dc:Bounds x="944" y="190" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0713781_di" bpmnElement="ExclusiveGateway_0713781" isMarkerVisible="true">
-        <dc:Bounds x="543" y="183" width="50" height="50" />
+        <dc:Bounds x="740" y="183" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="542" y="240" width="54" height="14" />
+          <dc:Bounds x="739" y="240" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0cxqaql_di" bpmnElement="SequenceFlow_0cxqaql">
@@ -84,27 +92,34 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0o8rktc_di" bpmnElement="SequenceFlow_0o8rktc">
-        <di:waypoint x="568" y="183" />
-        <di:waypoint x="568" y="121" />
+        <di:waypoint x="765" y="183" />
+        <di:waypoint x="765" y="121" />
         <di:waypoint x="372" y="121" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="575" y="160" width="15" height="14" />
+          <dc:Bounds x="757" y="101" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1o29se2_di" bpmnElement="SequenceFlow_1o29se2">
         <di:waypoint x="484" y="208" />
-        <di:waypoint x="543" y="208" />
+        <di:waypoint x="567" y="208" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_07browk_di" bpmnElement="SequenceFlow_07browk">
         <di:waypoint x="215" y="121" />
         <di:waypoint x="272" y="121" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_03ata1c_di" bpmnElement="SequenceFlow_03ata1c">
-        <di:waypoint x="593" y="208" />
-        <di:waypoint x="747" y="208" />
+        <di:waypoint x="790" y="208" />
+        <di:waypoint x="944" y="208" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="598" y="190" width="18" height="14" />
+          <dc:Bounds x="795" y="190" width="18" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1n3i3ci_di" bpmnElement="ServiceTask_1n3i3ci">
+        <dc:Bounds x="567" y="168" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0axujg8_di" bpmnElement="SequenceFlow_0axujg8">
+        <di:waypoint x="667" y="208" />
+        <di:waypoint x="740" y="208" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

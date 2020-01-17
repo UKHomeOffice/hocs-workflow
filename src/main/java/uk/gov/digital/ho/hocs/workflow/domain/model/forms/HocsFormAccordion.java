@@ -39,6 +39,8 @@ public class HocsFormAccordion extends HocsFormField {
                 } else {
                     returnFields.add(field);
                 }
+            } else if (field.getComponent().equals("expandable-end")) {
+                expandableItems = null;
             } else {
                 if (expandableItems != null) {
                     expandableItems.add(field);

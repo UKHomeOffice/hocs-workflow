@@ -50,6 +50,12 @@ public class CaseworkClient {
         log.info("Completed Case {}", caseUUID);
     }
 
+    public Map<String, String> calculateTotals(UUID caseUUID, UUID stageUUID, String listName){
+        Map<String, String> totals = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/calculateTotals", caseUUID, stageUUID), listName, Map.class);
+        log.info("Calculate totals for List {} for Case {}", listName, caseUUID);
+        return totals;
+    }
+
     public void updateDateReceived(UUID caseUUID, UUID stageUUID, LocalDate dateReceived) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dateReceived", caseUUID, stageUUID) , dateReceived, Void.class);
         log.info("Set Date Received for Case {}", caseUUID);

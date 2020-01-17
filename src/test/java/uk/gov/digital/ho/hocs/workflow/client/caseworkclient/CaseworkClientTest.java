@@ -9,6 +9,7 @@ import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.RecreateCaseworkStageRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkStageUserRequest;
 
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,6 +34,16 @@ public class CaseworkClientTest {
     @Before
     public void setup() {
         caseworkClient = new CaseworkClient(restHelper, caseServiceUrl);
+    }
+
+    @Test
+    public void calculateTotals(){
+        String expectedUrl = String.format("/case/%s/stage/%s/calculateTotals", caseUUID, stageUUID);
+
+        caseworkClient.calculateTotals(caseUUID, stageUUID, "list");
+
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq("list"), eq(Map.class));
+        verifyNoMoreInteractions(restHelper);
     }
 
     @Test
