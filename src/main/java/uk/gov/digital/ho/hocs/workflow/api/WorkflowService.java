@@ -127,20 +127,20 @@ public class WorkflowService {
         return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
     }
 
-    public GetCaseResponse getReadOnlyCaseDetails(UUID caseUUID) {
+    public GetCaseDetailsResponse getReadOnlyCaseDetails(UUID caseUUID) {
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
 
         List<CaseDetailsFieldDto> fields = infoClient.getCaseDetailsFieldsByCaseType(inputResponse.getType());
-        List<HocsFormField> fieldsToAdd = fields.stream().map(HocsFormField::from).collect(Collectors.toList());
+        List<HocsFormField> hocsFields = fields.stream().map(HocsFormField::from).collect(Collectors.toList());
+        List<HocsFormField> fieldsToAdd = HocsFormAccordion.loadFormAccordions(hocsFields);
 
         Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
 
-        Map<String, List<HocsFormField>> caseDetailsFields = Map.of("Case Details", fieldsToAdd);
-        HocsCaseSchema schema = new HocsCaseSchema("View Case", caseDetailsFields);
+        HocsSchema hocsSchema = new HocsSchema(inputResponse.getReference(), null, fieldsToAdd, null);
 
         Map<String, String> dataMappings = convertDataToSchema(schemaDtos, inputResponse.getData());
 
-        return new GetCaseResponse(inputResponse.getReference(), schema, dataMappings);
+        return new GetCaseDetailsResponse(hocsSchema, dataMappings);
 
     }
 

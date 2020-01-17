@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.domain.model.forms;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor()
 @Getter
 public class HocsFormField {
 
