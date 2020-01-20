@@ -119,7 +119,8 @@ public class SecurityIntegrationTest {
     @Test
     public void shouldCreateCaseWhenUserIsInGroup() {
         UUID caseUUID = UUID.randomUUID();
-        when(workflowService.createCase("MIN", LocalDate.now(),new ArrayList<>())).thenReturn(new CreateCaseResponse(caseUUID,"CASE_REF"));
+        UUID userUUID = UUID.randomUUID();
+        when(workflowService.createCase("MIN", LocalDate.now(),new ArrayList<>(), userUUID)).thenReturn(new CreateCaseResponse(caseUUID,"CASE_REF"));
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         headers.add(RequestData.GROUP_HEADER, "/RERERCIiIiIiIiIiIiIiIg");
         HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest("MIN",LocalDate.now(), new ArrayList<>()), headers);

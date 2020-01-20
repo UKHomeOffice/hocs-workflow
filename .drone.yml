@@ -70,8 +70,8 @@ pipeline:
     when:
       event: [push, tag, deployment]
 
-  deploy-to-dev-from-build-number:
-    image: quay.io/ukhomeofficedigital/kd:v1.12.2
+  deploy-to-cs-dev-from-build-number:
+    image: quay.io/ukhomeofficedigital/kd:v1.14.1
     environment:
       - KUBE_NAMESPACE=cs-dev
       - ENVIRONMENT=dev
@@ -86,10 +86,25 @@ pipeline:
       branch: master
       event: [push, tag]
 
-  deployment:
-    image: quay.io/ukhomeofficedigital/kd:v1.12.2
+  deploy-to-wcs-dev-from-build-number:
+    image: quay.io/ukhomeofficedigital/kd:v1.14.1
     environment:
-      - KUBE_NAMESPACE=cs-${DRONE_DEPLOY_TO}
+      - KUBE_NAMESPACE=wcs-dev
+      - ENVIRONMENT=dev
+      - VERSION=build-${DRONE_BUILD_NUMBER}
+      - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+    secrets:
+      - hocs_workflow_dev
+    commands:
+      - cd kube-hocs-workflow
+      - ./deploy.sh
+    when:
+      branch: master
+      event: [push, tag]
+
+  deployment:
+    image: quay.io/ukhomeofficedigital/kd:v1.14.1
+    environment:
       - ENVIRONMENT=${DRONE_DEPLOY_TO}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
@@ -103,9 +118,8 @@ pipeline:
       environment: [dev, demo]
 
   deploy-to-qa:
-    image: quay.io/ukhomeofficedigital/kd:v1.12.2
+    image: quay.io/ukhomeofficedigital/kd:v1.14.1
     environment:
-      - KUBE_NAMESPACE=cs-qa
       - ENVIRONMENT=qa
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
@@ -120,9 +134,8 @@ pipeline:
       environment: qa
 
   deploy-to-prod:
-    image: quay.io/ukhomeofficedigital/kd:v1.12.2
+    image: quay.io/ukhomeofficedigital/kd:v1.14.1
     environment:
-      - KUBE_NAMESPACE=cs-prod
       - ENVIRONMENT=prod
       - KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
     secrets:

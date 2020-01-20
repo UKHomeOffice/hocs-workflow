@@ -9,9 +9,11 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -86,4 +88,14 @@ public class InfoClient {
         log.info("Got User for UUID {}", userUUID, value(EVENT, INFO_CLIENT_GET_USER_SUCESS));
         return userDto;
     }
+
+    @Cacheable(value = "InfoClientGetCaseDetailsFieldDtos", unless = "#result == null", key = "{ #caseType}")
+    public List<CaseDetailsFieldDto> getCaseDetailsFieldsByCaseType(String caseType) {
+        List<CaseDetailsFieldDto> caseDetailsFieldDtos = restHelper.get(serviceBaseURL, String.format("/caseDetailsFields/%s", caseType), new ParameterizedTypeReference<List<CaseDetailsFieldDto>>() {});
+        log.info("Got CaseDetailsFields By Case Type {} ", value(EVENT, INFO_CLIENT_GET_CASE_DETAILS_FIELDS));
+        return caseDetailsFieldDtos;
+    }
+
+
+
 }
