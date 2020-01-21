@@ -12,7 +12,6 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkC
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
@@ -56,11 +55,10 @@ public class WorkflowService {
         this.camundaClient = camundaClient;
     }
 
-    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID) {
+    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>();
-        data.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
-        data.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+        data.put("DateReceived", dateReceived.toString());
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived);
         UUID caseUUID = caseResponse.getUuid();
 
@@ -71,7 +69,7 @@ public class WorkflowService {
 
             // Start a new camunda workflow (caseUUID is the business key).
             Map<String, String> seedData = new HashMap<>();
-            seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
+            seedData.put("CaseReference", caseResponse.getReference());
             seedData.putAll(data);
             camundaClient.startCase(caseUUID, caseDataType, seedData);
 
@@ -101,7 +99,7 @@ public class WorkflowService {
             SchemaDto schemaDto = infoClient.getSchema(screenName);
             List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
             List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(Collectors.toList());
-            fields = HocsFormAccordion.loadFormAccordions(fields);
+
             HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions);
             HocsForm form = new HocsForm(schema, inputResponse.getData());
             return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
@@ -125,23 +123,6 @@ public class WorkflowService {
         Map<String, String> dataMap = convertDataToSchema(schemaDtos, inputResponse.getData());
 
         return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
-    }
-
-    public GetCaseDetailsResponse getReadOnlyCaseDetails(UUID caseUUID) {
-        GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
-
-        List<CaseDetailsFieldDto> fields = infoClient.getCaseDetailsFieldsByCaseType(inputResponse.getType());
-        List<HocsFormField> hocsFields = fields.stream().map(HocsFormField::from).collect(Collectors.toList());
-        List<HocsFormField> fieldsToAdd = HocsFormAccordion.loadFormAccordions(hocsFields);
-
-        Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
-
-        HocsSchema hocsSchema = new HocsSchema(inputResponse.getReference(), null, fieldsToAdd, null);
-
-        Map<String, String> dataMappings = convertDataToSchema(schemaDtos, inputResponse.getData());
-
-        return new GetCaseDetailsResponse(hocsSchema, dataMappings);
-
     }
 
     public Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap) {
@@ -212,16 +193,15 @@ public class WorkflowService {
         return fields;
     }
 
-    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values, Direction direction, UUID userUUID) {
+    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values, Direction direction) {
 
-        values.put(WorkflowConstants.DIRECTION, direction.getValue());
-        values.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+        values.put("DIRECTION", direction.getValue());
 
         if (Direction.FORWARD == direction) {
-            values.put(WorkflowConstants.VALID, "true");
+            values.put("valid", "true");
             caseworkClient.updateCase(caseUUID, stageUUID, values);
         } else {
-            values.put(WorkflowConstants.VALID, "false");
+            values.put("valid", "false");
         }
 
         camundaClient.completeTask(stageUUID, values);
