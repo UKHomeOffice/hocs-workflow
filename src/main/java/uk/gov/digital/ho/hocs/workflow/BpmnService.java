@@ -66,6 +66,11 @@ public class BpmnService {
         log.info("Completed Case {}", caseUUIDString);
     }
 
+    public void calculateTotals(String caseUUIDString, String stageUUIDString, String listName){
+        caseworkClient.calculateTotals(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), listName);
+        log.info("Calculated totals WCS for Case {}", caseUUIDString);
+    }
+
     public void updateDeadline(String caseUUIDString, String stageUUIDString, String dateReceived) {
         caseworkClient.updateDateReceived(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), LocalDate.parse(dateReceived));
     }

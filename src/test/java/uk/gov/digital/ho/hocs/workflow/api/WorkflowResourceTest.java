@@ -8,13 +8,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -168,18 +166,20 @@ public class WorkflowResourceTest {
     public void getReadOnlyCaseDetails(){
         UUID caseUUID = UUID.randomUUID();
         String caseRef = "Ref123";
-        HocsCaseSchema hocsCaseSchema = new HocsCaseSchema("Title", null);
-        GetCaseResponse response = new GetCaseResponse(caseRef, hocsCaseSchema, Map.of("key1", "value1"));
+        List<HocsFormField> fields = new ArrayList<>();
+        fields.add(new HocsFormField("text", null, Map.of("label", "label1")));
+        HocsSchema hocsSchema = new HocsSchema(caseRef, null, fields, null);
+        GetCaseDetailsResponse response = new GetCaseDetailsResponse( hocsSchema, Map.of("key1", "value1"));
 
         when(workflowService.getReadOnlyCaseDetails(caseUUID)).thenReturn(response);
 
-        ResponseEntity<GetCaseResponse> result = workflowResource.getReadOnlyCaseDetails(caseUUID);
+        ResponseEntity<GetCaseDetailsResponse> result = workflowResource.getReadOnlyCaseDetails(caseUUID);
 
         assertThat(result).isNotNull();
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
         assertThat(result.getBody()).isNotNull();
-        assertThat(result.getBody().getCaseReference()).isEqualTo(caseRef);
         assertThat(result.getBody().getSchema()).isNotNull();
+        assertThat(result.getBody().getSchema().getTitle()).isEqualTo(caseRef);
         assertThat(result.getBody().getData().get("key1")).isEqualTo("value1");
 
         verify(workflowService).getReadOnlyCaseDetails(caseUUID);

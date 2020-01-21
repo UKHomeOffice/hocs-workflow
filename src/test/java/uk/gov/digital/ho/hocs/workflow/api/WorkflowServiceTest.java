@@ -181,6 +181,7 @@ public class WorkflowServiceTest {
         Map<String, String> values = new HashMap<>();
         Direction direction = Direction.BACKWARD;
 
+
         Map<String, String> expectedValues = new HashMap<>();
         expectedValues.put(WorkflowConstants.VALID, "false");
         expectedValues.put(WorkflowConstants.DIRECTION, "BACKWARD");
@@ -225,20 +226,20 @@ public class WorkflowServiceTest {
         when(infoClient.getCaseDetailsFieldsByCaseType(caseType)).thenReturn(List.of(caseDetailsFieldDtoA, caseDetailsFieldDtoB));
         when(infoClient.getSchemasForCaseType(caseType)).thenReturn(Set.of(schemaDto));
 
-        GetCaseResponse result = workflowService.getReadOnlyCaseDetails(caseUUID);
+        GetCaseDetailsResponse result = workflowService.getReadOnlyCaseDetails(caseUUID);
 
         assertThat(result).isNotNull();
-        assertThat(result.getCaseReference()).isEqualTo(caseRef);
         assertThat(result.getSchema()).isNotNull();
+        assertThat(result.getSchema().getTitle()).isEqualTo(caseRef);
         assertThat(result.getSchema().getFields()).isNotNull();
-        assertThat(result.getSchema().getFields().get("Case Details")).isNotNull();
-        assertThat(result.getSchema().getFields().get("Case Details").size()).isEqualTo(2);
-        assertThat(result.getSchema().getFields().get("Case Details").get(0).getComponent()).isEqualTo(componentA);
-        assertThat(result.getSchema().getFields().get("Case Details").get(0).getProps().get("name")).isEqualTo(nameA);
-        assertThat(result.getSchema().getFields().get("Case Details").get(0).getProps().get("disabled")).isEqualTo(true);
-        assertThat(result.getSchema().getFields().get("Case Details").get(1).getComponent()).isEqualTo(componentB);
-        assertThat(result.getSchema().getFields().get("Case Details").get(1).getProps().get("name")).isEqualTo(nameB);
-        assertThat(result.getSchema().getFields().get("Case Details").get(1).getProps().get("disabled")).isEqualTo(true);
+        assertThat(result.getSchema().getFields()).isNotNull();
+        assertThat(result.getSchema().getFields().size()).isEqualTo(2);
+        assertThat(result.getSchema().getFields().get(0).getComponent()).isEqualTo(componentA);
+        assertThat(result.getSchema().getFields().get(0).getProps().get("name")).isEqualTo(nameA);
+        assertThat(result.getSchema().getFields().get(0).getProps().get("disabled")).isEqualTo(true);
+        assertThat(result.getSchema().getFields().get(1).getComponent()).isEqualTo(componentB);
+        assertThat(result.getSchema().getFields().get(1).getProps().get("name")).isEqualTo(nameB);
+        assertThat(result.getSchema().getFields().get(1).getProps().get("disabled")).isEqualTo(true);
         assertThat(result.getData()).isNotNull();
         assertThat(result.getData().size()).isEqualTo(2);
         assertThat(result.getData().get(nameA)).isEqualTo("value1");

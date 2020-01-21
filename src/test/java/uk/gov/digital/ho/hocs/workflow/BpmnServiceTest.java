@@ -45,6 +45,18 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shoudCalculateTotals(){
+        when(caseworkClient.calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list")).thenReturn(null);
+
+        bpmnService.calculateTotals(caseUUID, stageUUID, "list");
+
+        verify(caseworkClient).calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list");
+        verifyNoMoreInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
     public void shouldNotUpdateDataNoNewTeams() {
         bpmnService.updateTeamSelection(caseUUID, stageUUID, null, null);
 

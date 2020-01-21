@@ -29,13 +29,21 @@ public class HocsFormAccordionTest {
         HocsFormField textBox = new HocsFormField();
         textBox.component = "text";
         fields.add(textBox);
+        HocsFormField expandableEnd = new HocsFormField();
+        expandableEnd.component = "expandable-end";
+        fields.add(expandableEnd);
+        HocsFormField inset = new HocsFormField();
+        inset.component = "inset";
+        fields.add(inset);
 
         List<HocsFormField> result = HocsFormAccordion.loadFormAccordions(fields);
 
-        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.size()).isEqualTo(2);
         assertThat(result.get(0).props.get("items")).isNotNull();
         List<HocsFormField> items = (List<HocsFormField>)result.get(0).props.get("items");
         assertThat(items.size()).isEqualTo(1);
+        assertThat(items.get(0).component).isEqualTo("text");
+        assertThat(result.get(1).component).isEqualTo("inset");
     }
 
     @Test
