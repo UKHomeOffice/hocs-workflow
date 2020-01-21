@@ -81,8 +81,8 @@ class WorkflowResource {
 
     @Authorised(accessLevel = AccessLevel.READ)
     @GetMapping(value = "/case/details/{caseUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetCaseResponse> getReadOnlyCaseDetails(@PathVariable UUID caseUUID) {
-        GetCaseResponse response = workflowService.getReadOnlyCaseDetails(caseUUID);
+    public ResponseEntity<GetCaseDetailsResponse> getReadOnlyCaseDetails(@PathVariable UUID caseUUID) {
+        GetCaseDetailsResponse response = workflowService.getReadOnlyCaseDetails(caseUUID);
         return ResponseEntity.ok(response);
     }
 
