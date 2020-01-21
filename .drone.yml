@@ -28,7 +28,7 @@ pipeline:
     commands:
       - docker build -t hocs-workflow .
     when:
-      branch: [feature/WCS, refs/tags/*]
+      branch: [master, refs/tags/*]
       event: [push, tag]
 
   install-docker-image:
@@ -44,7 +44,7 @@ pipeline:
       - docker push quay.io/ukhomeofficedigital/hocs-workflow:build-$${DRONE_BUILD_NUMBER}
       - docker push quay.io/ukhomeofficedigital/hocs-workflow:latest
     when:
-      branch: feature/WCS
+      branch: master
       event: push
 
 
@@ -66,11 +66,27 @@ pipeline:
   clone-kube-project:
     image: plugins/git
     commands:
-      - git clone -b feature/WCS --single-branch https://github.com/UKHomeOffice/kube-hocs-workflow.git
+      - git clone https://github.com/UKHomeOffice/kube-hocs-workflow.git
     when:
       event: [push, tag, deployment]
 
-  deploy-to-dev-from-build-number:
+  deploy-to-cs-dev-from-build-number:
+    image: quay.io/ukhomeofficedigital/kd:v1.14.1
+    environment:
+      - KUBE_NAMESPACE=cs-dev
+      - ENVIRONMENT=dev
+      - VERSION=build-${DRONE_BUILD_NUMBER}
+      - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+    secrets:
+      - hocs_workflow_dev
+    commands:
+      - cd kube-hocs-workflow
+      - ./deploy.sh
+    when:
+      branch: master
+      event: [push, tag]
+
+  deploy-to-wcs-dev-from-build-number:
     image: quay.io/ukhomeofficedigital/kd:v1.14.1
     environment:
       - KUBE_NAMESPACE=wcs-dev
@@ -83,13 +99,12 @@ pipeline:
       - cd kube-hocs-workflow
       - ./deploy.sh
     when:
-      branch: feature/WCS
+      branch: master
       event: [push, tag]
 
   deployment:
     image: quay.io/ukhomeofficedigital/kd:v1.14.1
     environment:
-      - KUBE_NAMESPACE=wcs-${DRONE_DEPLOY_TO}
       - ENVIRONMENT=${DRONE_DEPLOY_TO}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
@@ -105,7 +120,6 @@ pipeline:
   deploy-to-qa:
     image: quay.io/ukhomeofficedigital/kd:v1.14.1
     environment:
-      - KUBE_NAMESPACE=wcs-qa
       - ENVIRONMENT=qa
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
@@ -122,7 +136,6 @@ pipeline:
   deploy-to-prod:
     image: quay.io/ukhomeofficedigital/kd:v1.14.1
     environment:
-      - KUBE_NAMESPACE=wcs-prod
       - ENVIRONMENT=prod
       - KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
     secrets:
