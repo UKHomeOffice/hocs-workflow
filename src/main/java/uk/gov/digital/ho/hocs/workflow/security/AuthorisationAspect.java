@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseRequestInterface;
 import uk.gov.digital.ho.hocs.workflow.application.NonMigrationEnvCondition;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 
@@ -72,8 +72,8 @@ public class AuthorisationAspect {
                 log.info("Checking authorisation permissions for user {} and case type {}", userService.getUserId().toString(), caseUUID.toString());
                 String shortCode = caseUUID.toString().substring(34);
                 caseType = infoClient.getCaseTypeByShortCode(shortCode).getDisplayCode();
-            } else if (joinPoint.getArgs()[0] instanceof CreateCaseRequest) {
-                CreateCaseRequest createCaseRequest = (CreateCaseRequest) joinPoint.getArgs()[0];
+            } else if (joinPoint.getArgs()[0] instanceof CreateCaseRequestInterface) {
+                CreateCaseRequestInterface createCaseRequest = (CreateCaseRequestInterface) joinPoint.getArgs()[0];
                 caseType = createCaseRequest.getType();
             } else {
                 throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters (access level) for type " + joinPoint.getArgs()[0].getClass().getName(), SECURITY_PARSE_ERROR);

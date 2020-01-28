@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class CreateCaseRequest {
+public class CreateCaseRequest implements CreateCaseRequestInterface {
 
     @JsonProperty("type")
     private String type;
