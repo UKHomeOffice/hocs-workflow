@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.migration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import uk.gov.digital.ho.hocs.workflow.api.dto.DocumentSummary;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
@@ -41,7 +42,7 @@ public class MigrationWorkflowService {
         this.camundaClient = camundaClient;
     }
 
-    MigrationCreateCaseResponse createCase(String caseDataType, String caseReference, LocalDate dateReceived, LocalDate caseDeadline, Map<String, String> data, UUID topicUUID) {
+    MigrationCreateCaseResponse createCase(String caseDataType, String caseReference, LocalDate dateReceived, LocalDate caseDeadline, Map<String, String> data, UUID topicUUID, String startMessage) {
 
         log.info("Migration - Create Case Ref: '{}'", caseReference, value(EVENT, MIGRATION_EVENT));
         // Create a case in the casework service in order to get a reference back to display to the user.
@@ -57,8 +58,15 @@ public class MigrationWorkflowService {
             seedData.put("Topics", String.valueOf(topicUUID));
             seedData.put("CopyNumberTen", String.valueOf(data.get("CopyNumberTen")).toUpperCase());
             seedData.putAll(data);
-            camundaClient.startCase(caseUUID, caseDataType, seedData);
-            log.info("Camunda Start");
+
+            if (StringUtils.hasText(startMessage)) {
+                camundaClient.startCaseWithMessage(caseUUID, caseDataType, startMessage, seedData);
+                log.info("Camunda Start with message: {}", startMessage);
+            } else {
+                camundaClient.startCase(caseUUID, caseDataType, seedData);
+                log.info("Camunda Start");
+            }
+
 
         } else {
             log.error("Failed to start case, invalid caseUUID!", value(EVENT, CASE_STARTED_FAILURE));
@@ -258,7 +266,7 @@ public class MigrationWorkflowService {
         topicData.put("Topics", String.valueOf(returnedTopicUUID));
         migrationCaseworkClient.updateCase(caseUUID, markUpStageUUID, topicData);
         camundaClient.completeTask(markUpStageUUID, topicData);
-        if(!"TRO".equals(caseDataType) || "PR".equals(markupDecision)){
+        if (!"TRO".equals(caseDataType) || "PR".equals(markupDecision)) {
             Map<String, String> teamsForTopic = new HashMap<>();
             TeamDto draftingTeam = infoClient.getTeamForTopicAndStage(caseUUID, returnedTopicUUID, "DCU_MIN_INITIAL_DRAFT");
             TeamDto pOTeam = infoClient.getTeamForTopicAndStage(caseUUID, returnedTopicUUID, "DCU_MIN_PRIVATE_OFFICE");

@@ -23,6 +23,9 @@ public class MigrationCreateCaseRequest implements CreateCaseRequestInterface {
     @JsonProperty("ref")
     private String caseReference;
 
+    @JsonProperty("startMessage")
+    private String startMessage;
+
     @JsonProperty("dateReceived")
     private LocalDate dateReceived;
 
