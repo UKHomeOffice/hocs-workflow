@@ -3,10 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
@@ -15,8 +12,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CREATE_CASE_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 
 @Slf4j
 @Component
@@ -41,33 +38,33 @@ public class CaseworkClient {
 
     public void updateCase(UUID caseUUID, UUID stageUUID, Map<String, String> data) {
         UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
-        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID) , request, Void.class);
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID), request, Void.class);
         log.info("Set Case Data for Case {}", caseUUID);
     }
 
     public void completeCase(UUID caseUUID, boolean completed) {
-        restHelper.put(serviceBaseURL, String.format("/case/%s/complete", caseUUID) , completed, Void.class);
+        restHelper.put(serviceBaseURL, String.format("/case/%s/complete", caseUUID), completed, Void.class);
         log.info("Completed Case {}", caseUUID);
     }
 
-    public Map<String, String> calculateTotals(UUID caseUUID, UUID stageUUID, String listName){
+    public Map<String, String> calculateTotals(UUID caseUUID, UUID stageUUID, String listName) {
         Map<String, String> totals = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/calculateTotals", caseUUID, stageUUID), listName, Map.class);
         log.info("Calculate totals for List {} for Case {}", listName, caseUUID);
         return totals;
     }
 
     public void updateDateReceived(UUID caseUUID, UUID stageUUID, LocalDate dateReceived) {
-        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dateReceived", caseUUID, stageUUID) , dateReceived, Void.class);
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dateReceived", caseUUID, stageUUID), dateReceived, Void.class);
         log.info("Set Date Received for Case {}", caseUUID);
     }
 
     public void updatePrimaryCorrespondent(UUID caseUUID, UUID stageUUID, UUID primaryCorrespondent) {
-        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID) , primaryCorrespondent, Void.class);
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID), primaryCorrespondent, Void.class);
         log.info("Set Primary Correspondent for Case {}", caseUUID);
     }
 
     public void updatePrimaryTopic(UUID caseUUID, UUID stageUUID, UUID primaryTopic) {
-        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID) , primaryTopic, Void.class);
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID), primaryTopic, Void.class);
         log.info("Set Primary Topic for Case {}", caseUUID);
     }
 
@@ -84,7 +81,7 @@ public class CaseworkClient {
     }
 
     public UUID createCaseNote(UUID caseUUID, String type, String text) {
-        CreateCaseNoteRequest request = new CreateCaseNoteRequest(type,text);
+        CreateCaseNoteRequest request = new CreateCaseNoteRequest(type, text);
         UUID response = restHelper.post(serviceBaseURL, String.format("/case/%s/note", caseUUID), request, UUID.class);
         log.info("Created Note: {} for Case {}", response, caseUUID);
         return response;
@@ -103,7 +100,6 @@ public class CaseworkClient {
         log.info("Recreated Stage: {} for Case {}", stageUUID, caseUUID);
     }
 
-    @CachePut(value = "CaseworkClientGetStageTeam", key = "{#caseUUID, #stageUUID}")
     public UUID updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {
         UpdateCaseworkStageTeamRequest request = new UpdateCaseworkStageTeamRequest(caseUUID, stageUUID, teamUUID, allocationType);
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), request, Void.class);
@@ -124,7 +120,6 @@ public class CaseworkClient {
         return response;
     }
 
-    @Cacheable(value = "CaseworkClientGetStageTeam", unless = "#result == null", key = "{#caseUUID, #stageUUID}")
     public UUID getStageTeam(UUID caseUUID, UUID stageUUID) {
         UUID response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), UUID.class);
         log.info("Got Team Stage: {} for Case: {}", stageUUID, caseUUID);
