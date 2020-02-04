@@ -163,6 +163,16 @@ public class BpmnService {
         }
     }
 
+    public void updateCaseValue(String caseUUIDString, String stageUUIDString, String key, String value) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        log.info("Update {} key to {} value", key, value);
+        if (StringUtils.hasText(key)){
+            Map<String, String> updateValue = Map.of(key, value);
+            caseworkClient.updateCase(caseUUID, stageUUID, updateValue);
+        }
+    }
+
     public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType) {
         log.debug("######## Save Allocation Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
