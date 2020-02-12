@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -25,4 +26,7 @@ public class MigrationCreateCaseworkCaseRequest {
 
     @JsonProperty("deadline")
     private LocalDate caseDeadline;
+
+    @JsonProperty("notes")
+    private List<String> notes;
 }

@@ -43,4 +43,7 @@ public class MigrationCreateCaseRequest implements CreateCaseRequestInterface {
 
     @JsonProperty("topic")
     private UUID topic;
+
+    @JsonProperty("notes")
+    private List<String> notes;
 }
