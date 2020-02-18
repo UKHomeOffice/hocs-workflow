@@ -42,12 +42,12 @@ public class MigrationWorkflowService {
         this.camundaClient = camundaClient;
     }
 
-    MigrationCreateCaseResponse createCase(String caseDataType, String caseReference, LocalDate dateReceived, LocalDate caseDeadline, Map<String, String> data, UUID topicUUID, String startMessage, List<String> notes) {
+    MigrationCreateCaseResponse createCase(String caseDataType, String caseReference, LocalDate dateReceived, LocalDate caseDeadline, Map<String, String> data, UUID topicUUID, String startMessage, List<String> notes, String totalsListName) {
 
         log.info("Migration - Create Case Ref: '{}'", caseReference, value(EVENT, MIGRATION_EVENT));
         // Create a case in the casework service in order to get a reference back to display to the user.
         data.put("DateReceived", dateReceived.toString());
-        CreateCaseworkCaseResponse caseResponse = migrationCaseworkClient.createCase(caseDataType, caseReference, data, dateReceived, caseDeadline, notes);
+        CreateCaseworkCaseResponse caseResponse = migrationCaseworkClient.createCase(caseDataType, caseReference, data, dateReceived, caseDeadline, notes, totalsListName);
         UUID caseUUID = caseResponse.getUuid();
         Map<String, String> seedData;
         if (caseUUID != null) {

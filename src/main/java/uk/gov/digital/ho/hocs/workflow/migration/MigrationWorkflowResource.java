@@ -26,7 +26,7 @@ class MigrationWorkflowResource {
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "migration/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<MigrationCreateCaseResponse> createCase(@RequestBody MigrationCreateCaseRequest request) {
-        MigrationCreateCaseResponse response = workflowService.createCase(request.getType(), request.getCaseReference(), request.getDateReceived(), request.getCaseDeadline(), request.getData(), request.getTopic(), request.getStartMessage(), request.getNotes());
+        MigrationCreateCaseResponse response = workflowService.createCase(request.getType(), request.getCaseReference(), request.getDateReceived(), request.getCaseDeadline(), request.getData(), request.getTopic(), request.getStartMessage(), request.getNotes(), request.getTotalsListName());
         return ResponseEntity.ok(response);
     }
 

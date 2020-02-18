@@ -29,4 +29,7 @@ public class MigrationCreateCaseworkCaseRequest {
 
     @JsonProperty("notes")
     private List<String> notes;
+
+    @JsonProperty("totalsListName")
+    private String totalsListName;
 }

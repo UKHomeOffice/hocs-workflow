@@ -35,8 +35,8 @@ public class MigrationCaseworkClient {
         this.requestData = requestData;
     }
 
-    public CreateCaseworkCaseResponse createCase(String caseDataType, String caseReference, Map<String, String> data, LocalDate dateReceived, LocalDate deadline, List<String> notes) {
-        MigrationCreateCaseworkCaseRequest request = new MigrationCreateCaseworkCaseRequest(caseDataType, caseReference, data, dateReceived, deadline, notes);
+    public CreateCaseworkCaseResponse createCase(String caseDataType, String caseReference, Map<String, String> data, LocalDate dateReceived, LocalDate deadline, List<String> notes, String totalsListName) {
+        MigrationCreateCaseworkCaseRequest request = new MigrationCreateCaseworkCaseRequest(caseDataType, caseReference, data, dateReceived, deadline, notes, totalsListName);
         CreateCaseworkCaseResponse response = restHelper.post(serviceBaseURL, "/migration/case", request, CreateCaseworkCaseResponse.class);
         log.info("Created Case {}, {}", response.getUuid(), response.getReference(), value(EVENT, CREATE_CASE_SUCCESS));
         return response;
