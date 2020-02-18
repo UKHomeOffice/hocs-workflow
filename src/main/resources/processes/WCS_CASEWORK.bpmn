@@ -21,9 +21,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:endEvent id="EndEvent_WCS_Casework">
       <bpmn:incoming>SequenceFlow_0rybsnw</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1iyvbdk</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0ml5488</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1obajbu</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1uspu75</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0ve654z" sourceRef="ServiceTask_0wxd7w9" targetRef="UserTask_1io32ei" />
     <bpmn:sequenceFlow id="SequenceFlow_1hw2b1i" sourceRef="UserTask_1io32ei" targetRef="ExclusiveGateway_1x4et4d" />
@@ -39,8 +37,8 @@
       <bpmn:outgoing>SequenceFlow_1fwbht4</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0qe82i4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_0rybsnw" name="QA or OnHold" sourceRef="ExclusiveGateway_0a3jjie" targetRef="EndEvent_WCS_Casework">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CaseworkStatus == "QA" || CaseworkStatus == "OnHold"}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="SequenceFlow_0rybsnw" name="OnHold" sourceRef="ExclusiveGateway_0a3jjie" targetRef="EndEvent_WCS_Casework">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CaseworkStatus == "OnHold"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1fwbht4" name="Pending" sourceRef="ExclusiveGateway_0oard87" targetRef="ServiceTask_0wxd7w9">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CaseworkStatus == "Pending"}</bpmn:conditionExpression>
@@ -84,7 +82,7 @@
       <bpmn:outgoing>SequenceFlow_01lx9b7</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_055s5vs</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1iyvbdk" sourceRef="ServiceTask_1gikob2" targetRef="EndEvent_WCS_Casework" />
+    <bpmn:sequenceFlow id="SequenceFlow_1iyvbdk" sourceRef="ServiceTask_1gikob2" targetRef="ServiceTask_0ayflrd" />
     <bpmn:serviceTask id="ServiceTask_0qauiak" name="Return to Eligibility Details" camunda:expression="WCS_CASEWORK_RTN_ELIGIBILITY" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_0pamzdh</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1rgeatr</bpmn:incoming>
@@ -134,7 +132,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0813lgp" name="true" sourceRef="ExclusiveGateway_08x2ojg" targetRef="ServiceTask_15i6ffe">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0ml5488" sourceRef="ServiceTask_15i6ffe" targetRef="EndEvent_WCS_Casework" />
+    <bpmn:sequenceFlow id="SequenceFlow_0ml5488" sourceRef="ServiceTask_15i6ffe" targetRef="ServiceTask_0ayflrd" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1ngf16s" name="Payment?">
       <bpmn:incoming>SequenceFlow_06v323r</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1yrcv3q</bpmn:incoming>
@@ -185,6 +183,7 @@
       <bpmn:incoming>SequenceFlow_0qe82i4</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0rybsnw</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0ll2jrl</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0hpbko9</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0ez3iwl" sourceRef="ExclusiveGateway_1iaeyry" targetRef="ExclusiveGateway_0a3jjie">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CaseworkStatus != "Pending"}</bpmn:conditionExpression>
@@ -237,7 +236,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_05ovy89" name="ReturnTo Triage" sourceRef="ExclusiveGateway_1jrhb8d" targetRef="ServiceTask_1fpxv67">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CaseworkStatus == "ReturnToTriage"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1obajbu" sourceRef="ServiceTask_1ner8zr" targetRef="EndEvent_WCS_Casework" />
+    <bpmn:sequenceFlow id="SequenceFlow_1obajbu" sourceRef="ServiceTask_1ner8zr" targetRef="ServiceTask_0ayflrd" />
     <bpmn:sequenceFlow id="SequenceFlow_0o782qo" sourceRef="ExclusiveGateway_05bbtoz" targetRef="ExclusiveGateway_1ngf16s">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -246,6 +245,17 @@
       <bpmn:outgoing>SequenceFlow_1sxqxm2</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1sxqxm2" sourceRef="ServiceTask_09ylecz" targetRef="ExclusiveGateway_1iaeyry" />
+    <bpmn:serviceTask id="ServiceTask_0ayflrd" name="Clear Brought Forward date" camunda:expression="${bpmnService.updateCaseValue(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;BFDate&#34;,&#34;&#34;)}">
+      <bpmn:incoming>SequenceFlow_1iyvbdk</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0ml5488</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1obajbu</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0hpbko9</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1uspu75</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1uspu75" sourceRef="ServiceTask_0ayflrd" targetRef="EndEvent_WCS_Casework" />
+    <bpmn:sequenceFlow id="SequenceFlow_0hpbko9" name="QA" sourceRef="ExclusiveGateway_0a3jjie" targetRef="ServiceTask_0ayflrd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CaseworkStatus == "QA"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="WCS_CASEWORK">
@@ -265,7 +275,7 @@
         <dc:Bounds x="552" y="263" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1lxj6d3_di" bpmnElement="EndEvent_WCS_Casework">
-        <dc:Bounds x="1705" y="456" width="36" height="36" />
+        <dc:Bounds x="1705" y="270" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0ve654z_di" bpmnElement="SequenceFlow_0ve654z">
         <di:waypoint x="440" y="241" />
@@ -299,10 +309,11 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0rybsnw_di" bpmnElement="SequenceFlow_0rybsnw">
-        <di:waypoint x="1001" y="474" />
-        <di:waypoint x="1705" y="474" />
+        <di:waypoint x="976" y="449" />
+        <di:waypoint x="976" y="288" />
+        <di:waypoint x="1705" y="288" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1091" y="443" width="70" height="14" />
+          <dc:Bounds x="981" y="406" width="38" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1fwbht4_di" bpmnElement="SequenceFlow_1fwbht4">
@@ -369,7 +380,7 @@
       <bpmndi:BPMNEdge id="SequenceFlow_1iyvbdk_di" bpmnElement="SequenceFlow_1iyvbdk">
         <di:waypoint x="1641" y="729" />
         <di:waypoint x="1723" y="729" />
-        <di:waypoint x="1723" y="492" />
+        <di:waypoint x="1723" y="514" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_0qauiak_di" bpmnElement="ServiceTask_0qauiak">
         <dc:Bounds x="1144" y="1116" width="100" height="80" />
@@ -453,7 +464,7 @@
       <bpmndi:BPMNEdge id="SequenceFlow_0ml5488_di" bpmnElement="SequenceFlow_0ml5488">
         <di:waypoint x="1641" y="1073" />
         <di:waypoint x="1723" y="1073" />
-        <di:waypoint x="1723" y="492" />
+        <di:waypoint x="1723" y="514" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ExclusiveGateway_1ngf16s_di" bpmnElement="ExclusiveGateway_1ngf16s" isMarkerVisible="true">
         <dc:Bounds x="276" y="567" width="50" height="50" />
@@ -524,7 +535,7 @@
       <bpmndi:BPMNShape id="ExclusiveGateway_0a3jjie_di" bpmnElement="ExclusiveGateway_0a3jjie" isMarkerVisible="true">
         <dc:Bounds x="951" y="449" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="957" y="425" width="38" height="14" />
+          <dc:Bounds x="903" y="467" width="38" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0ez3iwl_di" bpmnElement="SequenceFlow_0ez3iwl">
@@ -609,13 +620,27 @@
       <bpmndi:BPMNEdge id="SequenceFlow_1obajbu_di" bpmnElement="SequenceFlow_1obajbu">
         <di:waypoint x="1641" y="1405" />
         <di:waypoint x="1723" y="1405" />
-        <di:waypoint x="1723" y="492" />
+        <di:waypoint x="1723" y="514" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0o782qo_di" bpmnElement="SequenceFlow_0o782qo">
         <di:waypoint x="1349" y="1289" />
         <di:waypoint x="1349" y="1239" />
         <di:waypoint x="301" y="1239" />
         <di:waypoint x="301" y="617" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0ayflrd_di" bpmnElement="ServiceTask_0ayflrd">
+        <dc:Bounds x="1673" y="434" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1uspu75_di" bpmnElement="SequenceFlow_1uspu75">
+        <di:waypoint x="1723" y="434" />
+        <di:waypoint x="1723" y="306" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0hpbko9_di" bpmnElement="SequenceFlow_0hpbko9">
+        <di:waypoint x="1001" y="474" />
+        <di:waypoint x="1673" y="474" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1019" y="457" width="16" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
