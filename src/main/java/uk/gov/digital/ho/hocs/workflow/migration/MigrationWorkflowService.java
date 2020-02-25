@@ -42,12 +42,19 @@ public class MigrationWorkflowService {
         this.camundaClient = camundaClient;
     }
 
-    MigrationCreateCaseResponse createCase(String caseDataType, String caseReference, LocalDate dateReceived, LocalDate caseDeadline, Map<String, String> data, UUID topicUUID, String startMessage, List<String> notes, String totalsListName) {
+    MigrationCreateCaseResponse createCase(MigrationCreateCaseRequest request) {
+        String caseDataType = request.getType();
+        String caseReference = request.getCaseReference();
+        LocalDate dateReceived = request.getDateReceived();
+        LocalDate caseDeadline = request.getCaseDeadline();
+        Map<String, String> data = request.getData();
+        String startMessage = request.getStartMessage();
 
         log.info("Migration - Create Case Ref: '{}'", caseReference, value(EVENT, MIGRATION_EVENT));
         // Create a case in the casework service in order to get a reference back to display to the user.
         data.put("DateReceived", dateReceived.toString());
-        CreateCaseworkCaseResponse caseResponse = migrationCaseworkClient.createCase(caseDataType, caseReference, data, dateReceived, caseDeadline, notes, totalsListName);
+        MigrationCreateCaseworkCaseRequest createCaseworkCaseRequest = new MigrationCreateCaseworkCaseRequest(caseDataType, caseReference, request.getData(), request.getCaseCreated(), dateReceived, caseDeadline, request.getNotes(), request.getTotalsListName());
+        CreateCaseworkCaseResponse caseResponse = migrationCaseworkClient.createCase(createCaseworkCaseRequest);
         UUID caseUUID = caseResponse.getUuid();
         Map<String, String> seedData;
         if (caseUUID != null) {
@@ -55,7 +62,7 @@ public class MigrationWorkflowService {
             // Start a new camunda workflow (caseUUID is the business key).
             seedData = new HashMap<>();
             seedData.put("CaseReference", caseResponse.getReference());
-            seedData.put("Topics", String.valueOf(topicUUID));
+            seedData.put("Topics", String.valueOf(request.getTopic()));
             seedData.put("CopyNumberTen", String.valueOf(data.get("CopyNumberTen")).toUpperCase());
             seedData.putAll(data);
 

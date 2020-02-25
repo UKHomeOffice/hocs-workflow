@@ -8,6 +8,7 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseRequestInterface;
 import uk.gov.digital.ho.hocs.workflow.api.dto.DocumentSummary;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,6 +26,9 @@ public class MigrationCreateCaseRequest implements CreateCaseRequestInterface {
 
     @JsonProperty("startMessage")
     private String startMessage;
+
+    @JsonProperty("caseCreated")
+    private LocalDateTime caseCreated;
 
     @JsonProperty("dateReceived")
     private LocalDate dateReceived;
