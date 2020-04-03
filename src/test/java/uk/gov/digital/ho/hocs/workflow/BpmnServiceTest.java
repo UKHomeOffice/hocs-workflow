@@ -57,6 +57,18 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shoudUpdateDeadlineDays(){
+        doNothing().when(caseworkClient).updateDeadlineDays(UUID.fromString(caseUUID), UUID.fromString(stageUUID), 123);
+
+        bpmnService.updateDeadlineDays(caseUUID, stageUUID, "123");
+
+        verify(caseworkClient).updateDeadlineDays(UUID.fromString(caseUUID), UUID.fromString(stageUUID), 123);
+        verifyNoMoreInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
     public void shouldNotUpdateDataNoNewTeams() {
         bpmnService.updateTeamSelection(caseUUID, stageUUID, null, null);
 
