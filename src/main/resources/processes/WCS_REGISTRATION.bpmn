@@ -140,7 +140,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_16z7ljl" sourceRef="ExclusiveGateway_1hf373z" targetRef="ExclusiveGateway_1lw6h1f">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0czqdrd" name="Yes/No" sourceRef="ExclusiveGateway_1lw6h1f" targetRef="ServiceTask_17u2ryx">
+    <bpmn:sequenceFlow id="SequenceFlow_0czqdrd" name="Yes/No" sourceRef="ExclusiveGateway_1lw6h1f" targetRef="ServiceTask_1fdrgwy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${IdentityConfirmed == "Yes" || IdentityConfirmed == "No"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0am6ihb" name="Identity Confirmed?">
@@ -151,7 +151,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_1b6ph2l" name="No" sourceRef="ExclusiveGateway_0am6ihb" targetRef="ServiceTask_05qi3oc">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${IdentityConfirmed == "No"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1mul79x" name="Yes" sourceRef="ExclusiveGateway_0am6ihb" targetRef="ServiceTask_17u2ryx">
+    <bpmn:sequenceFlow id="SequenceFlow_1mul79x" name="Yes" sourceRef="ExclusiveGateway_0am6ihb" targetRef="ServiceTask_1fdrgwy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${IdentityConfirmed == "Yes"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_054cfhy" name="Update Eligibility Check (TF)" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;EligibilityConfirmed&#34;,&#34;Yes&#34;)}">
@@ -203,9 +203,8 @@
     <bpmn:sequenceFlow id="SequenceFlow_1bsne6s" sourceRef="UserTask_0nsm1lc" targetRef="ExclusiveGateway_004qz1g" />
     <bpmn:serviceTask id="ServiceTask_17u2ryx" name="Clear Brought Forward date" camunda:expression="${bpmnService.updateCaseValue(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;BFDate&#34;,&#34;&#34;)}">
       <bpmn:incoming>SequenceFlow_065ejg5</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0czqdrd</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1mul79x</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0261dbw</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_19dq4sg</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0keyu2i</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_0keyu2i" sourceRef="ServiceTask_17u2ryx" targetRef="EndEvent_WCS_Registration" />
@@ -258,6 +257,12 @@
     <bpmn:sequenceFlow id="SequenceFlow_1u1pkiz" name="SendToTriage" sourceRef="ExclusiveGateway_004xh3y" targetRef="ServiceTask_054cfhy">
       <bpmn:documentation>${RegistrationNextTeamOutput == "SendToTriage"}</bpmn:documentation>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="ServiceTask_1fdrgwy" name="Assign - RegistrationNextTeamOutput" camunda:expression="SendToEligibility" camunda:resultVariable="RegistrationNextTeamOutput">
+      <bpmn:incoming>SequenceFlow_1mul79x</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0czqdrd</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_19dq4sg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_19dq4sg" sourceRef="ServiceTask_1fdrgwy" targetRef="ServiceTask_17u2ryx" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="WCS_REGISTRATION">
@@ -460,7 +465,7 @@
       <bpmndi:BPMNEdge id="SequenceFlow_0czqdrd_di" bpmnElement="SequenceFlow_0czqdrd">
         <di:waypoint x="1344" y="1170" />
         <di:waypoint x="1666" y="1170" />
-        <di:waypoint x="1666" y="521" />
+        <di:waypoint x="1666" y="705" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1367" y="1186" width="36" height="14" />
         </bpmndi:BPMNLabel>
@@ -481,7 +486,7 @@
       <bpmndi:BPMNEdge id="SequenceFlow_1mul79x_di" bpmnElement="SequenceFlow_1mul79x">
         <di:waypoint x="1117" y="801" />
         <di:waypoint x="1666" y="801" />
-        <di:waypoint x="1666" y="521" />
+        <di:waypoint x="1666" y="705" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1190" y="784" width="18" height="14" />
         </bpmndi:BPMNLabel>
@@ -643,6 +648,13 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1401" y="250" width="69" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1fdrgwy_di" bpmnElement="ServiceTask_1fdrgwy">
+        <dc:Bounds x="1616" y="625" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_19dq4sg_di" bpmnElement="SequenceFlow_19dq4sg">
+        <di:waypoint x="1666" y="625" />
+        <di:waypoint x="1666" y="521" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
