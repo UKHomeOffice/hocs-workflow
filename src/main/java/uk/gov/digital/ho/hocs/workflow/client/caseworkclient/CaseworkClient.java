@@ -114,7 +114,6 @@ public class CaseworkClient {
 
     public Map<String, String> updateTeamByStageAndTexts(UUID caseUUID, UUID stageUUID, String stageType, String teamUUIDKey, String teamNameKey, String[] texts) {
         UpdateCaseworkTeamStageTextRequest request = new UpdateCaseworkTeamStageTextRequest(caseUUID, stageUUID, stageType, teamUUIDKey, teamNameKey, texts);
-        String test = String.format("/case/%s/stage/%s/teamTexts", caseUUID, stageUUID);
         UpdateCaseworkTeamStageTextResponse response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/teamTexts", caseUUID, stageUUID), request, UpdateCaseworkTeamStageTextResponse.class);
         log.info("Updated Team {} on Stage: {} for Case {}", teamNameKey, stageUUID, caseUUID);
         return response.getTeamMap();
