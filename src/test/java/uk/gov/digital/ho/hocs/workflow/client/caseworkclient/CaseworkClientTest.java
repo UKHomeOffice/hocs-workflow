@@ -91,7 +91,6 @@ public class CaseworkClientTest {
     public void updateTeamByStageAndTexts(){
         String[] texts = { "Text1", "Text2" };
         String expectedUrl = String.format("/case/%s/stage/%s/teamTexts", caseUUID, stageUUID);
-        UpdateCaseworkTeamStageTextRequest expectedBody = new UpdateCaseworkTeamStageTextRequest(caseUUID, stageUUID, stageType, "teamUUIDKey", "teamNameKey", texts);
         UpdateCaseworkTeamStageTextResponse response = new UpdateCaseworkTeamStageTextResponse();
         when(restHelper.put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class), eq(UpdateCaseworkTeamStageTextResponse.class)))
                 .thenReturn(response);
