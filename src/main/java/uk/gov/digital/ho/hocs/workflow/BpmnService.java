@@ -159,6 +159,17 @@ public class BpmnService {
         log.debug("######## Updated Team Selection at PO ########");
     }
 
+    public void updateTeamByStageAndTexts(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDKey, String teamNameKey, String... texts) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        Map<String, String> teamForText = caseworkClient.updateTeamByStageAndTexts(caseUUID, stageUUID, stageType, teamUUIDKey, teamNameKey, texts);
+        camundaClient.updateTask(stageUUID, teamForText);
+        caseworkClient.updateCase(caseUUID, stageUUID, teamForText);
+
+        log.debug("######## Updated Team For Stage And Text ########");
+    }
+
     public void updateValue(String caseUUIDString, String stageUUIDString, String key, String value) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
