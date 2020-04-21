@@ -5,16 +5,22 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.RecreateCaseworkStageRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkStageUserRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkTeamStageTextRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkTeamStageTextResponse;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class CaseworkClientTest {
@@ -47,6 +53,16 @@ public class CaseworkClientTest {
     }
 
     @Test
+    public void updateDeadlineDays(){
+        String expectedUrl = String.format("/case/%s/stage/%s/deadline", caseUUID, stageUUID);
+
+        caseworkClient.updateDeadlineDays(caseUUID, stageUUID, 123);
+
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(123), eq(Void.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
     public void updateStageUser(){
         String expectedUrl = String.format("/case/%s/stage/%s/user", caseUUID, stageUUID);
         UpdateCaseworkStageUserRequest expectedBody = new UpdateCaseworkStageUserRequest(userUUID);
@@ -69,5 +85,19 @@ public class CaseworkClientTest {
 
         verifyNoMoreInteractions(restHelper);
 
+    }
+
+    @Test
+    public void updateTeamByStageAndTexts(){
+        String[] texts = { "Text1", "Text2" };
+        String expectedUrl = String.format("/case/%s/stage/%s/teamTexts", caseUUID, stageUUID);
+        UpdateCaseworkTeamStageTextResponse response = new UpdateCaseworkTeamStageTextResponse();
+        when(restHelper.put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class), eq(UpdateCaseworkTeamStageTextResponse.class)))
+                .thenReturn(response);
+
+        caseworkClient.updateTeamByStageAndTexts(caseUUID, stageUUID, stageType, "teamUUIDKey", "teamNameKey", texts);
+
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class), eq(UpdateCaseworkTeamStageTextResponse.class));
+        verifyNoMoreInteractions(restHelper);
     }
 }

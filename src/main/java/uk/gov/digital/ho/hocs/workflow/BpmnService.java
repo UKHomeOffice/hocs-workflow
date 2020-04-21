@@ -75,6 +75,13 @@ public class BpmnService {
         caseworkClient.updateDateReceived(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), LocalDate.parse(dateReceived));
     }
 
+    public void updateDeadlineDays(String caseUUIDString, String stageUUIDString, String daysString){
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        int days = Integer.parseInt(daysString);
+        caseworkClient.updateDeadlineDays(caseUUID, stageUUID, days);
+    }
+
     public void updatePrimaryCorrespondent(String caseUUIDString, String stageUUIDString, String correspondentUUIDString) {
         caseworkClient.updatePrimaryCorrespondent(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(correspondentUUIDString));
         log.info("Updated Primary Correspondent for Case {}", caseUUIDString);
@@ -150,6 +157,17 @@ public class BpmnService {
         }
 
         log.debug("######## Updated Team Selection at PO ########");
+    }
+
+    public void updateTeamByStageAndTexts(String caseUUIDString, String stageUUIDString, String stageType, String teamUUIDKey, String teamNameKey, String... texts) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        Map<String, String> teamForText = caseworkClient.updateTeamByStageAndTexts(caseUUID, stageUUID, stageType, teamUUIDKey, teamNameKey, texts);
+        camundaClient.updateTask(stageUUID, teamForText);
+        caseworkClient.updateCase(caseUUID, stageUUID, teamForText);
+
+        log.debug("######## Updated Team For Stage And Text ########");
     }
 
     public void updateValue(String caseUUIDString, String stageUUIDString, String key, String value) {

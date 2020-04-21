@@ -11,6 +11,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
@@ -51,6 +52,18 @@ public class BpmnServiceTest {
         bpmnService.calculateTotals(caseUUID, stageUUID, "list");
 
         verify(caseworkClient).calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list");
+        verifyNoMoreInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shoudUpdateDeadlineDays(){
+        doNothing().when(caseworkClient).updateDeadlineDays(UUID.fromString(caseUUID), UUID.fromString(stageUUID), 123);
+
+        bpmnService.updateDeadlineDays(caseUUID, stageUUID, "123");
+
+        verify(caseworkClient).updateDeadlineDays(UUID.fromString(caseUUID), UUID.fromString(stageUUID), 123);
         verifyNoMoreInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
@@ -123,6 +136,32 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
         verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
 
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldUpdateTeamByStageAndTexts(){
+
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        Map<String, String> teamForText = new HashMap<>();
+        teamForText.put("key", "value");
+        when(caseworkClient.updateTeamByStageAndTexts(
+                eq(caseUUID), eq(stageUUID), eq("stageType"), eq("teamUUIDKey"), eq("teamNameKey"), any()))
+            .thenReturn(teamForText);
+        doNothing().when(camundaClient).updateTask(eq(stageUUID), any());
+        doNothing().when(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), any());
+
+        bpmnService.updateTeamByStageAndTexts(
+                caseUUID.toString(), stageUUID.toString(), "stageType", "teamUUIDKey", "teamNameKey",
+                "Text1", "Text2", "Text3");
+
+        verify(caseworkClient).updateTeamByStageAndTexts(
+                eq(caseUUID), eq(stageUUID), eq("stageType"), eq("teamUUIDKey"), eq("teamNameKey"), any());
+        verify(camundaClient, times(1)).updateTask(eq(stageUUID), any());
+        verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);

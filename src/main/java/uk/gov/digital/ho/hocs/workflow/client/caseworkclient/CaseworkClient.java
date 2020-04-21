@@ -58,6 +58,11 @@ public class CaseworkClient {
         log.info("Set Date Received for Case {}", caseUUID);
     }
 
+    public void updateDeadlineDays(UUID caseUUID, UUID stageUUID, int days){
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/deadline", caseUUID, stageUUID), days, Void.class);
+        log.info("Set Date Received for Case {} to {} days", caseUUID, days);
+    }
+
     public void updatePrimaryCorrespondent(UUID caseUUID, UUID stageUUID, UUID primaryCorrespondent) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID), primaryCorrespondent, Void.class);
         log.info("Set Primary Correspondent for Case {}", caseUUID);
@@ -105,6 +110,13 @@ public class CaseworkClient {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), request, Void.class);
         log.info("Updated Team {} on Stage: {} for Case {}", teamUUID, stageUUID, caseUUID);
         return teamUUID;
+    }
+
+    public Map<String, String> updateTeamByStageAndTexts(UUID caseUUID, UUID stageUUID, String stageType, String teamUUIDKey, String teamNameKey, String[] texts) {
+        UpdateCaseworkTeamStageTextRequest request = new UpdateCaseworkTeamStageTextRequest(caseUUID, stageUUID, stageType, teamUUIDKey, teamNameKey, texts);
+        UpdateCaseworkTeamStageTextResponse response = restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/teamTexts", caseUUID, stageUUID), request, UpdateCaseworkTeamStageTextResponse.class);
+        log.info("Updated Team {} on Stage: {} for Case {}", teamNameKey, stageUUID, caseUUID);
+        return response.getTeamMap();
     }
 
     public void updateStageUser(UUID caseUUID, UUID stageUUID, UUID userUUID) {
