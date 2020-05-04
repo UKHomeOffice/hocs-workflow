@@ -39,4 +39,5 @@ cd kd
 kd --insecure-skip-tls-verify \
    --timeout 15m \
     -f deployment.yaml \
-    -f service.yaml
+    -f service.yaml \
+    -f autoscale.yaml
