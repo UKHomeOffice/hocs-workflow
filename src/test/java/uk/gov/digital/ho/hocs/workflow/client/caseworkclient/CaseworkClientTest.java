@@ -5,18 +5,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.RecreateCaseworkStageRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkStageUserRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkTeamStageTextRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkTeamStageTextResponse;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -43,7 +41,7 @@ public class CaseworkClientTest {
     }
 
     @Test
-    public void calculateTotals(){
+    public void calculateTotals() {
         String expectedUrl = String.format("/case/%s/stage/%s/calculateTotals", caseUUID, stageUUID);
 
         caseworkClient.calculateTotals(caseUUID, stageUUID, "list");
@@ -53,7 +51,7 @@ public class CaseworkClientTest {
     }
 
     @Test
-    public void updateDeadlineDays(){
+    public void updateDeadlineDays() {
         String expectedUrl = String.format("/case/%s/stage/%s/deadline", caseUUID, stageUUID);
 
         caseworkClient.updateDeadlineDays(caseUUID, stageUUID, 123);
@@ -63,7 +61,7 @@ public class CaseworkClientTest {
     }
 
     @Test
-    public void updateStageUser(){
+    public void updateStageUser() {
         String expectedUrl = String.format("/case/%s/stage/%s/user", caseUUID, stageUUID);
         UpdateCaseworkStageUserRequest expectedBody = new UpdateCaseworkStageUserRequest(userUUID);
 
@@ -75,7 +73,7 @@ public class CaseworkClientTest {
     }
 
     @Test
-    public void recreateStage(){
+    public void recreateStage() {
         String expectedUrl = String.format("/case/%s/stage/%s/recreate", caseUUID, stageUUID);
         RecreateCaseworkStageRequest expectedBody = new RecreateCaseworkStageRequest(stageUUID, stageType);
 
@@ -88,8 +86,8 @@ public class CaseworkClientTest {
     }
 
     @Test
-    public void updateTeamByStageAndTexts(){
-        String[] texts = { "Text1", "Text2" };
+    public void updateTeamByStageAndTexts() {
+        String[] texts = {"Text1", "Text2"};
         String expectedUrl = String.format("/case/%s/stage/%s/teamTexts", caseUUID, stageUUID);
         UpdateCaseworkTeamStageTextResponse response = new UpdateCaseworkTeamStageTextResponse();
         when(restHelper.put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class), eq(UpdateCaseworkTeamStageTextResponse.class)))
@@ -98,6 +96,58 @@ public class CaseworkClientTest {
         caseworkClient.updateTeamByStageAndTexts(caseUUID, stageUUID, stageType, "teamUUIDKey", "teamNameKey", texts);
 
         verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class), eq(UpdateCaseworkTeamStageTextResponse.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void getStageUser() {
+        UUID expectedResult = UUID.randomUUID();
+        String expectedUrl = String.format("/case/%s/stage/%s/user", caseUUID, stageUUID);
+        when(restHelper.get(eq(caseServiceUrl), eq(expectedUrl), eq(UUID.class))).thenReturn(expectedResult);
+
+        UUID result = caseworkClient.getStageUser(caseUUID, stageUUID);
+
+        assertThat(result).isEqualTo(result);
+        verify(restHelper).get(eq(caseServiceUrl), eq(expectedUrl), eq(UUID.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void getStageTeam() {
+        UUID expectedResult = UUID.randomUUID();
+        String expectedUrl = String.format("/case/%s/stage/%s/team", caseUUID, stageUUID);
+        when(restHelper.get(eq(caseServiceUrl), eq(expectedUrl), eq(UUID.class))).thenReturn(expectedResult);
+
+        UUID result = caseworkClient.getStageTeam(caseUUID, stageUUID);
+
+        assertThat(result).isEqualTo(result);
+        verify(restHelper).get(eq(caseServiceUrl), eq(expectedUrl), eq(UUID.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void getDataValue() {
+        String variableName = "TestVariable";
+        String expectedValue = "TestValue";
+        String expectedUrl = String.format("/case/%s/data/%s", caseUUID, variableName);
+        when(restHelper.get(eq(caseServiceUrl), eq(expectedUrl), eq(String.class))).thenReturn(expectedValue);
+
+        String result = caseworkClient.getDataValue(caseUUID.toString(), variableName);
+
+        assertThat(result).isEqualTo(result);
+        verify(restHelper).get(eq(caseServiceUrl), eq(expectedUrl), eq(String.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void updateDataValue() {
+        String variableName = "TestVariable";
+        String newValue = "TestValue";
+        String expectedUrl = String.format("/case/%s/data/%s", caseUUID, variableName);
+
+        caseworkClient.updateDataValue(caseUUID.toString(), variableName, newValue);
+
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(newValue), eq(Void.class));
         verifyNoMoreInteractions(restHelper);
     }
 }
