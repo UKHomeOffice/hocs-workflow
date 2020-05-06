@@ -8,6 +8,7 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -235,5 +236,22 @@ public class BpmnService {
         }
 
     }
+
+    public void updateCount(String caseUUID, String variableName, int additive){
+
+        String dataValue = caseworkClient.getDataValue(caseUUID, variableName);
+
+        int updatedValue;
+        if(StringUtils.hasText(dataValue)){
+            updatedValue = NumberUtils.parseInt(dataValue) + additive;
+        }else{
+            updatedValue = additive;
+        }
+
+        caseworkClient.updateDataValue(caseUUID, variableName, String.valueOf(updatedValue));
+
+    }
+
+
 
 }
