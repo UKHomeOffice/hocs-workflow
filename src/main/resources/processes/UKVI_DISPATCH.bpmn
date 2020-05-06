@@ -7,6 +7,7 @@
     <bpmn:serviceTask id="ServiceTask_0b4g59e" name="User Input" camunda:expression="UKVI_DISPATCH_INPUT" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_00y2poj</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1xm6hds</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1q3ar1f</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1aqlt9g</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="UserTask_0lu66xh" name="Validate User Input">
@@ -19,17 +20,28 @@
       <bpmn:outgoing>SequenceFlow_16rbk3g</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:endEvent id="EndEvent_1twktcd" name="End Stage">
-      <bpmn:incoming>SequenceFlow_16rbk3g</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_10lr0eq</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_00y2poj" name="false" sourceRef="ExclusiveGateway_0qhopqu" targetRef="ServiceTask_0b4g59e">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1aqlt9g" sourceRef="ServiceTask_0b4g59e" targetRef="UserTask_0lu66xh" />
     <bpmn:sequenceFlow id="SequenceFlow_07a9jvv" sourceRef="UserTask_0lu66xh" targetRef="ExclusiveGateway_0qhopqu" />
-    <bpmn:sequenceFlow id="SequenceFlow_16rbk3g" sourceRef="ExclusiveGateway_0qhopqu" targetRef="EndEvent_1twktcd">
+    <bpmn:sequenceFlow id="SequenceFlow_16rbk3g" sourceRef="ExclusiveGateway_0qhopqu" targetRef="ExclusiveGateway_1tbni0t">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1xm6hds" sourceRef="StartEvent_1" targetRef="ServiceTask_0b4g59e" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1tbni0t" name="DispatchStatus?">
+      <bpmn:incoming>SequenceFlow_16rbk3g</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_10lr0eq</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1q3ar1f</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_10lr0eq" sourceRef="ExclusiveGateway_1tbni0t" targetRef="EndEvent_1twktcd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchStatus != "Pending"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1q3ar1f" name="Pending" sourceRef="ExclusiveGateway_1tbni0t" targetRef="ServiceTask_0b4g59e">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchStatus == "Pending"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="UKVI_DISPATCH">
@@ -70,11 +82,29 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_16rbk3g_di" bpmnElement="SequenceFlow_16rbk3g">
         <di:waypoint x="640" y="204" />
-        <di:waypoint x="831" y="204" />
+        <di:waypoint x="704" y="204" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1xm6hds_di" bpmnElement="SequenceFlow_1xm6hds">
         <di:waypoint x="215" y="121" />
         <di:waypoint x="385" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1tbni0t_di" bpmnElement="ExclusiveGateway_1tbni0t" isMarkerVisible="true">
+        <dc:Bounds x="704" y="179" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="690" y="236" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_10lr0eq_di" bpmnElement="SequenceFlow_10lr0eq">
+        <di:waypoint x="754" y="204" />
+        <di:waypoint x="831" y="204" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1q3ar1f_di" bpmnElement="SequenceFlow_1q3ar1f">
+        <di:waypoint x="729" y="179" />
+        <di:waypoint x="729" y="121" />
+        <di:waypoint x="485" y="121" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="708" y="103" width="41" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
