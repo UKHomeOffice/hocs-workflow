@@ -284,4 +284,49 @@ public class BpmnServiceTest {
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
 
     }
+
+    @Test
+    public void updateCount_nullValue(){
+        String variableName = "testVariableName";
+        int additive = 1;
+
+        when(caseworkClient.getDataValue(caseUUID, variableName)).thenReturn(null);
+
+        bpmnService.updateCount(caseUUID, variableName, additive);
+
+        verify(caseworkClient).getDataValue(caseUUID, variableName);
+        verify(caseworkClient).updateDataValue(caseUUID, variableName, "1");
+
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
+
+    @Test
+    public void updateCount_zeroValue(){
+        String variableName = "testVariableName";
+        int additive = 1;
+
+        when(caseworkClient.getDataValue(caseUUID, variableName)).thenReturn("0");
+
+        bpmnService.updateCount(caseUUID, variableName, additive);
+
+        verify(caseworkClient).getDataValue(caseUUID, variableName);
+        verify(caseworkClient).updateDataValue(caseUUID, variableName, "1");
+
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
+
+    @Test
+    public void updateCount_nonZeroValue_negativeAdditive(){
+        String variableName = "testVariableName";
+        int additive = -3;
+
+        when(caseworkClient.getDataValue(caseUUID, variableName)).thenReturn("5");
+
+        bpmnService.updateCount(caseUUID, variableName, additive);
+
+        verify(caseworkClient).getDataValue(caseUUID, variableName);
+        verify(caseworkClient).updateDataValue(caseUUID, variableName, "2");
+
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
 }

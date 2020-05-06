@@ -137,4 +137,15 @@ public class CaseworkClient {
         log.info("Got Team Stage: {} for Case: {}", stageUUID, caseUUID);
         return response;
     }
+
+    public String getDataValue(String caseUUID, String variableName) {
+        String response = restHelper.get(serviceBaseURL, String.format("/case/%s/data/%s", caseUUID, variableName), String.class);
+        log.info("Got {} value: {} for Case: {}", variableName, response, caseUUID);
+        return response;
+    }
+
+    public void updateDataValue(String caseUUID, String variableName, String value) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/data/%s", caseUUID, variableName), value, Void.class);
+        log.info("Updated {} value: {} for Case: {}", variableName, value, caseUUID);
+    }
 }
