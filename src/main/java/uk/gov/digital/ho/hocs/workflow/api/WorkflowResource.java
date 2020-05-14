@@ -47,14 +47,14 @@ class WorkflowResource {
     @Allocated(allocatedTo = AllocationLevel.USER)
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> updateStageForward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
-        workflowService.updateStage(caseUUID, stageUUID, request.getData(), Direction.FORWARD, userUUID);
+        workflowService.updateStage(caseUUID, stageUUID, request.getData(), Direction.FORWARD.getValue(), userUUID);
         return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
 
     @Allocated(allocatedTo = AllocationLevel.USER)
-    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/back", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> updateStageBackward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
-        workflowService.updateStage(caseUUID, stageUUID, new HashMap<>(), Direction.BACKWARD, userUUID);
+    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/direction/{flowDirection}", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetStageResponse> updateStageWithDirection(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @PathVariable String flowDirection, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
+        workflowService.updateStage(caseUUID, stageUUID, new HashMap<>(), flowDirection, userUUID);
         return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
 

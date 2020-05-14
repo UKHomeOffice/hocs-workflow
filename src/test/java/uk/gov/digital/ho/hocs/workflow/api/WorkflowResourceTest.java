@@ -49,7 +49,7 @@ public class WorkflowResourceTest {
         assertThat(result).isNotNull();
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
         assertThat(result.getBody()).isEqualTo(mockStageResponse);
-        verify(workflowService).updateStage(caseUUID, stageUUID, data, Direction.FORWARD, userUUID);
+        verify(workflowService).updateStage(caseUUID, stageUUID, data, Direction.FORWARD.getValue(), userUUID);
         verify(workflowService).getStage(caseUUID, stageUUID);
         verifyNoMoreInteractions(workflowService);
 
@@ -68,12 +68,36 @@ public class WorkflowResourceTest {
 
         when(workflowService.getStage(caseUUID, stageUUID)).thenReturn(mockStageResponse);
 
-        ResponseEntity<GetStageResponse> result = workflowResource.updateStageBackward(caseUUID, stageUUID, userUUID);
+        ResponseEntity<GetStageResponse> result = workflowResource.updateStageWithDirection(caseUUID, stageUUID, Direction.BACKWARD.getValue(), userUUID);
 
         assertThat(result).isNotNull();
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
         assertThat(result.getBody()).isEqualTo(mockStageResponse);
-        verify(workflowService).updateStage(caseUUID, stageUUID, new HashMap<>(), Direction.BACKWARD, userUUID);
+        verify(workflowService).updateStage(caseUUID, stageUUID, new HashMap<>(), Direction.BACKWARD.getValue(), userUUID);
+        verify(workflowService).getStage(caseUUID, stageUUID);
+        verifyNoMoreInteractions(workflowService);
+
+    }
+
+    @Test
+    public void updateStage_customDirection() {
+
+        UUID caseUUID = java.util.UUID.randomUUID();
+        UUID stageUUID = java.util.UUID.randomUUID();
+        UUID userUUID = java.util.UUID.randomUUID();
+
+        Map<String, String> data = new HashMap<>();
+        data.put("dummyKey", "dummyValue");
+        GetStageResponse mockStageResponse = mock(GetStageResponse.class);
+
+        when(workflowService.getStage(caseUUID, stageUUID)).thenReturn(mockStageResponse);
+
+        ResponseEntity<GetStageResponse> result = workflowResource.updateStageWithDirection(caseUUID, stageUUID, "testDirection", userUUID);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatusCodeValue()).isEqualTo(200);
+        assertThat(result.getBody()).isEqualTo(mockStageResponse);
+        verify(workflowService).updateStage(caseUUID, stageUUID, new HashMap<>(), "testDirection", userUUID);
         verify(workflowService).getStage(caseUUID, stageUUID);
         verifyNoMoreInteractions(workflowService);
 

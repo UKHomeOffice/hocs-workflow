@@ -212,12 +212,12 @@ public class WorkflowService {
         return fields;
     }
 
-    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values, Direction direction, UUID userUUID) {
+    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values, String flowDirection, UUID userUUID) {
 
-        values.put(WorkflowConstants.DIRECTION, direction.getValue());
+        values.put(WorkflowConstants.DIRECTION, flowDirection);
         values.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
-        if (Direction.FORWARD == direction) {
+        if (Direction.FORWARD.getValue().equals(flowDirection)) {
             values.put(WorkflowConstants.VALID, "true");
             caseworkClient.updateCase(caseUUID, stageUUID, values);
         } else {
