@@ -199,6 +199,19 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shouldBlankCaseValues() {
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        bpmnService.blankCaseValues(caseUUID, stageUUID, "key1", "key2", "key3");
+
+        verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture());
+        assertThat(valueCapture.getValue().size()).isEqualTo(3);
+        assertThat(valueCapture.getValue().keySet()).containsOnly("key1", "key2", "key3");
+        assertThat(valueCapture.getValue().values()).containsOnly("");
+        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
+    }
+
+    @Test
     public void shouldCreateNewStage() {
         String stageType = "testStageType";
         String allocationType = "testAllocationType";

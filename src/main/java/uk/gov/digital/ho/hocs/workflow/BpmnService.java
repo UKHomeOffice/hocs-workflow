@@ -11,9 +11,11 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -67,7 +69,7 @@ public class BpmnService {
         log.info("Completed Case {}", caseUUIDString);
     }
 
-    public void calculateTotals(String caseUUIDString, String stageUUIDString, String listName){
+    public void calculateTotals(String caseUUIDString, String stageUUIDString, String listName) {
         caseworkClient.calculateTotals(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), listName);
         log.info("Calculated totals WCS for Case {}", caseUUIDString);
     }
@@ -76,7 +78,7 @@ public class BpmnService {
         caseworkClient.updateDateReceived(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), LocalDate.parse(dateReceived));
     }
 
-    public void updateDeadlineDays(String caseUUIDString, String stageUUIDString, String daysString){
+    public void updateDeadlineDays(String caseUUIDString, String stageUUIDString, String daysString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
         int days = Integer.parseInt(daysString);
@@ -175,7 +177,7 @@ public class BpmnService {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
         log.info("Update {} key to {} value", key, value);
-        if (StringUtils.hasText(key)){
+        if (StringUtils.hasText(key)) {
             Map<String, String> updateValue = Map.of(key, value);
             camundaClient.updateTask(stageUUID, updateValue);
             caseworkClient.updateCase(caseUUID, stageUUID, updateValue);
@@ -186,9 +188,21 @@ public class BpmnService {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
         log.info("Update {} key to {} value", key, value);
-        if (StringUtils.hasText(key)){
+        if (StringUtils.hasText(key)) {
             Map<String, String> updateValue = Map.of(key, value);
             caseworkClient.updateCase(caseUUID, stageUUID, updateValue);
+        }
+    }
+
+    public void blankCaseValues(String caseUUIDString, String stageUUIDString, String... keys) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        if (keys != null && keys.length > 0) {
+            log.info("Update {} keys to blank value", Arrays.toString(keys));
+            Map<String, String> data = Arrays.stream(keys)
+                    .collect(Collectors.toMap(p -> p, p -> ""));
+            caseworkClient.updateCase(caseUUID, stageUUID, data);
         }
     }
 
@@ -237,21 +251,20 @@ public class BpmnService {
 
     }
 
-    public void updateCount(String caseUUID, String variableName, int additive){
+    public void updateCount(String caseUUID, String variableName, int additive) {
 
         String dataValue = caseworkClient.getDataValue(caseUUID, variableName);
 
         int updatedValue;
-        if(StringUtils.hasText(dataValue)){
+        if (StringUtils.hasText(dataValue)) {
             updatedValue = NumberUtils.parseInt(dataValue) + additive;
-        }else{
+        } else {
             updatedValue = additive;
         }
 
         caseworkClient.updateDataValue(caseUUID, variableName, String.valueOf(updatedValue));
 
     }
-
 
 
 }
