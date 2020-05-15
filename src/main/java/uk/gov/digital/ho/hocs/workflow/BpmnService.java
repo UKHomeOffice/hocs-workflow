@@ -3,11 +3,13 @@ package uk.gov.digital.ho.hocs.workflow;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
 import java.time.LocalDate;
@@ -173,25 +175,44 @@ public class BpmnService {
         log.debug("######## Updated Team For Stage And Text ########");
     }
 
-    public void updateValue(String caseUUIDString, String stageUUIDString, String key, String value) {
+    public void updateValue(String caseUUIDString, String stageUUIDString, String... argPairs) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
-        log.info("Update {} key to {} value", key, value);
-        if (StringUtils.hasText(key)) {
-            Map<String, String> updateValue = Map.of(key, value);
-            camundaClient.updateTask(stageUUID, updateValue);
-            caseworkClient.updateCase(caseUUID, stageUUID, updateValue);
+        Map<String, String> data = parseArgPairs(argPairs);
+
+        if (!CollectionUtils.isEmpty(data)) {
+            camundaClient.updateTask(stageUUID, data);
+            caseworkClient.updateCase(caseUUID, stageUUID, data);
         }
     }
 
-    public void updateCaseValue(String caseUUIDString, String stageUUIDString, String key, String value) {
+    public void updateCaseValue(String caseUUIDString, String stageUUIDString, String... argPairs) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
-        log.info("Update {} key to {} value", key, value);
-        if (StringUtils.hasText(key)) {
-            Map<String, String> updateValue = Map.of(key, value);
-            caseworkClient.updateCase(caseUUID, stageUUID, updateValue);
+
+        Map<String, String> data = parseArgPairs(argPairs);
+
+        if (!CollectionUtils.isEmpty(data)) {
+            caseworkClient.updateCase(caseUUID, stageUUID, data);
         }
+
+    }
+
+    private Map<String, String> parseArgPairs(String... argPairs) {
+        if (argPairs.length % 2 == 1) {
+            throw new ApplicationExceptions.InvalidMethodArgumentException("Even number of arguments expected");
+        }
+
+        Map<String, String> data = new HashMap<>();
+
+        for (int i = 0; i < argPairs.length; i = i + 2) {
+            String key = argPairs[i];
+            String value = argPairs[i + 1];
+            log.info("Update {} key to {} value", key, value);
+            data.put(key, value);
+        }
+
+        return data;
     }
 
     public void blankCaseValues(String caseUUIDString, String stageUUIDString, String... keys) {
