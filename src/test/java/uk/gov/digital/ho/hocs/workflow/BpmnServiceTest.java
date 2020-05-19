@@ -10,6 +10,7 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +47,7 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shoudCalculateTotals(){
+    public void shoudCalculateTotals() {
         when(caseworkClient.calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list")).thenReturn(null);
 
         bpmnService.calculateTotals(caseUUID, stageUUID, "list");
@@ -58,7 +59,7 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shoudUpdateDeadlineDays(){
+    public void shoudUpdateDeadlineDays() {
         doNothing().when(caseworkClient).updateDeadlineDays(UUID.fromString(caseUUID), UUID.fromString(stageUUID), 123);
 
         bpmnService.updateDeadlineDays(caseUUID, stageUUID, "123");
@@ -142,7 +143,7 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shouldUpdateTeamByStageAndTexts(){
+    public void shouldUpdateTeamByStageAndTexts() {
 
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
@@ -150,7 +151,7 @@ public class BpmnServiceTest {
         teamForText.put("key", "value");
         when(caseworkClient.updateTeamByStageAndTexts(
                 eq(caseUUID), eq(stageUUID), eq("stageType"), eq("teamUUIDKey"), eq("teamNameKey"), any()))
-            .thenReturn(teamForText);
+                .thenReturn(teamForText);
         doNothing().when(camundaClient).updateTask(eq(stageUUID), any());
         doNothing().when(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), any());
 
@@ -184,6 +185,24 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shouldUpdateValue_multiple() {
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+        Map<String, String> expectedData = Map.of("key1", "value1", "key2", "value3", "key3", "value3");
+        bpmnService.updateValue(caseUUID, stageUUID, "key1", "value1", "key2", "value3", "key3", "value3");
+
+        verify(camundaClient).updateTask(eq(UUID.fromString(stageUUID)), valueCapture.capture());
+        verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), eq(expectedData));
+        assertThat(valueCapture.getValue().size()).isEqualTo(3);
+        assertThat(valueCapture.getValue()).isEqualTo(expectedData);
+        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
+    }
+
+    @Test(expected = ApplicationExceptions.InvalidMethodArgumentException.class)
+    public void shouldFailToUpdateValue() {
+        bpmnService.updateCaseValue(caseUUID, stageUUID, "key1", "value1", "key2", "value3", "key3", "value3", "key4");
+    }
+
+    @Test
     public void shouldUpdateCaseValue() {
         ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
 
@@ -196,6 +215,39 @@ public class BpmnServiceTest {
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldUpdateCaseValue_multiple() {
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        Map<String, String> expectedData = Map.of("key1", "value1", "key2", "value3", "key3", "value3");
+        bpmnService.updateCaseValue(caseUUID, stageUUID, "key1", "value1", "key2", "value3", "key3", "value3");
+
+        verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture());
+        assertThat(valueCapture.getValue().size()).isEqualTo(3);
+        assertThat(valueCapture.getValue()).isEqualTo(expectedData);
+        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
+    }
+
+    @Test(expected = ApplicationExceptions.InvalidMethodArgumentException.class)
+    public void shouldFailToUpdateCaseValue() {
+
+        bpmnService.updateCaseValue(caseUUID, stageUUID, "key1", "value1", "key2", "value3", "key3", "value3", "key4");
+
+    }
+
+    @Test
+    public void shouldBlankCaseValues() {
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        bpmnService.blankCaseValues(caseUUID, stageUUID, "key1", "key2", "key3");
+
+        verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture());
+        assertThat(valueCapture.getValue().size()).isEqualTo(3);
+        assertThat(valueCapture.getValue().keySet()).containsOnly("key1", "key2", "key3");
+        assertThat(valueCapture.getValue().values()).containsOnly("");
+        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
     }
 
     @Test
@@ -286,7 +338,7 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void updateCount_nullValue(){
+    public void updateCount_nullValue() {
         String variableName = "testVariableName";
         int additive = 1;
 
@@ -301,7 +353,7 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void updateCount_zeroValue(){
+    public void updateCount_zeroValue() {
         String variableName = "testVariableName";
         int additive = 1;
 
@@ -316,7 +368,7 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void updateCount_nonZeroValue_negativeAdditive(){
+    public void updateCount_nonZeroValue_negativeAdditive() {
         String variableName = "testVariableName";
         int additive = -3;
 
