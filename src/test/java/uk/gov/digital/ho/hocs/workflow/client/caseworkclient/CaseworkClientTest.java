@@ -6,10 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.RecreateCaseworkStageRequest;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkStageUserRequest;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkTeamStageTextRequest;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkTeamStageTextResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -148,6 +145,24 @@ public class CaseworkClientTest {
         caseworkClient.updateDataValue(caseUUID.toString(), variableName, newValue);
 
         verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(newValue), eq(Void.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void GetAllStagesForCase() {
+        String resourcePath = String.format("/stage/case/%s", caseUUID);
+        GetAllStagesForCaseResponse expectedResponse = new GetAllStagesForCaseResponse();
+
+        when(
+                restHelper.get(
+                        eq(caseServiceUrl),
+                        eq(resourcePath),
+                        eq(GetAllStagesForCaseResponse.class))
+        ).thenReturn(expectedResponse);
+
+        GetAllStagesForCaseResponse result = caseworkClient.getAllStagesForCase(caseUUID);
+
+        verify(restHelper).get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class));
         verifyNoMoreInteractions(restHelper);
     }
 }

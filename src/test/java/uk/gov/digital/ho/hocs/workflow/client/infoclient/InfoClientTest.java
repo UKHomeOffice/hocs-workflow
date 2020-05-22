@@ -41,4 +41,17 @@ public class InfoClientTest {
         verifyNoMoreInteractions(restHelper);
     }
 
+    @Test
+    public void getSchemasForCaseTypeAndStages() {
+        String caseType = "case type";
+        String caseStages = "STAGE1,STAGE2";
+        String expectedResourcePath = String.format("/schema/caseType/%s?stages=%s", caseType, caseStages);
+
+        infoClient.getSchemasForCaseTypeAndStages(caseType, caseStages);
+
+        verify(restHelper).get(eq(infoServiceUrl), eq(expectedResourcePath), any(ParameterizedTypeReference.class));
+
+        verifyNoMoreInteractions(restHelper);
+    }
+
 }
