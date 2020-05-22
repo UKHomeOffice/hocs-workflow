@@ -29,4 +29,12 @@ public interface ApplicationExceptions {
             return event;
         }
     }
+
+    class InvalidMethodArgumentException extends RuntimeException {
+
+        public InvalidMethodArgumentException(String msg) {
+            super(msg);
+
+        }
+    }
 }

@@ -166,7 +166,7 @@ public class WorkflowServiceTest {
         expectedValues.put(WorkflowConstants.DIRECTION, "FORWARD");
         expectedValues.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
-        workflowService.updateStage(caseUUID, stageUUID, values, direction, userUUID);
+        workflowService.updateStage(caseUUID, stageUUID, values, direction.getValue(), userUUID);
 
         verify(caseworkClient).updateCase(caseUUID, stageUUID, expectedValues);
         verify(camundaClient).completeTask(stageUUID, expectedValues);
@@ -189,7 +189,27 @@ public class WorkflowServiceTest {
         expectedValues.put(WorkflowConstants.DIRECTION, "BACKWARD");
         expectedValues.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
-        workflowService.updateStage(caseUUID, stageUUID, values, direction, userUUID);
+        workflowService.updateStage(caseUUID, stageUUID, values, direction.getValue(), userUUID);
+
+        verify(camundaClient).completeTask(stageUUID, expectedValues);
+
+        verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient, documentClient);
+    }
+
+    @Test
+    public void updateStage_customDirection() {
+
+        UUID caseUUID = java.util.UUID.randomUUID();
+        UUID stageUUID = java.util.UUID.randomUUID();
+        UUID userUUID = java.util.UUID.randomUUID();
+        Map<String, String> values = new HashMap<>();
+
+        Map<String, String> expectedValues = new HashMap<>();
+        expectedValues.put(WorkflowConstants.VALID, "false");
+        expectedValues.put(WorkflowConstants.DIRECTION, "testDirection");
+        expectedValues.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+
+        workflowService.updateStage(caseUUID, stageUUID, values, "testDirection", userUUID);
 
         verify(camundaClient).completeTask(stageUUID, expectedValues);
 
