@@ -149,7 +149,7 @@ public class CaseworkClientTest {
     }
 
     @Test
-    public void GetAllStagesForCase() {
+    public void getAllStagesForCase() {
         String resourcePath = String.format("/stage/case/%s", caseUUID);
         GetAllStagesForCaseResponse expectedResponse = new GetAllStagesForCaseResponse();
 
