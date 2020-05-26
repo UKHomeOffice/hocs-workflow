@@ -138,6 +138,14 @@ public class CaseworkClient {
         return response;
     }
 
+    public GetAllStagesForCaseResponse getAllStagesForCase(UUID caseUUID) {
+        GetAllStagesForCaseResponse response = restHelper.get(
+                serviceBaseURL, String.format("/stage/case/%s", caseUUID), GetAllStagesForCaseResponse.class
+        );
+        log.info("Got all stages for case: {}", caseUUID);
+        return response;
+    }
+
     public String getDataValue(String caseUUID, String variableName) {
         String response = restHelper.get(serviceBaseURL, String.format("/case/%s/data/%s", caseUUID, variableName), String.class);
         log.info("Got {} value: {} for Case: {}", variableName, response, caseUUID);
