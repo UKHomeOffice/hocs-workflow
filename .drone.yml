@@ -78,7 +78,7 @@ pipeline:
       - VERSION=build-${DRONE_BUILD_NUMBER}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
-      - hocs_workflow_dev
+      - hocs_workflow_cs_dev
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
@@ -94,7 +94,7 @@ pipeline:
       - VERSION=build-${DRONE_BUILD_NUMBER}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
-      - hocs_workflow_dev
+      - hocs_workflow_wcs_dev
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
@@ -108,8 +108,10 @@ pipeline:
       - ENVIRONMENT=${DRONE_DEPLOY_TO}
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
-      - hocs_workflow_dev
-      - hocs_workflow_demo
+      - hocs_workflow_cs_dev
+      - hocs_workflow_cs_demo
+      - hocs_workflow_wcs_dev
+      - hocs_workflow_wcs_demo
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
@@ -117,13 +119,14 @@ pipeline:
       event: deployment
       environment: [dev, demo]
 
-  deploy-to-qa:
+  deploy-to-qa-cs:
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
     environment:
+      - KUBE_NAMESPACE=cs-qa
       - ENVIRONMENT=qa
       - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     secrets:
-      - hocs_workflow_qa
+      - hocs_workflow_cs_qa
     commands:
       - source version.txt
       - echo $VERSION
@@ -132,20 +135,57 @@ pipeline:
     when:
       event: deployment
       environment: qa
+      kube_namespace: cs-qa
 
-  deploy-to-prod:
+  deploy-to-qa-wcs:
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
     environment:
+      - KUBE_NAMESPACE=wcs-qa
+      - ENVIRONMENT=qa
+      - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+    secrets:
+      - hocs_workflow_wcs_qa
+    commands:
+      - source version.txt
+      - echo $VERSION
+      - cd kube-hocs-workflow
+      - ./deploy.sh
+    when:
+      event: deployment
+      environment: qa
+      kube_namespace: wcs-qa
+
+  deploy-to-prod-cs:
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    environment:
+      - KUBE_NAMESPACE=cs-prod
       - ENVIRONMENT=prod
       - KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
     secrets:
-      - hocs_workflow_prod
+      - hocs_workflow_cs_prod
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
     when:
       event: deployment
       environment: prod
+      kube_namespace: cs-prod
+
+  deploy-to-prod-wcs:
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    environment:
+      - KUBE_NAMESPACE=wcs-prod
+      - ENVIRONMENT=prod
+      - KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
+    secrets:
+      - hocs_workflow_wcs_prod
+    commands:
+      - cd kube-hocs-workflow
+      - ./deploy.sh
+    when:
+      event: deployment
+      environment: prod
+      kube_namespace: wcs-prod
 
 services:
 
