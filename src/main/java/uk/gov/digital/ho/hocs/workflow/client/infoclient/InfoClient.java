@@ -40,9 +40,14 @@ public class InfoClient {
         return caseDataType;
     }
 
-    @Cacheable(value = "InfoClientGetSchemasForCaseType", unless = "#result.size() == 0", key = "#caseType")
-    public Set<SchemaDto> getSchemasForCaseType(String caseType) {
-        Set<SchemaDto> response = restHelper.get(serviceBaseURL, String.format("/schema/caseType/%s", caseType), new ParameterizedTypeReference<Set<SchemaDto>>() {});
+    @Cacheable(value = "InfoClientGetSchemasForCaseTypeAndStages", unless = "#result.size() == 0")
+    public List<SchemaDto> getSchemasForCaseTypeAndStages(String caseType, String caseStages) {
+        List<SchemaDto> response = restHelper.get(
+                serviceBaseURL,
+                String.format("/schema/caseType/%s?stages=%s", caseType, caseStages),
+                new ParameterizedTypeReference<List<SchemaDto>>() {
+                }
+        );
         log.info("Got {} schemas", response.size(), value(EVENT, INFO_CLIENT_GET_SCHEMAS_SUCCESS));
         return response;
     }
@@ -56,28 +61,29 @@ public class InfoClient {
 
     @Cacheable(value = "InfoClientGetTeams", unless = "#result.size() == 0")
     public Set<TeamDto> getTeams() {
-        Set<TeamDto> teams = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {});
+        Set<TeamDto> teams = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {
+        });
         log.info("Got {} teams", teams.size(), value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
         return teams;
     }
 
     @Cacheable(value = "InfoClientGetTeam", unless = "#result == null", key = "#teamUUID")
     public TeamDto getTeam(UUID teamUUID) {
-        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/%s", teamUUID),  TeamDto.class);
+        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/%s", teamUUID), TeamDto.class);
         log.info("Got Team teamUUID {}", response.getUuid(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
         return response;
     }
 
     @Cacheable(value = "InfoClientGetTeamForStageType", unless = "#result == null", key = "#stageType")
     public UUID getTeamForStageType(String stageType) {
-        TeamDto response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType),  TeamDto.class);
+        TeamDto response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType), TeamDto.class);
         log.info("Got Team teamUUID {} for Stage {}", response.getUuid(), stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_STAGE_SUCCESS));
         return response.getUuid();
     }
 
     @Cacheable(value = "InfoClientGetTeamForTopicAndStage", unless = "#result == null", key = "{ #caseUUID, #topicUUID, #stageType}")
     public TeamDto getTeamForTopicAndStage(UUID caseUUID, UUID topicUUID, String stageType) {
-        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/topic/%s/stage/%s", caseUUID, topicUUID, stageType),  TeamDto.class);
+        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/topic/%s/stage/%s", caseUUID, topicUUID, stageType), TeamDto.class);
         log.info("Got Team teamUUID {} for Topic {} and Stage {}", response.getUuid(), topicUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_TOPIC_STAGE_SUCCESS));
         return response;
     }
@@ -91,11 +97,11 @@ public class InfoClient {
 
     @Cacheable(value = "InfoClientGetCaseDetailsFieldDtos", unless = "#result == null", key = "{ #caseType}")
     public List<CaseDetailsFieldDto> getCaseDetailsFieldsByCaseType(String caseType) {
-        List<CaseDetailsFieldDto> caseDetailsFieldDtos = restHelper.get(serviceBaseURL, String.format("/caseDetailsFields/%s", caseType), new ParameterizedTypeReference<List<CaseDetailsFieldDto>>() {});
+        List<CaseDetailsFieldDto> caseDetailsFieldDtos = restHelper.get(serviceBaseURL, String.format("/caseDetailsFields/%s", caseType), new ParameterizedTypeReference<List<CaseDetailsFieldDto>>() {
+        });
         log.info("Got CaseDetailsFields By Case Type {} ", value(EVENT, INFO_CLIENT_GET_CASE_DETAILS_FIELDS));
         return caseDetailsFieldDtos;
     }
-
 
 
 }

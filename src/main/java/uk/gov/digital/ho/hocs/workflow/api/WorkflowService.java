@@ -9,6 +9,7 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
@@ -99,8 +101,8 @@ public class WorkflowService {
             GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
 
             SchemaDto schemaDto = infoClient.getSchema(screenName);
-            List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
-            List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(Collectors.toList());
+            List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
+            List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(toList());
             fields = HocsFormAccordion.loadFormAccordions(fields);
             HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions);
             HocsForm form = new HocsForm(schema, inputResponse.getData());
@@ -114,11 +116,31 @@ public class WorkflowService {
 
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
 
-        Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
+        GetAllStagesForCaseResponse allStagesForCase = caseworkClient.getAllStagesForCase(caseUUID);
 
-        Map<String, List<SchemaDto>> stageSchemas = schemaDtos.stream().collect(Collectors.groupingBy(SchemaDto::getStageType));
+        String caseStages = allStagesForCase.getStages()
+                .stream()
+                .map(s -> s.getType())
+                .collect(Collectors.joining(","));
 
-        Map<String, List<HocsFormField>> hocsFields = stageSchemas.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, c -> schemasToFormField(c.getValue())));
+        List<SchemaDto> schemaDtos = infoClient.getSchemasForCaseTypeAndStages(inputResponse.getType(), caseStages);
+
+
+        Map<String, List<SchemaDto>> stageSchemas = schemaDtos
+                .stream()
+                .collect(Collectors.groupingBy(SchemaDto::getStageType, LinkedHashMap::new, Collectors.toList()));
+
+
+        Map<String, List<HocsFormField>> hocsFields = stageSchemas
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        c -> schemasToFormField(c.getValue()),
+                        (k, v) -> {
+                            throw new IllegalStateException(String.format("Duplicate key %s", k));
+                        },
+                        LinkedHashMap::new));
 
         HocsCaseSchema schema = new HocsCaseSchema("View Case", hocsFields);
 
@@ -131,10 +153,17 @@ public class WorkflowService {
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
 
         List<CaseDetailsFieldDto> fields = infoClient.getCaseDetailsFieldsByCaseType(inputResponse.getType());
-        List<HocsFormField> hocsFields = fields.stream().map(HocsFormField::from).collect(Collectors.toList());
+        List<HocsFormField> hocsFields = fields.stream().map(HocsFormField::from).collect(toList());
         List<HocsFormField> fieldsToAdd = HocsFormAccordion.loadFormAccordions(hocsFields);
 
-        Set<SchemaDto> schemaDtos = infoClient.getSchemasForCaseType(inputResponse.getType());
+        GetAllStagesForCaseResponse allStagesForCase = caseworkClient.getAllStagesForCase(caseUUID);
+
+        String caseStages = allStagesForCase.getStages()
+                .stream()
+                .map(s -> s.getType())
+                .collect(Collectors.joining(","));
+
+        List<SchemaDto> schemaDtos = infoClient.getSchemasForCaseTypeAndStages(inputResponse.getType(), caseStages);
 
         HocsSchema hocsSchema = new HocsSchema(inputResponse.getReference(), null, fieldsToAdd, null);
 
@@ -144,7 +173,7 @@ public class WorkflowService {
 
     }
 
-    public Map<String, String> convertDataToSchema(Set<SchemaDto> schemaDtos, Map<String, String> dataMap) {
+    public Map<String, String> convertDataToSchema(List<SchemaDto> schemaDtos, Map<String, String> dataMap) {
         for (SchemaDto schemaDto : schemaDtos) {
             for (FieldDto fieldDto : schemaDto.getFields()) {
                 String keyString = fieldDto.getName();
@@ -201,7 +230,7 @@ public class WorkflowService {
         Set<String> uniqueFieldNames = new HashSet<>();
         for (SchemaDto schemaDto : schemaDtos) {
             fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
-            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(Collectors.toList());
+            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
             for (HocsFormField fieldToAdd : fieldsToAdd) {
                 if (fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(String.valueOf(fieldToAdd.getProps().get("name")))) {
                     uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
