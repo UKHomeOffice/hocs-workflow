@@ -58,6 +58,16 @@ public class CaseworkClientTest {
     }
 
     @Test
+    public void updateStageDeadline() {
+        String expectedUrl = String.format("/case/%s/stage/%s/stageDeadline", caseUUID, stageUUID);
+
+        caseworkClient.updateStageDeadline(caseUUID, stageUUID, "TEST", 7);
+
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateStageDeadlineRequest.class), eq(Void.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
     public void updateStageUser() {
         String expectedUrl = String.format("/case/%s/stage/%s/user", caseUUID, stageUUID);
         UpdateCaseworkStageUserRequest expectedBody = new UpdateCaseworkStageUserRequest(userUUID);

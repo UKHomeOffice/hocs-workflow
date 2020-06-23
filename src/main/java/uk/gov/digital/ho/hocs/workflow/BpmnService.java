@@ -87,6 +87,13 @@ public class BpmnService {
         caseworkClient.updateDeadlineDays(caseUUID, stageUUID, days);
     }
 
+    public void updateStageDeadline(String caseUUIDString, String stageUUIDString, String stageType, String daysString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        int days = Integer.parseInt(daysString);
+        caseworkClient.updateStageDeadline(caseUUID, stageUUID, stageType, days);
+    }
+
     public void updatePrimaryCorrespondent(String caseUUIDString, String stageUUIDString, String correspondentUUIDString) {
         caseworkClient.updatePrimaryCorrespondent(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(correspondentUUIDString));
         log.info("Updated Primary Correspondent for Case {}", caseUUIDString);
