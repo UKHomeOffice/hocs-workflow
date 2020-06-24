@@ -102,8 +102,8 @@
       <bpmn:incoming>SequenceFlow_0luze1a</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1ouoepu</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_15hmajx</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_19y51wn</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0h5w2hd</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_10xa109</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:serviceTask id="DCU_ANSWERING" name="Answering" camunda:expression="DCU_ANSWERING" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_1e262jf</bpmn:incoming>
@@ -351,12 +351,17 @@
     <bpmn:sequenceFlow id="SequenceFlow_0h5w2hd" sourceRef="ExclusiveGateway_16e8bat" targetRef="DCU_MIN_MARKUP_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${(POTeamUUID != "3d2c7893-92c5-4347-804a-8826f06f0c9d" || OverridePOTeamUUID != "") &amp;&amp; (OverridePOTeamUUID != "3d2c7893-92c5-4347-804a-8826f06f0c9d")}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_19y51wn" sourceRef="ServiceTask_1kjlcem" targetRef="DCU_MIN_MARKUP_END" />
+    <bpmn:sequenceFlow id="SequenceFlow_19y51wn" sourceRef="ServiceTask_1kjlcem" targetRef="ServiceTask_021qjha" />
     <bpmn:serviceTask id="ServiceTask_0szal0w" name="Update Value" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;POTeamUUID&#34;,execution.getVariable(&#34;POTeamUUID&#34;),&#34;OverridePOTeamUUID&#34;,execution.getVariable(&#34;OverridePOTeamUUID&#34;))}">
       <bpmn:incoming>SequenceFlow_04enxe9</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0qwnolp</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_0qwnolp" sourceRef="ServiceTask_0szal0w" targetRef="ExclusiveGateway_16e8bat" />
+    <bpmn:serviceTask id="ServiceTask_021qjha" name="Update Initial Draft Deadline" camunda:expression="${bpmnService.updateStageDeadline(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;DCU_MIN_INITIAL_DRAFT&#34;,7)}">
+      <bpmn:incoming>SequenceFlow_19y51wn</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_10xa109</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_10xa109" sourceRef="ServiceTask_021qjha" targetRef="DCU_MIN_MARKUP_END" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_MIN_MARKUP">
@@ -898,8 +903,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_19y51wn_di" bpmnElement="SequenceFlow_19y51wn">
         <di:waypoint x="3269" y="580" />
-        <di:waypoint x="3512" y="580" />
-        <di:waypoint x="3512" y="745" />
+        <di:waypoint x="3340" y="580" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_0szal0w_di" bpmnElement="ServiceTask_0szal0w">
         <dc:Bounds x="2954" y="617" width="100" height="80" />
@@ -908,6 +912,14 @@
         <di:waypoint x="3004" y="617" />
         <di:waypoint x="3004" y="580" />
         <di:waypoint x="3069" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_021qjha_di" bpmnElement="ServiceTask_021qjha">
+        <dc:Bounds x="3340" y="540" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_10xa109_di" bpmnElement="SequenceFlow_10xa109">
+        <di:waypoint x="3440" y="580" />
+        <di:waypoint x="3512" y="580" />
+        <di:waypoint x="3512" y="745" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
