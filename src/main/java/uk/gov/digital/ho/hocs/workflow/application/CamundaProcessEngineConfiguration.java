@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.application;
 
+import org.camunda.bpm.engine.impl.persistence.StrongUuidGenerator;
 import org.camunda.bpm.engine.spring.ProcessEngineFactoryBean;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.camunda.bpm.engine.spring.SpringProcessEngineServicesConfiguration;
@@ -39,6 +40,7 @@ public class CamundaProcessEngineConfiguration {
     config.setTransactionManager(transactionManager());
 
     config.setHistory(historyLevel);
+    config.setIdGenerator(new StrongUuidGenerator());
 
     config.setJobExecutorActivate(true);
     config.setMetricsEnabled(false);
