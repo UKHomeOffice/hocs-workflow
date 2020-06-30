@@ -21,8 +21,8 @@
       <bpmn:outgoing>SequenceFlow_1kt5x2u</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:endEvent id="EndEvent_132ofai" name="End Stage">
-      <bpmn:incoming>SequenceFlow_0m3h46u</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_01f4m8h</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0gcravu</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0hq4dbt" name="Keep Escalated?">
       <bpmn:incoming>SequenceFlow_1kt5x2u</bpmn:incoming>
@@ -49,7 +49,7 @@
       <bpmn:outgoing>SequenceFlow_0m3h46u</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0nvi4pq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_0m3h46u" sourceRef="ExclusiveGateway_0snfd0u" targetRef="EndEvent_132ofai">
+    <bpmn:sequenceFlow id="SequenceFlow_0m3h46u" sourceRef="ExclusiveGateway_0snfd0u" targetRef="ServiceTask_0rvjsky">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageEscalateOutcome != "Close"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_0moqol8" name="Close case" camunda:expression="MPAM_TRIAGE_ESCALATE_CLOSE" camunda:resultVariable="screen">
@@ -93,6 +93,11 @@
     <bpmn:sequenceFlow id="SequenceFlow_0vrlok3" sourceRef="ExclusiveGateway_128hquw" targetRef="ServiceTask_0jyv122">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="ServiceTask_0rvjsky" name="Update Team for Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_TRIAGE&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
+      <bpmn:incoming>SequenceFlow_0m3h46u</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0gcravu</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0gcravu" sourceRef="ServiceTask_0rvjsky" targetRef="EndEvent_132ofai" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_TRIAGE_ESCALATE">
@@ -159,7 +164,7 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0m3h46u_di" bpmnElement="SequenceFlow_0m3h46u">
         <di:waypoint x="798" y="204" />
-        <di:waypoint x="1394" y="204" />
+        <di:waypoint x="1084" y="204" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_0moqol8_di" bpmnElement="ServiceTask_0moqol8">
         <dc:Bounds x="723" y="355" width="100" height="80" />
@@ -220,6 +225,13 @@
         <di:waypoint x="278" y="680" />
         <di:waypoint x="278" y="121" />
         <di:waypoint x="350" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0rvjsky_di" bpmnElement="ServiceTask_0rvjsky">
+        <dc:Bounds x="1084" y="164" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0gcravu_di" bpmnElement="SequenceFlow_0gcravu">
+        <di:waypoint x="1184" y="204" />
+        <di:waypoint x="1394" y="204" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
