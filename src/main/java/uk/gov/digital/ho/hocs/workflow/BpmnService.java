@@ -94,6 +94,19 @@ public class BpmnService {
         caseworkClient.updateStageDeadline(caseUUID, stageUUID, stageType, days);
     }
 
+    public void updateDeadlineForStages(String caseUUIDString, String stageUUIDString, String... stageTypeAndDaysPair) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        Map<String, String> stageTypeAndDaysMap = parseArgPairs(stageTypeAndDaysPair);
+
+        Map<String, Integer> convertedStageTypeAndDaysMap = stageTypeAndDaysMap.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey, entry -> Integer.parseInt(entry.getValue())
+                )
+        );
+        caseworkClient.updateDeadlineForStages(caseUUID, stageUUID, convertedStageTypeAndDaysMap);
+    }
+
     public void updatePrimaryCorrespondent(String caseUUIDString, String stageUUIDString, String correspondentUUIDString) {
         caseworkClient.updatePrimaryCorrespondent(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), UUID.fromString(correspondentUUIDString));
         log.info("Updated Primary Correspondent for Case {}", caseUUIDString);

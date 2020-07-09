@@ -393,4 +393,33 @@ public class BpmnServiceTest {
 
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
+
+    @Test
+    public void shouldUpdateDeadlineForStages() {
+
+        String stageType1 = "stage_type1";
+        String no_of_days_1 = "5";
+        String stageType2 = "stage_type2";
+        String no_of_days_2 = "10";
+
+        ArgumentCaptor<Map<String, Integer>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        Map<String, Integer> expectedData = Map.of("stage_type1", 5, "stage_type2", 10);
+
+        bpmnService.updateDeadlineForStages(
+                caseUUID,
+                stageUUID,
+                stageType1,
+                no_of_days_1,
+                stageType2,
+                no_of_days_2
+        );
+
+        verify(caseworkClient).updateDeadlineForStages(
+                eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture()
+        );
+        assertThat(valueCapture.getValue().size()).isEqualTo(2);
+        assertThat(valueCapture.getValue()).isEqualTo(expectedData);
+        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
+    }
 }
