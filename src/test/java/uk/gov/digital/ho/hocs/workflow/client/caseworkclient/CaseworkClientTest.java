@@ -175,4 +175,17 @@ public class CaseworkClientTest {
         verify(restHelper).get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class));
         verifyNoMoreInteractions(restHelper);
     }
+
+    @Test
+    public void updateDeadlineForStages() {
+
+        Map<String, Integer> stageTypeAndDaysMap = Map.of("a_stage_type", 10);
+
+        String expectedUrl = String.format("/case/%s/stage/%s/stageDeadlines", caseUUID, stageUUID);
+
+        caseworkClient.updateDeadlineForStages(caseUUID, stageUUID, stageTypeAndDaysMap);
+
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateDeadlineForStagesRequest.class), eq(Void.class));
+        verifyNoMoreInteractions(restHelper);
+    }
 }

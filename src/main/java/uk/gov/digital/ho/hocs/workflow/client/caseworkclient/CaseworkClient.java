@@ -69,6 +69,12 @@ public class CaseworkClient {
         log.info("Set Date Received for Case {} to {} days", caseUUID, days);
     }
 
+    public void updateDeadlineForStages(UUID caseUUID, UUID stageUUID, Map<String, Integer> stageTypeAndDaysMap){
+        UpdateDeadlineForStagesRequest updateDeadlineForStagesRequest = new UpdateDeadlineForStagesRequest(stageTypeAndDaysMap);
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/stageDeadlines", caseUUID, stageUUID), updateDeadlineForStagesRequest, Void.class);
+        log.info("Received {} stage deadline dates to be set for case {}", stageTypeAndDaysMap.size(), caseUUID);
+    }
+
     public void updatePrimaryCorrespondent(UUID caseUUID, UUID stageUUID, UUID primaryCorrespondent) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/primaryCorrespondent", caseUUID, stageUUID), primaryCorrespondent, Void.class);
         log.info("Set Primary Correspondent for Case {}", caseUUID);
