@@ -37,4 +37,7 @@ public class SchemaDto {
     @JsonProperty("secondaryActions")
     private List<SecondaryActionDto> secondaryActions;
 
+    @JsonProperty("props")
+    private Object props;
+
 }
