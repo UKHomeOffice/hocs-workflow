@@ -12,6 +12,7 @@ public final class SchemaDtoBuilder {
     private boolean active;
     private List<FieldDto> fields;
     private List<SecondaryActionDto> secondaryActions;
+    private Object props;
 
     private SchemaDtoBuilder() {
     }
@@ -60,7 +61,12 @@ public final class SchemaDtoBuilder {
         return this;
     }
 
+    public SchemaDtoBuilder withSecondaryActions(Object props) {
+        this.props = props;
+        return this;
+    }
+
     public SchemaDto build() {
-        return new SchemaDto(uuid, stageType, type, title, defaultActionLabel, active, fields, secondaryActions);
+        return new SchemaDto(uuid, stageType, type, title, defaultActionLabel, active, fields, secondaryActions, props);
     }
 }

@@ -21,4 +21,7 @@ public class HocsSchema {
 
     @JsonProperty("secondaryActions")
     private List<HocsFormSecondaryAction> secondaryActions;
+
+    @JsonProperty("props")
+    private Object props;
 }

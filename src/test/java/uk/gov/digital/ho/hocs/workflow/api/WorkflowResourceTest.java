@@ -192,7 +192,7 @@ public class WorkflowResourceTest {
         String caseRef = "Ref123";
         List<HocsFormField> fields = new ArrayList<>();
         fields.add(new HocsFormField("text", null, Map.of("label", "label1")));
-        HocsSchema hocsSchema = new HocsSchema(caseRef, null, fields, null);
+        HocsSchema hocsSchema = new HocsSchema(caseRef, null, fields, null, null);
         GetCaseDetailsResponse response = new GetCaseDetailsResponse( hocsSchema, Map.of("key1", "value1"));
 
         when(workflowService.getReadOnlyCaseDetails(caseUUID)).thenReturn(response);
