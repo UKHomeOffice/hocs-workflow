@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.1.2">
   <bpmn:process id="DCU_BASE_DISPATCH" isExecutable="true">
     <bpmn:startEvent id="DCU_BASE_DISPATCH_START" name="Start Stage">
       <bpmn:outgoing>SequenceFlow_0tk7wiu</bpmn:outgoing>
@@ -12,6 +12,7 @@
     <bpmn:serviceTask id="ServiceTask_0te5zh0" name="Approve Dispatch" camunda:expression="APPROVE_DISPATCH" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_0rdfff2</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0tk7wiu</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1przq43</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_12nuv9n</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="UserTask_0eagz4p" name="Validate Approve Dispatch">
@@ -46,7 +47,7 @@
       <bpmn:outgoing>SequenceFlow_15wc92q</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0r6tou0">
-      <bpmn:incoming>SequenceFlow_15wc92q</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1jx9dbe</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_10wikl4</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1xkzac0</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -57,19 +58,29 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1cdqx6c" sourceRef="ServiceTask_0r8dwmm" targetRef="UserTask_1dq31sm" />
-    <bpmn:sequenceFlow id="SequenceFlow_15wc92q" sourceRef="UserTask_1dq31sm" targetRef="ExclusiveGateway_0r6tou0" />
+    <bpmn:sequenceFlow id="SequenceFlow_15wc92q" sourceRef="UserTask_1dq31sm" targetRef="ExclusiveGateway_0t8nbv7" />
     <bpmn:sequenceFlow id="SequenceFlow_1xkzac0" name="true" sourceRef="ExclusiveGateway_0r6tou0" targetRef="ServiceTask_1lvhsxp">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1fjg0ko" name="ACCEPT" sourceRef="ExclusiveGateway_1bzkiq8" targetRef="DCU_BASE_DISPATCH_END">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="ServiceTask_1lvhsxp" name="Save Allocation Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_DispatchDecisionReject&#34;), &#34;REJECT&#34;)
-   }">
+    <bpmn:serviceTask id="ServiceTask_1lvhsxp" name="Save Allocation Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_DispatchDecisionReject&#34;), &#34;REJECT&#34;)&#10;   }">
       <bpmn:incoming>SequenceFlow_1xkzac0</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1ji0dkz</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1ji0dkz" sourceRef="ServiceTask_1lvhsxp" targetRef="DCU_BASE_DISPATCH_END" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0t8nbv7" name="Direction?">
+      <bpmn:incoming>SequenceFlow_15wc92q</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1jx9dbe</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1przq43</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1jx9dbe" sourceRef="ExclusiveGateway_0t8nbv7" targetRef="ExclusiveGateway_0r6tou0">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1przq43" sourceRef="ExclusiveGateway_0t8nbv7" targetRef="ServiceTask_0te5zh0">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_BASE_DISPATCH">
@@ -164,8 +175,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_15wc92q_di" bpmnElement="SequenceFlow_15wc92q">
         <di:waypoint x="893" y="664" />
-        <di:waypoint x="1057" y="664" />
-        <di:waypoint x="1057" y="606" />
+        <di:waypoint x="1032" y="664" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="885" y="551" width="0" height="13" />
         </bpmndi:BPMNLabel>
@@ -191,6 +201,23 @@
         <di:waypoint x="1277" y="581" />
         <di:waypoint x="1438" y="581" />
         <di:waypoint x="1438" y="221" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0t8nbv7_di" bpmnElement="ExclusiveGateway_0t8nbv7" isMarkerVisible="true">
+        <dc:Bounds x="1032" y="639" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1087" y="657" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1jx9dbe_di" bpmnElement="SequenceFlow_1jx9dbe">
+        <di:waypoint x="1057" y="639" />
+        <di:waypoint x="1057" y="606" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1przq43_di" bpmnElement="SequenceFlow_1przq43">
+        <di:waypoint x="1057" y="689" />
+        <di:waypoint x="1057" y="765" />
+        <di:waypoint x="294" y="765" />
+        <di:waypoint x="294" y="120" />
+        <di:waypoint x="395" y="120" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
