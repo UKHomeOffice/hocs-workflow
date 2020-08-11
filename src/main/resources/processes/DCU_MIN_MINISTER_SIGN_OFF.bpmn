@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.1.2">
   <bpmn:process id="DCU_MIN_MINISTER_SIGN_OFF" isExecutable="true">
     <bpmn:startEvent id="DCU_MIN_MINISTER_SIGN_OFF_START" name="Start Stage">
       <bpmn:outgoing>SequenceFlow_0tk7wiu</bpmn:outgoing>
@@ -12,6 +12,7 @@
     <bpmn:serviceTask id="ServiceTask_0te5zh0" name="Approve Minister Sign Off" camunda:expression="APPROVE_MINISTER_SIGN_OFF" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_0rdfff2</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0tk7wiu</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0fpf85z</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_12nuv9n</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="UserTask_0eagz4p" name="Validate Approve Minister Sign Off">
@@ -46,7 +47,7 @@
       <bpmn:outgoing>SequenceFlow_1sj5pfh</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0vgcsi9">
-      <bpmn:incoming>SequenceFlow_1sj5pfh</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1kpuhf7</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0kfy7lp</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1i8jp3w</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -57,7 +58,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1tsg7ba" sourceRef="ServiceTask_08cum7a" targetRef="UserTask_04hin8c" />
-    <bpmn:sequenceFlow id="SequenceFlow_1sj5pfh" sourceRef="UserTask_04hin8c" targetRef="ExclusiveGateway_0vgcsi9" />
+    <bpmn:sequenceFlow id="SequenceFlow_1sj5pfh" sourceRef="UserTask_04hin8c" targetRef="ExclusiveGateway_1i039ik" />
     <bpmn:sequenceFlow id="SequenceFlow_1i8jp3w" sourceRef="ExclusiveGateway_0vgcsi9" targetRef="ServiceTask_0jszrec">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -69,6 +70,17 @@
       <bpmn:incoming>SequenceFlow_1i8jp3w</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0pmykdc</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1i039ik" name="Direction?">
+      <bpmn:incoming>SequenceFlow_1sj5pfh</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1kpuhf7</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0fpf85z</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1kpuhf7" sourceRef="ExclusiveGateway_1i039ik" targetRef="ExclusiveGateway_0vgcsi9">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0fpf85z" sourceRef="ExclusiveGateway_1i039ik" targetRef="ServiceTask_0te5zh0">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_MIN_MINISTER_SIGN_OFF">
@@ -181,8 +193,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1sj5pfh_di" bpmnElement="SequenceFlow_1sj5pfh">
         <di:waypoint x="955" y="574" />
-        <di:waypoint x="1147" y="574" />
-        <di:waypoint x="1147" y="514" />
+        <di:waypoint x="1122" y="574" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1006" y="552.5" width="90" height="13" />
         </bpmndi:BPMNLabel>
@@ -212,6 +223,23 @@
       <bpmndi:BPMNShape id="ServiceTask_0jszrec_di" bpmnElement="ServiceTask_0jszrec">
         <dc:Bounds x="1314" y="449" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1i039ik_di" bpmnElement="ExclusiveGateway_1i039ik" isMarkerVisible="true">
+        <dc:Bounds x="1122" y="549" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1182" y="567" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1kpuhf7_di" bpmnElement="SequenceFlow_1kpuhf7">
+        <di:waypoint x="1147" y="549" />
+        <di:waypoint x="1147" y="514" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0fpf85z_di" bpmnElement="SequenceFlow_0fpf85z">
+        <di:waypoint x="1147" y="599" />
+        <di:waypoint x="1147" y="657" />
+        <di:waypoint x="281" y="657" />
+        <di:waypoint x="281" y="120" />
+        <di:waypoint x="371" y="120" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
