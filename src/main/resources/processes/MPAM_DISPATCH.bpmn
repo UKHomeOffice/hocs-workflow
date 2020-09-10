@@ -26,7 +26,7 @@
       <bpmn:incoming>SequenceFlow_10lr0eq</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_10b5w9p</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0sx7144</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_05zf7kt</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_04xppk0</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_00y2poj" name="false" sourceRef="ExclusiveGateway_0qhopqu" targetRef="ServiceTask_0b4g59e">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
@@ -168,17 +168,22 @@
     <bpmn:sequenceFlow id="SequenceFlow_15watom" sourceRef="ExclusiveGateway_1tbni0t" targetRef="ServiceTask_1thtqcl">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchStatus == "ReturnToDraft"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="ServiceTask_1ncv1jy" name="Save Reject Reason Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_DispatchReturnToDraft&#34;), &#34;REJECT&#34;)}">
+    <bpmn:serviceTask id="ServiceTask_1ncv1jy" name="Save Return Reason Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_DispatchReturnToDraft&#34;), &#34;REJECT&#34;)}">
       <bpmn:incoming>SequenceFlow_007zoax</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_05zf7kt</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_007zoax" sourceRef="ExclusiveGateway_1vi0wlt" targetRef="ServiceTask_1ncv1jy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_05zf7kt" sourceRef="ServiceTask_1ncv1jy" targetRef="EndEvent_1twktcd" />
+    <bpmn:sequenceFlow id="SequenceFlow_05zf7kt" sourceRef="ServiceTask_1ncv1jy" targetRef="ServiceTask_1gqh0c4" />
     <bpmn:sequenceFlow id="SequenceFlow_0gd1ade" sourceRef="ExclusiveGateway_09dvm0d" targetRef="ServiceTask_0b4g59e">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION != "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="ServiceTask_1gqh0c4" name="Update Team for Draft" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_DRAFT&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
+      <bpmn:incoming>SequenceFlow_05zf7kt</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_04xppk0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_04xppk0" sourceRef="ServiceTask_1gqh0c4" targetRef="EndEvent_1twktcd" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_DISPATCH">
@@ -407,16 +412,15 @@
         <di:waypoint x="783" y="1069" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_1ncv1jy_di" bpmnElement="ServiceTask_1ncv1jy">
-        <dc:Bounds x="1169" y="1029" width="100" height="80" />
+        <dc:Bounds x="1093" y="1029" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_007zoax_di" bpmnElement="SequenceFlow_007zoax">
         <di:waypoint x="1051" y="1069" />
-        <di:waypoint x="1169" y="1069" />
+        <di:waypoint x="1093" y="1069" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_05zf7kt_di" bpmnElement="SequenceFlow_05zf7kt">
-        <di:waypoint x="1269" y="1069" />
-        <di:waypoint x="1386" y="1069" />
-        <di:waypoint x="1386" y="587" />
+        <di:waypoint x="1193" y="1069" />
+        <di:waypoint x="1244" y="1069" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0gd1ade_di" bpmnElement="SequenceFlow_0gd1ade">
         <di:waypoint x="1026" y="1232" />
@@ -424,6 +428,14 @@
         <di:waypoint x="320" y="1290" />
         <di:waypoint x="320" y="503" />
         <di:waypoint x="385" y="503" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1gqh0c4_di" bpmnElement="ServiceTask_1gqh0c4">
+        <dc:Bounds x="1244" y="1029" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_04xppk0_di" bpmnElement="SequenceFlow_04xppk0">
+        <di:waypoint x="1344" y="1069" />
+        <di:waypoint x="1386" y="1069" />
+        <di:waypoint x="1386" y="587" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
