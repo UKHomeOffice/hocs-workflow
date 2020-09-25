@@ -18,6 +18,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
+import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -178,7 +179,7 @@ public class WorkflowService {
             for (FieldDto fieldDto : schemaDto.getFields()) {
                 String keyString = fieldDto.getName();
                 String uuidString = dataMap.getOrDefault(keyString, null);
-                if (uuidString != null && uuidString.contains(("-"))) {
+                if (UuidUtils.isUUID(uuidString)) {
                     if (fieldDto.getComponent().equals(COMPONENT_DROPDOWN)) {
                         final Object choicesProperty = fieldDto.getProps().getOrDefault(CHOICES_PROPERTY, null);
                         if (choicesProperty != null) {
