@@ -237,7 +237,7 @@
     <bpmn:serviceTask id="ServiceTask_04cd41z" name="Update Team for Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_TRIAGE&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
       <bpmn:incoming>SequenceFlow_1tf4edx</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_17gv9sk</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0cz2azb</bpmn:incoming>
+      <bpmn:incoming>Flow_00dhe6j</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_108azcx</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_071fvv4" name="false" sourceRef="ExclusiveGateway_1jzkkkl" targetRef="ServiceTask_06e7e59">
@@ -364,7 +364,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0pqrbfz" sourceRef="ExclusiveGateway_0d3wc9s" targetRef="ServiceTask_0j4b6pe">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RefTypeCorrection != "Correction"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0cz2azb" sourceRef="ServiceTask_0j4b6pe" targetRef="ServiceTask_04cd41z" />
+    <bpmn:sequenceFlow id="SequenceFlow_0cz2azb" sourceRef="ServiceTask_0j4b6pe" targetRef="Activity_1sobox0" />
     <bpmn:serviceTask id="ServiceTask_0011raj" name="Request Campaign" camunda:expression="MPAM_CAMPAIGN_REQUEST" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_1d5y4cw</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0cc989h</bpmn:incoming>
@@ -468,6 +468,11 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0ksl1cg" sourceRef="ServiceTask_1bkf5fp" targetRef="EndEvent_1golwf2" />
+    <bpmn:serviceTask id="Activity_1sobox0" name="Save Ref Type Change Case Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_TriageChangeCaseType&#34;), &#34;CONVERTED_CASE&#34;)}">
+      <bpmn:incoming>SequenceFlow_0cz2azb</bpmn:incoming>
+      <bpmn:outgoing>Flow_00dhe6j</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_00dhe6j" sourceRef="Activity_1sobox0" targetRef="ServiceTask_04cd41z" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_TRIAGE">
@@ -570,9 +575,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0cz2azb_di" bpmnElement="SequenceFlow_0cz2azb">
         <di:waypoint x="1744" y="1167" />
-        <di:waypoint x="1744" y="1044" />
-        <di:waypoint x="1598" y="1044" />
-        <di:waypoint x="1598" y="921" />
+        <di:waypoint x="1744" y="1110" />
+        <di:waypoint x="1598" y="1110" />
+        <di:waypoint x="1598" y="1060" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0pqrbfz_di" bpmnElement="SequenceFlow_0pqrbfz">
         <di:waypoint x="1623" y="1207" />
@@ -580,10 +585,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_17gv9sk_di" bpmnElement="SequenceFlow_17gv9sk">
         <di:waypoint x="1598" y="1182" />
-        <di:waypoint x="1598" y="997" />
-        <di:waypoint x="1598" y="922" />
+        <di:waypoint x="1598" y="921" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1572" y="1149" width="51" height="14" />
+          <dc:Bounds x="1572" y="1139" width="51" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_10jivty_di" bpmnElement="SequenceFlow_10jivty">
@@ -937,6 +941,10 @@
           <dc:Bounds x="674" y="535" width="24" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00dhe6j_di" bpmnElement="Flow_00dhe6j">
+        <di:waypoint x="1598" y="980" />
+        <di:waypoint x="1598" y="921" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="156" y="538" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -1152,6 +1160,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1bkf5fp_di" bpmnElement="ServiceTask_1bkf5fp">
         <dc:Bounds x="1470" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1sobox0_di" bpmnElement="Activity_1sobox0">
+        <dc:Bounds x="1548" y="980" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
