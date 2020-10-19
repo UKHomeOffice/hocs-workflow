@@ -253,6 +253,25 @@ public class BpmnService {
         log.info("Adding Casenote to Case: {}", caseUUIDString);
     }
 
+    public void createCaseConversionNote(String caseUUIDString, String stageUUIDString, String caseConversionNote) {
+        log.debug("######## Create Case Conversion Note ########");
+        String caseChangeNoteType = null;
+        String dataValueCaseRefType = caseworkClient.getDataValue(caseUUIDString,"RefType");
+
+        if (!dataValueCaseRefType.isEmpty()) {
+            if (dataValueCaseRefType.equals("Ministerial")) {
+                caseChangeNoteType = "CONVERTED_CASE_TO_MINISTERIAL";
+            } else { // case type must be official
+                caseChangeNoteType = "CONVERTED_CASE_TO_OFFICIAL";
+            }
+            caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), caseChangeNoteType, caseConversionNote);
+            log.info("Added Case Conversion Note to Case: {}", caseUUIDString);
+        } else {
+            log.info("Case Ref type not known, could not add Case Conversion Note to Case: {}", caseUUIDString);
+        }
+
+    }
+
     private UUID deriveTeamUUID(String caseUUIDString, String stageTypeString, String allocationTeamString) {
         UUID teamUUID;
         if (StringUtils.isEmpty(allocationTeamString)) {
