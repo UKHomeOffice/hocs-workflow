@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/openjdk11
+FROM quay.io/ukhomeofficedigital/openjdk11:v11.0.5_10
 
 ENV USER user_hocs_workflow
 ENV USER_ID 1000
