@@ -116,14 +116,14 @@ public class BpmnService {
         Boolean memberPresent = false;
 
         GetCorrespondentsResponse correspondents = caseworkClient.getCorrespondentsForCase(UUID.fromString(caseUUIDString));
-        correspondents.getCorrespondents().forEach(c -> {System.out.println("correspondent type : " + c.getType());});
 
-        List<GetCorrespondentResponse> members = correspondents.getCorrespondents().stream().filter(correspondent -> correspondent.getType().equals("MEMBER")).collect(Collectors.toList());
-
-        log.info("Correspondents : " + correspondents);
-        log.info("Members : " + members);
-
-        memberPresent = (members.size() > 0);
+        if (correspondents != null) {
+            // collect any members in the correspondents list
+            List<GetCorrespondentResponse> members = correspondents.getCorrespondents().stream().filter(correspondent ->
+                    correspondent.getType().equals("MEMBER")).collect(Collectors.toList());
+            members.forEach(member->{log.info("Member : " + member);});
+            memberPresent = (members.size() > 0);
+        }
 
         log.info("Members present ? : " + memberPresent);
         return memberPresent;
