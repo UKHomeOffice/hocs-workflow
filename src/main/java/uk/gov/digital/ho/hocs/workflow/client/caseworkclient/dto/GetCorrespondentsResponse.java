@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-//@Getter
 @NoArgsConstructor
+//
+// This class exists purely as a collection wrapper for the GetCorrespondentResponse class.
+//
 public class GetCorrespondentsResponse {
 
-    //@JsonProperty("correspondents")
+    @JsonProperty("correspondents")
     @Getter
     private List<GetCorrespondentResponse> correspondents;
 

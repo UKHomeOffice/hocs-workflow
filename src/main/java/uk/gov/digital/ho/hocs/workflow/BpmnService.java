@@ -113,7 +113,7 @@ public class BpmnService {
 
     public boolean caseHasMember(String caseUUIDString) {
         log.info("Checking Correspondents for Case {}", caseUUIDString);
-        Boolean memberPresent = false;
+        boolean memberPresent = false;
 
         GetCorrespondentsResponse correspondents = caseworkClient.getCorrespondentsForCase(UUID.fromString(caseUUIDString));
 
