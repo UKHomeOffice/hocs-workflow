@@ -9,6 +9,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
@@ -156,6 +157,12 @@ public class CaseworkClient {
         );
         log.info("Got all stages for case: {}", caseUUID);
         return response;
+    }
+
+    public GetCorrespondentsResponse getCorrespondentsForCase(UUID caseUUID) {
+        log.info("Got correspondents for case: {}", caseUUID);
+        GetCorrespondentsResponse correspondents = restHelper.get(serviceBaseURL, String.format("/case/%s/correspondent", caseUUID), GetCorrespondentsResponse.class);
+        return correspondents;
     }
 
     public String getDataValue(String caseUUID, String variableName) {
