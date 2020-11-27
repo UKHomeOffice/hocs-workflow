@@ -132,6 +132,54 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shouldNotAssignInactiveTeam() {
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID topicUUID = UUID.randomUUID();
+        String stageName = "MOCK_STAGE_TYPE";
+        String teamName = "Team Name";
+        UUID teamUUID = UUID.randomUUID();
+
+        when(infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, stageName)).thenReturn(new TeamDto(teamName, teamUUID, false, new HashSet<>()));
+        doNothing().when(camundaClient).updateTask(eq(stageUUID), any());
+        doNothing().when(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), any());
+
+        bpmnService.updateTeamsForPrimaryTopic(caseUUID.toString(), stageUUID.toString(), topicUUID.toString(), stageName, teamName, teamUUID.toString());
+
+        verify(camundaClient, times(1)).updateTask(eq(stageUUID), eq(new HashMap<>()));
+        verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
+
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+    }
+
+    @Test
+    public void shouldAssignActiveTeam() {
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID topicUUID = UUID.randomUUID();
+        String stageName = "MOCK_STAGE_TYPE";
+        String teamName = "Team Name";
+        UUID teamUUID = UUID.randomUUID();
+
+        when(infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, stageName)).thenReturn(new TeamDto(teamName, teamUUID, true, new HashSet<>()));
+        doNothing().when(camundaClient).updateTask(eq(stageUUID), any());
+        doNothing().when(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), any());
+
+        bpmnService.updateTeamsForPrimaryTopic(caseUUID.toString(), stageUUID.toString(), topicUUID.toString(), stageName, teamName, teamUUID.toString());
+
+        verify(camundaClient, times(1)).updateTask(eq(stageUUID), valueCapture.capture());
+        verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
+
+        assertThat(valueCapture.getValue().size()).isEqualTo(2);
+
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+    }
+
+    @Test
     public void shouldUpdateDataNewTeams() {
 
         UUID draftingString = UUID.randomUUID();
