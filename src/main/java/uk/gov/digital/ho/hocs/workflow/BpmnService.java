@@ -144,8 +144,12 @@ public class BpmnService {
 
         Map<String, String> teamsForTopic = new HashMap<>();
         TeamDto teamDto = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, stageType);
-        teamsForTopic.put(teamNameKey, teamDto.getUuid().toString());
-        teamsForTopic.put(teamUUIDKey, teamDto.getDisplayName());
+        if (teamDto.isActive()) {
+            teamsForTopic.put(teamNameKey, teamDto.getUuid().toString());
+            teamsForTopic.put(teamUUIDKey, teamDto.getDisplayName());
+        } else {
+            log.warn("Avoiding assigning orphaned team {}", teamDto.getDisplayName());
+        }
         camundaClient.updateTask(stageUUID, teamsForTopic);
         caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
 
