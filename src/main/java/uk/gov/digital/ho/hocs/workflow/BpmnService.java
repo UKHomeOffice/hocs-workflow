@@ -274,6 +274,12 @@ public class BpmnService {
         log.info("Adding Casenote to Case: {}", caseUUIDString);
     }
 
+    public void createCaseNote(String caseUUIDString, String caseNote, String caseNoteType) {
+        log.debug("######## Create Case Note ########");
+        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), caseNoteType, caseNote);
+        log.info("Adding new Case note to Case: {}", caseUUIDString);
+    }
+
     public void createCaseConversionNote(String caseUUIDString, String stageUUIDString, String caseConversionNote) {
         log.debug("######## Create Case Conversion Note ########");
         String caseChangeNoteType = null;
