@@ -470,4 +470,21 @@ public class BpmnServiceTest {
         assertThat(valueCapture.getValue()).isEqualTo(expectedData);
         verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
     }
+
+    @Test
+    public void shouldCreateCaseNote() {
+
+        UUID testCaseId = UUID.randomUUID();
+        String testCaseNote = "Case note for closing a case by telephone.";
+        ArgumentCaptor<String> valueCapture = ArgumentCaptor.forClass(String.class);
+
+        when(caseworkClient.createCaseNote(testCaseId, "CLOSE_CASE_TELEPHONE", testCaseNote)).thenReturn(testCaseId);
+
+        bpmnService.createCaseNote(testCaseId.toString(), testCaseNote, "CLOSE_CASE_TELEPHONE");
+
+        verify(caseworkClient, times(1)).createCaseNote(testCaseId, "CLOSE_CASE_TELEPHONE", testCaseNote);
+        verify(caseworkClient).createCaseNote(eq(testCaseId), eq("CLOSE_CASE_TELEPHONE"), valueCapture.capture());
+        assertThat(valueCapture.getValue()).isEqualTo(testCaseNote);
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
 }
