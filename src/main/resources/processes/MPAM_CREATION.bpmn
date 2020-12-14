@@ -27,12 +27,13 @@
     <bpmn:sequenceFlow id="SequenceFlow_0jxl4wu" sourceRef="StartEvent_1" targetRef="ServiceTask_02vvmci" />
     <bpmn:endEvent id="EndEvent_0cpzydi" name="End Stage">
       <bpmn:incoming>SequenceFlow_1vd35kp</bpmn:incoming>
+      <bpmn:incoming>Flow_0djo3wn</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1hm1wa8" sourceRef="ExclusiveGateway_0exm7vf" targetRef="ServiceTask_1e5eydp">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_0wdqurs" name="Update Team for Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_TRIAGE&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
-      <bpmn:incoming>Flow_1tj4k9e</bpmn:incoming>
+      <bpmn:incoming>Flow_0pzkq8t</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1vd35kp</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1vd35kp" sourceRef="ServiceTask_0wdqurs" targetRef="EndEvent_0cpzydi" />
@@ -104,7 +105,7 @@
       <bpmn:outgoing>Flow_10vp4c5</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_10vp4c5" sourceRef="Activity_054ryvd" targetRef="Gateway_1rp4ps7" />
-    <bpmn:sequenceFlow id="Flow_1tj4k9e" sourceRef="Gateway_1rp4ps7" targetRef="ServiceTask_0wdqurs">
+    <bpmn:sequenceFlow id="Flow_1tj4k9e" sourceRef="Gateway_1rp4ps7" targetRef="Gateway_07s1s0m">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${hasMember == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_04tw9nz" sourceRef="Gateway_1d54sd5" targetRef="ServiceTask_1e5eydp">
@@ -113,6 +114,22 @@
     <bpmn:sequenceFlow id="Flow_1azhj1x" name="false" sourceRef="Gateway_1rp4ps7" targetRef="Activity_1jsutsb">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${hasMember == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_07s1s0m" name="IsTransferCase?">
+      <bpmn:incoming>Flow_1tj4k9e</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pzkq8t</bpmn:outgoing>
+      <bpmn:outgoing>Flow_16t6mkv</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0pzkq8t" name="false" sourceRef="Gateway_07s1s0m" targetRef="ServiceTask_0wdqurs">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BusArea != "TransferToOgd" &amp;&amp; BusArea != "TransferToOther"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_0nxbky4" name="Update Team for Transfer" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_TRANSFER&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
+      <bpmn:incoming>Flow_16t6mkv</bpmn:incoming>
+      <bpmn:outgoing>Flow_0djo3wn</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_16t6mkv" name="true" sourceRef="Gateway_07s1s0m" targetRef="Activity_0nxbky4">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BusArea == "TransferToOgd" || BusArea == "TransferToOther"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0djo3wn" sourceRef="Activity_0nxbky4" targetRef="EndEvent_0cpzydi" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_CREATION">
@@ -133,7 +150,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tj4k9e_di" bpmnElement="Flow_1tj4k9e">
         <di:waypoint x="1345" y="284" />
-        <di:waypoint x="1380" y="284" />
+        <di:waypoint x="1585" y="284" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_10vp4c5_di" bpmnElement="Flow_10vp4c5">
         <di:waypoint x="1260" y="284" />
@@ -193,8 +210,8 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1vd35kp_di" bpmnElement="SequenceFlow_1vd35kp">
-        <di:waypoint x="1480" y="284" />
-        <di:waypoint x="1522" y="284" />
+        <di:waypoint x="1950" y="284" />
+        <di:waypoint x="2132" y="284" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1hm1wa8_di" bpmnElement="SequenceFlow_1hm1wa8">
         <di:waypoint x="646" y="284" />
@@ -221,6 +238,27 @@
           <dc:Bounds x="609" y="180" width="24" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pzkq8t_di" bpmnElement="Flow_0pzkq8t">
+        <di:waypoint x="1635" y="284" />
+        <di:waypoint x="1850" y="284" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1731" y="266" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16t6mkv_di" bpmnElement="Flow_16t6mkv">
+        <di:waypoint x="1610" y="259" />
+        <di:waypoint x="1610" y="140" />
+        <di:waypoint x="1850" y="140" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1616" y="197" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0djo3wn_di" bpmnElement="Flow_0djo3wn">
+        <di:waypoint x="1950" y="140" />
+        <di:waypoint x="2041" y="140" />
+        <di:waypoint x="2041" y="284" />
+        <di:waypoint x="2132" y="284" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="184" y="183" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -232,15 +270,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0exm7vf_di" bpmnElement="ExclusiveGateway_0exm7vf" isMarkerVisible="true">
         <dc:Bounds x="596" y="259" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_0cpzydi_di" bpmnElement="EndEvent_0cpzydi">
-        <dc:Bounds x="1522" y="266" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1514" y="242" width="52" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_0wdqurs_di" bpmnElement="ServiceTask_0wdqurs">
-        <dc:Bounds x="1380" y="244" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_1e5eydp_di" bpmnElement="ServiceTask_1e5eydp">
         <dc:Bounds x="729" y="244" width="100" height="80" />
@@ -274,6 +303,24 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_054ryvd_di" bpmnElement="Activity_054ryvd">
         <dc:Bounds x="1160" y="244" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0cpzydi_di" bpmnElement="EndEvent_0cpzydi">
+        <dc:Bounds x="2132" y="266" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2124" y="242" width="52" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0wdqurs_di" bpmnElement="ServiceTask_0wdqurs">
+        <dc:Bounds x="1850" y="244" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_07s1s0m_di" bpmnElement="Gateway_07s1s0m" isMarkerVisible="true">
+        <dc:Bounds x="1585" y="259" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1571" y="316" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nxbky4_di" bpmnElement="Activity_0nxbky4">
+        <dc:Bounds x="1850" y="100" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
