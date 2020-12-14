@@ -7,16 +7,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -112,6 +111,24 @@ public class BpmnService {
         log.info("Updated Primary Correspondent for Case {}", caseUUIDString);
     }
 
+    public boolean caseHasMember(String caseUUIDString) {
+        log.info("Checking Correspondents for Case {}", caseUUIDString);
+        boolean memberPresent = false;
+
+        GetCorrespondentsResponse correspondents = caseworkClient.getCorrespondentsForCase(UUID.fromString(caseUUIDString));
+
+        if (correspondents != null) {
+            // collect any members in the correspondents list
+            List<GetCorrespondentResponse> members = correspondents.getCorrespondents().stream().filter(correspondent ->
+                    correspondent.getType().equals("MEMBER")).collect(Collectors.toList());
+            members.forEach(member->{log.info("Member : " + member);});
+            memberPresent = (members.size() > 0);
+        }
+
+        log.info("Members present ? : " + memberPresent);
+        return memberPresent;
+    }
+
     public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
@@ -127,8 +144,12 @@ public class BpmnService {
 
         Map<String, String> teamsForTopic = new HashMap<>();
         TeamDto teamDto = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, stageType);
-        teamsForTopic.put(teamNameKey, teamDto.getUuid().toString());
-        teamsForTopic.put(teamUUIDKey, teamDto.getDisplayName());
+        if (teamDto.isActive()) {
+            teamsForTopic.put(teamNameKey, teamDto.getUuid().toString());
+            teamsForTopic.put(teamUUIDKey, teamDto.getDisplayName());
+        } else {
+            log.warn("Avoiding assigning orphaned team {}", teamDto.getDisplayName());
+        }
         camundaClient.updateTask(stageUUID, teamsForTopic);
         caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
 
@@ -251,6 +272,12 @@ public class BpmnService {
         log.debug("######## Save Allocation Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
         log.info("Adding Casenote to Case: {}", caseUUIDString);
+    }
+
+    public void createCaseNote(String caseUUIDString, String caseNote, String caseNoteType) {
+        log.debug("######## Create Case Note ########");
+        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), caseNoteType, caseNote);
+        log.info("Adding new Case note to Case: {}", caseUUIDString);
     }
 
     public void createCaseConversionNote(String caseUUIDString, String stageUUIDString, String caseConversionNote) {
