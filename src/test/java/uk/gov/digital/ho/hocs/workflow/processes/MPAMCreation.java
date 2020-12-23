@@ -1,50 +1,104 @@
 package uk.gov.digital.ho.hocs.workflow.processes;
 
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.test.Deployment;
+import org.camunda.bpm.engine.test.ProcessEngineRule;
+import org.camunda.bpm.engine.test.mock.Mocks;
+import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
+import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
+import org.camunda.bpm.scenario.ProcessScenario;
+import org.camunda.bpm.scenario.Scenario;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.*;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@TestPropertySource(locations = {"classpath:test.properties"})
+@RunWith(MockitoJUnitRunner.class)
+@Deployment(resources = "processes/MPAM_CREATION.bpmn")
 public class MPAMCreation {
 
-    @MockBean
+    @Rule
+    @ClassRule
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
+            .build();
+
+    @Rule
+    public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+    @Mock
     BpmnService bpmnService;
+    @Mock
+    private ProcessScenario mpamCreationProcess;
+
+    @Before
+    public void defaultScenario() {
+
+        Mocks.register("bpmnService", bpmnService);
+
+        //Happy-Path
+        when(mpamCreationProcess.waitsAtUserTask("UserTask_145n012"))
+                .thenReturn(task -> task.complete(withVariables("valid", true)));
+        when(mpamCreationProcess.waitsAtUserTask("UserTask_0iez602"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+    }
 
     @Test
-    @Deployment(resources = "processes/MPAM_CREATION.bpmn")
     public void happyPath() {
 
         when(bpmnService.caseHasMember(any())).thenReturn(true);
 
-        ProcessInstance processInstance = runtimeService().startProcessInstanceByKey("MPAM_CREATION");
-        assertThat(processInstance).isStarted();
-        assertThat(processInstance).isWaitingAt("UserTask_145n012");
+        Scenario.run(mpamCreationProcess)
+                .startByKey("MPAM_CREATION")
+                .execute();
 
-        complete(task(), withVariables("valid", true));
+        verify(mpamCreationProcess)
+                .hasCompleted("ServiceTask_1wekfef");
+        verify(mpamCreationProcess)
+                .hasCompleted("ServiceTask_0wdqurs");
+        verify(mpamCreationProcess)
+                .hasFinished("EndEvent_0cpzydi");
 
-        assertThat(processInstance).isWaitingAt("UserTask_0iez602");
+        verify(bpmnService).updatePrimaryCorrespondent(any(), any(), any());
 
-        complete(task(), withVariables("DIRECTION", "FORWARD"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), any(), any(), any(), any(), any());
 
-        assertThat(processInstance)
-                .hasPassed("ServiceTask_1wekfef")
-                .hasPassed("ServiceTask_0wdqurs")
-                .isEnded();
-
-        verify(bpmnService, times(1)).updatePrimaryCorrespondent(any(), any(), any());
-
-        verify(bpmnService, times(1)).updateTeamByStageAndTexts(any(), any(), any(), any(), any(), any(), any());
     }
+
+    @Test
+    public void hasNoCaseMember() {
+
+        when(bpmnService.caseHasMember(any()))
+                .thenReturn(false)
+                .thenReturn(true);
+
+        when(mpamCreationProcess.waitsAtUserTask("Activity_0oz6tve"))
+                .thenReturn(task -> task.complete(withVariables("valid", true)));
+
+        Scenario.run(mpamCreationProcess)
+                .startByKey("MPAM_CREATION")
+                .execute();
+
+        verify(mpamCreationProcess, times(2))
+                .hasCompleted("ServiceTask_1wekfef");
+        verify(mpamCreationProcess)
+                .hasCompleted("ServiceTask_0wdqurs");
+        verify(mpamCreationProcess)
+                .hasCompleted("Activity_1jsutsb");
+        verify(mpamCreationProcess)
+                .hasCompleted("Activity_0oz6tve");
+        verify(mpamCreationProcess)
+                .hasFinished("EndEvent_0cpzydi");
+
+        verify(bpmnService, times(2)).updatePrimaryCorrespondent(any(), any(), any());
+
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), any(), any(), any(), any(), any());
+
+    }
+
 }
