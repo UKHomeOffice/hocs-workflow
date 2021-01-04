@@ -27,6 +27,7 @@ public class MPAMTriageOnHold {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
+            .assertClassCoverageAtLeast(0.83)
             .build();
     @Mock
     BpmnService bpmnService;
@@ -38,7 +39,6 @@ public class MPAMTriageOnHold {
 
         Mocks.register("bpmnService", bpmnService);
 
-        //Happy-Path
         when(mpamTriageOnHoldScenario.waitsAtUserTask("UserTask_0jxw8et"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "TriageOnHoldOutcome", "PutOnCampaign", "DIRECTION", "FORWARD")));
         when(mpamTriageOnHoldScenario.waitsAtUserTask("UserTask_1ql7p2r"))

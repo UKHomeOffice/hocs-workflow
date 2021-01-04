@@ -27,6 +27,7 @@ public class MPAMCreation {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
+            .assertClassCoverageAtLeast(0.88)
             .build();
 
     @Rule
@@ -41,7 +42,6 @@ public class MPAMCreation {
 
         Mocks.register("bpmnService", bpmnService);
 
-        //Happy-Path
         when(mpamCreationProcess.waitsAtUserTask("UserTask_145n012"))
                 .thenReturn(task -> task.complete(withVariables("valid", true)));
         when(mpamCreationProcess.waitsAtUserTask("UserTask_0iez602"))

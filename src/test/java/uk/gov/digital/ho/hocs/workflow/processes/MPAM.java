@@ -22,22 +22,10 @@ import static org.mockito.Mockito.verify;
 @Deployment(resources = {
         "processes/MPAM.bpmn",
         "processes/MPAM_CREATION.bpmn",
-        "processes/MPAM_CAMPAIGN.bpmn",
-        "processes/MPAM_CREATION.bpmn",
-        "processes/MPAM_DISPATCH.bpmn",
-        "processes/MPAM_DISPATCHED_FOLLOW_UP.bpmn",
+        "processes/MPAM_TRIAGE.bpmn",
         "processes/MPAM_DRAFT.bpmn",
-        "processes/MPAM_DRAFT_ESCALATE.bpmn",
-        "processes/MPAM_DRAFT_ONHOLD.bpmn",
-        "processes/MPAM_DRAFT_REQUESTED_CONTRIBUTION.bpmn",
         "processes/MPAM_PO.bpmn",
         "processes/MPAM_QA.bpmn",
-        "processes/MPAM_QA_ESCALATE.bpmn",
-        "processes/MPAM_QA_ONHOLD.bpmn",
-        "processes/MPAM_TRIAGE.bpmn",
-        "processes/MPAM_TRIAGE_ESCALATE.bpmn",
-        "processes/MPAM_TRIAGE_ON_HOLD.bpmn",
-        "processes/MPAM_TRIAGE_REQUESTED_CONTRIBUTION.bpmn",
         "processes/STAGE.bpmn",
         "processes/STAGE_WITH_USER.bpmn"})
 public class MPAM {
