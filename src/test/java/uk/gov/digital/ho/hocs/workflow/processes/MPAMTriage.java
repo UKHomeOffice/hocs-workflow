@@ -20,10 +20,11 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/MPAM_DRAFT.bpmn")
-public class MPAMDraft {
+@Deployment(resources = "processes/MPAM_TRIAGE.bpmn")
+public class MPAMTriage {
 
     @Rule
     @ClassRule
@@ -44,55 +45,55 @@ public class MPAMDraft {
     }
 
     @Test
-    public void whenOfficialChangedToMinisterial_thenMinisterialValuesAreNotCleared() {
-
-        when(processScenario.waitsAtUserTask("Validate_UserInput_00s8k9f"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "UpdateRefType",
-                        "RefType", "Official",
-                        "RefTypeCorrection", "Correction")));
-        when(processScenario.waitsAtUserTask("Validate_ReferenceTypeToMinisterial_0zaqr6s"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD")));
-
-        Scenario.run(processScenario)
-                .startByKey("MPAM_DRAFT")
-                .execute();
-
-        verify(processScenario).hasCompleted("Screen_ReferenceTypeToMinisterial_1unkg32");
-        verify(processScenario).hasCompleted("Service_UpdateRefTypeToMinisterial_0urk37h");
-        verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote_1yc1ce2");
-        verify(processScenario).hasFinished("EndEvent_168jcnt");
-        verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Ministerial"), eq("RefTypeStatus"), eq("Confirm"));
-        verify(bpmnService, never()).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
-    }
-
-    @Test
     public void whenMinisterialChangedToOfficial_thenMinisterialValuesAreCleared() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput_00s8k9f"))
+        when(processScenario.waitsAtUserTask("Validate_UserInput_0jxw8et"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "UpdateRefType",
                         "RefType", "Ministerial",
                         "RefTypeCorrection", "Correction")));
-        when(processScenario.waitsAtUserTask("Validate_RefTypeToOfficial_08l10xy"))
+        when(processScenario.waitsAtUserTask("Validate_ReferenceTypeToOfficial_0ai1ek7"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
-                .startByKey("MPAM_DRAFT")
+                .startByKey("MPAM_TRIAGE")
                 .execute();
 
-        verify(processScenario).hasCompleted("Screen_RefTypeToOfficial_0ia1i5c");
-        verify(processScenario).hasCompleted("Service_UpdateRefTypeToOfficial_0lic0m6");
-        verify(processScenario).hasCompleted("Service_ClearMinisterialValues_0xqy6p5");
-        verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote_1yc1ce2");
-        verify(processScenario).hasFinished("EndEvent_168jcnt");
+        verify(processScenario).hasCompleted("Screen_ReferenceTypeToOfficial_0pxyggg");
+        verify(processScenario).hasCompleted("Service_UpdateRefTypeToOfficial_07vhlhy");
+        verify(processScenario).hasCompleted("Service_ClearMinisterialValues_05l3eed");
+        verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote_1sobox0");
+        verify(processScenario).hasFinished("EndEvent_1golwf2");
         verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Official"), eq("RefTypeStatus"), eq("Confirm"));
         verify(bpmnService).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
+    }
+
+    @Test
+    public void whenOfficialChangedToMinisterial_thenMinisterialValuesAreNotCleared() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput_0jxw8et"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateRefType",
+                        "RefType", "Official",
+                        "RefTypeCorrection", "Correction")));
+        when(processScenario.waitsAtUserTask("Validate_ReferenceTypeToMinisterial_0k42bt1"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRIAGE")
+                .execute();
+
+        verify(processScenario).hasCompleted("Screen_ReferenceTypeToMinisterial_1c5qr22");
+        verify(processScenario).hasCompleted("Service_UpdateRefTypeToMinisterial_0ai6870");
+        verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote_1sobox0");
+        verify(processScenario).hasFinished("EndEvent_1golwf2");
+        verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Ministerial"), eq("RefTypeStatus"), eq("Confirm"));
+        verify(bpmnService, never()).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
     }
 }
