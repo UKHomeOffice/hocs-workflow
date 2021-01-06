@@ -27,10 +27,11 @@ public class DCU_MIN_MinisterSignOff {
     public static final String DCU_MIN_MINISTER_SIGN_OFF_END = "DCU_MIN_MINISTER_SIGN_OFF_END";
     public static final String VALIDATE_REJECTION_NOTE = "UserTask_04hin8c";
     public static final String DCU_MIN_MINISTER_SIGN_OFF = "DCU_MIN_MINISTER_SIGN_OFF";
+    public static final String VALIDATE_NOT_APPLICABLE = "UserTask_1j77wfm";
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.88)
+            .assertClassCoverageAtLeast(0.5)
             .build();
 
     @Rule
@@ -81,5 +82,30 @@ public class DCU_MIN_MinisterSignOff {
 
         verify(mpamCreationProcess)
                 .hasFinished(DCU_MIN_MINISTER_SIGN_OFF_END);
+
+        verify(mpamCreationProcess, never()).hasFinished(VALIDATE_NOT_APPLICABLE);
+
+    }
+
+    @Test
+    public void notApplicableScenario() {
+
+        when(mpamCreationProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "NOT_APPLICABLE")));
+
+        when(mpamCreationProcess.waitsAtUserTask(DCU_MIN_MinisterSignOff.VALIDATE_NOT_APPLICABLE))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        Scenario.run(mpamCreationProcess)
+                .startByKey("DCU_MIN_MINISTER_SIGN_OFF")
+                .execute();
+
+        verify(mpamCreationProcess)
+                .hasFinished(VALIDATE_NOT_APPLICABLE);
+
+        verify(mpamCreationProcess)
+                .hasFinished(DCU_MIN_MINISTER_SIGN_OFF_END);
+
+        verify(mpamCreationProcess, never()).hasFinished(VALIDATE_REJECTION_NOTE);
     }
 }
