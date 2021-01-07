@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.processes;
 
-import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.mock.Mocks;
 import org.camunda.bpm.extension.mockito.ProcessExpressions;
@@ -16,10 +15,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
+import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
+import uk.gov.digital.ho.hocs.workflow.util.CallActivityReturnVariable;
 
-import java.util.function.Consumer;
+import java.util.Arrays;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -35,12 +37,9 @@ import static org.mockito.Mockito.*;
         "processes/STAGE_WITH_USER.bpmn"})
 public class DCU_MIN {
 
-    public static final String APPROVE_MINISTER_SIGN_OFF = "UserTask_0eagz4p";
-    public static final String MIN_SIGN_OFF = "CallActivity_1syv7pu";
     public static final String DISPATCH = "CallActivity_1rowgu5";
     public static final String PO_SIGN_OFF = "CallActivity_0pmeblj";
     public static final String INITIAL_DRAFT = "CallActivity_1ket68y";
-    public static final String APPROVE_MIN_SIGN_OFF = "ServiceTask_0te5zh0";
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
@@ -50,8 +49,6 @@ public class DCU_MIN {
     BpmnService bpmnService;
     @Mock
     private ProcessScenario dcuMinProcess;
-    @Mock
-    private ProcessScenario minSignOffProcess;
 
     @Before
     public void defaultScenario() {
@@ -84,7 +81,13 @@ public class DCU_MIN {
     public void acceptMinisterSignOffScenario() {
 
         ProcessExpressions.registerCallActivityMock("DCU_MIN_MINISTER_SIGN_OFF")
-                .onExecutionAddVariable("MinisterSignOffDecision", "ACCEPT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("MinisterSignOffDecision", "ACCEPT"))
+                        )
+                ))
                 .deploy(rule);
 
         Scenario.run(dcuMinProcess)
@@ -102,24 +105,17 @@ public class DCU_MIN {
     @Test
     public void rejectMinisterSignOffScenario() {
 
-        // A DelegateExecution consumer has had to be introduced to allow different values to be set for different calls.
-        // In this case we need the first call to be Reject and the second accept
-        final Consumer<DelegateExecution> rejectThenAcceptConsumer = new Consumer<>() {
-            private int callCount = 1;
-            @Override
-            public void accept(DelegateExecution delegateExecution) {
-                if (callCount == 1) {
-                    delegateExecution.setVariable("MinisterSignOffDecision", "REJECT");
-                    ++callCount;
-                } else {
-                    delegateExecution.setVariable("MinisterSignOffDecision", "ACCEPT");
-                }
-
-            }
-        };
-
         ProcessExpressions.registerCallActivityMock("DCU_MIN_MINISTER_SIGN_OFF")
-                .onExecutionDo(rejectThenAcceptConsumer)
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("MinisterSignOffDecision", "REJECT")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("MinisterSignOffDecision", "ACCEPT"))
+                        )
+                ))
                 .deploy(rule);
 
         Scenario.run(dcuMinProcess)
@@ -128,6 +124,39 @@ public class DCU_MIN {
 
         verify(dcuMinProcess, times(2))
                 .hasCompleted(INITIAL_DRAFT);
+
+        verify(dcuMinProcess, times(2))
+                .hasCompleted(PO_SIGN_OFF);
+
+        verify(dcuMinProcess, times(1))
+                .hasCompleted(DISPATCH);
+    }
+
+    @Test
+    public void notApplicableMinisterSignOffScenario() {
+
+        ProcessExpressions.registerCallActivityMock("DCU_MIN_MINISTER_SIGN_OFF")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("MinisterSignOffDecision", "NOT_APPLICABLE")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("MinisterSignOffDecision", "ACCEPT"))
+                        )
+                ))
+                .deploy(rule);
+
+        Scenario.run(dcuMinProcess)
+                .startByKey("MIN")
+                .execute();
+
+        verify(dcuMinProcess, times(1))
+                .hasCompleted(INITIAL_DRAFT);
+
+        verify(dcuMinProcess, times(2))
+                .hasCompleted(PO_SIGN_OFF);
 
         verify(dcuMinProcess, times(1))
                 .hasCompleted(DISPATCH);
