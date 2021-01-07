@@ -31,7 +31,7 @@ public class DCU_MIN_MinisterSignOff {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.5)
+            .assertClassCoverageAtLeast(0.86)
             .build();
 
     @Rule
@@ -39,7 +39,7 @@ public class DCU_MIN_MinisterSignOff {
     @Mock
     BpmnService bpmnService;
     @Mock
-    private ProcessScenario mpamCreationProcess;
+    private ProcessScenario dcuMinSignOffProcess;
 
     @Before
     public void defaultScenario() {
@@ -49,63 +49,63 @@ public class DCU_MIN_MinisterSignOff {
     @Test
     public void acceptSignOffScenario() {
 
-        when(mpamCreationProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
+        when(dcuMinSignOffProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "ACCEPT")));
 
-        Scenario.run(mpamCreationProcess)
+        Scenario.run(dcuMinSignOffProcess)
                 .startByKey(DCU_MIN_MINISTER_SIGN_OFF)
                 .execute();
 
-        verify(mpamCreationProcess)
+        verify(dcuMinSignOffProcess)
                 .hasFinished(DCU_MIN_MINISTER_SIGN_OFF_END);
 
-        verify(mpamCreationProcess, never()).hasFinished(VALIDATE_REJECTION_NOTE);
+        verify(dcuMinSignOffProcess, never()).hasFinished(VALIDATE_REJECTION_NOTE);
 
     }
 
     @Test
     public void rejectSignOffScenario() {
 
-        when(mpamCreationProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
+        when(dcuMinSignOffProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "REJECT")));
 
-        when(mpamCreationProcess.waitsAtUserTask(DCU_MIN_MinisterSignOff.VALIDATE_REJECTION_NOTE))
+        when(dcuMinSignOffProcess.waitsAtUserTask(DCU_MIN_MinisterSignOff.VALIDATE_REJECTION_NOTE))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
 
-        Scenario.run(mpamCreationProcess)
+        Scenario.run(dcuMinSignOffProcess)
                 .startByKey("DCU_MIN_MINISTER_SIGN_OFF")
                 .execute();
 
-        verify(mpamCreationProcess)
+        verify(dcuMinSignOffProcess)
                 .hasFinished(VALIDATE_REJECTION_NOTE);
 
-        verify(mpamCreationProcess)
+        verify(dcuMinSignOffProcess)
                 .hasFinished(DCU_MIN_MINISTER_SIGN_OFF_END);
 
-        verify(mpamCreationProcess, never()).hasFinished(VALIDATE_NOT_APPLICABLE);
+        verify(dcuMinSignOffProcess, never()).hasFinished(VALIDATE_NOT_APPLICABLE);
 
     }
 
     @Test
     public void notApplicableScenario() {
 
-        when(mpamCreationProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
+        when(dcuMinSignOffProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "NOT_APPLICABLE")));
 
-        when(mpamCreationProcess.waitsAtUserTask(DCU_MIN_MinisterSignOff.VALIDATE_NOT_APPLICABLE))
+        when(dcuMinSignOffProcess.waitsAtUserTask(DCU_MIN_MinisterSignOff.VALIDATE_NOT_APPLICABLE))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        Scenario.run(mpamCreationProcess)
+        Scenario.run(dcuMinSignOffProcess)
                 .startByKey("DCU_MIN_MINISTER_SIGN_OFF")
                 .execute();
 
-        verify(mpamCreationProcess)
+        verify(dcuMinSignOffProcess)
                 .hasFinished(VALIDATE_NOT_APPLICABLE);
 
-        verify(mpamCreationProcess)
+        verify(dcuMinSignOffProcess)
                 .hasFinished(DCU_MIN_MINISTER_SIGN_OFF_END);
 
-        verify(mpamCreationProcess, never()).hasFinished(VALIDATE_REJECTION_NOTE);
+        verify(dcuMinSignOffProcess, never()).hasFinished(VALIDATE_REJECTION_NOTE);
     }
 }
