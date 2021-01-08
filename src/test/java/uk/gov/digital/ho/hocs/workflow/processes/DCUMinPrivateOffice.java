@@ -75,6 +75,7 @@ public class DCUMinPrivateOffice {
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
+                        "CaseNote_PrivateOfficeTopic", "Change topic",
                         "Topics", topicUUID.toString())));
 
         Scenario.run(processScenario)
@@ -85,6 +86,8 @@ public class DCUMinPrivateOffice {
         verify(processScenario, times(3)).hasCompleted("Screen_ChangeTopic");
         verify(processScenario).hasCompleted("Service_SavePrimaryTopic");
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(topicUUID.toString()));
+        verify(processScenario).hasCompleted("Service_SaveTopicChangeNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Change topic"), eq("CHANGE"));
         verify(processScenario).hasFinished("DCU_MIN_PRIVATE_OFFICE_END");
     }
 }
