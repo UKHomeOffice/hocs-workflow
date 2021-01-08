@@ -85,6 +85,8 @@ public class DCU_MIN_MinisterSignOff {
 
         verify(dcuMinSignOffProcess, never()).hasFinished(VALIDATE_NOT_APPLICABLE);
 
+        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
+
     }
 
     @Test
@@ -107,5 +109,7 @@ public class DCU_MIN_MinisterSignOff {
                 .hasFinished(DCU_MIN_MINISTER_SIGN_OFF_END);
 
         verify(dcuMinSignOffProcess, never()).hasFinished(VALIDATE_REJECTION_NOTE);
+
+        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
     }
 }
