@@ -65,12 +65,13 @@ public class DCU_MIN_MinisterSignOff {
 
     @Test
     public void rejectSignOffScenario() {
+        final String REJECTION_REASON = "Rejection Reason";
 
         when(dcuMinSignOffProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "REJECT")));
 
-        when(dcuMinSignOffProcess.waitsAtUserTask(DCU_MIN_MinisterSignOff.VALIDATE_REJECTION_NOTE))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(dcuMinSignOffProcess.waitsAtUserTask(VALIDATE_REJECTION_NOTE))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_MinisterReject", REJECTION_REASON)));
 
 
         Scenario.run(dcuMinSignOffProcess)
@@ -85,18 +86,19 @@ public class DCU_MIN_MinisterSignOff {
 
         verify(dcuMinSignOffProcess, never()).hasFinished(VALIDATE_NOT_APPLICABLE);
 
-        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
+        verify(bpmnService).updateAllocationNote(any(), any(), eq(REJECTION_REASON), eq("REJECT"));
 
     }
 
     @Test
     public void notApplicableScenario() {
+        final String NA_REASON = "N/A Reason";
 
         when(dcuMinSignOffProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "NOT_APPLICABLE")));
 
-        when(dcuMinSignOffProcess.waitsAtUserTask(DCU_MIN_MinisterSignOff.VALIDATE_NOT_APPLICABLE))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(dcuMinSignOffProcess.waitsAtUserTask(VALIDATE_NOT_APPLICABLE))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_MinisterNotApplicable", NA_REASON)));
 
         Scenario.run(dcuMinSignOffProcess)
                 .startByKey("DCU_MIN_MINISTER_SIGN_OFF")
@@ -110,6 +112,33 @@ public class DCU_MIN_MinisterSignOff {
 
         verify(dcuMinSignOffProcess, never()).hasFinished(VALIDATE_REJECTION_NOTE);
 
-        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
+        verify(bpmnService).updateAllocationNote(any(), any(), eq(NA_REASON), eq("REJECT"));
+    }
+
+    @Test
+    public void notApplicableScenarioBackLinkGoesBackToMinisterSignOff() {
+
+        when(dcuMinSignOffProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "NOT_APPLICABLE")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "ACCEPT")));
+
+        when(dcuMinSignOffProcess.waitsAtUserTask(VALIDATE_NOT_APPLICABLE))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        Scenario.run(dcuMinSignOffProcess)
+                .startByKey("DCU_MIN_MINISTER_SIGN_OFF")
+                .execute();
+
+        verify(dcuMinSignOffProcess, times(2))
+                .hasFinished(APPROVE_MINISTER_SIGN_OFF);
+
+        verify(dcuMinSignOffProcess, times(1))
+                .hasFinished(VALIDATE_NOT_APPLICABLE);
+
+        verify(dcuMinSignOffProcess)
+                .hasFinished(DCU_MIN_MINISTER_SIGN_OFF_END);
+
+        verify(bpmnService, never()).updateAllocationNote(any(), any(), any(), any());
     }
 }
