@@ -238,7 +238,7 @@ public class BpmnService {
         }
 
     }
-
+    
     private Map<String, String> parseArgPairs(String... argPairs) {
         if (argPairs.length % 2 == 1) {
             throw new ApplicationExceptions.InvalidMethodArgumentException("Even number of arguments expected");
@@ -353,5 +353,11 @@ public class BpmnService {
 
     }
 
+    public void unallocateUserFromStage(String caseUUIDString, String stageUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+
+        caseworkClient.updateStageUser(caseUUID, stageUUID, null); 
+    }
 
 }
