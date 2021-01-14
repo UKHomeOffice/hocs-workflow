@@ -11,6 +11,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorresponden
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
@@ -44,6 +45,13 @@ public class BpmnService {
 
         UUID teamUUID = deriveTeamUUID(caseUUIDString, stageTypeString, allocationTeamString);
         UUID userUUID = deriveUserUUID(caseUUIDString, stageTypeString, allocatedUserId);
+        if (teamUUID != null && userUUID != null) {
+            UserDto userInTeam = infoClient.getUserForTeam(teamUUID, userUUID);
+            if (userInTeam == null) {
+                log.info("Requested user {} for new stage {} is not in team {}", userUUID, stageTypeString, teamUUID);
+                userUUID = null;
+            }
+        }
 
         String resultStageUUID;
         if (StringUtils.hasText(stageUUIDString)) {

@@ -9,8 +9,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.ParameterizedTypeReference;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,6 +32,18 @@ public class InfoClientTest {
     @Before
     public void setup() {
         infoClient = new InfoClient(restHelper, infoServiceUrl);
+    }
+
+    @Test
+    public void getUserForTeam() {
+        UUID teamUUID = UUID.randomUUID();
+        UUID userUUID = UUID.randomUUID();
+        String expectedUrl = String.format("/teams/%s/member/%s", teamUUID, userUUID);
+
+        infoClient.getUserForTeam(teamUUID, userUUID);
+
+        verify(restHelper).get(infoServiceUrl, expectedUrl, UserDto.class);
+        verifyNoMoreInteractions(restHelper);
     }
 
     @Test
