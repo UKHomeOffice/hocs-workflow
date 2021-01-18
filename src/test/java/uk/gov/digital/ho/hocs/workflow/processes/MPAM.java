@@ -21,6 +21,7 @@ import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,6 +46,8 @@ public class MPAM {
     public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED_RESULT = "Gateway_0kabhfi";
     public static final String DRAFT_ESCALATE_DRAFT_STATUS = "ExclusiveGateway_1nyjaew";
     public static final String CAMPAIGN = "CallActivity_0l0wizp";
+
+    public static final String DRAFT_CLEAR_USER = "Activity_1l35uib";
 
     @Rule
     @ClassRule
@@ -141,5 +144,73 @@ public class MPAM {
                 .hasCompleted(DRAFT_ESCALATE_DRAFT_STATUS);
         verify(mpamProcess)
                 .hasCompleted(CAMPAIGN);
+    }
+
+    @Test
+    public void removeDraftUser_fromContributionRequested_specifyUnallocate() {
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("DraftStatus", ""),
+                                        new CallActivityReturnVariable("RefType", "Ministerial")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Complete")
+                .onExecutionAddVariable("DraftShouldUnallocate", "Unallocate")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted(DRAFT_REQUEST_CONTRIBUTION);
+        verify(mpamProcess)
+                .hasCompleted(DRAFT_REQUEST_CONTRIBUTION_RESULT);
+        verify(mpamProcess)
+                .hasCompleted(DRAFT_CLEAR_USER);
+    }
+
+    @Test
+    public void removeDraftUser_fromContributionRequested_specifyRetain() {
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("DraftStatus", ""),
+                                        new CallActivityReturnVariable("RefType", "Ministerial")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Complete")
+                .onExecutionAddVariable("DraftShouldUnallocate", "Retail")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted(DRAFT_REQUEST_CONTRIBUTION);
+        verify(mpamProcess)
+                .hasCompleted(DRAFT_REQUEST_CONTRIBUTION_RESULT);
+        verify(mpamProcess, never())
+                .hasCompleted(DRAFT_CLEAR_USER);
     }
 }
