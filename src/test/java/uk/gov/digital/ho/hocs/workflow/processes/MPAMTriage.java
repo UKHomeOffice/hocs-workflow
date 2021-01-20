@@ -47,7 +47,7 @@ public class MPAMTriage {
     @Test
     public void whenMinisterialChangedToOfficial_thenMinisterialValuesAreCleared() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput_0jxw8et"))
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "UpdateRefType",
@@ -66,7 +66,7 @@ public class MPAMTriage {
         verify(processScenario).hasCompleted("Service_UpdateRefTypeToOfficial_07vhlhy");
         verify(processScenario).hasCompleted("Service_ClearMinisterialValues_05l3eed");
         verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote_1sobox0");
-        verify(processScenario).hasFinished("EndEvent_1golwf2");
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
         verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Official"), eq("RefTypeStatus"), eq("Confirm"));
         verify(bpmnService).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
     }
@@ -74,7 +74,7 @@ public class MPAMTriage {
     @Test
     public void whenOfficialChangedToMinisterial_thenMinisterialValuesAreNotCleared() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput_0jxw8et"))
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "UpdateRefType",
@@ -92,8 +92,28 @@ public class MPAMTriage {
         verify(processScenario).hasCompleted("Screen_ReferenceTypeToMinisterial_1c5qr22");
         verify(processScenario).hasCompleted("Service_UpdateRefTypeToMinisterial_0ai6870");
         verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote_1sobox0");
-        verify(processScenario).hasFinished("EndEvent_1golwf2");
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
         verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Ministerial"), eq("RefTypeStatus"), eq("Confirm"));
         verify(bpmnService, never()).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
+    }
+
+    @Test
+    public void whenSendToDraft_thenUpdatesTeam_andClearsRejected() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "TriageOutcome", "SendToDraft")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRIAGE")
+                .execute();
+
+        verify(processScenario).hasCompleted("Service_UpdateTeamForDraft");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasCompleted("Service_ClearRejected");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
     }
 }
