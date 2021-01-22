@@ -29,7 +29,7 @@ public class MPAMTriage {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.2)
+            .assertClassCoverageAtLeast(0.43)
             .build();
 
     @Rule
@@ -114,6 +114,28 @@ public class MPAMTriage {
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasCompleted("Service_ClearRejected");
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
+    }
+
+    @Test
+    public void whenChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateBusinessArea")));
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRIAGE")
+                .execute();
+
+        verify(bpmnService).updateValue(any(), any(), eq("BusAreaStatus"), eq("Confirm"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasCompleted("Service_SetBusAreaStatusConfirm");
+        verify(processScenario).hasCompleted("Service_UpdateTeamForTriage");
         verify(processScenario).hasFinished("EndEvent_MpamTriage");
     }
 }

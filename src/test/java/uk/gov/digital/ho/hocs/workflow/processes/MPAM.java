@@ -21,8 +21,7 @@ import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -46,6 +45,7 @@ public class MPAM {
     public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED_RESULT = "Gateway_0kabhfi";
     public static final String DRAFT_ESCALATE_DRAFT_STATUS = "ExclusiveGateway_1nyjaew";
     public static final String CAMPAIGN = "CallActivity_0l0wizp";
+    public static final String MPAM_TRIAGE = "CallActivity_1e8227w";
 
     public static final String DRAFT_CLEAR_USER = "Activity_1l35uib";
 
@@ -212,5 +212,35 @@ public class MPAM {
                 .hasCompleted(DRAFT_REQUEST_CONTRIBUTION_RESULT);
         verify(mpamProcess, never())
                 .hasCompleted(DRAFT_CLEAR_USER);
+    }
+
+    @Test
+    public void whenChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", "Confirm"),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefType", "Ministerial"),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess, times(2))
+                .hasCompleted(MPAM_TRIAGE);
+
     }
 }
