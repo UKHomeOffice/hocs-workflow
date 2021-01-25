@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
         "processes/MPAM.bpmn",
         "processes/MPAM_CREATION.bpmn",
         "processes/MPAM_TRIAGE.bpmn",
+        "processes/MPAM_TRIAGE_ESCALATE.bpmn",
         "processes/MPAM_DRAFT.bpmn",
         "processes/MPAM_PO.bpmn",
         "processes/MPAM_QA.bpmn",
@@ -40,12 +41,11 @@ public class MPAM {
 
     public static final String DRAFT_REQUEST_CONTRIBUTION = "CallActivity_1068j5g";
     public static final String DRAFT_REQUEST_CONTRIBUTION_RESULT = "ExclusiveGateway_1hlhu8m";
-    public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED = "Activity_134af50";
+    public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED = "CallActivity_DraftEscalated_RequestContribution";
 
     public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED_RESULT = "Gateway_0kabhfi";
     public static final String DRAFT_ESCALATE_DRAFT_STATUS = "ExclusiveGateway_1nyjaew";
     public static final String CAMPAIGN = "CallActivity_0l0wizp";
-    public static final String MPAM_TRIAGE = "CallActivity_1e8227w";
 
     public static final String DRAFT_CLEAR_USER = "Activity_1l35uib";
 
@@ -215,7 +215,7 @@ public class MPAM {
     }
 
     @Test
-    public void whenChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+    public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
 
         ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
                 .onExecutionDo(new ExecutionVariableSequence(
@@ -228,7 +228,6 @@ public class MPAM {
                                 // second call
                                 Arrays.asList(
                                         new CallActivityReturnVariable("BusAreaStatus", ""),
-                                        new CallActivityReturnVariable("RefType", "Ministerial"),
                                         new CallActivityReturnVariable("RefTypeStatus", "")
                                 )
                         )
@@ -240,7 +239,172 @@ public class MPAM {
                 .execute();
 
         verify(mpamProcess, times(2))
-                .hasCompleted(MPAM_TRIAGE);
+                .hasCompleted("CallActivity_Triage");
 
     }
+
+    @Test
+    public void whenTriageEscalatedAfterRequestContributionChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+                .onExecutionAddVariable("TriageOutcome", "RequestContribution")
+                .deploy(rule);
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("TriageRequestedContributionOutcome", "Escalate")
+                .deploy(rule);
+
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", "Confirm"),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("TriageEscalateOutcome", "Close"),
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Triage");
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_TriageEscalated_RequestContribution");
+
+    }
+
+    @Test
+    public void whenTriageEscalatedSendToWorkflowManagerChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+                .onExecutionAddVariable("TriageOutcome", "SendToWorkflowManager")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", "Confirm"),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("TriageEscalateOutcome", "Close"),
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Triage");
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_TriageEscalated_SendToWorkflowManager");
+
+    }
+
+    @Test
+    public void whenDraftEscalatedAfterRequestContributionChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionAddVariable("DraftStatus", "RequestContribution")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Escalate")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", "Confirm"),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefTypeStatus", ""),
+                                        new CallActivityReturnVariable("DraftStatus", "Close")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Triage");
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Draft");
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_DraftEscalated_RequestContribution");
+
+    }
+
+    @Test
+    public void whenDraftEscalatedAfterDraftEscalateChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionAddVariable("DraftStatus", "Escalate")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", "Confirm"),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefTypeStatus", ""),
+                                        new CallActivityReturnVariable("DraftStatus", "Close")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Triage");
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Draft");
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_DraftEscalated");
+
+    }
+
 }
