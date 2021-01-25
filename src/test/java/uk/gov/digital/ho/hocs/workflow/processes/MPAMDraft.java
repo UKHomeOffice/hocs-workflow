@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM_DRAFT.bpmn")
-public class MPAMDraft {
+public class MPAMDraft extends MPAMCommonTests {
 
     @Rule
     @ClassRule
@@ -163,4 +163,11 @@ public class MPAMDraft {
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasFinished("EndEvent_MpamDraft");
     }
+
+    @Test
+    public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+        whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_DRAFT", "Service_UpdateTeamForDraft", "MPAM_DRAFT", "EndEvent_MpamDraft",
+                processScenario, bpmnService);
+    }
+
 }

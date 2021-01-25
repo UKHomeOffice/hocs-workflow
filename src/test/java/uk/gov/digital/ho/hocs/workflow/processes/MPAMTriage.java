@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM_TRIAGE.bpmn")
-public class MPAMTriage {
+public class MPAMTriage extends MPAMCommonTests {
 
     @Rule
     @ClassRule
@@ -35,7 +35,7 @@ public class MPAMTriage {
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
     @Mock
-    BpmnService bpmnService;
+    private BpmnService bpmnService;
     @Mock
     private ProcessScenario processScenario;
 
@@ -118,24 +118,9 @@ public class MPAMTriage {
     }
 
     @Test
-    public void whenChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "UpdateBusinessArea")));
-        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD")));
-
-        Scenario.run(processScenario)
-                .startByKey("MPAM_TRIAGE")
-                .execute();
-
-        verify(bpmnService).updateValue(any(), any(), eq("BusAreaStatus"), eq("Confirm"));
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
-        verify(processScenario).hasCompleted("Service_SetBusAreaStatusConfirm");
-        verify(processScenario).hasCompleted("Service_UpdateTeamForTriage");
-        verify(processScenario).hasFinished("EndEvent_MpamTriage");
+    public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+        whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_TRIAGE", "Service_UpdateTeamForTriage", "MPAM_TRIAGE", "EndEvent_MpamTriage",
+                processScenario, bpmnService);
     }
+
 }

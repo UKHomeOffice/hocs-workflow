@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0vlcfuo" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0vlcfuo" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.1.2">
   <bpmn:process id="MPAM_TRIAGE_ESCALATE" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0ioswxl</bpmn:outgoing>
@@ -15,7 +15,7 @@
       <bpmn:incoming>SequenceFlow_0yxcw25</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1l0z7z9</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="UserTask_1j9nzm5" name="Validate User Input">
+    <bpmn:userTask id="Validate_UserInput" name="Validate User Input">
       <bpmn:incoming>SequenceFlow_1l0z7z9</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_09jeo4o</bpmn:outgoing>
     </bpmn:userTask>
@@ -24,7 +24,7 @@
       <bpmn:outgoing>SequenceFlow_16lpjvv</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1kt5x2u</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="EndEvent_132ofai" name="End Stage">
+    <bpmn:endEvent id="EndEvent_MpamTriageEscalate" name="End Stage">
       <bpmn:incoming>SequenceFlow_0gcravu</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1ri8jqw</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1ht5jac</bpmn:incoming>
@@ -41,8 +41,8 @@
     <bpmn:sequenceFlow id="SequenceFlow_0ozfyjk" sourceRef="ExclusiveGateway_0hq4dbt" targetRef="ServiceTask_0jyv122">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageEscalateOutcome == "Escalate"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1l0z7z9" sourceRef="ServiceTask_0jyv122" targetRef="UserTask_1j9nzm5" />
-    <bpmn:sequenceFlow id="SequenceFlow_09jeo4o" sourceRef="UserTask_1j9nzm5" targetRef="ExclusiveGateway_0o5wz31" />
+    <bpmn:sequenceFlow id="SequenceFlow_1l0z7z9" sourceRef="ServiceTask_0jyv122" targetRef="Validate_UserInput" />
+    <bpmn:sequenceFlow id="SequenceFlow_09jeo4o" sourceRef="Validate_UserInput" targetRef="ExclusiveGateway_0o5wz31" />
     <bpmn:sequenceFlow id="SequenceFlow_1kt5x2u" sourceRef="ExclusiveGateway_0qsaemy" targetRef="ExclusiveGateway_0hq4dbt">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -96,7 +96,7 @@
       <bpmn:incoming>SequenceFlow_0m3h46u</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0gcravu</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0gcravu" sourceRef="ServiceTask_0rvjsky" targetRef="EndEvent_132ofai" />
+    <bpmn:sequenceFlow id="SequenceFlow_0gcravu" sourceRef="ServiceTask_0rvjsky" targetRef="EndEvent_MpamTriageEscalate" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_0o5wz31" name="Direction Check">
       <bpmn:incoming>SequenceFlow_09jeo4o</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0ixi7ye</bpmn:outgoing>
@@ -111,7 +111,7 @@
       <bpmn:incoming>SequenceFlow_0mflb41</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1lsm1er</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="UserTask_15xxyjd" name="Validate User Input">
+    <bpmn:userTask id="Validate_BusinessAreaChange" name="Validate User Input">
       <bpmn:incoming>SequenceFlow_1lsm1er</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1x5ytcc</bpmn:outgoing>
     </bpmn:userTask>
@@ -125,9 +125,9 @@
       <bpmn:outgoing>SequenceFlow_0boyy9o</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1pm4kfr</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="ServiceTask_146u2ul" name="Update Team for Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_TRIAGE&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
-      <bpmn:incoming>SequenceFlow_1i78jj7</bpmn:incoming>
+    <bpmn:serviceTask id="Service_UpdateTeamForTriage" name="Update Team for Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_TRIAGE&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
       <bpmn:incoming>Flow_1cqqtfg</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_168daxn</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1ri8jqw</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_0s40lcu" name="Reference Type To Official" camunda:expression="MPAM_REFTYPE_TO_OFFICIAL" camunda:resultVariable="screen">
@@ -194,12 +194,12 @@
     <bpmn:sequenceFlow id="SequenceFlow_1ymqyr9" name="false" sourceRef="ExclusiveGateway_054s351" targetRef="ServiceTask_0q1wu35">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1lsm1er" sourceRef="ServiceTask_0q1wu35" targetRef="UserTask_15xxyjd" />
-    <bpmn:sequenceFlow id="SequenceFlow_1x5ytcc" sourceRef="UserTask_15xxyjd" targetRef="ExclusiveGateway_18lotm9" />
+    <bpmn:sequenceFlow id="SequenceFlow_1lsm1er" sourceRef="ServiceTask_0q1wu35" targetRef="Validate_BusinessAreaChange" />
+    <bpmn:sequenceFlow id="SequenceFlow_1x5ytcc" sourceRef="Validate_BusinessAreaChange" targetRef="ExclusiveGateway_18lotm9" />
     <bpmn:sequenceFlow id="SequenceFlow_0boyy9o" name="FORWARD" sourceRef="ExclusiveGateway_18lotm9" targetRef="ExclusiveGateway_054s351">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1i78jj7" sourceRef="ExclusiveGateway_054s351" targetRef="ServiceTask_146u2ul">
+    <bpmn:sequenceFlow id="SequenceFlow_1i78jj7" sourceRef="ExclusiveGateway_054s351" targetRef="Service_SetBusAreaStatusConfirm">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0m0i0ew" name="Correction" sourceRef="ExclusiveGateway_1tmejme" targetRef="Activity_0pm5wc4">
@@ -254,7 +254,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_19l3zia" sourceRef="ExclusiveGateway_16engn7" targetRef="ServiceTask_0jyv122">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1ri8jqw" sourceRef="ServiceTask_146u2ul" targetRef="EndEvent_132ofai" />
+    <bpmn:sequenceFlow id="SequenceFlow_1ri8jqw" sourceRef="Service_UpdateTeamForTriage" targetRef="EndEvent_MpamTriageEscalate" />
     <bpmn:serviceTask id="ServiceTask_06qeg5e" name="Request Campaign" camunda:expression="MPAM_CAMPAIGN_REQUEST" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_1jd33bw</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0gxzwiw</bpmn:incoming>
@@ -297,7 +297,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_06oehxa" name="PutOnCampaign" sourceRef="ExclusiveGateway_0snfd0u" targetRef="ServiceTask_0k5pjdf">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageEscalateOutcome == "PutOnCampaign"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1ht5jac" sourceRef="ServiceTask_0uxoxf1" targetRef="EndEvent_132ofai" />
+    <bpmn:sequenceFlow id="SequenceFlow_1ht5jac" sourceRef="ServiceTask_0uxoxf1" targetRef="EndEvent_MpamTriageEscalate" />
     <bpmn:sequenceFlow id="SequenceFlow_0yxcw25" sourceRef="ExclusiveGateway_1hm71qk" targetRef="ServiceTask_0jyv122">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -306,10 +306,15 @@
       <bpmn:incoming>SequenceFlow_0v1jo6k</bpmn:incoming>
       <bpmn:outgoing>Flow_1cqqtfg</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1cqqtfg" sourceRef="Activity_0pm5wc4" targetRef="ServiceTask_146u2ul" />
-    <bpmn:sequenceFlow id="SequenceFlow_1js2vgy" sourceRef="ExclusiveGateway_18sz487" targetRef="EndEvent_132ofai">
+    <bpmn:sequenceFlow id="Flow_1cqqtfg" sourceRef="Activity_0pm5wc4" targetRef="Service_UpdateTeamForTriage" />
+    <bpmn:sequenceFlow id="SequenceFlow_1js2vgy" sourceRef="ExclusiveGateway_18sz487" targetRef="EndEvent_MpamTriageEscalate">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Service_SetBusAreaStatusConfirm" name="Update BusAreaStatus to Confirm" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;BusAreaStatus&#34;, &#34;Confirm&#34;)}">
+      <bpmn:incoming>SequenceFlow_1i78jj7</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_168daxn</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_168daxn" sourceRef="Service_SetBusAreaStatusConfirm" targetRef="Service_UpdateTeamForTriage" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_TRIAGE_ESCALATE">
@@ -489,7 +494,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1i78jj7_di" bpmnElement="SequenceFlow_1i78jj7">
         <di:waypoint x="1093" y="1400" />
-        <di:waypoint x="1303" y="1400" />
+        <di:waypoint x="1157" y="1400" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0boyy9o_di" bpmnElement="SequenceFlow_0boyy9o">
         <di:waypoint x="1068" y="1455" />
@@ -609,13 +614,13 @@
       <bpmndi:BPMNShape id="ServiceTask_0jyv122_di" bpmnElement="ServiceTask_0jyv122">
         <dc:Bounds x="350" y="587" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_1j9nzm5_di" bpmnElement="UserTask_1j9nzm5">
+      <bpmndi:BPMNShape id="UserTask_1j9nzm5_di" bpmnElement="Validate_UserInput">
         <dc:Bounds x="350" y="750" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0qsaemy_di" bpmnElement="ExclusiveGateway_0qsaemy" isMarkerVisible="true">
         <dc:Bounds x="555" y="685" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_132ofai_di" bpmnElement="EndEvent_132ofai">
+      <bpmndi:BPMNShape id="EndEvent_132ofai_di" bpmnElement="EndEvent_MpamTriageEscalate">
         <dc:Bounds x="1613" y="692" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1659" y="703" width="52" height="14" />
@@ -660,7 +665,7 @@
       <bpmndi:BPMNShape id="ServiceTask_0q1wu35_di" bpmnElement="ServiceTask_0q1wu35">
         <dc:Bounds x="869" y="1277" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_15xxyjd_di" bpmnElement="UserTask_15xxyjd">
+      <bpmndi:BPMNShape id="UserTask_15xxyjd_di" bpmnElement="Validate_BusinessAreaChange">
         <dc:Bounds x="869" y="1440" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_054s351_di" bpmnElement="ExclusiveGateway_054s351" isMarkerVisible="true">
@@ -672,7 +677,7 @@
           <dc:Bounds x="1103" y="1473" width="78" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_146u2ul_di" bpmnElement="ServiceTask_146u2ul">
+      <bpmndi:BPMNShape id="ServiceTask_146u2ul_di" bpmnElement="Service_UpdateTeamForTriage">
         <dc:Bounds x="1303" y="1360" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_0s40lcu_di" bpmnElement="ServiceTask_0s40lcu">
@@ -744,6 +749,13 @@
       <bpmndi:BPMNShape id="Activity_0pm5wc4_di" bpmnElement="Activity_0pm5wc4">
         <dc:Bounds x="1303" y="1490" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_13mhuem_di" bpmnElement="Service_SetBusAreaStatusConfirm">
+        <dc:Bounds x="1157" y="1360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_168daxn_di" bpmnElement="SequenceFlow_168daxn">
+        <di:waypoint x="1257" y="1400" />
+        <di:waypoint x="1303" y="1400" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
