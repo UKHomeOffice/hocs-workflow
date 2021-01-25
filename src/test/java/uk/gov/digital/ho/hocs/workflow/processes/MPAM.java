@@ -241,6 +241,44 @@ public class MPAM {
         verify(mpamProcess, times(2))
                 .hasCompleted("CallActivity_Triage");
 
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+
+
+    }
+
+    @Test
+    public void whenDraftChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", "Confirm"),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefTypeStatus", ""),
+                                        new CallActivityReturnVariable("DraftStatus", ""),
+                                        new CallActivityReturnVariable("RefType", "Ministerial")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Triage");
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_Draft");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+
     }
 
     @Test
@@ -283,6 +321,7 @@ public class MPAM {
         verify(mpamProcess, times(2))
                 .hasCompleted("CallActivity_TriageEscalated_RequestContribution");
 
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
     }
 
     @Test
@@ -320,6 +359,8 @@ public class MPAM {
 
         verify(mpamProcess, times(2))
                 .hasCompleted("CallActivity_TriageEscalated_SendToWorkflowManager");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
 
     }
 
@@ -365,6 +406,8 @@ public class MPAM {
         verify(mpamProcess, times(2))
                 .hasCompleted("CallActivity_DraftEscalated_RequestContribution");
 
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+
     }
 
     @Test
@@ -404,6 +447,8 @@ public class MPAM {
 
         verify(mpamProcess, times(2))
                 .hasCompleted("CallActivity_DraftEscalated");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
 
     }
 
