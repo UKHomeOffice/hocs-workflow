@@ -2,7 +2,6 @@ package uk.gov.digital.ho.hocs.workflow.processes;
 
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.mockito.ProcessExpressions;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
@@ -15,14 +14,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
-import uk.gov.digital.ho.hocs.workflow.util.CallActivityReturnVariable;
-import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -64,24 +59,24 @@ public class MPAM {
 
         Mocks.register("bpmnService", bpmnService);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_CREATION")
+        whenAtCallActivity("MPAM_CREATION")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+        whenAtCallActivity("MPAM_TRIAGE")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
-                .onExecutionAddVariable("RefType", "Ministerial")
+        whenAtCallActivity("MPAM_DRAFT")
+                .alwaysReturn("RefType", "Ministerial")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_QA")
+        whenAtCallActivity("MPAM_QA")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_PO")
-                .onExecutionAddVariable("PoStatus", "Dispatched-Follow-Up")
+        whenAtCallActivity("MPAM_PO")
+                .alwaysReturn("PoStatus", "Dispatched-Follow-Up")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_DISPATCHED_FOLLOW_UP")
+        whenAtCallActivity("MPAM_DISPATCHED_FOLLOW_UP")
                 .deploy(rule);
     }
 
@@ -101,31 +96,22 @@ public class MPAM {
 
     @Test
     public void putInCampaign_fromContributionRequestedEscalation() {
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
-                .onExecutionDo(new ExecutionVariableSequence(
-                        Arrays.asList(
-                                // first call
-                                Collections.singletonList(
-                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution")),
-                                // second call
-                                Arrays.asList(
-                                        new CallActivityReturnVariable("DraftStatus", ""),
-                                        new CallActivityReturnVariable("RefType", "Ministerial")
-                                )
-                        )
-                ))
+
+        whenAtCallActivity("MPAM_DRAFT")
+                .thenReturn("DraftStatus", "RequestContribution")
+                .thenReturn("DraftStatus", "", "RefType", "Ministerial")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
-                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Escalate")
+        whenAtCallActivity("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .thenReturn("DraftRequestedContributionOutcome", "Escalate")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
-                .onExecutionAddVariable("DraftStatus", "PutOnCampaign")
+        whenAtCallActivity("MPAM_DRAFT_ESCALATE")
+                .thenReturn("DraftStatus", "PutOnCampaign")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_CAMPAIGN")
-                .onExecutionAddVariable("CampaignOutcome", "SendToDraft")
+        whenAtCallActivity("MPAM_CAMPAIGN")
+                .thenReturn("CampaignOutcome", "SendToDraft")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
@@ -148,24 +134,14 @@ public class MPAM {
 
     @Test
     public void removeDraftUser_fromContributionRequested_specifyUnallocate() {
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
-                .onExecutionDo(new ExecutionVariableSequence(
-                        Arrays.asList(
-                                // first call
-                                Collections.singletonList(
-                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution")),
-                                // second call
-                                Arrays.asList(
-                                        new CallActivityReturnVariable("DraftStatus", ""),
-                                        new CallActivityReturnVariable("RefType", "Ministerial")
-                                )
-                        )
-                ))
+
+        whenAtCallActivity("MPAM_DRAFT")
+                .thenReturn("DraftStatus", "RequestContribution")
+                .thenReturn("DraftStatus", "", "RefType", "Ministerial")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
-                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Complete")
-                .onExecutionAddVariable("DraftShouldUnallocate", "Unallocate")
+        whenAtCallActivity("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .thenReturn("DraftRequestedContributionOutcome", "Complete", "DraftShouldUnallocate", "Unallocate")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
@@ -182,24 +158,14 @@ public class MPAM {
 
     @Test
     public void removeDraftUser_fromContributionRequested_specifyRetain() {
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
-                .onExecutionDo(new ExecutionVariableSequence(
-                        Arrays.asList(
-                                // first call
-                                Collections.singletonList(
-                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution")),
-                                // second call
-                                Arrays.asList(
-                                        new CallActivityReturnVariable("DraftStatus", ""),
-                                        new CallActivityReturnVariable("RefType", "Ministerial")
-                                )
-                        )
-                ))
+
+        whenAtCallActivity("MPAM_DRAFT")
+                .thenReturn("DraftStatus", "RequestContribution")
+                .thenReturn("DraftStatus", "", "RefType", "Ministerial")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
-                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Complete")
-                .onExecutionAddVariable("DraftShouldUnallocate", "Retail")
+        whenAtCallActivity("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .thenReturn("DraftRequestedContributionOutcome", "Complete", "DraftShouldUnallocate", "Retail")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
