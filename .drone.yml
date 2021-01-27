@@ -28,10 +28,10 @@ pipeline:
     commands:
       - docker build -t hocs-workflow .
     when:
-      branch: [master, refs/tags/*]
       event: [push, tag]
 
   install-docker-image:
+    group: docker-push
     image: docker:17.09.1
     environment:
       - DOCKER_HOST=tcp://172.17.0.1:2375
@@ -40,13 +40,28 @@ pipeline:
     commands:
       - docker login -u="ukhomeofficedigital+hocs" -p=$${DOCKER_PASSWORD} quay.io
       - docker tag hocs-workflow quay.io/ukhomeofficedigital/hocs-workflow:build-$${DRONE_BUILD_NUMBER}
-      - docker tag hocs-workflow quay.io/ukhomeofficedigital/hocs-workflow:latest
       - docker push quay.io/ukhomeofficedigital/hocs-workflow:build-$${DRONE_BUILD_NUMBER}
-      - docker push quay.io/ukhomeofficedigital/hocs-workflow:latest
+      - export BRANCH_NAME_TAGFRIENDLY=`echo "$${DRONE_COMMIT_BRANCH}" | sed 's$/$_$g'`
+      - docker tag hocs-workflow quay.io/ukhomeofficedigital/hocs-workflow:branch-$${BRANCH_NAME_TAGFRIENDLY}
+      - docker push quay.io/ukhomeofficedigital/hocs-workflow:branch-$${BRANCH_NAME_TAGFRIENDLY}
     when:
-      branch: master
+      branch: [master, epic/*]
       event: push
 
+  install-docker-image-latest:
+    group: docker-push
+    image: docker:17.09.1
+    environment:
+      - DOCKER_HOST=tcp://172.17.0.1:2375
+    secrets:
+      - docker_password
+    commands:
+      - docker login -u="ukhomeofficedigital+hocs" -p=$${DOCKER_PASSWORD} quay.io
+      - docker tag hocs-workflow quay.io/ukhomeofficedigital/hocs-workflow:latest
+      - docker push quay.io/ukhomeofficedigital/hocs-workflow:latest
+    when:
+      branch: [master, epic/*]
+      event: push
 
   docker-semver-tag:
     image: quay.io/ukhomeofficedigital/hocs-version-bot:build-25
