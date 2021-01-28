@@ -43,7 +43,7 @@ public class MPAMCreation {
         Mocks.register("bpmnService", bpmnService);
 
         when(mpamCreationProcess.waitsAtUserTask("UserTask_145n012"))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BusArea", "")));
         when(mpamCreationProcess.waitsAtUserTask("UserTask_0iez602"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
     }
