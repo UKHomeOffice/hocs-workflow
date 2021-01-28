@@ -27,7 +27,7 @@ public class MPAMCreation {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.88)
+            .assertClassCoverageAtLeast(0.75)
             .build();
 
     @Rule
