@@ -121,7 +121,9 @@ public class BpmnService {
             // collect any members in the correspondents list
             List<GetCorrespondentResponse> members = correspondents.getCorrespondents().stream().filter(correspondent ->
                     correspondent.getType().equals("MEMBER")).collect(Collectors.toList());
-            members.forEach(member->{log.info("Member : " + member);});
+            members.forEach(member -> {
+                log.info("Member : " + member);
+            });
             memberPresent = (members.size() > 0);
         }
 
@@ -156,6 +158,20 @@ public class BpmnService {
         log.debug("######## Updated Primary Topic ########");
     }
 
+    public void setDraftingTeam(String caseUUIDString, String stageUUIDString, String draftingUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        Map<String, String> teamsForTopic = new HashMap<>();
+
+        log.info("Writing draft team with {}", draftingUUIDString);
+        TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
+        teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
+        teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
+
+        camundaClient.updateTask(stageUUID, teamsForTopic);
+        caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
+    }
+
     public void updateTeamSelection(String caseUUIDString, String stageUUIDString, String draftingUUIDString, String privateOfficeUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
@@ -165,15 +181,15 @@ public class BpmnService {
         if (StringUtils.hasText(draftingUUIDString)) {
             log.info("Overwriting draft team with {}", draftingUUIDString);
             TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
-            teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
-            teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
+            teamsForTopic.put("OverrideDraftingTeamUUID", draftingTeam.getUuid().toString());
+            teamsForTopic.put("OverrideDraftingTeamName", draftingTeam.getDisplayName());
         }
 
         if (StringUtils.hasText(privateOfficeUUIDString)) {
             log.info("Overwriting po team with {}", privateOfficeUUIDString);
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
-            teamsForTopic.put("POTeamUUID", pOTeam.getUuid().toString());
-            teamsForTopic.put("POTeamName", pOTeam.getDisplayName());
+            teamsForTopic.put("OverridePOTeamUUID", pOTeam.getUuid().toString());
+            teamsForTopic.put("OverridePOTeamName", pOTeam.getDisplayName());
         }
 
         if (!teamsForTopic.isEmpty()) {
@@ -238,7 +254,7 @@ public class BpmnService {
         }
 
     }
-    
+
     private Map<String, String> parseArgPairs(String... argPairs) {
         if (argPairs.length % 2 == 1) {
             throw new ApplicationExceptions.InvalidMethodArgumentException("Even number of arguments expected");
@@ -283,7 +299,7 @@ public class BpmnService {
     public void createCaseConversionNote(String caseUUIDString, String stageUUIDString, String caseConversionNote) {
         log.debug("######## Create Case Conversion Note ########");
         String caseChangeNoteType = null;
-        String dataValueCaseRefType = caseworkClient.getDataValue(caseUUIDString,"RefType");
+        String dataValueCaseRefType = caseworkClient.getDataValue(caseUUIDString, "RefType");
 
         if (!dataValueCaseRefType.isEmpty()) {
             if (dataValueCaseRefType.equals("Ministerial")) {
@@ -357,7 +373,7 @@ public class BpmnService {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
 
-        caseworkClient.updateStageUser(caseUUID, stageUUID, null); 
+        caseworkClient.updateStageUser(caseUUID, stageUUID, null);
     }
 
 }
