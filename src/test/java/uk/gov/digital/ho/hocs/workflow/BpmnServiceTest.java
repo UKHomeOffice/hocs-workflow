@@ -83,8 +83,41 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shouldSaveDraftingTeam() {
+        UUID draftingString = UUID.randomUUID();
+
+        String teamName = "Team1";
+        TeamDto team = new TeamDto(teamName, draftingString, true, new HashSet<>());
+        Map<String, String> teamsForTopic = new HashMap<>();
+        teamsForTopic.put("DraftingTeamUUID", draftingString.toString());
+        teamsForTopic.put("DraftingTeamName", teamName);
+
+        when(infoClient.getTeam(draftingString)).thenReturn(team);
+
+        bpmnService.setDraftingTeam(caseUUID, stageUUID, draftingString.toString());
+
+        verify(infoClient, times(1)).getTeam(draftingString);
+        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
+
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+
+    }
+
+    @Test
     public void shouldNotUpdateDataNoNewTeams() {
         bpmnService.updateTeamSelection(caseUUID, stageUUID, null, null);
+
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldNotUpdateDataNoNewTeamsWhenEmptyString() {
+        bpmnService.updateTeamSelection(caseUUID, stageUUID, "", "");
 
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
@@ -96,15 +129,19 @@ public class BpmnServiceTest {
 
         UUID draftingString = UUID.randomUUID();
 
-        when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", draftingString, true, new HashSet<>()));
-        doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)), any());
-        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        String teamName = "Team1";
+        TeamDto team = new TeamDto(teamName, draftingString, true, new HashSet<>());
+        Map<String, String> teamsForTopic = new HashMap<>();
+        teamsForTopic.put("OverrideDraftingTeamUUID", draftingString.toString());
+        teamsForTopic.put("OverrideDraftingTeamName", teamName);
+
+        when(infoClient.getTeam(draftingString)).thenReturn(team);
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), null);
 
         verify(infoClient, times(1)).getTeam(draftingString);
-        verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
-        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
@@ -116,15 +153,19 @@ public class BpmnServiceTest {
 
         UUID privateOfficeString = UUID.randomUUID();
 
-        when(infoClient.getTeam(privateOfficeString)).thenReturn(new TeamDto("Team1", privateOfficeString, true, new HashSet<>()));
-        doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)), any());
-        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        String teamName = "Team1";
+        TeamDto team = new TeamDto(teamName, privateOfficeString, true, new HashSet<>());
+        Map<String, String> teamsForTopic = new HashMap<>();
+        teamsForTopic.put("OverridePOTeamUUID", privateOfficeString.toString());
+        teamsForTopic.put("OverridePOTeamName", teamName);
+
+        when(infoClient.getTeam(privateOfficeString)).thenReturn(team);
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, null, privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(privateOfficeString);
-        verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
-        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
