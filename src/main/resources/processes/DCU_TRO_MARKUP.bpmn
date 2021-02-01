@@ -85,7 +85,6 @@
       <bpmn:incoming>SequenceFlow_1ouoepu</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_04enxe9</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1cix9m5</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1b17xtg</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0isj7ns">
       <bpmn:incoming>SequenceFlow_0inxtdp</bpmn:incoming>
@@ -137,6 +136,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_1ouoepu" sourceRef="ServiceTask_19v0oal" targetRef="DCU_TRO_MARKUP_END" />
     <bpmn:serviceTask id="ServiceTask_1rph0yy" name="Update Allocation Teams" camunda:expression="${bpmnService.updateTeamSelection(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;OverrideDraftingTeamUUID&#34;), execution.getVariable(&#34;OverridePOTeamUUID&#34;))}">
       <bpmn:incoming>SequenceFlow_1h9yan6</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1ixfffy</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_04enxe9</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_04enxe9" sourceRef="ServiceTask_1rph0yy" targetRef="DCU_TRO_MARKUP_END" />
@@ -276,21 +276,21 @@
     <bpmn:sequenceFlow id="SequenceFlow_00ti88t" sourceRef="ExclusiveGateway_0wxm35l" targetRef="TOPICS">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="ServiceTask_0sh01hi" name="Update Allocation Teams" camunda:expression="${bpmnService.updateTeamSelection(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;f5fdfdfc-ed36-487c-8bb2-fcd4c6c8fe49&#34;, null)}">
-      <bpmn:incoming>SequenceFlow_0w8z50e</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1b17xtg</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1b17xtg" sourceRef="ServiceTask_0sh01hi" targetRef="DCU_TRO_MARKUP_END" />
     <bpmn:serviceTask id="ServiceTask_0t4wjd3" name="Set default policy team" camunda:expression="${bpmnService.updateTeamsForPrimaryTopic(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;Topics&#34;), &#34;DCU_TRO_INITIAL_DRAFT&#34;, &#34;DefaultPolicyTeamUUID&#34;, &#34;DefaultPolicyTeamName&#34; )}">
       <bpmn:incoming>SequenceFlow_1r5ukrl</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0w8z50e</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0w8z50e" sourceRef="ServiceTask_0t4wjd3" targetRef="ServiceTask_0sh01hi" />
+    <bpmn:sequenceFlow id="SequenceFlow_0w8z50e" sourceRef="ServiceTask_0t4wjd3" targetRef="ServiceTask_0o4kqzo" />
     <bpmn:serviceTask id="ServiceTask_1davw05" name="Set default policy team" camunda:expression="${bpmnService.updateTeamsForPrimaryTopic(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;Topics&#34;), &#34;DCU_TRO_INITIAL_DRAFT&#34;, &#34;DefaultPolicyTeamUUID&#34;, &#34;DefaultPolicyTeamName&#34; )}">
       <bpmn:incoming>SequenceFlow_14u7a2d</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0nfwq7p</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_0nfwq7p" sourceRef="ServiceTask_1davw05" targetRef="ServiceTask_1wwfdzr" />
+    <bpmn:serviceTask id="ServiceTask_0o4kqzo" name="Set Drafting team to DCU" camunda:expression="${bpmnService.setDraftingTeam(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;f5fdfdfc-ed36-487c-8bb2-fcd4c6c8fe49&#34;)}">
+      <bpmn:incoming>SequenceFlow_0w8z50e</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1ixfffy</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1ixfffy" sourceRef="ServiceTask_0o4kqzo" targetRef="ServiceTask_1rph0yy" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="DCU_TRO_MARKUP">
@@ -560,7 +560,7 @@
         <di:waypoint x="2727" y="657" />
         <di:waypoint x="3025" y="657" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2950" y="559" width="19" height="14" />
+          <dc:Bounds x="2863" y="631" width="19" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0lk864m_di" bpmnElement="SequenceFlow_0lk864m">
@@ -716,20 +716,12 @@
         <di:waypoint x="1159" y="568" />
         <di:waypoint x="1271" y="568" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="ServiceTask_0sh01hi_di" bpmnElement="ServiceTask_0sh01hi">
-        <dc:Bounds x="3025" y="332" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_1b17xtg_di" bpmnElement="SequenceFlow_1b17xtg">
-        <di:waypoint x="3125" y="372" />
-        <di:waypoint x="3246" y="372" />
-        <di:waypoint x="3246" y="639" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_0t4wjd3_di" bpmnElement="ServiceTask_0t4wjd3">
         <dc:Bounds x="2046" y="332" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0w8z50e_di" bpmnElement="SequenceFlow_0w8z50e">
         <di:waypoint x="2146" y="372" />
-        <di:waypoint x="3025" y="372" />
+        <di:waypoint x="2253" y="372" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_1davw05_di" bpmnElement="ServiceTask_1davw05">
         <dc:Bounds x="2054" y="528" width="100" height="80" />
@@ -737,6 +729,14 @@
       <bpmndi:BPMNEdge id="SequenceFlow_0nfwq7p_di" bpmnElement="SequenceFlow_0nfwq7p">
         <di:waypoint x="2154" y="568" />
         <di:waypoint x="2253" y="568" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0o4kqzo_di" bpmnElement="ServiceTask_0o4kqzo">
+        <dc:Bounds x="2253" y="332" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ixfffy_di" bpmnElement="SequenceFlow_1ixfffy">
+        <di:waypoint x="2353" y="372" />
+        <di:waypoint x="3075" y="372" />
+        <di:waypoint x="3075" y="616" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
