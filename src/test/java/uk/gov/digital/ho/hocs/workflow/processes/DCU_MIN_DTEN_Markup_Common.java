@@ -99,7 +99,7 @@ public class DCU_MIN_DTEN_Markup_Common {
         verify(bpmnService).updateTeamSelection(any(), any(), eq(""), eq(ANOTHER_TOPIC_TEAM_UUID));
     }
 
-    private void setupMarkupFor(String PR, ProcessScenario dcuMinSignOffProcess) {
+    void setupMarkupFor(String PR, ProcessScenario dcuMinSignOffProcess) {
         when(dcuMinSignOffProcess.waitsAtUserTask("VALIDATE_DCU_MARKUP_DECISION"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "MarkupDecision", PR)));
         when(dcuMinSignOffProcess.waitsAtUserTask("VALIDATE_TOPICS"))
@@ -112,7 +112,7 @@ public class DCU_MIN_DTEN_Markup_Common {
                 )));
     }
 
-    private void verifyCommonPRFlow(BpmnService bpmnService, String stagePrefix) {
+    void verifyCommonPRFlow(BpmnService bpmnService, String stagePrefix) {
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
         verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"));
@@ -122,7 +122,7 @@ public class DCU_MIN_DTEN_Markup_Common {
         verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_PRIVATE_OFFICE"), eq("POTeamUUID"), eq("POTeamName"));
     }
 
-    private void verifyCommonFAQFlow(BpmnService bpmnService, String stagePrefix) {
+    void verifyCommonFAQFlow(BpmnService bpmnService, String stagePrefix) {
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
         verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"));
