@@ -2,6 +2,7 @@ package uk.gov.digital.ho.hocs.workflow.processes;
 
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.mock.Mocks;
+import org.camunda.bpm.extension.mockito.ProcessExpressions;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
@@ -14,15 +15,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
+import uk.gov.digital.ho.hocs.workflow.util.CallActivityReturnVariable;
+import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/MPAM.bpmn",
         "processes/MPAM_CREATION.bpmn",
+        "processes/MPAM_TRANSFER.bpmn",
         "processes/MPAM_TRIAGE.bpmn",
         "processes/MPAM_DRAFT.bpmn",
         "processes/MPAM_PO.bpmn",
@@ -43,6 +49,11 @@ public class MPAM {
     public static final String CAMPAIGN = "CallActivity_0l0wizp";
 
     public static final String DRAFT_CLEAR_USER = "Activity_1l35uib";
+    public static final String TRANSFER_CLEAR_USER = "Activity_1klegia";
+    public static final String AWAITING_TRANSFER = "Activity_0esggvd";
+    public static final String SAVE_DEADLINE_GATEWAY = "Gateway_1rtuzdz";
+    public static final String TRANSFER_ACCEPTED_GATEWAY = "Gateway_0xmbo1i";
+    public static final String COMPLETE_CASE = "ServiceTask_0rwk9ie";
 
     @Rule
     @ClassRule
@@ -59,24 +70,27 @@ public class MPAM {
 
         Mocks.register("bpmnService", bpmnService);
 
-        whenAtCallActivity("MPAM_CREATION")
+        ProcessExpressions.registerCallActivityMock("MPAM_CREATION")
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_TRIAGE")
+        ProcessExpressions.registerCallActivityMock("MPAM_TRANSFER")
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_DRAFT")
-                .alwaysReturn("RefType", "Ministerial")
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_QA")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionAddVariable("RefType", "Ministerial")
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_PO")
-                .alwaysReturn("PoStatus", "Dispatched-Follow-Up")
+        ProcessExpressions.registerCallActivityMock("MPAM_QA")
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_DISPATCHED_FOLLOW_UP")
+        ProcessExpressions.registerCallActivityMock("MPAM_PO")
+                .onExecutionAddVariable("PoStatus", "Dispatched-Follow-Up")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DISPATCHED_FOLLOW_UP")
                 .deploy(rule);
     }
 
@@ -96,22 +110,31 @@ public class MPAM {
 
     @Test
     public void putInCampaign_fromContributionRequestedEscalation() {
-
-        whenAtCallActivity("MPAM_DRAFT")
-                .thenReturn("DraftStatus", "RequestContribution")
-                .thenReturn("DraftStatus", "", "RefType", "Ministerial")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("DraftStatus", ""),
+                                        new CallActivityReturnVariable("RefType", "Ministerial")
+                                )
+                        )
+                ))
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
-                .thenReturn("DraftRequestedContributionOutcome", "Escalate")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Escalate")
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_DRAFT_ESCALATE")
-                .thenReturn("DraftStatus", "PutOnCampaign")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
+                .onExecutionAddVariable("DraftStatus", "PutOnCampaign")
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_CAMPAIGN")
-                .thenReturn("CampaignOutcome", "SendToDraft")
+        ProcessExpressions.registerCallActivityMock("MPAM_CAMPAIGN")
+                .onExecutionAddVariable("CampaignOutcome", "SendToDraft")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
@@ -134,14 +157,24 @@ public class MPAM {
 
     @Test
     public void removeDraftUser_fromContributionRequested_specifyUnallocate() {
-
-        whenAtCallActivity("MPAM_DRAFT")
-                .thenReturn("DraftStatus", "RequestContribution")
-                .thenReturn("DraftStatus", "", "RefType", "Ministerial")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("DraftStatus", ""),
+                                        new CallActivityReturnVariable("RefType", "Ministerial")
+                                )
+                        )
+                ))
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
-                .thenReturn("DraftRequestedContributionOutcome", "Complete", "DraftShouldUnallocate", "Unallocate")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Complete")
+                .onExecutionAddVariable("DraftShouldUnallocate", "Unallocate")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
@@ -158,14 +191,24 @@ public class MPAM {
 
     @Test
     public void removeDraftUser_fromContributionRequested_specifyRetain() {
-
-        whenAtCallActivity("MPAM_DRAFT")
-                .thenReturn("DraftStatus", "RequestContribution")
-                .thenReturn("DraftStatus", "", "RefType", "Ministerial")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("DraftStatus", ""),
+                                        new CallActivityReturnVariable("RefType", "Ministerial")
+                                )
+                        )
+                ))
                 .deploy(rule);
 
-        whenAtCallActivity("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
-                .thenReturn("DraftRequestedContributionOutcome", "Complete", "DraftShouldUnallocate", "Retail")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Complete")
+                .onExecutionAddVariable("DraftShouldUnallocate", "Retail")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
@@ -179,4 +222,80 @@ public class MPAM {
         verify(mpamProcess, never())
                 .hasCompleted(DRAFT_CLEAR_USER);
     }
+
+    @Test
+    public void clearTransferUser_fromTriageToTransferStage() {
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("BusArea", "TransferToOgd")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusArea", "TransferToOther")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRANSFER")
+                .onExecutionAddVariable("TransferOutcome", "TransferAccepted")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted(TRANSFER_CLEAR_USER);
+        verify(mpamProcess)
+                .hasCompleted(AWAITING_TRANSFER);
+        verify(mpamProcess)
+                .hasCompleted(SAVE_DEADLINE_GATEWAY);
+        verify(mpamProcess)
+                .hasCompleted(TRANSFER_ACCEPTED_GATEWAY);
+        verify(mpamProcess)
+                .hasCompleted(COMPLETE_CASE);
+
+    }
+
+    @Test
+    public void clearTransferUser_fromDraftToTransferStage() {
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("BusArea", "TransferToOgd")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusArea", "TransferToOther")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRANSFER")
+                .onExecutionAddVariable("TransferOutcome", "TransferAccepted")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted(TRANSFER_CLEAR_USER);
+        verify(mpamProcess)
+                .hasCompleted(AWAITING_TRANSFER);
+        verify(mpamProcess)
+                .hasCompleted(SAVE_DEADLINE_GATEWAY);
+        verify(mpamProcess)
+                .hasCompleted(TRANSFER_ACCEPTED_GATEWAY);
+        verify(mpamProcess)
+                .hasCompleted(COMPLETE_CASE);
+
+    }
+
 }
