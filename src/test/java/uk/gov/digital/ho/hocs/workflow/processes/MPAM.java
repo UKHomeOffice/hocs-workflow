@@ -21,12 +21,14 @@ import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/MPAM.bpmn",
         "processes/MPAM_CREATION.bpmn",
+        "processes/MPAM_TRANSFER.bpmn",
         "processes/MPAM_TRIAGE.bpmn",
         "processes/MPAM_TRIAGE_ESCALATE.bpmn",
         "processes/MPAM_DRAFT.bpmn",
@@ -41,13 +43,18 @@ public class MPAM {
 
     public static final String DRAFT_REQUEST_CONTRIBUTION = "CallActivity_1068j5g";
     public static final String DRAFT_REQUEST_CONTRIBUTION_RESULT = "ExclusiveGateway_1hlhu8m";
-    public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED = "CallActivity_DraftEscalated_RequestContribution";
+    public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED = "Activity_134af50";
 
     public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED_RESULT = "Gateway_0kabhfi";
     public static final String DRAFT_ESCALATE_DRAFT_STATUS = "ExclusiveGateway_1nyjaew";
     public static final String CAMPAIGN = "CallActivity_0l0wizp";
 
     public static final String DRAFT_CLEAR_USER = "Activity_1l35uib";
+    public static final String TRANSFER_CLEAR_USER = "Activity_1klegia";
+    public static final String AWAITING_TRANSFER = "Activity_0esggvd";
+    public static final String SAVE_DEADLINE_GATEWAY = "Gateway_1rtuzdz";
+    public static final String TRANSFER_ACCEPTED_GATEWAY = "Gateway_0xmbo1i";
+    public static final String COMPLETE_CASE = "ServiceTask_0rwk9ie";
 
     @Rule
     @ClassRule
@@ -65,6 +72,9 @@ public class MPAM {
         Mocks.register("bpmnService", bpmnService);
 
         ProcessExpressions.registerCallActivityMock("MPAM_CREATION")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRANSFER")
                 .deploy(rule);
 
         ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
@@ -213,6 +223,82 @@ public class MPAM {
         verify(mpamProcess, never())
                 .hasCompleted(DRAFT_CLEAR_USER);
     }
+
+    @Test
+    public void clearTransferUser_fromTriageToTransferStage() {
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("BusArea", "TransferToOgd")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusArea", "TransferToOther")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRANSFER")
+                .onExecutionAddVariable("TransferOutcome", "TransferAccepted")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted(TRANSFER_CLEAR_USER);
+        verify(mpamProcess)
+                .hasCompleted(AWAITING_TRANSFER);
+        verify(mpamProcess)
+                .hasCompleted(SAVE_DEADLINE_GATEWAY);
+        verify(mpamProcess)
+                .hasCompleted(TRANSFER_ACCEPTED_GATEWAY);
+        verify(mpamProcess)
+                .hasCompleted(COMPLETE_CASE);
+
+    }
+
+    @Test
+    public void clearTransferUser_fromDraftToTransferStage() {
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("BusArea", "TransferToOgd")),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusArea", "TransferToOther")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRANSFER")
+                .onExecutionAddVariable("TransferOutcome", "TransferAccepted")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted(TRANSFER_CLEAR_USER);
+        verify(mpamProcess)
+                .hasCompleted(AWAITING_TRANSFER);
+        verify(mpamProcess)
+                .hasCompleted(SAVE_DEADLINE_GATEWAY);
+        verify(mpamProcess)
+                .hasCompleted(TRANSFER_ACCEPTED_GATEWAY);
+        verify(mpamProcess)
+                .hasCompleted(COMPLETE_CASE);
+
+    }
+
 
     @Test
     public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
