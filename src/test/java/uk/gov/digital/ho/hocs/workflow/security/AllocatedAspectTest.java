@@ -4,6 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -13,6 +14,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
@@ -20,7 +22,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AllocatedAspectTest {
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private CaseworkClient caseworkClient;
 
     @Mock
@@ -221,5 +223,67 @@ public class AllocatedAspectTest {
 
     }
 
+    @Test
+    public void shouldProceedIfTeamIsAdminForCaseType() throws Throwable {
+        String caseType = "SOME_CASE_TYPE";
+        Set<String> adminForCaseTypes = Set.of("SOME_CASE_TYPE");
 
+        Object[] args = new Object[2];
+        args[0] = caseUUID;
+        args[1] = stageUUID;
+
+        when(userService.getCaseTypesIfUserTeamIsCaseTypeAdmin()).thenReturn(adminForCaseTypes);
+        when(caseworkClient.getCase(caseUUID).getType()).thenReturn(caseType);
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(userService.getUserId()).thenReturn(userId);
+
+        aspect = new AllocatedAspect(caseworkClient,userService);
+        aspect.validateUserAccess(proceedingJoinPoint, annotation);
+        verify(proceedingJoinPoint, times(1)).proceed();
+    }
+
+    @Test(expected = SecurityExceptions.StageNotAssignedToUserTeamException.class)
+    public void shouldNotProceedIfTeamNotAdminForCaseTypeAndIfTeamDoesNotHavePermission() throws Throwable {
+        String caseType = "SOME_CASE_TYPE";
+        Set<String> adminForCaseTypes = Set.of("SOME_OTHER_CASE_TYPE");
+
+        Object[] args = new Object[2];
+        args[0] = caseUUID;
+        args[1] = stageUUID;
+
+        when(userService.getCaseTypesIfUserTeamIsCaseTypeAdmin()).thenReturn(adminForCaseTypes);
+        when(caseworkClient.getCase(caseUUID).getType()).thenReturn(caseType);
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
+        when(userService.getUserTeams()).thenReturn(new HashSet<UUID>(){{UUID.randomUUID();}});
+        when(userService.getUserId()).thenReturn(userId);
+
+        aspect = new AllocatedAspect(caseworkClient,userService);
+        aspect.validateUserAccess(proceedingJoinPoint, annotation);
+        verify(proceedingJoinPoint, never()).proceed();
+    }
+
+    @Test
+    public void shouldProceedIfTeamNotAdminForCaseTypeButTeamIsAllocatedToCase() throws Throwable {
+        String caseType = "SOME_CASE_TYPE";
+        Set<String> adminForCaseTypes = Set.of("SOME_OTHER_CASE_TYPE");
+
+        Object[] args = new Object[2];
+        args[0] = caseUUID;
+        args[1] = stageUUID;
+
+        when(userService.getCaseTypesIfUserTeamIsCaseTypeAdmin()).thenReturn(adminForCaseTypes);
+        when(caseworkClient.getCase(caseUUID).getType()).thenReturn(caseType);
+
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
+        when(userService.getUserId()).thenReturn(userId);
+
+        aspect = new AllocatedAspect(caseworkClient,userService);
+        aspect.validateUserAccess(proceedingJoinPoint, annotation);
+        verify(proceedingJoinPoint, times(1)).proceed();
+    }
 }
