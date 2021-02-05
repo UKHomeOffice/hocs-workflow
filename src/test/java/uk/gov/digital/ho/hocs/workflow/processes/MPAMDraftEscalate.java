@@ -42,11 +42,75 @@ public class MPAMDraftEscalate {
     public void setup() {
         Mocks.register("bpmnService", bpmnService);
     }
+    @Test
+    public void whenMinisterialChangedToOfficial_thenMinisterialValuesAreCleared() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "UpdateRefType",
+                        "RefType", "Ministerial",
+                        "RefTypeCorrection", "Correction")));
+        when(processScenario.waitsAtUserTask("Validate_ReferenceTypeToOfficial"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", false)))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", true,
+                        "CaseNote_TriageChangeCaseType", "Casenote")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_DRAFT_ESCALATE")
+                .execute();
+
+        verify(processScenario, times(3)).hasCompleted("Screen_ReferenceTypeToOfficial");
+        verify(processScenario).hasCompleted("Service_UpdateRefTypeToOfficial");
+        verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Official"), eq("RefTypeStatus"), eq("Confirm"));
+        verify(processScenario).hasCompleted("Service_ClearMinisterialValues");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
+        verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote");
+        verify(bpmnService).createCaseConversionNote(any(), any(), eq("Casenote"));
+        verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
+    }
+
+    @Test
+    public void whenOfficialChangedToMinisterial_thenMinisterialValuesAreNotCleared() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "UpdateRefType",
+                        "RefType", "Official",
+                        "RefTypeCorrection", "Correction")));
+        when(processScenario.waitsAtUserTask("Validate_ReferenceTypeToMinisterial"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", false)))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", true,
+                        "CaseNote_TriageChangeCaseType", "Casenote")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_DRAFT_ESCALATE")
+                .execute();
+
+        verify(processScenario, times(3)).hasCompleted("Screen_ReferenceTypeToMinisterial");
+        verify(processScenario).hasCompleted("Service_UpdateRefTypeToMinisterial");
+        verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Ministerial"), eq("RefTypeStatus"), eq("Confirm"));
+        verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote");
+        verify(bpmnService).createCaseConversionNote(any(), any(), eq("Casenote"));
+        verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
+        verify(bpmnService, never()).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
+    }
 
     @Test
     public void whenTransferToOGD_thenAddTransferNote_thenSetDueDate_thenUpdateTeamForTransfer() {
 
-        when(processScenario.waitsAtUserTask("UserTask_12bxh9i"))
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
@@ -64,13 +128,13 @@ public class MPAMDraftEscalate {
         verify(processScenario).hasCompleted("Activity_076o786"); // create transfer note
         verify(processScenario).hasCompleted("Activity_1uf2gix"); // set transfer date
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRANSFER"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
-        verify(processScenario).hasFinished("EndEvent_0c1084j");
+        verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
     }
 
     @Test
     public void whenTransferToOther_thenAddTransferNote_thenSetDueDate_thenUpdateTeamForTransfer() {
 
-        when(processScenario.waitsAtUserTask("UserTask_12bxh9i"))
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
@@ -88,13 +152,13 @@ public class MPAMDraftEscalate {
         verify(processScenario).hasCompleted("Activity_076o786"); // create transfer note
         verify(processScenario).hasCompleted("Activity_1uf2gix"); // set transfer date
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRANSFER"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
-        verify(processScenario).hasFinished("EndEvent_0c1084j");
+        verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
     }
 
     @Test
     public void whenNotTransferToOther_thenUpdateTeamForDraft() {
 
-        when(processScenario.waitsAtUserTask("UserTask_12bxh9i"))
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
@@ -110,7 +174,7 @@ public class MPAMDraftEscalate {
                 .execute();
 
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
-        verify(processScenario).hasFinished("EndEvent_0c1084j");
+        verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
     }
 
 }
