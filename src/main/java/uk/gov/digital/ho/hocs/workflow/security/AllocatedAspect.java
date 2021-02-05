@@ -42,6 +42,10 @@ public class AllocatedAspect {
 
         log.info("Checking allocation permissions for user {} and case type {}", userService.getUserId().toString(), caseUUID.toString());
 
+        if (proceedIfUserTeamIsAdminForCaseType(caseUUID)) {
+            return joinPoint.proceed();
+        }
+
         switch (allocated.allocatedTo()) {
             case USER:
                 verifyAllocatedToUser(caseUUID, stageUUID);
@@ -75,6 +79,12 @@ public class AllocatedAspect {
         if (!teams.contains(assignedTeam)) {
             throw new SecurityExceptions.StageNotAssignedToUserTeamException("Stage " + stageUUID.toString() + " is assigned to " + assignedTeam, SECURITY_CASE_NOT_ALLOCATED_TO_TEAM);
         }
+    }
+
+    private boolean proceedIfUserTeamIsAdminForCaseType(UUID caseUUID) {
+        String stageType = caseworkClient.getCase(caseUUID).getType();
+        Set<String> caseTypesForCaseTypeAdmin = userService.getCaseTypesIfUserTeamIsCaseTypeAdmin();
+        return caseTypesForCaseTypeAdmin.contains(stageType);
     }
 }
 
