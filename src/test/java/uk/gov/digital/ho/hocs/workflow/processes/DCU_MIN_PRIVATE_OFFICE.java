@@ -16,11 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.UUID;
+
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/DCU_MIN_PRIVATE_OFFICE.bpmn")
@@ -30,8 +32,8 @@ public class DCU_MIN_PRIVATE_OFFICE {
     public static final String DCU_MIN_PRIVATE_OFFICE = "DCU_MIN_PRIVATE_OFFICE";
     public static final String DCU_MIN_PRIVATE_OFFICE_END = "DCU_MIN_PRIVATE_OFFICE_END";
 
-    public static final String APPROVE_PRIVATE_OFFICE = "ServiceTask_0te5zh0";
-    public static final String VALIDATE_APPROVE_PRIVATE_OFFICE = "UserTask_0eagz4p";
+    public static final String APPROVE_PRIVATE_OFFICE = "Screen_ApprovePrivateOffice";
+    public static final String VALIDATE_APPROVE_PRIVATE_OFFICE = "Validate_ApprovePrivateOffice";
     public static final String UPDATE_HOME_SEC_DEADLINE = "UPDATE_HOME_SEC_DEADLINE";
     public static final String UPDATE_HOME_SEC_STAGES_DEADLINES = "UPDATE_HOME_SEC_STAGES_DEADLINES";
     public static final String UPDATE_STAGE_DEADLINES_FOR_MINISTER_OR_DIRECTOR_TEAMS =
@@ -64,7 +66,7 @@ public class DCU_MIN_PRIVATE_OFFICE {
     @Mock
     BpmnService bpmnService;
     @Mock
-    private ProcessScenario dcuMinPrivateOffice;
+    private ProcessScenario processScenario;
 
     @Before
     public void defaultScenario() {
@@ -73,28 +75,28 @@ public class DCU_MIN_PRIVATE_OFFICE {
 
     @Test
     public void acceptHappyPath() {
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
+        when(processScenario.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "PrivateOfficeDecision", "ACCEPT")));
 
-        Scenario.run(dcuMinPrivateOffice)
+        Scenario.run(processScenario)
                 .startByKey(DCU_MIN_PRIVATE_OFFICE)
                 .execute();
 
-        verify(dcuMinPrivateOffice).hasCompleted(APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
+        verify(processScenario).hasCompleted(APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
     }
 
     @Test
     public void changeHappyPath_POTeamIsHomeSec_With_No_PrivateOfficeOverridePOTeamUUID() {
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
+        when(processScenario.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "PrivateOfficeDecision", "CHANGE")));
 
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_CHANGE_MINISTER))
+        when(processScenario.waitsAtUserTask(VALIDATE_CHANGE_MINISTER))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -102,29 +104,29 @@ public class DCU_MIN_PRIVATE_OFFICE {
                         "PrivateOfficeOverridePOTeamUUID", "",
                         "POTeamUUID", HOME_SEC_OFFICE)));
 
-        Scenario.run(dcuMinPrivateOffice)
+        Scenario.run(processScenario)
                 .startByKey(DCU_MIN_PRIVATE_OFFICE)
                 .execute();
 
         verifyHomeSecOfficeDeadlinesSet();
 
-        verify(dcuMinPrivateOffice).hasCompleted(APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(CHANGE_MINISTER);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_CHANGE_MINISTER);
-        verify(dcuMinPrivateOffice).hasCompleted(SAVE_ALLOCATION_NOTE_CHANGE);
-        verify(dcuMinPrivateOffice).hasCompleted(UPDATE_ALLOCATION_TEAMS_CHANGE);
-        verify(dcuMinPrivateOffice).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
+        verify(processScenario).hasCompleted(APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(CHANGE_MINISTER);
+        verify(processScenario).hasCompleted(VALIDATE_CHANGE_MINISTER);
+        verify(processScenario).hasCompleted(SAVE_ALLOCATION_NOTE_CHANGE);
+        verify(processScenario).hasCompleted(UPDATE_ALLOCATION_TEAMS_CHANGE);
+        verify(processScenario).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
     }
 
     @Test
     public void changeHappyPath_OverrideTeamIsHomeSec() {
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
+        when(processScenario.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "PrivateOfficeDecision", "CHANGE")));
 
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_CHANGE_MINISTER))
+        when(processScenario.waitsAtUserTask(VALIDATE_CHANGE_MINISTER))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -132,29 +134,29 @@ public class DCU_MIN_PRIVATE_OFFICE {
                         "PrivateOfficeOverridePOTeamUUID", HOME_SEC_OFFICE,
                         "POTeamUUID", "not the home sec office")));
 
-        Scenario.run(dcuMinPrivateOffice)
+        Scenario.run(processScenario)
                 .startByKey(DCU_MIN_PRIVATE_OFFICE)
                 .execute();
 
         verifyHomeSecOfficeDeadlinesSet();
 
-        verify(dcuMinPrivateOffice).hasCompleted(APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(CHANGE_MINISTER);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_CHANGE_MINISTER);
-        verify(dcuMinPrivateOffice).hasCompleted(SAVE_ALLOCATION_NOTE_CHANGE);
-        verify(dcuMinPrivateOffice).hasCompleted(UPDATE_ALLOCATION_TEAMS_CHANGE);
-        verify(dcuMinPrivateOffice).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
+        verify(processScenario).hasCompleted(APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(CHANGE_MINISTER);
+        verify(processScenario).hasCompleted(VALIDATE_CHANGE_MINISTER);
+        verify(processScenario).hasCompleted(SAVE_ALLOCATION_NOTE_CHANGE);
+        verify(processScenario).hasCompleted(UPDATE_ALLOCATION_TEAMS_CHANGE);
+        verify(processScenario).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
     }
 
     @Test
     public void changeHappyPath_NeitherPOTeamNorPOTeamIsHomeSec() {
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
+        when(processScenario.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "PrivateOfficeDecision", "CHANGE")));
 
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_CHANGE_MINISTER))
+        when(processScenario.waitsAtUserTask(VALIDATE_CHANGE_MINISTER))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -162,51 +164,51 @@ public class DCU_MIN_PRIVATE_OFFICE {
                         "PrivateOfficeOverridePOTeamUUID", "not the home sec office",
                         "POTeamUUID", "not the home sec office")));
 
-        Scenario.run(dcuMinPrivateOffice)
+        Scenario.run(processScenario)
                 .startByKey(DCU_MIN_PRIVATE_OFFICE)
                 .execute();
 
         verifyMinisterOrDirectorOfficeDeadlinesSet();
 
-        verify(dcuMinPrivateOffice).hasCompleted(APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(CHANGE_MINISTER);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_CHANGE_MINISTER);
-        verify(dcuMinPrivateOffice).hasCompleted(SAVE_ALLOCATION_NOTE_CHANGE);
-        verify(dcuMinPrivateOffice).hasCompleted(UPDATE_ALLOCATION_TEAMS_CHANGE);
-        verify(dcuMinPrivateOffice).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
+        verify(processScenario).hasCompleted(APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(CHANGE_MINISTER);
+        verify(processScenario).hasCompleted(VALIDATE_CHANGE_MINISTER);
+        verify(processScenario).hasCompleted(SAVE_ALLOCATION_NOTE_CHANGE);
+        verify(processScenario).hasCompleted(UPDATE_ALLOCATION_TEAMS_CHANGE);
+        verify(processScenario).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
     }
 
     @Test
     public void rejectHappyPath() {
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
+        when(processScenario.waitsAtUserTask(VALIDATE_APPROVE_PRIVATE_OFFICE))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "PrivateOfficeDecision", "REJECT")));
 
-        when(dcuMinPrivateOffice.waitsAtUserTask(VALIDATE_REJECTION_NOTE))
+        when(processScenario.waitsAtUserTask(VALIDATE_REJECTION_NOTE))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD")));
 
-        Scenario.run(dcuMinPrivateOffice)
+        Scenario.run(processScenario)
                 .startByKey(DCU_MIN_PRIVATE_OFFICE)
                 .execute();
 
-        verify(dcuMinPrivateOffice).hasCompleted(APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
-        verify(dcuMinPrivateOffice).hasCompleted(REJECTION_NOTE);
-        verify(dcuMinPrivateOffice).hasCompleted(VALIDATE_REJECTION_NOTE);
-        verify(dcuMinPrivateOffice).hasCompleted(SAVE_ALLOCATION_NOTE_REJECT);
-        verify(dcuMinPrivateOffice).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
+        verify(processScenario).hasCompleted(APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(VALIDATE_APPROVE_PRIVATE_OFFICE);
+        verify(processScenario).hasCompleted(REJECTION_NOTE);
+        verify(processScenario).hasCompleted(VALIDATE_REJECTION_NOTE);
+        verify(processScenario).hasCompleted(SAVE_ALLOCATION_NOTE_REJECT);
+        verify(processScenario).hasFinished(DCU_MIN_PRIVATE_OFFICE_END);
     }
 
     private void verifyHomeSecOfficeDeadlinesSet() {
-        verify(dcuMinPrivateOffice).hasCompleted(UPDATE_HOME_SEC_DEADLINE);
+        verify(processScenario).hasCompleted(UPDATE_HOME_SEC_DEADLINE);
 
         // Case deadline of 10 days
         verify(bpmnService).updateDeadlineDays(eq(CASE_UUID), any(), eq("10"));
-        verify(dcuMinPrivateOffice).hasCompleted(UPDATE_HOME_SEC_STAGES_DEADLINES);
+        verify(processScenario).hasCompleted(UPDATE_HOME_SEC_STAGES_DEADLINES);
 
         // Case stage deadlines
         verify(bpmnService).updateDeadlineForStages(
@@ -224,11 +226,11 @@ public class DCU_MIN_PRIVATE_OFFICE {
     }
 
     private void verifyMinisterOrDirectorOfficeDeadlinesSet() {
-        verify(dcuMinPrivateOffice).hasCompleted(UPDATE_MINISTER_OR_DIRECTOR_DEADLINE);
+        verify(processScenario).hasCompleted(UPDATE_MINISTER_OR_DIRECTOR_DEADLINE);
 
         // Case deadline of 20 days
         verify(bpmnService).updateDeadlineDays(eq(CASE_UUID), any(), eq("20"));
-        verify(dcuMinPrivateOffice).hasCompleted(UPDATE_STAGE_DEADLINES_FOR_MINISTER_OR_DIRECTOR_TEAMS);
+        verify(processScenario).hasCompleted(UPDATE_STAGE_DEADLINES_FOR_MINISTER_OR_DIRECTOR_TEAMS);
 
         // Case stage deadlines
         verify(bpmnService).updateDeadlineForStages(
@@ -243,5 +245,51 @@ public class DCU_MIN_PRIVATE_OFFICE {
                 eq("DCU_MIN_DISPATCH"), eq("20"),
                 eq("DCU_MIN_COPY_NUMBER_TEN"), eq("20")
         );
+    }
+
+    @Test
+    public void whenTopic_thenChangeTopic_andSavePrimaryTopic() {
+
+        UUID topicUUID = UUID.randomUUID();
+        when(processScenario.waitsAtUserTask("Validate_ApprovePrivateOffice"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", false,
+                        "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PrivateOfficeDecision", "TOPIC")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PrivateOfficeDecision", "TOPIC")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PrivateOfficeDecision", "ACCEPT")));
+        when(processScenario.waitsAtUserTask("Validate_ChangeTopic"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", false,
+                        "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "CaseNote_PrivateOfficeTopic", "Change topic",
+                        "Topics", topicUUID.toString())));
+
+        Scenario.run(processScenario)
+                .startByKey("DCU_MIN_PRIVATE_OFFICE")
+                .execute();
+
+        verify(processScenario, times(4)).hasCompleted("Screen_ApprovePrivateOffice");
+        verify(processScenario, times(3)).hasCompleted("Screen_ChangeTopic");
+        verify(processScenario).hasCompleted("Service_SavePrimaryTopic");
+        verify(bpmnService).updatePrimaryTopic(any(), any(), eq(topicUUID.toString()));
+        verify(processScenario).hasCompleted("Service_SaveTopicChangeNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Change topic"), eq("CHANGE"));
+        verify(processScenario).hasFinished("DCU_MIN_PRIVATE_OFFICE_END");
     }
 }
