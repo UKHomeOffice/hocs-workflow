@@ -31,7 +31,6 @@
     <bpmn:endEvent id="EndEvent_MpamTriage" name="End Stage">
       <bpmn:incoming>SequenceFlow_1vaolyx</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_108azcx</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_09iq9he</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0ksl1cg</bpmn:incoming>
       <bpmn:incoming>Flow_19ce18n</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_15la2x5</bpmn:incoming>
@@ -362,7 +361,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RefTypeCorrection != "Correction"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0cz2azb" sourceRef="ServiceTask_0j4b6pe" targetRef="Service_SaveRefTypeChangeCaseNote_1sobox0" />
-    <bpmn:serviceTask id="ServiceTask_0011raj" name="Request Campaign" camunda:expression="MPAM_CAMPAIGN_REQUEST" camunda:resultVariable="screen">
+    <bpmn:serviceTask id="Screen_RequestCampaign" name="Request Campaign" camunda:expression="MPAM_CAMPAIGN_REQUEST" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_1d5y4cw</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0cc989h</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0oh8e3b</bpmn:outgoing>
@@ -372,7 +371,7 @@
       <bpmn:outgoing>SequenceFlow_1qyqxc7</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_094r7km</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="UserTask_18mxbbm" name="Request Campaign">
+    <bpmn:userTask id="Validate_RequestCampaign" name="Request Campaign">
       <bpmn:incoming>SequenceFlow_0oh8e3b</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_05730uo</bpmn:outgoing>
     </bpmn:userTask>
@@ -386,36 +385,36 @@
       <bpmn:outgoing>SequenceFlow_1d5y4cw</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1legare</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1d5y4cw" sourceRef="ExclusiveGateway_13i24qr" targetRef="ServiceTask_0011raj">
+    <bpmn:sequenceFlow id="SequenceFlow_1d5y4cw" sourceRef="ExclusiveGateway_13i24qr" targetRef="Screen_RequestCampaign">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0oh8e3b" sourceRef="ServiceTask_0011raj" targetRef="UserTask_18mxbbm" />
-    <bpmn:sequenceFlow id="SequenceFlow_05730uo" sourceRef="UserTask_18mxbbm" targetRef="ExclusiveGateway_0sd09rb" />
+    <bpmn:sequenceFlow id="SequenceFlow_0oh8e3b" sourceRef="Screen_RequestCampaign" targetRef="Validate_RequestCampaign" />
+    <bpmn:sequenceFlow id="SequenceFlow_05730uo" sourceRef="Validate_RequestCampaign" targetRef="ExclusiveGateway_0sd09rb" />
     <bpmn:sequenceFlow id="SequenceFlow_0jtqv93" sourceRef="ExclusiveGateway_0sd09rb" targetRef="ExclusiveGateway_13i24qr">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1qyqxc7" name="else" sourceRef="ExclusiveGateway_0mmxl4e" targetRef="ExclusiveGateway_1ivf0n0">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageOutcome != "PutOnCampaign"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_094r7km" name="PutOnCampaign" sourceRef="ExclusiveGateway_0mmxl4e" targetRef="ServiceTask_1uwrjca">
+    <bpmn:sequenceFlow id="SequenceFlow_094r7km" name="PutOnCampaign" sourceRef="ExclusiveGateway_0mmxl4e" targetRef="Service_ClearCampaignType">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageOutcome == "PutOnCampaign"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_09fnnt9" sourceRef="ExclusiveGateway_0sd09rb" targetRef="Screen_UserInput">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1legare" sourceRef="ExclusiveGateway_13i24qr" targetRef="ServiceTask_1t6qiuf">
+    <bpmn:sequenceFlow id="SequenceFlow_1legare" sourceRef="ExclusiveGateway_13i24qr" targetRef="Service_UpdateTeamForCampaign">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="ServiceTask_1t6qiuf" name="Update Team for Campaign" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_CAMPAIGN&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
+    <bpmn:serviceTask id="Service_UpdateTeamForCampaign" name="Update Team for Campaign" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_CAMPAIGN&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
       <bpmn:incoming>SequenceFlow_1legare</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_09iq9he</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_09iq9he" sourceRef="ServiceTask_1t6qiuf" targetRef="EndEvent_MpamTriage" />
-    <bpmn:serviceTask id="ServiceTask_1uwrjca" name="Clear CampaignType" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;CampaignType&#34;)}">
+    <bpmn:sequenceFlow id="SequenceFlow_09iq9he" sourceRef="Service_UpdateTeamForCampaign" targetRef="Service_ClearRejected" />
+    <bpmn:serviceTask id="Service_ClearCampaignType" name="Clear CampaignType" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;CampaignType&#34;)}">
       <bpmn:incoming>SequenceFlow_094r7km</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0cc989h</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0cc989h" sourceRef="ServiceTask_1uwrjca" targetRef="ServiceTask_0011raj" />
+    <bpmn:sequenceFlow id="SequenceFlow_0cc989h" sourceRef="Service_ClearCampaignType" targetRef="Screen_RequestCampaign" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1sznr49" name="TriageOutcome?">
       <bpmn:incoming>SequenceFlow_0hgwrhp</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_14hq4rz</bpmn:outgoing>
@@ -527,6 +526,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_00sgdbb" sourceRef="Service_ClearMinisterialValues_05l3eed" targetRef="ExclusiveGateway_0d3wc9s" />
     <bpmn:serviceTask id="Service_ClearRejected" name="Clear Rejected" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;Rejected&#34;)}">
       <bpmn:incoming>SequenceFlow_0kcq8md</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_09iq9he</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_05mveu5</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_05mveu5" sourceRef="Service_ClearRejected" targetRef="EndEvent_MpamTriage" />
@@ -676,13 +676,13 @@
         <di:waypoint x="1757" y="456" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_09iq9he_di" bpmnElement="SequenceFlow_09iq9he">
-        <di:waypoint x="2208" y="252" />
-        <di:waypoint x="2349" y="252" />
-        <di:waypoint x="2349" y="621" />
+        <di:waypoint x="2134" y="252" />
+        <di:waypoint x="2239" y="252" />
+        <di:waypoint x="2239" y="475" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1legare_di" bpmnElement="SequenceFlow_1legare">
         <di:waypoint x="1985" y="252" />
-        <di:waypoint x="2108" y="252" />
+        <di:waypoint x="2034" y="252" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_09fnnt9_di" bpmnElement="SequenceFlow_09fnnt9">
         <di:waypoint x="1870" y="227" />
@@ -1269,7 +1269,7 @@
       <bpmndi:BPMNShape id="ServiceTask_07vhlhy_di" bpmnElement="Service_UpdateRefTypeToOfficial_07vhlhy">
         <dc:Bounds x="1326" y="1508" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_0011raj_di" bpmnElement="ServiceTask_0011raj">
+      <bpmndi:BPMNShape id="ServiceTask_0011raj_di" bpmnElement="Screen_RequestCampaign">
         <dc:Bounds x="1707" y="376" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0mmxl4e_di" bpmnElement="ExclusiveGateway_0mmxl4e" isMarkerVisible="true">
@@ -1278,7 +1278,7 @@
           <dc:Bounds x="1716" y="666" width="82" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_18mxbbm_di" bpmnElement="UserTask_18mxbbm">
+      <bpmndi:BPMNShape id="UserTask_18mxbbm_di" bpmnElement="Validate_RequestCampaign">
         <dc:Bounds x="1707" y="212" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0sd09rb_di" bpmnElement="ExclusiveGateway_0sd09rb" isMarkerVisible="true">
@@ -1290,10 +1290,10 @@
       <bpmndi:BPMNShape id="ExclusiveGateway_13i24qr_di" bpmnElement="ExclusiveGateway_13i24qr" isMarkerVisible="true">
         <dc:Bounds x="1935" y="227" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_1t6qiuf_di" bpmnElement="ServiceTask_1t6qiuf">
-        <dc:Bounds x="2108" y="212" width="100" height="80" />
+      <bpmndi:BPMNShape id="ServiceTask_1t6qiuf_di" bpmnElement="Service_UpdateTeamForCampaign">
+        <dc:Bounds x="2034" y="212" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_1uwrjca_di" bpmnElement="ServiceTask_1uwrjca">
+      <bpmndi:BPMNShape id="ServiceTask_1uwrjca_di" bpmnElement="Service_ClearCampaignType">
         <dc:Bounds x="1707" y="487" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1sznr49_di" bpmnElement="ExclusiveGateway_1sznr49" isMarkerVisible="true">
