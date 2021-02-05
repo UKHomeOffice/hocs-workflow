@@ -104,6 +104,41 @@ public class UserPermissionsServiceTest {
         assertThat(caseTypes.stream().anyMatch(c -> c.equals("MIN"))).isTrue();
     }
 
+    @Test
+    public void shouldGetCaseTypesFromTeamIfTeamIsCaseTypeAdmin() {
+
+        String caseType1 = "CASE_TYPE_1";
+        String caseType2 = "CASE_TYPE_2";
+
+        String[] groups =
+                ("/" + uuid2 + "," +
+                        "/" + uuid3 + "," +
+                        "/" + uuid1).split(",");
+
+
+        Set<PermissionDto> permissions1 = Set.of(
+                new PermissionDto(caseType1, AccessLevel.CASE_ADMIN),
+                new PermissionDto(caseType2, AccessLevel.OWNER)
+        );
+
+        Set<TeamDto> teams = Set.of(
+                new TeamDto(
+                        "TEAM 1",
+                        Base64UUID.Base64StringToUUID(uuid1),
+                        true,
+                        permissions1
+                )
+        );
+
+        when(requestData.groupsArray()).thenReturn(groups);
+        when(infoClient.getTeams()).thenReturn(teams);
+
+        service = new UserPermissionsService(requestData, infoClient);
+        Set<String> caseTypes = service.getCaseTypesIfUserTeamIsCaseTypeAdmin();
+        assertThat(caseTypes.size()).isEqualTo(1);
+        assertThat(caseTypes.contains(caseType1)).isTrue();
+    }
+
     private void setupInfoClientMocks() {
 
         Set<TeamDto> teamDtos = new HashSet<>();

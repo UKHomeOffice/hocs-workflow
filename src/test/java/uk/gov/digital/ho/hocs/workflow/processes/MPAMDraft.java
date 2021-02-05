@@ -115,7 +115,6 @@ public class MPAMDraft {
         verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Official"), eq("RefTypeStatus"), eq("Confirm"));
         verify(bpmnService).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
     }
-
     @Test
     public void whenPutOnCampaign_thenUpdateTeam_andClearRejected() {
 

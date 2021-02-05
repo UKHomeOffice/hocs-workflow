@@ -19,8 +19,9 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM_TRIAGE_ESCALATE.bpmn")
@@ -29,7 +30,7 @@ public class MPAMTriageEscalate {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.1)
+            .assertClassCoverageAtLeast(0.25)
             .build();
 
     @Rule
@@ -107,5 +108,75 @@ public class MPAMTriageEscalate {
         verify(bpmnService).createCaseConversionNote(any(), any(), eq("Casenote"));
         verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
         verify(bpmnService, never()).blankCaseValues(any(), any(), eq("MinSignOffTeam"), eq("Addressee"));
+    }
+
+    @Test
+    public void whenTransferToOGD_thenAddTransferNote_thenSetDueDate_thenUpdateTeamForTransfer() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateBusinessArea")));
+
+        when(processScenario.waitsAtUserTask("UserTask_15xxyjd"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "BusArea", "TransferToOgd")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRIAGE_ESCALATE")
+                .execute();
+
+        verify(processScenario).hasCompleted("Activity_0u4xxk6"); // create transfer note
+        verify(processScenario).hasCompleted("Activity_0osk3xt"); // set transfer date
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRANSFER"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
+    }
+
+    @Test
+    public void whenTransferToOther_thenAddTransferNote_thenSetDueDate_thenUpdateTeamForTransfer() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateBusinessArea")));
+
+        when(processScenario.waitsAtUserTask("UserTask_15xxyjd"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "BusArea", "TransferToOther")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRIAGE_ESCALATE")
+                .execute();
+
+        verify(processScenario).hasCompleted("Activity_0u4xxk6"); // create transfer note
+        verify(processScenario).hasCompleted("Activity_0osk3xt"); // set transfer date
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRANSFER"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
+    }
+
+    @Test
+    public void whenNotTransferToOther_thenUpdateTeamForDraft() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateBusinessArea")));
+
+        when(processScenario.waitsAtUserTask("UserTask_15xxyjd"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "BusArea", "NotTransferToOther")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRIAGE_ESCALATE")
+                .execute();
+
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
     }
 }
