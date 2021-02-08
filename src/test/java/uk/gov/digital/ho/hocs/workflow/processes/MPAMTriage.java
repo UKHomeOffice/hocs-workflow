@@ -24,18 +24,18 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM_TRIAGE.bpmn")
-public class MPAMTriage {
+public class MPAMTriage extends MPAMCommonTests {
 
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.2)
+            .assertClassCoverageAtLeast(0.43)
             .build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
     @Mock
-    BpmnService bpmnService;
+    private BpmnService bpmnService;
     @Mock
     private ProcessScenario processScenario;
 
@@ -149,4 +149,11 @@ public class MPAMTriage {
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasFinished("EndEvent_MpamTriage");
     }
+
+    @Test
+    public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+        whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_TRIAGE", "Service_UpdateTeamForTriage", "MPAM_TRIAGE", "EndEvent_MpamTriage",
+                processScenario, bpmnService);
+    }
+
 }

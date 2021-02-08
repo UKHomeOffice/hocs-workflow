@@ -126,7 +126,7 @@
       <bpmn:incoming>SequenceFlow_0lq7xmj</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0dxm9g9</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="UserTask_0umoh1j" name="Validate User Input">
+    <bpmn:userTask id="Validate_BusinessAreaChange" name="Validate User Input">
       <bpmn:incoming>SequenceFlow_0dxm9g9</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1du9cix</bpmn:outgoing>
     </bpmn:userTask>
@@ -140,20 +140,20 @@
       <bpmn:outgoing>SequenceFlow_0igso4v</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_15tk81s</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="ServiceTask_02f5ipq" name="Update Team for Draft" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_DRAFT&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
-      <bpmn:incoming>SequenceFlow_0p9pcw5</bpmn:incoming>
+    <bpmn:serviceTask id="Service_UpdateTeamForDraft" name="Update Team for Draft" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_DRAFT&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
       <bpmn:incoming>Flow_0d0qvpw</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0dp12uz</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0dp8d8d</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_05qrq6b" name="false" sourceRef="ExclusiveGateway_066qjng" targetRef="ServiceTask_09dgtiv">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0dxm9g9" sourceRef="ServiceTask_09dgtiv" targetRef="UserTask_0umoh1j" />
-    <bpmn:sequenceFlow id="SequenceFlow_1du9cix" sourceRef="UserTask_0umoh1j" targetRef="ExclusiveGateway_0244uy2" />
+    <bpmn:sequenceFlow id="SequenceFlow_0dxm9g9" sourceRef="ServiceTask_09dgtiv" targetRef="Validate_BusinessAreaChange" />
+    <bpmn:sequenceFlow id="SequenceFlow_1du9cix" sourceRef="Validate_BusinessAreaChange" targetRef="ExclusiveGateway_0244uy2" />
     <bpmn:sequenceFlow id="SequenceFlow_0igso4v" name="FORWARD" sourceRef="ExclusiveGateway_0244uy2" targetRef="ExclusiveGateway_066qjng">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0p9pcw5" sourceRef="ExclusiveGateway_066qjng" targetRef="ServiceTask_02f5ipq">
+    <bpmn:sequenceFlow id="SequenceFlow_0p9pcw5" sourceRef="ExclusiveGateway_066qjng" targetRef="Service_SetBusAreaStatusConfirm">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0ytznox" name="Direction Check">
@@ -168,7 +168,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0lq7xmj" sourceRef="ExclusiveGateway_0ytznox" targetRef="ServiceTask_09dgtiv">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "UpdateBusinessArea"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0dp8d8d" sourceRef="ServiceTask_02f5ipq" targetRef="EndEvent_MpamDraft" />
+    <bpmn:sequenceFlow id="SequenceFlow_0dp8d8d" sourceRef="Service_UpdateTeamForDraft" targetRef="EndEvent_MpamDraft" />
     <bpmn:sequenceFlow id="SequenceFlow_15tk81s" name="BACKWARD" sourceRef="ExclusiveGateway_0244uy2" targetRef="Screen_UserInput">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -417,7 +417,7 @@
       <bpmn:incoming>SequenceFlow_0jenwmy</bpmn:incoming>
       <bpmn:outgoing>Flow_0d0qvpw</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0d0qvpw" sourceRef="Service_SaveRefTypeChangeCaseNote_1yc1ce2" targetRef="ServiceTask_02f5ipq" />
+    <bpmn:sequenceFlow id="Flow_0d0qvpw" sourceRef="Service_SaveRefTypeChangeCaseNote_1yc1ce2" targetRef="Service_UpdateTeamForDraft" />
     <bpmn:sequenceFlow id="Flow_08196yy" name="Close Case (Telephone)" sourceRef="Gateway_0b9xe9y" targetRef="Activity_0pt85ju">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftStatus == "CloseCaseTelephone"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -484,6 +484,11 @@
       <bpmn:outgoing>SequenceFlow_14mpx6l</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_14mpx6l" sourceRef="Service_ClearRejected" targetRef="EndEvent_MpamDraft" />
+    <bpmn:serviceTask id="Service_SetBusAreaStatusConfirm" name="Update BusAreaStatus to Confirm" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;BusAreaStatus&#34;, &#34;Confirm&#34;)}">
+      <bpmn:incoming>SequenceFlow_0p9pcw5</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0dp12uz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0dp12uz" sourceRef="Service_SetBusAreaStatusConfirm" targetRef="Service_UpdateTeamForDraft" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_DRAFT">
@@ -809,7 +814,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0p9pcw5_di" bpmnElement="SequenceFlow_0p9pcw5">
         <di:waypoint x="965" y="1988" />
-        <di:waypoint x="1210" y="1988" />
+        <di:waypoint x="1032" y="1988" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0igso4v_di" bpmnElement="SequenceFlow_0igso4v">
         <di:waypoint x="940" y="2043" />
@@ -986,7 +991,7 @@
       <bpmndi:BPMNShape id="ServiceTask_09dgtiv_di" bpmnElement="ServiceTask_09dgtiv">
         <dc:Bounds x="741" y="1865" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_0umoh1j_di" bpmnElement="UserTask_0umoh1j">
+      <bpmndi:BPMNShape id="UserTask_0umoh1j_di" bpmnElement="Validate_BusinessAreaChange">
         <dc:Bounds x="741" y="2028" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_066qjng_di" bpmnElement="ExclusiveGateway_066qjng" isMarkerVisible="true">
@@ -998,7 +1003,7 @@
           <dc:Bounds x="970" y="2061" width="78" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_02f5ipq_di" bpmnElement="ServiceTask_02f5ipq">
+      <bpmndi:BPMNShape id="ServiceTask_02f5ipq_di" bpmnElement="Service_UpdateTeamForDraft">
         <dc:Bounds x="1210" y="1948" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0ytznox_di" bpmnElement="ExclusiveGateway_0ytznox" isMarkerVisible="true">
@@ -1155,6 +1160,13 @@
         <di:waypoint x="1797" y="1748" />
         <di:waypoint x="1797" y="1660" />
         <di:waypoint x="1969" y="1660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0wg5o51_di" bpmnElement="Service_SetBusAreaStatusConfirm">
+        <dc:Bounds x="1032" y="1948" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0dp12uz_di" bpmnElement="SequenceFlow_0dp12uz">
+        <di:waypoint x="1132" y="1988" />
+        <di:waypoint x="1210" y="1988" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
