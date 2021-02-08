@@ -2,7 +2,6 @@ package uk.gov.digital.ho.hocs.workflow.processes;
 
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.mockito.ProcessExpressions;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
@@ -15,13 +14,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
-import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
-import uk.gov.digital.ho.hocs.workflow.util.CallActivityReturnVariable;
-
-import java.util.Arrays;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -55,39 +51,31 @@ public class DCU_MIN {
 
         Mocks.register("bpmnService", bpmnService);
 
-        ProcessExpressions.registerCallActivityMock("DCU_BASE_DATA_INPUT")
-                .onExecutionAddVariable("CopyNumberTen", "FALSE")
+        whenAtCallActivity("DCU_BASE_DATA_INPUT")
+                .alwaysReturn("CopyNumberTen", "FALSE")
                 .deploy(rule);
-        ProcessExpressions.registerCallActivityMock("DCU_MIN_MARKUP")
-                .onExecutionAddVariable("MarkupDecision", "PR")
+        whenAtCallActivity("DCU_MIN_MARKUP")
+                .alwaysReturn("MarkupDecision", "PR")
                 .deploy(rule);
-        ProcessExpressions.registerCallActivityMock("DCU_MIN_INITIAL_DRAFT")
-                .onExecutionAddVariable("InitialDraftDecision", "ACCEPT")
-                .onExecutionAddVariable("OfflineQA", "FALSE")
-                .onExecutionAddVariable("ResponseChannel", "EMAIL")
+        whenAtCallActivity("DCU_MIN_INITIAL_DRAFT")
+                .alwaysReturn("InitialDraftDecision", "ACCEPT", "OfflineQA", "FALSE", "ResponseChannel", "EMAIL")
                 .deploy(rule);
-        ProcessExpressions.registerCallActivityMock("DCU_BASE_QA_RESPONSE")
-                .onExecutionAddVariable("QAResponseDecision", "ACCEPT")
+        whenAtCallActivity("DCU_BASE_QA_RESPONSE")
+                .alwaysReturn("QAResponseDecision", "ACCEPT")
                 .deploy(rule);
-        ProcessExpressions.registerCallActivityMock("DCU_MIN_PRIVATE_OFFICE")
-                .onExecutionAddVariable("PrivateOfficeDecision", "ACCEPT")
+        whenAtCallActivity("DCU_MIN_PRIVATE_OFFICE")
+                .alwaysReturn("PrivateOfficeDecision", "ACCEPT")
                 .deploy(rule);
-        ProcessExpressions.registerCallActivityMock("DCU_BASE_DISPATCH")
-                .onExecutionAddVariable("DispatchDecision", "ACCEPT")
+        whenAtCallActivity("DCU_BASE_DISPATCH")
+                .alwaysReturn("DispatchDecision", "ACCEPT")
                 .deploy(rule);
     }
 
     @Test
     public void acceptMinisterSignOffScenario() {
 
-        ProcessExpressions.registerCallActivityMock("DCU_MIN_MINISTER_SIGN_OFF")
-                .onExecutionDo(new ExecutionVariableSequence(
-                        Arrays.asList(
-                                // first call
-                                Arrays.asList(
-                                        new CallActivityReturnVariable("MinisterSignOffDecision", "ACCEPT"))
-                        )
-                ))
+        whenAtCallActivity("DCU_MIN_MINISTER_SIGN_OFF")
+                .thenReturn("MinisterSignOffDecision", "ACCEPT")
                 .deploy(rule);
 
         Scenario.run(dcuMinProcess)
@@ -105,17 +93,9 @@ public class DCU_MIN {
     @Test
     public void rejectMinisterSignOffScenario() {
 
-        ProcessExpressions.registerCallActivityMock("DCU_MIN_MINISTER_SIGN_OFF")
-                .onExecutionDo(new ExecutionVariableSequence(
-                        Arrays.asList(
-                                // first call
-                                Arrays.asList(
-                                        new CallActivityReturnVariable("MinisterSignOffDecision", "REJECT")),
-                                // second call
-                                Arrays.asList(
-                                        new CallActivityReturnVariable("MinisterSignOffDecision", "ACCEPT"))
-                        )
-                ))
+        whenAtCallActivity("DCU_MIN_MINISTER_SIGN_OFF")
+                .thenReturn("MinisterSignOffDecision", "REJECT")
+                .thenReturn("MinisterSignOffDecision", "ACCEPT")
                 .deploy(rule);
 
         Scenario.run(dcuMinProcess)
@@ -135,17 +115,9 @@ public class DCU_MIN {
     @Test
     public void notApplicableMinisterSignOffScenario() {
 
-        ProcessExpressions.registerCallActivityMock("DCU_MIN_MINISTER_SIGN_OFF")
-                .onExecutionDo(new ExecutionVariableSequence(
-                        Arrays.asList(
-                                // first call
-                                Arrays.asList(
-                                        new CallActivityReturnVariable("MinisterSignOffDecision", "NOT_APPLICABLE")),
-                                // second call
-                                Arrays.asList(
-                                        new CallActivityReturnVariable("MinisterSignOffDecision", "ACCEPT"))
-                        )
-                ))
+        whenAtCallActivity("DCU_MIN_MINISTER_SIGN_OFF")
+                .thenReturn("MinisterSignOffDecision", "NOT_APPLICABLE")
+                .thenReturn("MinisterSignOffDecision", "ACCEPT")
                 .deploy(rule);
 
         Scenario.run(dcuMinProcess)
