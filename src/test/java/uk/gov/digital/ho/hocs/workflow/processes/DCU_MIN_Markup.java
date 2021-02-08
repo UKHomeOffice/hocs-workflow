@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/DCU_MIN_MARKUP.bpmn")
-public class DCU_MIN_MARKUP extends DCU_MIN_DTEN_Markup_Common {
+public class DCU_MIN_Markup extends DCU_MIN_DTEN_Markup_Common {
 
     // start/end
     public static final String DCU_MIN_MARKUP = "DCU_MIN_MARKUP";
