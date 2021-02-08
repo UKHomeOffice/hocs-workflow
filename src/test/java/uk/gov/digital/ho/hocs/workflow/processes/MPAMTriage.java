@@ -24,18 +24,18 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM_TRIAGE.bpmn")
-public class MPAMTriage {
+public class MPAMTriage extends MPAMCommonTests {
 
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.2)
+            .assertClassCoverageAtLeast(0.43)
             .build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
     @Mock
-    BpmnService bpmnService;
+    private BpmnService bpmnService;
     @Mock
     private ProcessScenario processScenario;
 
@@ -98,6 +98,39 @@ public class MPAMTriage {
     }
 
     @Test
+    public void whenPutOnCampaign_thenUpdateTeam_andClearRejected() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "TriageOutcome", "PutOnCampaign")));
+
+        when(processScenario.waitsAtUserTask("Validate_RequestCampaign"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", false)))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", true)));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRIAGE")
+                .execute();
+
+        verify(processScenario, times(2)).hasCompleted("Service_ClearCampaignType");
+        verify(bpmnService, times(2)).blankCaseValues(any(), any(), eq("CampaignType"));
+        verify(processScenario, times(3)).hasCompleted("Screen_RequestCampaign");
+        verify(processScenario).hasCompleted("Service_UpdateTeamForCampaign");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_CAMPAIGN"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasCompleted("Service_ClearRejected");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
+    }
+
+    @Test
     public void whenSendToDraft_thenUpdatesTeam_andClearsRejected() {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
@@ -116,4 +149,11 @@ public class MPAMTriage {
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasFinished("EndEvent_MpamTriage");
     }
+
+    @Test
+    public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+        whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_TRIAGE", "Service_UpdateTeamForTriage", "MPAM_TRIAGE", "EndEvent_MpamTriage",
+                processScenario, bpmnService);
+    }
+
 }

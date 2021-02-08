@@ -15,6 +15,7 @@ public class AccessLevelTest {
         assertThat(READ.getLevel()).isEqualTo(2);
         assertThat(WRITE.getLevel()).isEqualTo(3);
         assertThat(OWNER.getLevel()).isEqualTo(5);
+        assertThat(CASE_ADMIN.getLevel()).isEqualTo(6);
 
     }
 
@@ -25,6 +26,7 @@ public class AccessLevelTest {
         assertOrderValue(READ, 2);
         assertOrderValue(WRITE, 3);
         assertOrderValue(OWNER, 4);
+        assertOrderValue(CASE_ADMIN, 5);
     }
 
     @Test
@@ -36,6 +38,7 @@ public class AccessLevelTest {
                 case READ:
                 case WRITE:
                 case OWNER:
+                case CASE_ADMIN:
                     break;
                 default:
                     fail("You've added a AccessLevel, make sure you've written all the tests!");
