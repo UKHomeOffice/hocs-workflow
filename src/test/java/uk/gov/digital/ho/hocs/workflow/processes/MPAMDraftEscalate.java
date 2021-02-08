@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM_DRAFT_ESCALATE.bpmn")
-public class MPAMDraftEscalate {
+public class MPAMDraftEscalate extends MPAMCommonTests {
 
     @Rule
     @ClassRule
@@ -115,7 +115,7 @@ public class MPAMDraftEscalate {
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
 
-        when(processScenario.waitsAtUserTask("UserTask_09vurp6"))
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -139,7 +139,7 @@ public class MPAMDraftEscalate {
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
 
-        when(processScenario.waitsAtUserTask("UserTask_09vurp6"))
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -163,7 +163,7 @@ public class MPAMDraftEscalate {
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
 
-        when(processScenario.waitsAtUserTask("UserTask_09vurp6"))
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -177,4 +177,9 @@ public class MPAMDraftEscalate {
         verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
     }
 
+    @Test
+    public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+        whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_DRAFT_ESCALATE", "Service_UpdateTeamForDraft", "MPAM_DRAFT", "EndEvent_MpamDraftEscalate",
+                processScenario, bpmnService);
+    }
 }

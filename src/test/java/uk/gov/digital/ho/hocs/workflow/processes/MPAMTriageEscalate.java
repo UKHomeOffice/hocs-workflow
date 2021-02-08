@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM_TRIAGE_ESCALATE.bpmn")
-public class MPAMTriageEscalate {
+public class MPAMTriageEscalate extends MPAMCommonTests {
 
     @Rule
     @ClassRule
@@ -118,7 +118,7 @@ public class MPAMTriageEscalate {
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
 
-        when(processScenario.waitsAtUserTask("UserTask_15xxyjd"))
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -142,7 +142,7 @@ public class MPAMTriageEscalate {
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
 
-        when(processScenario.waitsAtUserTask("UserTask_15xxyjd"))
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -166,7 +166,7 @@ public class MPAMTriageEscalate {
                         "valid", true,
                         "DIRECTION", "UpdateBusinessArea")));
 
-        when(processScenario.waitsAtUserTask("UserTask_15xxyjd"))
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -179,4 +179,11 @@ public class MPAMTriageEscalate {
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
     }
+
+    @Test
+    public void whenTriageEscalatedChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+        whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_TRIAGE_ESCALATE", "Service_UpdateTeamForTriage", "MPAM_TRIAGE", "EndEvent_MpamTriageEscalate",
+                processScenario, bpmnService);
+    }
+
 }

@@ -17,6 +17,7 @@ public class MPAMCommonTests {
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
+                        "BusArea", "",
                         "DIRECTION", "UpdateBusinessArea")));
         when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
                 .thenReturn(task -> task.complete(withVariables(

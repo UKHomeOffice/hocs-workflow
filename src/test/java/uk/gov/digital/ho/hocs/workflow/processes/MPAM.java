@@ -21,8 +21,7 @@ import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -43,7 +42,7 @@ public class MPAM {
 
     public static final String DRAFT_REQUEST_CONTRIBUTION = "CallActivity_1068j5g";
     public static final String DRAFT_REQUEST_CONTRIBUTION_RESULT = "ExclusiveGateway_1hlhu8m";
-    public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED = "Activity_134af50";
+    public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED = "CallActivity_DraftEscalated_RequestContribution";
 
     public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED_RESULT = "Gateway_0kabhfi";
     public static final String DRAFT_ESCALATE_DRAFT_STATUS = "ExclusiveGateway_1nyjaew";
@@ -107,6 +106,7 @@ public class MPAM {
         verify(mpamProcess)
                 .hasCompleted("ServiceTask_0rwk9ie");
 
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
     }
 
     @Test
