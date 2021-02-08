@@ -179,17 +179,35 @@ public class BpmnService {
         Map<String, String> teamsForTopic = new HashMap<>();
 
         if (StringUtils.hasText(draftingUUIDString)) {
-            log.info("Overwriting draft team with {}", draftingUUIDString);
             TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
-            teamsForTopic.put("OverrideDraftingTeamUUID", draftingTeam.getUuid().toString());
-            teamsForTopic.put("OverrideDraftingTeamName", draftingTeam.getDisplayName());
+
+            if (draftingTeam.isActive()){
+                teamsForTopic.put("OverrideDraftingTeamUUID", draftingTeam.getUuid().toString());
+                teamsForTopic.put("OverrideDraftingTeamName", draftingTeam.getDisplayName());
+                log.info("Overwriting draft team with {}", draftingUUIDString);
+            }
+            else {
+                teamsForTopic.put("OverrideDraftingTeamUUID", null);
+                teamsForTopic.put("OverrideDraftingTeamName", null);
+                log.info("Removing Override Drafting Team as selected team was inactive.");
+            }
+
+
         }
 
         if (StringUtils.hasText(privateOfficeUUIDString)) {
-            log.info("Overwriting po team with {}", privateOfficeUUIDString);
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
-            teamsForTopic.put("OverridePOTeamUUID", pOTeam.getUuid().toString());
-            teamsForTopic.put("OverridePOTeamName", pOTeam.getDisplayName());
+            if (pOTeam.isActive()){
+                teamsForTopic.put("OverridePOTeamUUID", pOTeam.getUuid().toString());
+                teamsForTopic.put("OverridePOTeamName", pOTeam.getDisplayName());
+                log.info("Overwriting po team with {}", privateOfficeUUIDString);
+            }
+            else{
+                teamsForTopic.put("OverridePOTeamUUID", null);
+                teamsForTopic.put("OverridePOTeamName", null);
+                log.info("Removing Override PO Team as selected team was inactive.");
+            }
+
         }
 
         if (!teamsForTopic.isEmpty()) {

@@ -149,6 +149,30 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shouldUpdateDataRemoveOverrideDraftingTeams() {
+
+        UUID draftingString = UUID.randomUUID();
+
+        String teamName = "Team1";
+        TeamDto team = new TeamDto(teamName, draftingString, false, new HashSet<>());
+        Map<String, String> teamsForTopic = new HashMap<>();
+        teamsForTopic.put("OverrideDraftingTeamUUID", null);
+        teamsForTopic.put("OverrideDraftingTeamName", null);
+
+        when(infoClient.getTeam(draftingString)).thenReturn(team);
+
+        bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), null);
+
+        verify(infoClient, times(1)).getTeam(draftingString);
+        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
+
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
     public void shouldUpdateDataNewPOTeams() {
 
         UUID privateOfficeString = UUID.randomUUID();
@@ -158,6 +182,30 @@ public class BpmnServiceTest {
         Map<String, String> teamsForTopic = new HashMap<>();
         teamsForTopic.put("OverridePOTeamUUID", privateOfficeString.toString());
         teamsForTopic.put("OverridePOTeamName", teamName);
+
+        when(infoClient.getTeam(privateOfficeString)).thenReturn(team);
+
+        bpmnService.updateTeamSelection(caseUUID, stageUUID, null, privateOfficeString.toString());
+
+        verify(infoClient, times(1)).getTeam(privateOfficeString);
+        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
+
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldUpdateDataRemoveOverridePOTeams() {
+
+        UUID privateOfficeString = UUID.randomUUID();
+
+        String teamName = "Team1";
+        TeamDto team = new TeamDto(teamName, privateOfficeString, false, new HashSet<>());
+        Map<String, String> teamsForTopic = new HashMap<>();
+        teamsForTopic.put("OverridePOTeamUUID", null);
+        teamsForTopic.put("OverridePOTeamName", null);
 
         when(infoClient.getTeam(privateOfficeString)).thenReturn(team);
 
