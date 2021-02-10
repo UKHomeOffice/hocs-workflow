@@ -203,4 +203,74 @@ public class MPAMDraft extends MPAMCommonTests {
                 processScenario, bpmnService);
     }
 
+    @Test
+    public void whenTransferToOGD_thenAddTransferNote_thenSetDueDate_thenUpdateTeamForTransfer() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateBusinessArea")));
+
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "BusArea", "TransferToOgd")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("Activity_0jtr3i3"); // create transfer note
+        verify(processScenario).hasCompleted("Activity_0xuiamo"); // set transfer date
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRANSFER"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamDraft");
+    }
+
+    @Test
+    public void whenTransferToOther_thenAddTransferNote_thenSetDueDate_thenUpdateTeamForTransfer() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateBusinessArea")));
+
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "BusArea", "TransferToOther")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("Activity_0jtr3i3"); // create transfer note
+        verify(processScenario).hasCompleted("Activity_0xuiamo"); // set transfer date
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRANSFER"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamDraft");
+    }
+
+    @Test
+    public void whenNotTransferToOther_thenUpdateTeamForDraft() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateBusinessArea")));
+
+        when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "BusArea", "NotTransferToOther")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_DRAFT")
+                .execute();
+
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamDraft");
+    }
+
 }
