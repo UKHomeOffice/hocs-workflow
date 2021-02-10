@@ -10,6 +10,7 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
 import java.util.HashMap;
@@ -400,21 +401,39 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shouldCreateNewStage() {
+    public void shouldCreateNewStage_whenUserIsInTeam() {
         String stageType = "testStageType";
         String allocationType = "testAllocationType";
         String allocationTeam = UUID.randomUUID().toString();
         String allocatedUserId = UUID.randomUUID().toString();
-
+        when(infoClient.getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId))).thenReturn(new UserDto());
         UUID expectedStageUUID = UUID.randomUUID();
-
         when(caseworkClient.createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId), allocationType)).thenReturn(expectedStageUUID);
+
         String resultUUID = bpmnService.createStage(caseUUID, null, stageType, allocationType, allocationTeam, allocatedUserId);
 
         assertThat(resultUUID).isEqualTo(expectedStageUUID.toString());
+        verify(infoClient).getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId));
         verify(caseworkClient).createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId), allocationType);
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
 
+    @Test
+    public void shouldCreateNewStage_whenUserNotInTeam() {
+        String stageType = "testStageType";
+        String allocationType = "testAllocationType";
+        String allocationTeam = UUID.randomUUID().toString();
+        String allocatedUserId = UUID.randomUUID().toString();
+        when(infoClient.getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId))).thenReturn(null);
+        UUID expectedStageUUID = UUID.randomUUID();
+        when(caseworkClient.createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), null, allocationType)).thenReturn(expectedStageUUID);
+
+        String resultUUID = bpmnService.createStage(caseUUID, null, stageType, allocationType, allocationTeam, allocatedUserId);
+
+        assertThat(resultUUID).isEqualTo(expectedStageUUID.toString());
+        verify(infoClient).getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId));
+        verify(caseworkClient).createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), null, allocationType);
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
 
     @Test
@@ -439,19 +458,19 @@ public class BpmnServiceTest {
         String stageType = "testStageType";
         String allocationType = "testAllocationType";
         String allocatedUserId = UUID.randomUUID().toString();
-
         UUID expectedStageUUID = UUID.randomUUID();
         UUID expectedAllocationTeam = UUID.randomUUID();
-
         when(infoClient.getTeamForStageType(stageType)).thenReturn(expectedAllocationTeam);
+        when(infoClient.getUserForTeam(expectedAllocationTeam, UUID.fromString(allocatedUserId))).thenReturn(new UserDto());
         when(caseworkClient.createStage(UUID.fromString(caseUUID), stageType, expectedAllocationTeam, UUID.fromString(allocatedUserId), allocationType)).thenReturn(expectedStageUUID);
+
         String resultUUID = bpmnService.createStage(caseUUID, null, stageType, allocationType, null, allocatedUserId);
 
         assertThat(resultUUID).isEqualTo(expectedStageUUID.toString());
         verify(infoClient).getTeamForStageType(stageType);
+        verify(infoClient).getUserForTeam(expectedAllocationTeam, UUID.fromString(allocatedUserId));
         verify(caseworkClient).createStage(UUID.fromString(caseUUID), stageType, expectedAllocationTeam, UUID.fromString(allocatedUserId), allocationType);
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
-
     }
 
     @Test
@@ -460,15 +479,16 @@ public class BpmnServiceTest {
         String allocationType = "testAllocationType";
         String allocationTeam = UUID.randomUUID().toString();
         String allocatedUserId = UUID.randomUUID().toString();
+        when(infoClient.getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId))).thenReturn(new UserDto());
 
         String resultUUID = bpmnService.createStage(caseUUID, stageUUID, stageType, allocationType, allocationTeam, allocatedUserId);
 
         assertThat(resultUUID).isEqualTo(stageUUID);
+        verify(infoClient).getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId));
         verify(caseworkClient).recreateStage(UUID.fromString(caseUUID), UUID.fromString(stageUUID), stageType);
         verify(caseworkClient).updateStageTeam(UUID.fromString(caseUUID), UUID.fromString(stageUUID), UUID.fromString(allocationTeam), allocationType);
         verify(caseworkClient).updateStageUser(UUID.fromString(caseUUID), UUID.fromString(stageUUID), UUID.fromString(allocatedUserId));
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
-
     }
 
     @Test
