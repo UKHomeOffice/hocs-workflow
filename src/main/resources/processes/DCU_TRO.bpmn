@@ -18,11 +18,11 @@
     <bpmn:sequenceFlow id="SequenceFlow_058p133" name="OGD" sourceRef="ExclusiveGateway_1j2nbeb" targetRef="Task_0wqz5qj">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MarkupDecision == "OGD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_04i3gn3" name="FAQ OR MARKUP" sourceRef="ExclusiveGateway_1j2nbeb" targetRef="CallActivity_1ket68y">
+    <bpmn:sequenceFlow id="SequenceFlow_04i3gn3" name="FAQ OR MARKUP" sourceRef="ExclusiveGateway_1j2nbeb" targetRef="InitialDraft_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MarkupDecision == "FAQ" || MarkupDecision == "PR"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1kbehe7" sourceRef="Task_1grynar" targetRef="ExclusiveGateway_1j2nbeb" />
-    <bpmn:callActivity id="Task_1grynar" name="Mark Up" calledElement="STAGE">
+    <bpmn:sequenceFlow id="SequenceFlow_1kbehe7" sourceRef="MarkUp_CallActivity" targetRef="ExclusiveGateway_1j2nbeb" />
+    <bpmn:callActivity id="MarkUp_CallActivity" name="Mark Up" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="MarkupUUID" target="StageUUID" />
         <camunda:in sourceExpression="DCU_TRO_MARKUP" target="StageWorkFlow" />
@@ -75,8 +75,8 @@
       <bpmn:incoming>SequenceFlow_1bme8vz</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_18mb2fq</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_18mb2fq" sourceRef="CallActivity_0sc1113" targetRef="Task_1grynar" />
-    <bpmn:callActivity id="CallActivity_1ket68y" name="Initial Draft" calledElement="STAGE">
+    <bpmn:sequenceFlow id="SequenceFlow_18mb2fq" sourceRef="CallActivity_0sc1113" targetRef="MarkUp_CallActivity" />
+    <bpmn:callActivity id="InitialDraft_CallActivity" name="Initial Draft" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="InitialDraftUUID" target="StageUUID" />
         <camunda:in sourceExpression="DCU_TRO_INITIAL_DRAFT" target="StageWorkFlow" />
@@ -101,8 +101,8 @@
       <bpmn:outgoing>SequenceFlow_0occ9ef</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0hodmse</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1no0ocj" sourceRef="CallActivity_1ket68y" targetRef="ExclusiveGateway_1wtjsxs" />
-    <bpmn:sequenceFlow id="SequenceFlow_0occ9ef" name="REJECT" sourceRef="ExclusiveGateway_1wtjsxs" targetRef="Task_1grynar">
+    <bpmn:sequenceFlow id="SequenceFlow_1no0ocj" sourceRef="InitialDraft_CallActivity" targetRef="ExclusiveGateway_1wtjsxs" />
+    <bpmn:sequenceFlow id="SequenceFlow_0occ9ef" name="REJECT" sourceRef="ExclusiveGateway_1wtjsxs" targetRef="MarkUp_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${InitialDraftDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_0ttmlei" name="No Reply Needed Confirmation" calledElement="STAGE">
@@ -125,7 +125,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0hodmse" name="ACCEPT" sourceRef="ExclusiveGateway_1wtjsxs" targetRef="ExclusiveGateway_0m2d0yc">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${InitialDraftDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:callActivity id="CallActivity_151mthq" name="QA Response" calledElement="STAGE">
+    <bpmn:callActivity id="QAResponse_CallActivity" name="QA Response" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="QAResponseUUID" target="StageUUID" />
         <camunda:in sourceExpression="DCU_BASE_QA_RESPONSE" target="StageWorkFlow" />
@@ -146,11 +146,11 @@
       <bpmn:outgoing>SequenceFlow_094as2e</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0y1hwz5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1gic80p" sourceRef="CallActivity_151mthq" targetRef="ServiceTask_1qngsdc" />
-    <bpmn:sequenceFlow id="SequenceFlow_094as2e" name="REJECT" sourceRef="ExclusiveGateway_1asbwik" targetRef="CallActivity_1ket68y">
+    <bpmn:sequenceFlow id="SequenceFlow_1gic80p" sourceRef="QAResponse_CallActivity" targetRef="ServiceTask_1qngsdc" />
+    <bpmn:sequenceFlow id="SequenceFlow_094as2e" name="REJECT" sourceRef="ExclusiveGateway_1asbwik" targetRef="InitialDraft_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QAResponseDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:callActivity id="CallActivity_1rowgu5" name="Dispatch" calledElement="STAGE">
+    <bpmn:callActivity id="Dispatch_CallActivity" name="Dispatch" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="DispatchUUID" target="StageUUID" />
         <camunda:in sourceExpression="DCU_BASE_DISPATCH" target="StageWorkFlow" />
@@ -172,11 +172,11 @@
       <bpmn:outgoing>SequenceFlow_0hrswjv</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1fy5blc</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1p4ijz3" sourceRef="CallActivity_1rowgu5" targetRef="ExclusiveGateway_19ar4c1" />
+    <bpmn:sequenceFlow id="SequenceFlow_1p4ijz3" sourceRef="Dispatch_CallActivity" targetRef="ExclusiveGateway_19ar4c1" />
     <bpmn:sequenceFlow id="SequenceFlow_0hrswjv" name="ACCEPT" sourceRef="ExclusiveGateway_19ar4c1" targetRef="ExclusiveGateway_03dipct">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchDecision == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1fy5blc" name="REJECT" sourceRef="ExclusiveGateway_19ar4c1" targetRef="CallActivity_1ket68y">
+    <bpmn:sequenceFlow id="SequenceFlow_1fy5blc" name="REJECT" sourceRef="ExclusiveGateway_19ar4c1" targetRef="InitialDraft_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DispatchDecision == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1bi7lza" sourceRef="CallActivity_0ttmlei" targetRef="ExclusiveGateway_0aomnup" />
@@ -186,7 +186,7 @@
       <bpmn:outgoing>SequenceFlow_0tcxf89</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1h7ckog" sourceRef="Task_0wqz5qj" targetRef="ExclusiveGateway_1dfo58w" />
-    <bpmn:sequenceFlow id="SequenceFlow_1ii85y3" sourceRef="ExclusiveGateway_0aomnup" targetRef="Task_1grynar">
+    <bpmn:sequenceFlow id="SequenceFlow_1ii85y3" sourceRef="ExclusiveGateway_0aomnup" targetRef="MarkUp_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${NoReplyNeededConfirmation == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0tcxf89" sourceRef="ExclusiveGateway_0aomnup" targetRef="ServiceTask_057lbol">
@@ -233,13 +233,13 @@
       <bpmn:outgoing>SequenceFlow_0br3a39</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_18o5t1m</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_0br3a39" sourceRef="ExclusiveGateway_1dfo58w" targetRef="Task_1grynar">
+    <bpmn:sequenceFlow id="SequenceFlow_0br3a39" sourceRef="ExclusiveGateway_1dfo58w" targetRef="MarkUp_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "REJECT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_18o5t1m" sourceRef="ExclusiveGateway_1dfo58w" targetRef="ServiceTask_057lbol">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferConfirmation == "ACCEPT"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0y1hwz5" name="ACCEPT, MODIFY" sourceRef="ExclusiveGateway_1asbwik" targetRef="CallActivity_1rowgu5">
+    <bpmn:sequenceFlow id="SequenceFlow_0y1hwz5" name="ACCEPT, MODIFY" sourceRef="ExclusiveGateway_1asbwik" targetRef="Dispatch_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QAResponseDecision == "ACCEPT" || QAResponseDecision == "MODIFY"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_057lbol" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
@@ -256,10 +256,10 @@
       <bpmn:outgoing>SequenceFlow_1vwmzfr</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0eskleb</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1vwmzfr" sourceRef="ExclusiveGateway_04nwh4d" targetRef="CallActivity_151mthq">
+    <bpmn:sequenceFlow id="SequenceFlow_1vwmzfr" sourceRef="ExclusiveGateway_04nwh4d" targetRef="QAResponse_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${OfflineQA == "FALSE"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0eskleb" name="Offline QA" sourceRef="ExclusiveGateway_04nwh4d" targetRef="CallActivity_1rowgu5">
+    <bpmn:sequenceFlow id="SequenceFlow_0eskleb" name="Offline QA" sourceRef="ExclusiveGateway_04nwh4d" targetRef="Dispatch_CallActivity">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${OfflineQA == "TRUE"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1bme8vz" name="REJ" sourceRef="ExclusiveGateway_1j2nbeb" targetRef="CallActivity_0sc1113">
@@ -325,7 +325,7 @@
           <dc:Bounds x="2058" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="CallActivity_0atg31v_di" bpmnElement="Task_1grynar">
+      <bpmndi:BPMNShape id="CallActivity_0atg31v_di" bpmnElement="MarkUp_CallActivity">
         <dc:Bounds x="570" y="338" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_03ex0iv_di" bpmnElement="Task_0wqz5qj">
@@ -341,7 +341,7 @@
           <dc:Bounds x="1528" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="CallActivity_1ket68y_di" bpmnElement="CallActivity_1ket68y">
+      <bpmndi:BPMNShape id="CallActivity_1ket68y_di" bpmnElement="InitialDraft_CallActivity">
         <dc:Bounds x="1183" y="338" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1wtjsxs_di" bpmnElement="ExclusiveGateway_1wtjsxs" isMarkerVisible="true">
@@ -384,7 +384,7 @@
           <dc:Bounds x="1388" y="354" width="45" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="CallActivity_151mthq_di" bpmnElement="CallActivity_151mthq">
+      <bpmndi:BPMNShape id="CallActivity_151mthq_di" bpmnElement="QAResponse_CallActivity">
         <dc:Bounds x="1821" y="338" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1asbwik_di" bpmnElement="ExclusiveGateway_1asbwik" isMarkerVisible="true">
@@ -409,7 +409,7 @@
           <dc:Bounds x="2492" y="428" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="CallActivity_1rowgu5_di" bpmnElement="CallActivity_1rowgu5">
+      <bpmndi:BPMNShape id="CallActivity_1rowgu5_di" bpmnElement="Dispatch_CallActivity">
         <dc:Bounds x="2340" y="338" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_19ar4c1_di" bpmnElement="ExclusiveGateway_19ar4c1" isMarkerVisible="true">
