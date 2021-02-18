@@ -28,7 +28,7 @@ public class MPAMTransfer {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.78)
+            .assertClassCoverageAtLeast(0.93)
             .build();
 
     @Rule
@@ -61,10 +61,40 @@ public class MPAMTransfer {
                 .startByKey("MPAM_TRANSFER")
                 .execute();
 
+        verify(processScenario, times(2)).hasCompleted("Activity_0isctk7");
         verify(processScenario, times(2)).hasCompleted("Activity_15jdyd3");
         verify(processScenario, times(2)).hasCompleted("Activity_18fmvw3");
         verify(bpmnService, times(1)).updateTeamByStageAndTexts(any(), any(), eq("MPAM_TRIAGE"), eq("QueueTeamUUID"),
                 eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamTransfer");
+    }
+
+    @Test
+    public void whenTransferAccepted_thenProceed() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput_Transfer"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "TransferOutcome", "TransferAccepted")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRANSFER")
+                .execute();
+
+        verify(processScenario).hasFinished("EndEvent_MpamTransfer");
+    }
+
+    @Test
+    public void whenDeadlineForTransfer_thenProceed() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput_Transfer"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "TransferOutcome", "SaveDeadline")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRANSFER")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("Activity_1ogqztp");
         verify(processScenario).hasFinished("EndEvent_MpamTransfer");
     }
 }
