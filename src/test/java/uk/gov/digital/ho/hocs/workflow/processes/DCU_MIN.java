@@ -34,8 +34,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 public class DCU_MIN {
 
     public static final String DISPATCH = "CallActivity_1rowgu5";
-    public static final String PO_SIGN_OFF = "CallActivity_0pmeblj";
-    public static final String INITIAL_DRAFT = "CallActivity_1ket68y";
+    public static final String PO_SIGN_OFF = "POSignOff_CallActivity";
+    public static final String INITIAL_DRAFT = "InitialDraft_CallActivity";
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
