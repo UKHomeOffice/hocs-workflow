@@ -292,9 +292,7 @@ public class DCU_MIN_PRIVATE_OFFICE {
         verify(processScenario).hasCompleted("Service_SavePrimaryTopic");
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(topicUUID.toString()));
         verify(processScenario).hasCompleted("Service_UpdateTeamsForTopic");
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(topicUUID.toString()), eq("DCU_MIN_PRIVATE_OFFICE"), eq("OverridePOTeamUUID"), eq("OverridePOTeamName"));
-        verify(processScenario).hasCompleted("Service_UpdateAllocationTeams");
-        verify(bpmnService).updatePOTeamSelection(any(), any(), eq(overridePOTeamUUID.toString()));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(topicUUID.toString()), eq("DCU_MIN_PRIVATE_OFFICE"), eq("PrivateOfficeOverridePOTeamUUID"), eq("PrivateOfficeOverridePOTeamName"));
         verify(processScenario).hasCompleted("UPDATE_MINISTER_OR_DIRECTOR_DEADLINE");
         verify(processScenario).hasCompleted("UPDATE_STAGE_DEADLINES_FOR_MINISTER_OR_DIRECTOR_TEAMS");
         verify(processScenario).hasFinished("DCU_MIN_PRIVATE_OFFICE_END");
