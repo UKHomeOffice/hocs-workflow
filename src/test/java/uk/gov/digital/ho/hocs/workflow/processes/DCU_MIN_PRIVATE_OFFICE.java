@@ -248,9 +248,10 @@ public class DCU_MIN_PRIVATE_OFFICE {
     }
 
     @Test
-    public void whenTopic_thenChangeTopic_andSavePrimaryTopic() {
+    public void whenTopic_thenChangeTopic_andSaveNote_andSavePrimaryTopic() {
 
         UUID topicUUID = UUID.randomUUID();
+        UUID overridePOTeamUUID = UUID.randomUUID();
         when(processScenario.waitsAtUserTask("Validate_ApprovePrivateOffice"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", false,
@@ -262,11 +263,7 @@ public class DCU_MIN_PRIVATE_OFFICE {
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
-                        "PrivateOfficeDecision", "TOPIC")))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PrivateOfficeDecision", "ACCEPT")));
+                        "PrivateOfficeDecision", "TOPIC")));
         when(processScenario.waitsAtUserTask("Validate_ChangeTopic"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
@@ -277,6 +274,10 @@ public class DCU_MIN_PRIVATE_OFFICE {
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
+                        "POTeamUUID", "not the home sec office",
+                        "OverridePOTeamUUID", overridePOTeamUUID.toString(),
+                        "PrivateOfficeOverridePOTeamName", "Minister of State for Crime and Policing",
+                        "PrivateOfficeOverridePOTeamUUID", "5d335594-2f88-4b06-ab08-ad1e6d6e39aa",
                         "CaseNote_PrivateOfficeTopic", "Change topic",
                         "Topics", topicUUID.toString())));
 
@@ -284,12 +285,16 @@ public class DCU_MIN_PRIVATE_OFFICE {
                 .startByKey("DCU_MIN_PRIVATE_OFFICE")
                 .execute();
 
-        verify(processScenario, times(4)).hasCompleted("Screen_ApprovePrivateOffice");
+        verify(processScenario, times(3)).hasCompleted("Screen_ApprovePrivateOffice");
         verify(processScenario, times(3)).hasCompleted("Screen_ChangeTopic");
-        verify(processScenario).hasCompleted("Service_SavePrimaryTopic");
-        verify(bpmnService).updatePrimaryTopic(any(), any(), eq(topicUUID.toString()));
         verify(processScenario).hasCompleted("Service_SaveTopicChangeNote");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Change topic"), eq("CHANGE"));
+        verify(processScenario).hasCompleted("Service_SavePrimaryTopic");
+        verify(bpmnService).updatePrimaryTopic(any(), any(), eq(topicUUID.toString()));
+        verify(processScenario).hasCompleted("Service_UpdateTeamsForTopic");
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(topicUUID.toString()), eq("DCU_MIN_PRIVATE_OFFICE"), eq("PrivateOfficeOverridePOTeamUUID"), eq("PrivateOfficeOverridePOTeamName"));
+        verify(processScenario).hasCompleted("UPDATE_MINISTER_OR_DIRECTOR_DEADLINE");
+        verify(processScenario).hasCompleted("UPDATE_STAGE_DEADLINES_FOR_MINISTER_OR_DIRECTOR_TEAMS");
         verify(processScenario).hasFinished("DCU_MIN_PRIVATE_OFFICE_END");
     }
 }
