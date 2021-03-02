@@ -9,8 +9,8 @@ public class DCU_MIN_DTEN_TRO_CallActivityVariables {
     public static final String DCU_MIN_BPMN = "processes/DCU_MIN.bpmn";
     public static final String DCU_DTEN_BPMN = "processes/DCU_DTEN.bpmn";
     public static final String DCU_TRO_BPMN = "processes/DCU_TRO.bpmn";
-    public static final String DRAFT_OVERRIDE_EXPRESSION = "${execution.getVariable(\"OverrideDraftingTeamUUID\") == null ? execution.getVariable(\"DraftingTeamUUID\") : execution.getVariable(\"OverrideDraftingTeamUUID\") }";
-    public static final String PO_OVERRIDE_EXPRESSION = "${execution.getVariable(\"PrivateOfficeOverridePOTeamUUID\") == null ? (execution.getVariable(\"OverridePOTeamUUID\") == null ? execution.getVariable(\"POTeamUUID\") : execution.getVariable(\"OverridePOTeamUUID\")) : execution.getVariable(\"PrivateOfficeOverridePOTeamUUID\") }";
+    public static final String DRAFT_OVERRIDE_EXPRESSION = "${execution.getVariable(\"OverrideDraftingTeamUUID\") == \"\" ? execution.getVariable(\"DraftingTeamUUID\") : execution.getVariable(\"OverrideDraftingTeamUUID\") }";
+    public static final String PO_OVERRIDE_EXPRESSION = "${execution.getVariable(\"PrivateOfficeOverridePOTeamUUID\") == null ? (execution.getVariable(\"OverridePOTeamUUID\") == \"\" ? execution.getVariable(\"POTeamUUID\") : execution.getVariable(\"OverridePOTeamUUID\")) : execution.getVariable(\"PrivateOfficeOverridePOTeamUUID\") }";
 
     @Test
     public void MIN_MarkUpHasOverrideVariables() {
