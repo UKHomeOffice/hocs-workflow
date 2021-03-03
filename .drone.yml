@@ -76,7 +76,7 @@ pipeline:
       - /app/hocs-deploy --version=$${SEMVER} --service=hocs-workflow --serviceGitToken=$${GIT_PASSWORD} --gitToken=$${GITHUB_PASSWORD} --gitRepo="https://gitlab.digital.homeoffice.gov.uk/hocs/hocs-versions.git" --environment=qa --dockerRepository=quay.io/ukhomeofficedigital --sourceBuild=$${IMAGE_VERSION} --registryUser=ukhomeofficedigital+hocs --registryPassword=$${DOCKER_PASSWORD}
     when:
       event: deployment
-      environment: [cs-qa, wcs-qa]
+      environment: [cs-qa, wcs-qa, hocs-qax]
 
   clone-kube-project:
     image: plugins/git
@@ -163,6 +163,22 @@ pipeline:
     when:
       event: deployment
       environment: wcs-qa
+
+  deploy-to-hocs-qax:
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    environment:
+      - ENVIRONMENT=hocs-qax
+      - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+    secrets:
+      - hocs_workflow_qax
+    commands:
+      - source version.txt
+      - echo $VERSION
+      - cd kube-hocs-workflow
+      - ./deploy.sh
+    when:
+      event: deployment
+      environment: hocs-qax
 
   deploy-to-prod-cs:
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
