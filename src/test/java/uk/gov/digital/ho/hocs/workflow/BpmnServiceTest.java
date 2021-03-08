@@ -157,8 +157,8 @@ public class BpmnServiceTest {
         String teamName = "Team1";
         TeamDto team = new TeamDto(teamName, draftingString, false, new HashSet<>());
         Map<String, String> teamsForTopic = new HashMap<>();
-        teamsForTopic.put("OverrideDraftingTeamUUID", null);
-        teamsForTopic.put("OverrideDraftingTeamName", null);
+        teamsForTopic.put("OverrideDraftingTeamUUID", "");
+        teamsForTopic.put("OverrideDraftingTeamName", "");
 
         when(infoClient.getTeam(draftingString)).thenReturn(team);
 
@@ -205,8 +205,8 @@ public class BpmnServiceTest {
         String teamName = "Team1";
         TeamDto team = new TeamDto(teamName, privateOfficeString, false, new HashSet<>());
         Map<String, String> teamsForTopic = new HashMap<>();
-        teamsForTopic.put("OverridePOTeamUUID", null);
-        teamsForTopic.put("OverridePOTeamName", null);
+        teamsForTopic.put("OverridePOTeamUUID", "");
+        teamsForTopic.put("OverridePOTeamName", "");
 
         when(infoClient.getTeam(privateOfficeString)).thenReturn(team);
 
