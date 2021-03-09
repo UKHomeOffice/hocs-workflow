@@ -195,8 +195,8 @@ public class BpmnService {
                 log.info("Overwriting draft team with {}", draftingUUIDString);
             }
             else {
-                teamsForTopic.put("OverrideDraftingTeamUUID", null);
-                teamsForTopic.put("OverrideDraftingTeamName", null);
+                teamsForTopic.put("OverrideDraftingTeamUUID", "");
+                teamsForTopic.put("OverrideDraftingTeamName", "");
                 log.info("Removing Override Drafting Team as selected team was inactive.");
             }
 
@@ -211,8 +211,8 @@ public class BpmnService {
                 log.info("Overwriting po team with {}", privateOfficeUUIDString);
             }
             else{
-                teamsForTopic.put("OverridePOTeamUUID", null);
-                teamsForTopic.put("OverridePOTeamName", null);
+                teamsForTopic.put("OverridePOTeamUUID", "");
+                teamsForTopic.put("OverridePOTeamName", "");
                 log.info("Removing Override PO Team as selected team was inactive.");
             }
 
