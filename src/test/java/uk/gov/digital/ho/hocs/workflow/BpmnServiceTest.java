@@ -8,15 +8,15 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -219,6 +219,56 @@ public class BpmnServiceTest {
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldCaseHasPrimaryCorrespondentTypeWhenPrimaryWrongTypeReturnFalse() {
+        UUID caseUUID = UUID.randomUUID();
+        UUID primaryUUID = UUID.randomUUID();
+        GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
+                caseUUID, null, null, null, null, null, null, null, null, primaryUUID, null);
+        GetCorrespondentResponse correspondent1 = new GetCorrespondentResponse(
+                UUID.randomUUID(), null, "NO", null, null, null, null, null, null);
+        GetCorrespondentResponse correspondent2 = new GetCorrespondentResponse(
+                primaryUUID, null, "NO-MATCH", null, null, null, null, null, null);
+        GetCorrespondentsResponse correspondents = new GetCorrespondentsResponse(
+                List.of(correspondent1, correspondent2));
+        when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
+        when(caseworkClient.getCorrespondentsForCase(caseUUID)).thenReturn(correspondents);
+
+        boolean result = bpmnService.caseHasPrimaryCorrespondentType(caseUUID.toString(), "MATCHING");
+
+        verify(caseworkClient).getCase(caseUUID);
+        verify(caseworkClient).getCorrespondentsForCase(caseUUID);
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void shouldCaseHasPrimaryCorrespondentTypeWhenMatchReturnTrue() {
+        UUID caseUUID = UUID.randomUUID();
+        UUID primaryUUID = UUID.randomUUID();
+        GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
+                caseUUID, null, null, null, null, null, null, null, null, primaryUUID, null);
+        GetCorrespondentResponse correspondent1 = new GetCorrespondentResponse(
+                UUID.randomUUID(), null, "NO", null, null, null, null, null, null);
+        GetCorrespondentResponse correspondent2 = new GetCorrespondentResponse(
+                primaryUUID, null, "MATCHING", null, null, null, null, null, null);
+        GetCorrespondentsResponse correspondents = new GetCorrespondentsResponse(
+                List.of(correspondent1, correspondent2));
+        when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
+        when(caseworkClient.getCorrespondentsForCase(caseUUID)).thenReturn(correspondents);
+
+        boolean result = bpmnService.caseHasPrimaryCorrespondentType(caseUUID.toString(), "MATCHING");
+
+        verify(caseworkClient).getCase(caseUUID);
+        verify(caseworkClient).getCorrespondentsForCase(caseUUID);
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+        assertThat(result).isTrue();
     }
 
     @Test
