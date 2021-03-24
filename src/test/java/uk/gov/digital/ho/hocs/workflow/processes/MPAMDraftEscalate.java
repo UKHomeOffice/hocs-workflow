@@ -76,6 +76,27 @@ public class MPAMDraftEscalate extends MPAMCommonTests {
     }
 
     @Test
+    public void whenRequestContributions_thenRequestContributions() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", true,
+                        "DraftStatus", "RequestContribution")));
+
+        when(processScenario.waitsAtUserTask("UserTask_RequestContributionInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_DRAFT_ESCALATE")
+                .execute();
+
+        verify(processScenario).hasCompleted("ServiceTask_RequestContributionInput");
+        verify(processScenario).hasCompleted("UserTask_RequestContributionInput");
+        verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
+    }
+
+    @Test
     public void whenOfficialChangedToMinisterial_thenMinisterialValuesAreNotCleared() {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))

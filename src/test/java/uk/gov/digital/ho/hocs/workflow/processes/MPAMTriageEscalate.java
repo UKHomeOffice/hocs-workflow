@@ -79,6 +79,27 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
     }
 
     @Test
+    public void whenRequestContributions_thenRequestContributions() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", true,
+                        "TriageEscalateOutcome", "RequestContribution")));
+
+        when(processScenario.waitsAtUserTask("UserTask_RequestContributionInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_TRIAGE_ESCALATE")
+                .execute();
+
+        verify(processScenario).hasCompleted("ServiceTask_RequestContributionInput");
+        verify(processScenario).hasCompleted("UserTask_RequestContributionInput");
+        verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
+    }
+
+    @Test
     public void whenOfficialChangedToMinisterial_thenMinisterialValuesAreNotCleared() {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))

@@ -34,6 +34,7 @@ import static org.mockito.Mockito.*;
         "processes/MPAM_PO.bpmn",
         "processes/MPAM_QA.bpmn",
         "processes/MPAM_DRAFT_REQUESTED_CONTRIBUTION.bpmn",
+        "processes/MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION.bpmn",
         "processes/MPAM_DRAFT_ESCALATE.bpmn",
         "processes/MPAM_CAMPAIGN.bpmn",
         "processes/STAGE.bpmn",
@@ -42,7 +43,7 @@ public class MPAM {
 
     public static final String DRAFT_REQUEST_CONTRIBUTION = "CallActivity_1068j5g";
     public static final String DRAFT_REQUEST_CONTRIBUTION_RESULT = "ExclusiveGateway_1hlhu8m";
-    public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED = "CallActivity_DraftEscalated_RequestContribution";
+    public static final String DRAFT_ESCALATED_FROM_REQUEST_CONTRIBUTION = "CallActivity_DraftEscalated_FromRequestContribution";
 
     public static final String DRAFT_REQUEST_CONTRIBUTION_ESCALATED_RESULT = "Gateway_0kabhfi";
     public static final String DRAFT_ESCALATE_DRAFT_STATUS = "ExclusiveGateway_1nyjaew";
@@ -130,8 +131,8 @@ public class MPAM {
                 .onExecutionAddVariable("DraftRequestedContributionOutcome", "Escalate")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
-                .onExecutionAddVariable("DraftStatus", "PutOnCampaign")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftEscalatedRequestedContributionOutcome", "PutOnCampaign")
                 .deploy(rule);
 
         ProcessExpressions.registerCallActivityMock("MPAM_CAMPAIGN")
@@ -147,7 +148,7 @@ public class MPAM {
         verify(mpamProcess)
                 .hasCompleted(DRAFT_REQUEST_CONTRIBUTION_RESULT);
         verify(mpamProcess)
-                .hasCompleted(DRAFT_REQUEST_CONTRIBUTION_ESCALATED);
+                .hasCompleted(DRAFT_ESCALATED_FROM_REQUEST_CONTRIBUTION);
         verify(mpamProcess)
                 .hasCompleted(DRAFT_REQUEST_CONTRIBUTION_ESCALATED_RESULT);
         verify(mpamProcess)
@@ -378,7 +379,7 @@ public class MPAM {
                 .deploy(rule);
 
 
-        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATE")
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATED_REQUESTED_CONTRIBUTION")
                 .onExecutionDo(new ExecutionVariableSequence(
                         Arrays.asList(
                                 // first call
@@ -388,7 +389,7 @@ public class MPAM {
                                 ),
                                 // second call
                                 Arrays.asList(
-                                        new CallActivityReturnVariable("TriageEscalateOutcome", "Close"),
+                                        new CallActivityReturnVariable("TriageEscalatedRequestedContributionOutcome", "Close"),
                                         new CallActivityReturnVariable("BusAreaStatus", ""),
                                         new CallActivityReturnVariable("RefTypeStatus", "")
                                 )
@@ -405,7 +406,119 @@ public class MPAM {
                 .hasCompleted("CallActivity_Triage");
 
         verify(mpamProcess, times(2))
-                .hasCompleted("CallActivity_TriageEscalated_RequestContribution");
+                .hasCompleted("CallActivity_TriageEscalated_FromRequestContribution");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenTriageEscalatedContributionsRequestedAfterContributionsReceived_thenTriageEscalated() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+                .onExecutionAddVariable("TriageOutcome", "RequestContribution")
+                .deploy(rule);
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("TriageRequestedContributionOutcome", "Escalate")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATED_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("TriageEscalatedRequestedContributionOutcome", "Complete")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATE")
+                .onExecutionAddVariable("TriageEscalateOutcome", "Close")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Triage");
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_TriageEscalated_FromRequestContribution");
+
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_TriageEscalated_SendToWorkflowManager");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenTriageEscalatedAfterContributionsRequested_thenTriageEscalatedContributionsRequested() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+                .onExecutionAddVariable("TriageOutcome", "SendToWorkflowManager")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATE")
+                .onExecutionAddVariable("TriageEscalateOutcome", "RequestContribution")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATED_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("TriageEscalatedRequestedContributionOutcome", "Close")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Triage");
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_TriageEscalated_SendToWorkflowManager");
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_TriageEscalated_FromRequestContribution");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenTriageEscalatedAfterContributionsRequestedCompleteed_thenTriageEscalatedContributions() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE")
+                .onExecutionAddVariable("TriageOutcome", "SendToWorkflowManager")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATED_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("TriageEscalatedRequestedContributionOutcome", "Complete")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_TRIAGE_ESCALATE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("TriageEscalateOutcome", "RequestContribution"),
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("TriageEscalateOutcome", "Close"),
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Triage");
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_TriageEscalated_SendToWorkflowManager");
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_TriageEscalated_FromRequestContribution");
 
         verify(mpamProcess).hasFinished("EndEvent_MPAM");
     }
@@ -461,7 +574,7 @@ public class MPAM {
                 .onExecutionAddVariable("DraftRequestedContributionOutcome", "Escalate")
                 .deploy(rule);
 
-        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION")
                 .onExecutionDo(new ExecutionVariableSequence(
                         Arrays.asList(
                                 // first call
@@ -473,7 +586,9 @@ public class MPAM {
                                 Arrays.asList(
                                         new CallActivityReturnVariable("BusAreaStatus", ""),
                                         new CallActivityReturnVariable("RefTypeStatus", ""),
-                                        new CallActivityReturnVariable("DraftStatus", "Close")
+                                        new CallActivityReturnVariable(
+                                                "DraftEscalatedRequestedContributionOutcome",
+                                                "Close")
                                 )
                         )
                 ))
@@ -490,7 +605,7 @@ public class MPAM {
                 .hasCompleted("CallActivity_Draft");
 
         verify(mpamProcess, times(2))
-                .hasCompleted("CallActivity_DraftEscalated_RequestContribution");
+                .hasCompleted("CallActivity_DraftEscalated_FromRequestContribution");
 
         verify(mpamProcess).hasFinished("EndEvent_MPAM");
 
@@ -538,4 +653,116 @@ public class MPAM {
 
     }
 
+
+    @Test
+    public void whenDraftEscalatedContributionsRequestedAfterContributionsReceived_thenDraftEscalated() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionAddVariable("DraftStatus", "RequestContribution")
+                .deploy(rule);
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftRequestedContributionOutcome", "Escalate")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftEscalatedRequestedContributionOutcome", "Complete")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
+                .onExecutionAddVariable("DraftStatus", "Close")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Draft");
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_DraftEscalated_FromRequestContribution");
+
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_DraftEscalated_FromRequestContribution");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenDraftEscalatedAfterContributionsRequested_thenDraftEscalatedContributionsRequested() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionAddVariable("DraftStatus", "Escalate")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
+                .onExecutionAddVariable("DraftStatus", "RequestContribution")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftEscalatedRequestedContributionOutcome", "Close")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Draft");
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_DraftEscalated");
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_DraftEscalated_FromRequestContribution");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenDraftEscalatedContributionsRequestedComplete_thenDraftEscalated() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT")
+                .onExecutionAddVariable("DraftStatus", "Escalate")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATE")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("DraftStatus", "RequestContribution"),
+                                        new CallActivityReturnVariable("RefTypeStatus", "")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("BusAreaStatus", ""),
+                                        new CallActivityReturnVariable("RefTypeStatus", ""),
+                                        new CallActivityReturnVariable("DraftStatus", "Close")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+
+        ProcessExpressions.registerCallActivityMock("MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION")
+                .onExecutionAddVariable("DraftEscalatedRequestedContributionOutcome", "Complete")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_Draft");
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_DraftEscalated");
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_DraftEscalated_FromRequestContribution");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
 }
