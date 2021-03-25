@@ -7,6 +7,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
@@ -137,6 +138,29 @@ public class BpmnService {
 
         log.info("Members present ? : " + memberPresent);
         return memberPresent;
+    }
+
+    public boolean caseHasPrimaryCorrespondentType(String caseUUIDString, String type) {
+        log.debug("Checking Case {} has primary correspondent type {}", caseUUIDString, type);
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        boolean validPrimaryCorrespondent = false;
+
+        GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUUID);
+        GetCorrespondentsResponse correspondents = caseworkClient.getCorrespondentsForCase(caseUUID);
+
+        if (caseData != null && correspondents != null) {
+            for(GetCorrespondentResponse correspondent : correspondents.getCorrespondents()) {
+                if (correspondent.getUuid().equals(caseData.getPrimaryCorrespondentUUID())) {
+                    if (correspondent.getType().equals(type)){
+                        validPrimaryCorrespondent = true;
+                    }
+                    break;
+                }
+            }
+        }
+
+        log.info("Case {} has primary correspondent type {} : {}", caseUUIDString, type, validPrimaryCorrespondent);
+        return validPrimaryCorrespondent;
     }
 
     public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
