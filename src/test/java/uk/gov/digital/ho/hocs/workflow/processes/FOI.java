@@ -19,15 +19,21 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/FOI.bpmn")
+@Deployment(resources = {
+        "processes/STAGE.bpmn",
+        "processes/FOI.bpmn",
+        "processes/FOI_DATA_INPUT.bpmn"})
 public class FOI {
+
+    public static final String DATA_INPUT_ACTIVITY = "Activity_0jtkbij";
+    public static final String COMPLETE_CASE_ACTIVITY = "Activity_1d2ue6g";
 
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(1.0)
             .build();
 
     @Rule
@@ -38,24 +44,27 @@ public class FOI {
     private ProcessScenario FOIProcess;
 
     @Before
-    public void defaultScenario() {
-
+    public void setUp() {
         Mocks.register("bpmnService", bpmnService);
-
     }
 
     @Test
     public void happyPath() {
 
+        whenAtCallActivity("FOI_DATA_INPUT")
+                .deploy(rule);
+
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
                 .execute();
 
-        verify(FOIProcess)
-                .hasCompleted("Activity_1d2ue6g");
+        verify(FOIProcess, times(1))
+                .hasCompleted(DATA_INPUT_ACTIVITY);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(COMPLETE_CASE_ACTIVITY);
 
         verify(bpmnService).completeCase(any());
 
     }
-
 }
