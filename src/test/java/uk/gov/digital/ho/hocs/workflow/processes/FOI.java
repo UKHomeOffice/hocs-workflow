@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -25,16 +24,17 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @Deployment(resources = {
         "processes/STAGE.bpmn",
         "processes/FOI.bpmn",
-        "processes/FOI_DATA_INPUT.bpmn"})
+        "processes/FOI_DATA_INPUT.bpmn",
+        "processes/FOI_ALLOCATION.bpmn"})
 public class FOI {
 
     public static final String DATA_INPUT_ACTIVITY = "Activity_0jtkbij";
+    public static final String ALLOCATION_ACTIVITY = "Activity_16l1q7b";
     public static final String COMPLETE_CASE_ACTIVITY = "Activity_1d2ue6g";
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -54,12 +54,18 @@ public class FOI {
         whenAtCallActivity("FOI_DATA_INPUT")
                 .deploy(rule);
 
+        whenAtCallActivity("FOI_ALLOCATION")
+            .deploy(rule);
+
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
                 .execute();
 
         verify(FOIProcess, times(1))
                 .hasCompleted(DATA_INPUT_ACTIVITY);
+
+        verify(FOIProcess, times(1))
+            .hasCompleted(ALLOCATION_ACTIVITY);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
