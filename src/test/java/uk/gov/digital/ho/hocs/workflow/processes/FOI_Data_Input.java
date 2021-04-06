@@ -24,8 +24,6 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/STAGE.bpmn",
-        "processes/FOI.bpmn",
         "processes/FOI_DATA_INPUT.bpmn"})
 public class FOI_Data_Input {
 
