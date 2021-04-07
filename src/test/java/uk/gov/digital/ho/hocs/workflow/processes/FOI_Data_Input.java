@@ -33,13 +33,12 @@ public class FOI_Data_Input {
     public static final String UPDATE_DEADLINES = "ServiceTask_00xpp4j";
     public static final String SET_PRIMARY_CORRESPONDENT = "ServiceTask_1qqx9t6";
     public static final String VALIDATE_CORRESPONDENCE_DETAILS = "UserTask_0ni11p2";
-    public static final String VALIDATE_CORRESPONDENT_ADDRESS = "Activity_1wxfm33";
     public static final String VALIDATE_SET_PRIMARY_CORRESPONDENT = "UserTask_0zpiaus";
 
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.63)
+            .assertClassCoverageAtLeast(0.575)
             .build();
 
     @Rule
@@ -58,12 +57,6 @@ public class FOI_Data_Input {
     public void enterCorrespondenceDetails() {
 
         when(FOIDataInputProcess.waitsAtUserTask(VALIDATE_CORRESPONDENCE_DETAILS))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", false)))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true)));
-
-        when(FOIDataInputProcess.waitsAtUserTask(VALIDATE_CORRESPONDENT_ADDRESS))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", false)))
                 .thenReturn(task -> task.complete(withVariables(
