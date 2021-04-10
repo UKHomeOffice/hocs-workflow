@@ -10,7 +10,8 @@
       <bpmn:outgoing>SequenceFlow_0ngcr5c</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:endEvent id="EndEvent_COMP_CLOSED">
-      <bpmn:incoming>SequenceFlow_0ngcr5c</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0k5gxtk</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1vwf0q6</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:serviceTask id="Screen_Input" name="Input" camunda:expression="COMP_CLOSED_INPUT" camunda:resultVariable="screen">
       <bpmn:incoming>SequenceFlow_1qxswso</bpmn:incoming>
@@ -25,11 +26,25 @@
     <bpmn:sequenceFlow id="SequenceFlow_1qxswso" name="false" sourceRef="ExclusiveGateway_0vrwhrq" targetRef="Screen_Input">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0ngcr5c" sourceRef="ExclusiveGateway_0vrwhrq" targetRef="EndEvent_COMP_CLOSED">
+    <bpmn:sequenceFlow id="SequenceFlow_0ngcr5c" sourceRef="ExclusiveGateway_0vrwhrq" targetRef="ExclusiveGateway_12s1tz9">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_08lpahq" sourceRef="Screen_Input" targetRef="Validate_Input" />
     <bpmn:sequenceFlow id="SequenceFlow_0r2fvcv" sourceRef="StartEvent_COMP_CLOSED" targetRef="Screen_Input" />
+    <bpmn:serviceTask id="ServiceTask_09n7cty" name="Set Stage to Stage2" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;Stage&#34;, &#34;Stage2&#34;)}">
+      <bpmn:incoming>SequenceFlow_0mexb01</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0k5gxtk</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_0k5gxtk" sourceRef="ServiceTask_09n7cty" targetRef="EndEvent_COMP_CLOSED" />
+    <bpmn:exclusiveGateway id="ExclusiveGateway_12s1tz9" default="SequenceFlow_1vwf0q6">
+      <bpmn:incoming>SequenceFlow_0ngcr5c</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1vwf0q6</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0mexb01</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1vwf0q6" sourceRef="ExclusiveGateway_12s1tz9" targetRef="EndEvent_COMP_CLOSED" />
+    <bpmn:sequenceFlow id="SequenceFlow_0mexb01" sourceRef="ExclusiveGateway_12s1tz9" targetRef="ServiceTask_09n7cty">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType != "Close"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP_CLOSED">
@@ -40,7 +55,7 @@
         <dc:Bounds x="623" y="96" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_09kka46_di" bpmnElement="EndEvent_COMP_CLOSED">
-        <dc:Bounds x="861" y="103" width="36" height="36" />
+        <dc:Bounds x="1160" y="103" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_10w5kd9_di" bpmnElement="Screen_Input">
         <dc:Bounds x="418" y="81" width="100" height="80" />
@@ -62,7 +77,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0ngcr5c_di" bpmnElement="SequenceFlow_0ngcr5c">
         <di:waypoint x="673" y="121" />
-        <di:waypoint x="861" y="121" />
+        <di:waypoint x="888" y="121" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_08lpahq_di" bpmnElement="SequenceFlow_08lpahq">
         <di:waypoint x="468" y="161" />
@@ -71,6 +86,27 @@
       <bpmndi:BPMNEdge id="SequenceFlow_0r2fvcv_di" bpmnElement="SequenceFlow_0r2fvcv">
         <di:waypoint x="215" y="121" />
         <di:waypoint x="418" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_09n7cty_di" bpmnElement="ServiceTask_09n7cty">
+        <dc:Bounds x="972" y="244" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0k5gxtk_di" bpmnElement="SequenceFlow_0k5gxtk">
+        <di:waypoint x="1072" y="284" />
+        <di:waypoint x="1116" y="284" />
+        <di:waypoint x="1116" y="121" />
+        <di:waypoint x="1160" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_12s1tz9_di" bpmnElement="ExclusiveGateway_12s1tz9" isMarkerVisible="true">
+        <dc:Bounds x="888" y="96" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1vwf0q6_di" bpmnElement="SequenceFlow_1vwf0q6">
+        <di:waypoint x="938" y="121" />
+        <di:waypoint x="1160" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0mexb01_di" bpmnElement="SequenceFlow_0mexb01">
+        <di:waypoint x="913" y="146" />
+        <di:waypoint x="913" y="284" />
+        <di:waypoint x="972" y="284" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
