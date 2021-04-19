@@ -20,4 +20,8 @@ public class GetCaseResponse {
     @Setter
     @JsonProperty("data")
     private Map<String, String> data;
+
+    @JsonProperty("caseType")
+    private String caseType;
+
 }

@@ -19,4 +19,7 @@ public class GetStageResponse {
 
     @JsonProperty("form")
     private HocsForm form;
+
+    @JsonProperty
+    private String caseType;
 }

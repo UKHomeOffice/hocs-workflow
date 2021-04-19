@@ -107,9 +107,9 @@ public class WorkflowService {
             fields = HocsFormAccordion.loadFormAccordions(fields);
             HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions, schemaDto.getProps());
             HocsForm form = new HocsForm(schema, inputResponse.getData());
-            return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
+            return new GetStageResponse(stageUUID, inputResponse.getReference(), form, inputResponse.getType());
         } else {
-            return new GetStageResponse(stageUUID, null, null);
+            return new GetStageResponse(stageUUID, null, null, null);
         }
     }
 
@@ -147,7 +147,7 @@ public class WorkflowService {
 
         Map<String, String> dataMap = convertDataToSchema(schemaDtos, inputResponse.getData());
 
-        return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
+        return new GetCaseResponse(inputResponse.getReference(), schema, dataMap, inputResponse.getType());
     }
 
     public GetCaseDetailsResponse getReadOnlyCaseDetails(UUID caseUUID) {
