@@ -85,4 +85,10 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
+    @Authorised(accessLevel = AccessLevel.WRITE)
+    @PostMapping(value = "/case/{caseUUID}/exemption", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity createExemption(@PathVariable UUID caseUUID,@RequestBody CreateExemptionRequest request) {
+        workflowService.createExemption(caseUUID, request.getExemptionType());
+        return ResponseEntity.ok().build();
+    }
 }

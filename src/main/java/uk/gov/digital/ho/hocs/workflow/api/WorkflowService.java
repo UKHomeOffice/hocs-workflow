@@ -94,6 +94,15 @@ public class WorkflowService {
         }
     }
 
+    public void createExemption(UUID caseUUID, String exemption) {
+        if (exemption != null) {
+            // Add exemption to the case
+            System.out.println("Case: " + caseUUID + " adding exemption: " + exemption);
+
+            caseworkClient.createExemption(caseUUID, exemption);
+        }
+    }
+
     public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getStageScreenName(stageUUID);
 

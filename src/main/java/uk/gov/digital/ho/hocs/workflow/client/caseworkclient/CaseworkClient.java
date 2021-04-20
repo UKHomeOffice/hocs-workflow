@@ -105,6 +105,13 @@ public class CaseworkClient {
         return response;
     }
 
+    public UUID createExemption(UUID caseUUID, String type) {
+        CreateExemptionRequest request = new CreateExemptionRequest(type);
+        UUID response = restHelper.post(serviceBaseURL, String.format("/case/%s/exemption", caseUUID), request, UUID.class);
+        log.info("Created Exemption: {} for Case {}", response, caseUUID);
+        return response;
+    }
+
     public UUID createStage(UUID caseUUID, String stageType, UUID teamUUID, UUID userUUID, String allocationType) {
         CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, allocationType);
         CreateCaseworkStageResponse response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
