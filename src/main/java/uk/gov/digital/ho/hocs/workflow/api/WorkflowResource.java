@@ -86,9 +86,10 @@ class WorkflowResource {
     }
 
     @Authorised(accessLevel = AccessLevel.WRITE)
-    @PostMapping(value = "/case/{caseUUID}/exemption", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity createExemption(@PathVariable UUID caseUUID,@RequestBody CreateExemptionRequest request) {
-        workflowService.createExemption(caseUUID, request.getExemptionType());
+    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/exemption", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity createExemption(@PathVariable UUID caseUUID,@PathVariable UUID stageUUID, @RequestBody CreateExemptionRequest request) {
+        System.out.println("got stage uuid: " + stageUUID);
+        workflowService.createExemption(caseUUID, stageUUID, request.getExemptionType());
         return ResponseEntity.ok().build();
     }
 }

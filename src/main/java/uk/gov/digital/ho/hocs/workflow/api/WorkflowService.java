@@ -5,12 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetExemptionsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
@@ -37,6 +39,7 @@ public class WorkflowService {
     private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
+    private final BpmnService bpmnService;
 
     private static final String COMPONENT_ENTITY_LIST = "entity-list";
     private static final String COMPONENT_DROPDOWN = "dropdown";
@@ -52,11 +55,13 @@ public class WorkflowService {
     public WorkflowService(CaseworkClient caseworkClient,
                            DocumentClient documentClient,
                            InfoClient infoClient,
-                           CamundaClient camundaClient) {
+                           CamundaClient camundaClient,
+                           BpmnService bpmnService) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
+        this.bpmnService = bpmnService;
     }
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID) {
@@ -94,12 +99,16 @@ public class WorkflowService {
         }
     }
 
-    public void createExemption(UUID caseUUID, String exemption) {
+    public void createExemption(UUID caseUUID, UUID stageUUID, String exemption) {
         if (exemption != null) {
-            // Add exemption to the case
-            System.out.println("Case: " + caseUUID + " adding exemption: " + exemption);
+            log.info("Creating exemption {} for case: {}", exemption, caseUUID);
 
+            // Add exemption to the case
             caseworkClient.createExemption(caseUUID, exemption);
+
+            // Update case in Camunda with latest exemptions
+            GetExemptionsResponse exemptions = caseworkClient.getExemptions(caseUUID);
+            bpmnService.updateExemptionsForStage(stageUUID, exemptions.getExemptions());
         }
     }
 

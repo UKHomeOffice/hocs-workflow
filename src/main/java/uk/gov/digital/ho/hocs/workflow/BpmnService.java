@@ -9,6 +9,7 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetExemptionResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
@@ -165,6 +166,18 @@ public class BpmnService {
 
         log.debug("######## Updated Primary Topic ########");
     }
+
+    public void updateExemptionsForStage(UUID stageUuid, Set<GetExemptionResponse> exemptions) {
+        String exemptionsForStage = exemptions
+                .stream()
+                .map(exemption -> exemption.getType())
+                .collect(Collectors.joining(","));
+
+        camundaClient.updateTask(stageUuid, Map.of("exemptions", exemptionsForStage));
+
+        log.debug("######## Updated Stage Exemptions ########");
+    }
+
 
     public void setDraftingTeam(String caseUUIDString, String stageUUIDString, String draftingUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);

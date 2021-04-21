@@ -58,7 +58,6 @@ public class CamundaClient {
         log.info("Updated task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
     }
 
-
     public String getStageScreenName(UUID stageUUID) {
         String formKeyScreenName = getFormKeyForCurrentTask(stageUUID);
         return formKeyScreenName != null ? formKeyScreenName : getStageScreenNameFromProcessVariable(stageUUID);
