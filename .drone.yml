@@ -142,6 +142,25 @@ steps:
     depends_on:
       - clone kube repo
 
+  - name: deploy to delta
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    commands:
+      - cd kube-hocs-workflow
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: hocs-delta
+      KUBE_TOKEN:
+        from_secret: hocs_workflow_hocs_delta
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      VERSION: build_${DRONE_BUILD_NUMBER}
+    when:
+      branch:
+        - epic/HOCS-COMP
+      event:
+        - push
+    depends_on:
+      - clone kube repo
+
   - name: wait for docker
     image: docker
     commands:
