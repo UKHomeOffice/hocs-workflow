@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
   <bpmn:process id="FOI_DATA_INPUT" isExecutable="true">
-    <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_076v9nh">
-      <bpmn:incoming>SequenceFlow_1smmsar</bpmn:incoming>
-    </bpmn:intermediateThrowEvent>
     <bpmn:startEvent id="StartEvent_0f2nlf5">
       <bpmn:outgoing>SequenceFlow_1rya8x1</bpmn:outgoing>
     </bpmn:startEvent>
@@ -55,9 +52,8 @@
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="ServiceTask_097z7cz" name="Save Primary Correspondent" camunda:expression="${bpmnService.updatePrimaryCorrespondent(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;Correspondents&#34;))}">
       <bpmn:incoming>SequenceFlow_0ccx7eb</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1smmsar</bpmn:outgoing>
+      <bpmn:outgoing>Flow_00cafzm</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1smmsar" sourceRef="ServiceTask_097z7cz" targetRef="IntermediateThrowEvent_076v9nh" />
     <bpmn:serviceTask id="ServiceTask_00xpp4j" name="Update Deadlines" camunda:expression="${bpmnService.updateDeadline(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;DateReceived&#34;))}">
       <bpmn:incoming>SequenceFlow_04ovtri</bpmn:incoming>
       <bpmn:outgoing>Flow_186pq3j</bpmn:outgoing>
@@ -74,6 +70,10 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_186pq3j" sourceRef="ServiceTask_00xpp4j" targetRef="ServiceTask_1qqx9t6" />
+    <bpmn:endEvent id="Event_1jtlty1" name="end stage">
+      <bpmn:incoming>Flow_00cafzm</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_00cafzm" sourceRef="ServiceTask_097z7cz" targetRef="Event_1jtlty1" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_DATA_INPUT">
@@ -97,10 +97,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1521" y="333" width="43" height="40" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1smmsar_di" bpmnElement="SequenceFlow_1smmsar">
-        <di:waypoint x="1792" y="295" />
-        <di:waypoint x="1925" y="295" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0ccx7eb_di" bpmnElement="SequenceFlow_0ccx7eb">
         <di:waypoint x="1552" y="295" />
@@ -168,12 +164,10 @@
           <dc:Bounds x="196.5" y="57" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="IntermediateThrowEvent_076v9nh_di" bpmnElement="IntermediateThrowEvent_076v9nh">
-        <dc:Bounds x="1925" y="277" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1199" y="274" width="90" height="20" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_00cafzm_di" bpmnElement="Flow_00cafzm">
+        <di:waypoint x="1792" y="294" />
+        <di:waypoint x="1852" y="294" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="StartEvent_0f2nlf5_di" bpmnElement="StartEvent_0f2nlf5">
         <dc:Bounds x="156" y="103" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -201,6 +195,9 @@
           <dc:Bounds x="1008" y="281" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_097z7cz_di" bpmnElement="ServiceTask_097z7cz">
+        <dc:Bounds x="1692" y="254" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_00xpp4j_di" bpmnElement="ServiceTask_00xpp4j">
         <dc:Bounds x="660" y="168" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -210,8 +207,11 @@
           <dc:Bounds x="1557" y="371" width="50" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_097z7cz_di" bpmnElement="ServiceTask_097z7cz">
-        <dc:Bounds x="1692" y="254" width="100" height="80" />
+      <bpmndi:BPMNShape id="Event_1jtlty1_di" bpmnElement="Event_1jtlty1">
+        <dc:Bounds x="1852" y="276" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1847" y="319" width="49" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
