@@ -89,7 +89,7 @@ public class CamundaClient {
         }
     }
 
-    private String getProcessIdByBusinessKey(UUID businessKey) {
+    public String getProcessIdByBusinessKey(UUID businessKey) {
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(businessKey.toString())
                 .singleResult();
