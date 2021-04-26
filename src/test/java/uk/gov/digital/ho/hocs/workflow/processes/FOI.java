@@ -61,7 +61,9 @@ public class FOI {
             .deploy(rule);
 
         whenAtCallActivity("FOI_ACCEPTANCE")
+                .thenReturn("AcceptCase", "Y")
                 .deploy(rule);
+
 
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
@@ -77,6 +79,44 @@ public class FOI {
             .hasCompleted(ALLOCATION_ACTIVITY);
 
         verify(FOIProcess, times(1))
+                .hasCompleted(ACCEPTANCE_ACTIVITY);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(COMPLETE_CASE_ACTIVITY);
+
+        verify(bpmnService).completeCase(any());
+
+    }
+
+    @Test
+    public void caseRejectedAtAllocation() {
+
+        whenAtCallActivity("FOI_DATA_INPUT")
+                .deploy(rule);
+
+        whenAtCallActivity("FOI_ALLOCATION")
+                .deploy(rule);
+
+        whenAtCallActivity("FOI_ACCEPTANCE")
+                .thenReturn("AcceptCase", "N")
+                .thenReturn("AcceptCase", "Y")
+                .deploy(rule);
+
+
+        Scenario.run(FOIProcess)
+                .startByKey("FOI")
+                .execute();
+
+        verify(FOIProcess, times(1))
+                .hasCompleted("FOI_START");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(DATA_INPUT_ACTIVITY);
+
+        verify(FOIProcess, times(2))
+                .hasCompleted(ALLOCATION_ACTIVITY);
+
+        verify(FOIProcess, times(2))
                 .hasCompleted(ACCEPTANCE_ACTIVITY);
 
         verify(FOIProcess, times(1))
