@@ -1,6 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.processes;
 
-import static org.mockito.ArgumentMatchers.eq;
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +35,7 @@ public class FOI_ACCEPTANCE {
     public static final String ACCEPT_OR_REJECT = "ACCEPT_OR_REJECT";
     public static final String DEADLINE_PASSED = "DEADLINE_PASSED";
     public static final String CHOOSE_DRAFT_TEAM = "CHOOSE_DRAFT_TEAM";
+    public static final String REJECT_CASE = "REJECT_CASE";
     public static final String PROCESS_KEY = "FOI_ACCEPTANCE";
     public static final String CASE_UUID = UUID.randomUUID().toString();
     public static final String STAGE_UUID = UUID.randomUUID().toString();
@@ -66,7 +68,8 @@ public class FOI_ACCEPTANCE {
         when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(2))).thenReturn(futureDeadline);
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-                .thenReturn(TaskDelegate::complete);
+                .thenReturn(task -> task.complete(withVariables(
+                        "AcceptCase", "Y")));
         when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM))
                 .thenReturn(TaskDelegate::complete);
 
@@ -101,5 +104,25 @@ public class FOI_ACCEPTANCE {
         verify(processScenario, times(1)).hasCanceled(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(DEADLINE_PASSED);
         verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
+    }
+
+    @Test
+    public void caseRejected() {
+        Date futureDeadline = new GregorianCalendar(3000, Calendar.JANUARY, 1, 0, 0, 0).getTime();
+        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(2))).thenReturn(futureDeadline);
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
+                .thenReturn(task -> task.complete(withVariables(
+                        "AcceptCase", "N")));
+
+        Scenario.run(processScenario).startBy(
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID)
+                )).execute();
+
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
+        verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
+        verify(bpmnService).wipeVariables(eq(CASE_UUID), eq(STAGE_UUID), eq("AcceptanceTeam"), eq("Directorate"));
     }
 }

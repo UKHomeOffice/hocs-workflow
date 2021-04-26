@@ -605,6 +605,25 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void should_wipeVariables() {
+        UUID caseUuid = UUID.randomUUID();
+        UUID stageUuid = UUID.randomUUID();
+
+        bpmnService.wipeVariables(caseUuid.toString(), stageUuid.toString(), "key1", "key2", "key3");
+
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        verify(caseworkClient).updateCase(eq(caseUuid), eq(stageUuid), valueCapture.capture());
+        verify(camundaClient).removeTaskVariables(eq(stageUuid),  eq("key1"), eq("key2"), eq("key3"));
+
+        assertThat(valueCapture.getValue().size()).isEqualTo(3);
+        assertThat(valueCapture.getValue().keySet()).containsOnly("key1", "key2", "key3");
+        assertThat(valueCapture.getValue().values()).containsOnly("");
+
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
+
+    @Test
     public void updateCount_zeroValue() {
         String variableName = "testVariableName";
         int additive = 1;

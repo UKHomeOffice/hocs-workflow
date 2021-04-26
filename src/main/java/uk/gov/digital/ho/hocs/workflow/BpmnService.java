@@ -354,6 +354,18 @@ public class BpmnService {
         log.info("Adding Casenote to Case: {}", caseUUIDString);
     }
 
+    /**
+     * Sets the specified variables to empty strings in Casework and removes them from Workflow
+     * @param caseUUIDString the case UUID as a String
+     * @param stageUUIDString the stage UUID as a String
+     * @param variables the variables to wipe
+     */
+    public void wipeVariables(String caseUUIDString, String stageUUIDString, String... variables) {
+        log.debug("######## Reject/Deallocate Case ########");
+        blankCaseValues(caseUUIDString,stageUUIDString, variables);
+        camundaClient.removeTaskVariables(UUID.fromString(stageUUIDString), variables);
+    }
+
     public void createCaseNote(String caseUUIDString, String caseNote, String caseNoteType) {
         log.debug("######## Create Case Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), caseNoteType, caseNote);
