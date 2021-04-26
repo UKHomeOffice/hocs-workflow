@@ -1,5 +1,9 @@
 package uk.gov.digital.ho.hocs.workflow;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +40,9 @@ public class BpmnServiceTest {
     @Mock
     private InfoClient infoClient;
 
+    @Mock
+    private Clock clock;
+
     private BpmnService bpmnService;
 
     private final String caseUUID = UUID.randomUUID().toString();
@@ -46,7 +53,7 @@ public class BpmnServiceTest {
 
     @Before
     public void setup() {
-        bpmnService = new BpmnService(caseworkClient, camundaClient, infoClient);
+        bpmnService = new BpmnService(caseworkClient, camundaClient, infoClient, clock);
     }
 
     @Test
@@ -671,5 +678,25 @@ public class BpmnServiceTest {
         verify(caseworkClient).createCaseNote(eq(testCaseId), eq("CLOSE_CASE_TELEPHONE"), valueCapture.capture());
         assertThat(valueCapture.getValue()).isEqualTo(testCaseNote);
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
+
+    @Test
+    public void shouldCalculateDeadline() {
+
+        //given
+        String caseType = "FOI";
+        int workingDays = 2;
+        LocalDate localDate = LocalDate.of(1989, 01, 13);
+        Clock fixedClock = Clock.fixed(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+        doReturn(fixedClock.instant()).when(clock).instant();
+        doReturn(fixedClock.getZone()).when(clock).getZone();
+        Date dateReturnedByInfo = mock(Date.class);
+        when(infoClient.calculateDeadline(caseType, localDate, workingDays)).thenReturn(dateReturnedByInfo);
+
+        //when
+        Date date = bpmnService.calculateDeadline(caseType, workingDays);
+
+        //then
+        assertThat(date).isEqualTo(dateReturnedByInfo);
     }
 }
