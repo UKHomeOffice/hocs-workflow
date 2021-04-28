@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow;
 
+import java.time.Clock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,18 @@ public class BpmnService {
     private final CaseworkClient caseworkClient;
     private final CamundaClient camundaClient;
     private final InfoClient infoClient;
+    private final Clock clock;
+
 
     @Autowired
     public BpmnService(CaseworkClient caseworkClient,
                        CamundaClient camundaClient,
-                       InfoClient infoClient) {
+                       InfoClient infoClient,
+                       Clock clock) {
         this.caseworkClient = caseworkClient;
         this.camundaClient = camundaClient;
         this.infoClient = infoClient;
+        this.clock = clock;
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String allocationType, String allocationTeamString) {
@@ -402,4 +407,8 @@ public class BpmnService {
         caseworkClient.updateStageUser(caseUUID, stageUUID, null);
     }
 
+    public Date calculateDeadline(String caseType, int workingDays) {
+        LocalDate startDate = LocalDate.now(clock);
+        return infoClient.calculateDeadline(caseType, startDate, workingDays);
+    }
 }
