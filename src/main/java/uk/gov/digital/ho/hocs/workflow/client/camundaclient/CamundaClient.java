@@ -60,6 +60,19 @@ public class CamundaClient {
 
 
     public String getStageScreenName(UUID stageUUID) {
+        String formKeyScreenName = getFormKeyForCurrentTask(stageUUID);
+        return formKeyScreenName != null ? formKeyScreenName : getStageScreenNameFromProcessVariable(stageUUID);
+    }
+
+    public String getFormKeyForCurrentTask(UUID stageUUID) {
+        Task task = taskService.createTaskQuery()
+            .processInstanceBusinessKey(stageUUID.toString())
+            .initializeFormKeys()
+            .singleResult();
+        return task != null ? task.getFormKey() : null;
+    }
+
+    public String getStageScreenNameFromProcessVariable(UUID stageUUID) {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
         log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName, value(EVENT, CURRENT_STAGE_RETRIEVED));
         return screenName == null || screenName.equals("null") ? "FINISH" : screenName;
