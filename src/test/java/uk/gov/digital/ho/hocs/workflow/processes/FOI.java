@@ -26,7 +26,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/FOI.bpmn",
         "processes/FOI_DATA_INPUT.bpmn",
         "processes/FOI_ALLOCATION.bpmn",
-        "processes/FOI_ACCEPTANCE.bpmn"
+        "processes/FOI_ACCEPTANCE.bpmn",
+        "processes/FOI_DRAFT.bpmn"
 })
 public class FOI {
 
@@ -34,6 +35,7 @@ public class FOI {
     public static final String ALLOCATION_ACTIVITY = "Activity_16l1q7b";
     public static final String COMPLETE_CASE_ACTIVITY = "Activity_1d2ue6g";
     public static final String ACCEPTANCE_ACTIVITY = "ACCEPTANCE";
+    public static final String FOI_DRAFT = "FOI_DRAFT";
 
     @Rule
     @ClassRule
@@ -64,6 +66,9 @@ public class FOI {
                 .thenReturn("AcceptCase", "Y")
                 .deploy(rule);
 
+        whenAtCallActivity(FOI_DRAFT)
+                .thenReturn("DraftAcceptCase", "Y")
+                .deploy(rule);
 
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
@@ -80,6 +85,9 @@ public class FOI {
 
         verify(FOIProcess, times(1))
                 .hasCompleted(ACCEPTANCE_ACTIVITY);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(FOI_DRAFT);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
@@ -102,6 +110,9 @@ public class FOI {
                 .thenReturn("AcceptCase", "Y")
                 .deploy(rule);
 
+        whenAtCallActivity(FOI_DRAFT)
+                .thenReturn("DraftAcceptCase", "Y")
+                .deploy(rule);
 
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
@@ -120,9 +131,56 @@ public class FOI {
                 .hasCompleted(ACCEPTANCE_ACTIVITY);
 
         verify(FOIProcess, times(1))
+                .hasCompleted(FOI_DRAFT);
+
+        verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
 
         verify(bpmnService).completeCase(any());
+    }
 
+    @Test
+    public void caseRejectedByDraftTeam() {
+
+
+        whenAtCallActivity("FOI_DATA_INPUT")
+                .deploy(rule);
+
+        whenAtCallActivity("FOI_ALLOCATION")
+                .deploy(rule);
+
+        whenAtCallActivity("FOI_ACCEPTANCE")
+                .thenReturn("AcceptCase", "Y")
+                .thenReturn("AcceptCase", "Y")
+                .deploy(rule);
+
+        whenAtCallActivity("FOI_DRAFT")
+                .thenReturn("DraftAcceptCase", "N")
+                .thenReturn("DraftAcceptCase", "Y")
+                .deploy(rule);
+
+        Scenario.run(FOIProcess)
+                .startByKey("FOI")
+                .execute();
+
+        verify(FOIProcess, times(1))
+                .hasCompleted("FOI_START");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(DATA_INPUT_ACTIVITY);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(ALLOCATION_ACTIVITY);
+
+        verify(FOIProcess, times(2))
+                .hasCompleted(ACCEPTANCE_ACTIVITY);
+
+        verify(FOIProcess, times(2))
+                .hasCompleted(FOI_DRAFT);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(COMPLETE_CASE_ACTIVITY);
+
+        verify(bpmnService).completeCase(any());
     }
 }
