@@ -37,9 +37,13 @@ public class FOI_ACCEPTANCE {
     public static final String CHOOSE_DRAFT_TEAM = "CHOOSE_DRAFT_TEAM";
     public static final String REJECT_CASE = "REJECT_CASE";
     public static final String PROCESS_KEY = "FOI_ACCEPTANCE";
+    public static final String SAVE_ALLOCATION_NOTE = "SAVE_ALLOCATION_NOTE";
     public static final String CASE_UUID = UUID.randomUUID().toString();
     public static final String STAGE_UUID = UUID.randomUUID().toString();
+    public static final String DRAFT_TEAM = UUID.randomUUID().toString();
     public static final String FOI_CASE_TYPE = "FOI";
+    public static final String ALLOCATE_TO_DRAFT_TEAM = "ALLOCATE_TO_DRAFT_TEAM";
+    public static final String SET_ACCEPTANCE_DATE = "SET_ACCEPTANCE_DATE";
 
     @Rule
     @ClassRule
@@ -70,8 +74,10 @@ public class FOI_ACCEPTANCE {
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
                 .thenReturn(task -> task.complete(withVariables(
                         "AcceptCase", "Y")));
+
         when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM))
-                .thenReturn(TaskDelegate::complete);
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftTeam", DRAFT_TEAM)));
 
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -80,7 +86,9 @@ public class FOI_ACCEPTANCE {
                 )).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
+        verify(processScenario, times(1)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
     }
 
     @Test
@@ -93,7 +101,8 @@ public class FOI_ACCEPTANCE {
             .thenReturn(TaskDelegate::complete);
 
         when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM))
-            .thenReturn(TaskDelegate::complete);
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftTeam", DRAFT_TEAM)));
 
         Scenario.run(processScenario).startBy(
             () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -103,7 +112,27 @@ public class FOI_ACCEPTANCE {
 
         verify(processScenario, times(1)).hasCanceled(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(DEADLINE_PASSED);
+        verify(processScenario, times(1)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
+    }
+
+    @Test
+    public void caseHasBeenReturnedFromDraftAcceptance() {
+
+        when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftTeam", DRAFT_TEAM)));
+
+        Scenario.run(processScenario).startBy(
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID, "AcceptanceDate", "1619779067602")
+                )).execute();
+
+        verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times(0)).hasCompleted(SET_ACCEPTANCE_DATE);
     }
 
     @Test
@@ -123,6 +152,8 @@ public class FOI_ACCEPTANCE {
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
+        verify(processScenario, times(1)).hasCompleted(SAVE_ALLOCATION_NOTE);
+        verify(processScenario, times(0)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(bpmnService).wipeVariables(eq(CASE_UUID), eq(STAGE_UUID), eq("AcceptanceTeam"), eq("Directorate"));
     }
 }
