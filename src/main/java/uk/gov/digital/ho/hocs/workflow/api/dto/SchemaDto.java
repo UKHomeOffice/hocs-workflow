@@ -40,4 +40,7 @@ public class SchemaDto {
     @JsonProperty("props")
     private Object props;
 
+    @JsonProperty("validation")
+    private Object validation;
+
 }
