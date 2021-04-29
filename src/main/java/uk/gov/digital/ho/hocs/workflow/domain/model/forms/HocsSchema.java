@@ -3,7 +3,6 @@ package uk.gov.digital.ho.hocs.workflow.domain.model.forms;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import java.util.List;
 
 @AllArgsConstructor
@@ -24,4 +23,8 @@ public class HocsSchema {
 
     @JsonProperty("props")
     private Object props;
+
+    @JsonProperty("formValidation")
+    public List<HocsFormValidation> screenValidationSchema;
+
 }

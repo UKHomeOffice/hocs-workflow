@@ -352,7 +352,7 @@ public class WorkflowServiceTest {
 
         Map<String, Object> props = Map.of("entity", "document");
         List<FieldDto> fieldDtos = List.of(new FieldDto(null, testFieldName, null, "entity-list", null, props, true, true));
-        SchemaDto schemaDto = new SchemaDto(UUID.randomUUID(), null, null, null, null, true, fieldDtos, null, null);
+        SchemaDto schemaDto = new SchemaDto(UUID.randomUUID(), null, null, null, null, true, fieldDtos, null, null, null);
         return List.of(schemaDto);
     }
 }

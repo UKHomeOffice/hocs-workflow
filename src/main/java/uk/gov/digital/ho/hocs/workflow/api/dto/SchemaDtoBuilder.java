@@ -13,6 +13,7 @@ public final class SchemaDtoBuilder {
     private List<FieldDto> fields;
     private List<SecondaryActionDto> secondaryActions;
     private Object props;
+    private List<ValidationRuleDto> validationRules;
 
     private SchemaDtoBuilder() {
     }
@@ -67,6 +68,6 @@ public final class SchemaDtoBuilder {
     }
 
     public SchemaDto build() {
-        return new SchemaDto(uuid, stageType, type, title, defaultActionLabel, active, fields, secondaryActions, props);
+        return new SchemaDto(uuid, stageType, type, title, defaultActionLabel, active, fields, secondaryActions, props, validationRules);
     }
 }

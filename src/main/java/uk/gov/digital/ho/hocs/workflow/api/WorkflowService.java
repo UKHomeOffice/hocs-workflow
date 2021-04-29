@@ -105,7 +105,15 @@ public class WorkflowService {
             List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
             List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(toList());
             fields = HocsFormAccordion.loadFormAccordions(fields);
-            HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions, schemaDto.getProps());
+
+            List<HocsFormValidation> formValidations = null;
+
+            if (schemaDto.getValidationRules() != null) {
+                formValidations = schemaDto.getValidationRules().stream().map(HocsFormValidation::from).collect(toList());
+            }
+
+            HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions, schemaDto.getProps(), formValidations);
+
             HocsForm form = new HocsForm(schema, inputResponse.getData());
             return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
         } else {
@@ -166,7 +174,7 @@ public class WorkflowService {
 
         List<SchemaDto> schemaDtos = infoClient.getSchemasForCaseTypeAndStages(inputResponse.getType(), caseStages);
 
-        HocsSchema hocsSchema = new HocsSchema(inputResponse.getReference(), null, fieldsToAdd, null, null);
+        HocsSchema hocsSchema = new HocsSchema(inputResponse.getReference(), null, fieldsToAdd, null, null, null);
 
         Map<String, String> dataMappings = convertDataToSchema(schemaDtos, inputResponse.getData());
 
