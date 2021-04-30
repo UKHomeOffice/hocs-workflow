@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0vgkz02" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+  <bpmn:process id="FOI_DRAFT" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1t9pg7t</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="ACCEPT_OR_REJECT" name="Accept or reject case" camunda:formKey="FOI_DRAFT_ACCEPT_OR_REJECT">
+      <bpmn:incoming>Flow_1t9pg7t</bpmn:incoming>
+      <bpmn:outgoing>Flow_1izqtkp</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1t9pg7t" sourceRef="StartEvent_1" targetRef="ACCEPT_OR_REJECT" />
+    <bpmn:endEvent id="Event_1phy81h">
+      <bpmn:incoming>case_accepted</bpmn:incoming>
+      <bpmn:incoming>Flow_0egr2es</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1izqtkp" sourceRef="ACCEPT_OR_REJECT" targetRef="draft_case_acceptance_status" />
+    <bpmn:exclusiveGateway id="draft_case_acceptance_status" name="has case been accepted by the draft team?">
+      <bpmn:incoming>Flow_1izqtkp</bpmn:incoming>
+      <bpmn:outgoing>case_accepted</bpmn:outgoing>
+      <bpmn:outgoing>no</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="case_accepted" name="yes" sourceRef="draft_case_acceptance_status" targetRef="Event_1phy81h">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftAcceptCase=="Y"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="REJECT_CASE" name="Reject Case" camunda:expression="${bpmnService.wipeVariables(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;DraftTeam&#34;)}">
+      <bpmn:incoming>no</bpmn:incoming>
+      <bpmn:outgoing>Flow_0r3rwxm</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="no" name="no" sourceRef="draft_case_acceptance_status" targetRef="REJECT_CASE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftAcceptCase=="N"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0r3rwxm" sourceRef="REJECT_CASE" targetRef="ALLOCATE_TO_ACCEPTANCE_TEAM" />
+    <bpmn:serviceTask id="ALLOCATE_TO_ACCEPTANCE_TEAM" name="Allocate to acceptance team" camunda:expression="${AcceptanceTeam}" camunda:resultVariable="AllocationTeamUUID">
+      <bpmn:incoming>Flow_0r3rwxm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0o0krux</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0o0krux" sourceRef="ALLOCATE_TO_ACCEPTANCE_TEAM" targetRef="SAVE_ALLOCATION_NOTE" />
+    <bpmn:serviceTask id="SAVE_ALLOCATION_NOTE" name="Save Allocation Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;NText&#34;), &#34;ALLOCATE&#34;)}">
+      <bpmn:incoming>Flow_0o0krux</bpmn:incoming>
+      <bpmn:outgoing>Flow_0egr2es</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0egr2es" sourceRef="SAVE_ALLOCATION_NOTE" targetRef="Event_1phy81h" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_DRAFT">
+      <bpmndi:BPMNEdge id="Flow_0egr2es_di" bpmnElement="Flow_0egr2es">
+        <di:waypoint x="870" y="160" />
+        <di:waypoint x="870" y="229" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0o0krux_di" bpmnElement="Flow_0o0krux">
+        <di:waypoint x="780" y="120" />
+        <di:waypoint x="820" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r3rwxm_di" bpmnElement="Flow_0r3rwxm">
+        <di:waypoint x="630" y="120" />
+        <di:waypoint x="680" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00zrk2v_di" bpmnElement="no">
+        <di:waypoint x="490" y="222" />
+        <di:waypoint x="490" y="120" />
+        <di:waypoint x="530" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="499" y="168" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bypgck_di" bpmnElement="case_accepted">
+        <di:waypoint x="515" y="247" />
+        <di:waypoint x="852" y="247" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="676" y="229" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1izqtkp_di" bpmnElement="Flow_1izqtkp">
+        <di:waypoint x="390" y="247" />
+        <di:waypoint x="465" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1t9pg7t_di" bpmnElement="Flow_1t9pg7t">
+        <di:waypoint x="215" y="247" />
+        <di:waypoint x="290" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="229" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0begqc1_di" bpmnElement="ACCEPT_OR_REJECT">
+        <dc:Bounds x="290" y="207" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1phy81h_di" bpmnElement="Event_1phy81h">
+        <dc:Bounds x="852" y="229" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_12nzvkg_di" bpmnElement="draft_case_acceptance_status" isMarkerVisible="true">
+        <dc:Bounds x="465" y="222" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="451" y="279" width="78" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0an3o1v_di" bpmnElement="REJECT_CASE">
+        <dc:Bounds x="530" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ac6e38_di" bpmnElement="ALLOCATE_TO_ACCEPTANCE_TEAM">
+        <dc:Bounds x="680" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10msti6_di" bpmnElement="SAVE_ALLOCATION_NOTE">
+        <dc:Bounds x="820" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
