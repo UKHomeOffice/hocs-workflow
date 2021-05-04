@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
+import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
@@ -23,11 +24,14 @@ public class WorkflowResourceTest {
     @Mock
     private WorkflowService workflowService;
 
+    @Mock
+    private BpmnService bpmnService;
+
     private WorkflowResource workflowResource;
 
     @Before
     public void beforeTest() {
-        workflowResource = new WorkflowResource(workflowService);
+        workflowResource = new WorkflowResource(workflowService, bpmnService);
     }
 
     @Test
@@ -218,6 +222,22 @@ public class WorkflowResourceTest {
 
         workflowResource.getReadOnlyCaseDetails(caseUUID);
 
+    }
+
+    @Test
+    public void updateCaseValue_shouldCallBpmnService() {
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UpdateCaseValueRequest updateCaseValueRequest = new UpdateCaseValueRequest("TEST");
+
+        ResponseEntity result = workflowResource.updateCaseValue(caseUUID, stageUUID, "CaseworkTeamUUID", updateCaseValueRequest);
+
+        verify(bpmnService).updateValue(caseUUID.toString(), stageUUID.toString(), "CaseworkTeamUUID", updateCaseValueRequest.getValue());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatusCodeValue()).isEqualTo(200);
+
+        verifyNoMoreInteractions(bpmnService);
     }
 
 
