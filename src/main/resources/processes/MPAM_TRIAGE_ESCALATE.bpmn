@@ -13,6 +13,7 @@
       <bpmn:incoming>SequenceFlow_1m70lbc</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_19l3zia</bpmn:incoming>
       <bpmn:incoming>Flow_01s6las</bpmn:incoming>
+      <bpmn:incoming>Flow_1vct2cg</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1l0z7z9</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="Validate_UserInput" name="Validate User Input">
@@ -105,6 +106,7 @@
       <bpmn:outgoing>SequenceFlow_0ixi7ye</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0mflb41</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1e2t09x</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1dxk4p3</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0ixi7ye" sourceRef="ExclusiveGateway_0o5wz31" targetRef="ExclusiveGateway_0qsaemy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
@@ -403,6 +405,18 @@
     <bpmn:sequenceFlow id="Flow_01s6las" sourceRef="Gateway_0eqa8f5" targetRef="Screen_UserInput">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:callActivity id="Activity_0l0ilnw" name="Update Enquiry Reason" calledElement="MPAM_UPDATE_ENQUIRY_SUBJECT_REASON">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in source="CaseUUID" target="CaseUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1dxk4p3</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vct2cg</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1dxk4p3" name="UpdateEnquirySubject" sourceRef="ExclusiveGateway_0o5wz31" targetRef="Activity_0l0ilnw">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "UpdateEnquirySubject"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1vct2cg" sourceRef="Activity_0l0ilnw" targetRef="Screen_UserInput" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_TRIAGE_ESCALATE">
