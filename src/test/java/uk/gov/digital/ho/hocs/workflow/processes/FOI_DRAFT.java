@@ -34,12 +34,17 @@ public class FOI_DRAFT {
     public static final String REJECT_CASE = "REJECT_CASE";
     public static final String ALLOCATE_TO_ACCEPTANCE_TEAM = "ALLOCATE_TO_ACCEPTANCE_TEAM";
     public static final String SAVE_ALLOCATION_NOTE = "SAVE_ALLOCATION_NOTE";
-
+    public static final String MULTIPLE_CONTRIBUTIONS = "MULTIPLE_CONTRIBUTIONS";
+    public static final String END_EVENT = "END_EVENT";
+    public static final String VALIDITY = "VALIDITY";
+    public static final String ARE_MCS_REQUIRED = "ARE_MCS_REQUIRED";
+    public static final String RESPONSE_TYPE = "RESPONSE_TYPE";
+    public static final String INVALID = "INVALID";
 
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(1)
+            .assertClassCoverageAtLeast(0.8)
             .build();
 
     @Rule
@@ -57,39 +62,110 @@ public class FOI_DRAFT {
     }
 
     @Test
-    public void happyPath() {
-
-        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DraftAcceptCase", "Y")));
-
-
-        Scenario.run(processScenario).startBy(
-                () -> rule.getRuntimeService().startProcessInstanceByKey(
-                        PROCESS_KEY, STAGE_UUID,
-                        Map.of("CaseUUID", CASE_UUID)
-                )).execute();
-
-        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
-    }
-
-    @Test
     public void caseRejected() {
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DraftAcceptCase", "N")));
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftAcceptCase", "N")));
 
 
         Scenario.run(processScenario).startBy(
-                () -> rule.getRuntimeService().startProcessInstanceByKey(
-                        PROCESS_KEY, STAGE_UUID,
-                        Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID)
-                )).execute();
+            () -> rule.getRuntimeService().startProcessInstanceByKey(
+                PROCESS_KEY, STAGE_UUID,
+                Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID)
+            )).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_ACCEPTANCE_TEAM);
         verify(processScenario, times(1)).hasCompleted(SAVE_ALLOCATION_NOTE);
         verify(bpmnService).wipeVariables(eq(CASE_UUID), eq(STAGE_UUID), eq("DraftTeam"));
+        verify(processScenario).hasFinished(END_EVENT);
+
+    }
+
+    @Test
+    public void invalidRequest() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftAcceptCase", "Y")));
+
+        when(processScenario.waitsAtUserTask(VALIDITY))
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftValidity", "N", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(INVALID))
+            .thenReturn(task -> task.complete(withVariables(
+                "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario).startBy(
+            () -> rule.getRuntimeService().startProcessInstanceByKey(
+                PROCESS_KEY, STAGE_UUID,
+                Map.of("CaseUUID", CASE_UUID)
+            )).execute();
+
+        verify(processScenario).hasFinished(END_EVENT);
+    }
+
+    @Test
+    public void happyPathSkippingMultipleContributions() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftAcceptCase", "Y")));
+
+        when(processScenario.waitsAtUserTask(VALIDITY))
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftValidity", "Y", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
+            .thenReturn(task -> task.complete(withVariables(
+                "ContributionsRequired", "N", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
+            .thenReturn(task -> task.complete(withVariables(
+                "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario).startBy(
+            () -> rule.getRuntimeService().startProcessInstanceByKey(
+                PROCESS_KEY, STAGE_UUID,
+                Map.of("CaseUUID", CASE_UUID)
+            )).execute();
+
+        verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
+        verify(processScenario).hasFinished(END_EVENT);
+    }
+
+    @Test
+    public void happyPath() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftAcceptCase", "Y")));
+
+        when(processScenario.waitsAtUserTask(VALIDITY))
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftValidity", "Y", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
+            .thenReturn(task -> task.complete(withVariables(
+                "ContributionsRequired", "Y", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS))
+
+            .thenReturn(task -> task.complete(withVariables(
+                "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
+            .thenReturn(task -> task.complete(withVariables(
+                "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario).startBy(
+            () -> rule.getRuntimeService().startProcessInstanceByKey(
+                PROCESS_KEY, STAGE_UUID,
+                Map.of("CaseUUID", CASE_UUID)
+            )).execute();
+
+        verify(processScenario).hasFinished(END_EVENT);
     }
 }
