@@ -42,6 +42,7 @@ public class FOI_DRAFT {
     public static final String INVALID = "INVALID";
     public static final String UPLOAD_DRAFT = "UPLOAD_DRAFT";
     public static final String EXEMPTION = "EXEMPTION";
+    public static final String SENSITIVITY = "SENSITIVITY";
 
     @Rule
     @ClassRule
@@ -100,14 +101,22 @@ public class FOI_DRAFT {
             .thenReturn(task -> task.complete(withVariables(
                 "DIRECTION", "FORWARD")));
 
+        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
+            .thenReturn(task -> task.complete());
+
         Scenario.run(processScenario).startBy(
             () -> rule.getRuntimeService().startProcessInstanceByKey(
                 PROCESS_KEY, STAGE_UUID,
                 Map.of("CaseUUID", CASE_UUID)
             )).execute();
 
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
+        verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(INVALID);
+        verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
         verify(processScenario).hasFinished(END_EVENT);
-        verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
+        verify(processScenario, never()).waitsAtUserTask(ARE_MCS_REQUIRED);
+        verify(processScenario, never()).waitsAtUserTask(SENSITIVITY);
     }
 
     @Test
@@ -135,12 +144,22 @@ public class FOI_DRAFT {
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
             .thenReturn(task -> task.complete());
 
+        when(processScenario.waitsAtUserTask(SENSITIVITY))
+            .thenReturn(task -> task.complete());
+
         Scenario.run(processScenario).startBy(
             () -> rule.getRuntimeService().startProcessInstanceByKey(
                 PROCESS_KEY, STAGE_UUID,
                 Map.of("CaseUUID", CASE_UUID)
             )).execute();
 
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
+        verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
+        verify(processScenario, times(1)).hasCompleted(MULTIPLE_CONTRIBUTIONS);
+        verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
+        verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
+        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
         verify(processScenario, never()).waitsAtUserTask(INVALID);
@@ -177,9 +196,16 @@ public class FOI_DRAFT {
                 Map.of("CaseUUID", CASE_UUID)
             )).execute();
 
+
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
+        verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
+        verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
+        verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, never()).waitsAtUserTask(INVALID);
+        verify(processScenario, never()).waitsAtUserTask(SENSITIVITY);
     }
 
     @Test
@@ -204,12 +230,21 @@ public class FOI_DRAFT {
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
             .thenReturn(task -> task.complete());
 
+        when(processScenario.waitsAtUserTask(SENSITIVITY))
+            .thenReturn(task -> task.complete());
+
         Scenario.run(processScenario).startBy(
             () -> rule.getRuntimeService().startProcessInstanceByKey(
                 PROCESS_KEY, STAGE_UUID,
                 Map.of("CaseUUID", CASE_UUID)
             )).execute();
 
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
+        verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
+        verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
+        verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
+        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
