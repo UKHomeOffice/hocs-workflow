@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.processes;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
+import org.camunda.bpm.extension.mockito.ProcessExpressions;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
@@ -24,7 +25,10 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/MPAM_TRIAGE_ESCALATE.bpmn")
+@Deployment(resources = {
+        "processes/MPAM_TRIAGE_ESCALATE.bpmn",
+        "processes/MPAM/MPAM_UPDATE_ENQUIRY_SUBJECT_REASON.bpmn"
+})
 public class MPAMTriageEscalate extends MPAMCommonTests {
 
     @Rule
@@ -205,6 +209,17 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
     public void whenTriageEscalatedChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
         whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_TRIAGE_ESCALATE", "Service_UpdateTeamForTriage", "MPAM_TRIAGE", "EndEvent_MpamTriageEscalate",
                 processScenario, bpmnService);
+    }
+
+    @Test
+    public void whenTriageUpdateEnquiryReasonSubject_thenBusAreaStatusIsConfirmed() {
+        ProcessExpressions.registerCallActivityMock("MPAM_UPDATE_ENQUIRY_SUBJECT_REASON")
+                .deploy(rule);
+
+        whenUpdateEnquirySubjectReason_thenShouldContinue("MPAM_TRIAGE_ESCALATE", "TriageEscalateOutcome",
+                "EndEvent_MpamTriageEscalate",  processScenario, bpmnService);
+
+        verify(processScenario).hasCompleted("ServiceTask_0rvjsky");
     }
 
 }
