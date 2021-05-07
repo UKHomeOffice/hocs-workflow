@@ -40,11 +40,13 @@ public class FOI_DRAFT {
     public static final String ARE_MCS_REQUIRED = "ARE_MCS_REQUIRED";
     public static final String RESPONSE_TYPE = "RESPONSE_TYPE";
     public static final String INVALID = "INVALID";
+    public static final String UPLOAD_DRAFT = "UPLOAD_DRAFT";
+    public static final String EXEMPTION = "EXEMPTION";
 
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.8)
+            .assertClassCoverageAtLeast(0.75)
             .build();
 
     @Rule
@@ -105,10 +107,47 @@ public class FOI_DRAFT {
             )).execute();
 
         verify(processScenario).hasFinished(END_EVENT);
+        verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
     }
 
     @Test
-    public void happyPathSkippingMultipleContributions() {
+    public void multipleContributions() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftAcceptCase", "Y")));
+
+        when(processScenario.waitsAtUserTask(VALIDITY))
+            .thenReturn(task -> task.complete(withVariables(
+                "DraftValidity", "Y", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
+            .thenReturn(task -> task.complete(withVariables(
+                "ContributionsRequired", "Y", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
+            .thenReturn(task -> task.complete(withVariables(
+                "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
+            .thenReturn(task -> task.complete());
+
+        Scenario.run(processScenario).startBy(
+            () -> rule.getRuntimeService().startProcessInstanceByKey(
+                PROCESS_KEY, STAGE_UUID,
+                Map.of("CaseUUID", CASE_UUID)
+            )).execute();
+
+        verify(processScenario).hasFinished(END_EVENT);
+        verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
+        verify(processScenario, never()).waitsAtUserTask(INVALID);
+    }
+
+    @Test
+    public void exemption() {
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
             .thenReturn(task -> task.complete(withVariables(
@@ -124,7 +163,13 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
             .thenReturn(task -> task.complete(withVariables(
-                "DIRECTION", "FORWARD")));
+                "ResponseType", "EXEMPTION", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(EXEMPTION))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario).startBy(
             () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -132,8 +177,9 @@ public class FOI_DRAFT {
                 Map.of("CaseUUID", CASE_UUID)
             )).execute();
 
-        verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario).hasFinished(END_EVENT);
+        verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
+        verify(processScenario, never()).waitsAtUserTask(INVALID);
     }
 
     @Test
@@ -149,16 +195,14 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
             .thenReturn(task -> task.complete(withVariables(
-                "ContributionsRequired", "Y", "DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS))
-
-            .thenReturn(task -> task.complete(withVariables(
-                "DIRECTION", "FORWARD")));
+                "ContributionsRequired", "N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
             .thenReturn(task -> task.complete(withVariables(
-                "DIRECTION", "FORWARD")));
+                "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
+            .thenReturn(task -> task.complete());
 
         Scenario.run(processScenario).startBy(
             () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -167,5 +211,8 @@ public class FOI_DRAFT {
             )).execute();
 
         verify(processScenario).hasFinished(END_EVENT);
+        verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
+        verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
+        verify(processScenario, never()).waitsAtUserTask(INVALID);
     }
 }
