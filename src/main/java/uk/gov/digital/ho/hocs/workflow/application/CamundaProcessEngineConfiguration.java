@@ -45,8 +45,8 @@ public class CamundaProcessEngineConfiguration {
     config.setJobExecutorActivate(true);
     config.setMetricsEnabled(false);
 
-    // deploy all processes from folder 'processes'
-    Resource[] resources = resourceLoader.getResources("classpath:/processes/*");
+    // loops through and collates all bpmn files in the processes (sub-)folders
+    Resource[] resources = resourceLoader.getResources("classpath:/processes/**/*.bpmn");
     config.setDeploymentResources(resources);
 
     return config;
