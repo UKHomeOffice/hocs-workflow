@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.security.AccessLevel;
@@ -24,9 +25,13 @@ class WorkflowResource {
 
     private WorkflowService workflowService;
 
+    private BpmnService bpmnService;
+
     @Autowired
-    public WorkflowResource(WorkflowService workflowService) {
+    public WorkflowResource(WorkflowService workflowService,
+                            BpmnService bpmnService) {
         this.workflowService = workflowService;
+        this.bpmnService = bpmnService;
     }
 
     @Authorised(accessLevel = AccessLevel.OWNER)
@@ -84,6 +89,14 @@ class WorkflowResource {
     public ResponseEntity<GetCaseDetailsResponse> getReadOnlyCaseDetails(@PathVariable UUID caseUUID) {
         GetCaseDetailsResponse response = workflowService.getReadOnlyCaseDetails(caseUUID);
         return ResponseEntity.ok(response);
+    }
+
+    @Authorised(accessLevel = AccessLevel.WRITE)
+    @PutMapping(value = "/case/{caseUUID}/stage/{stageUUID}/{variable}")
+    public ResponseEntity updateCaseValue(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID,
+                        @PathVariable String variable, @RequestBody UpdateCaseValueRequest request) {
+        bpmnService.updateValue(caseUUID.toString(), stageUUID.toString(), variable, request.getValue());
+        return ResponseEntity.ok().build();
     }
 
 }
