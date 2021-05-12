@@ -85,14 +85,46 @@ public class MPAMDraftEscalate extends MPAMCommonTests {
 
         when(processScenario.waitsAtUserTask("UserTask_RequestContributionInput"))
                 .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", "false")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
                         "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
                 .startByKey("MPAM_DRAFT_ESCALATE")
                 .execute();
 
-        verify(processScenario).hasCompleted("ServiceTask_RequestContributionInput");
-        verify(processScenario).hasCompleted("UserTask_RequestContributionInput");
+        verify(processScenario, times(3)).hasCompleted("ServiceTask_RequestContributionInput");
+        verify(processScenario, times(3)).hasCompleted("UserTask_RequestContributionInput");
+        verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
+    }
+
+    @Test
+    public void whenPutOnCampaign_thenPutOnCampaign() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", true,
+                        "DraftStatus", "PutOnCampaign")));
+
+        when(processScenario.waitsAtUserTask("UserTask_RequestCampaign"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", false)))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", true)));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_DRAFT_ESCALATE")
+                .execute();
+
+        verify(processScenario).hasCompleted("ServiceTask_ClearCampaignType");
+        verify(processScenario, times(2)).hasCompleted("ServiceTask_RequestCampaignInput");
+        verify(processScenario, times(2)).hasCompleted("UserTask_RequestCampaign");
+        verify(processScenario).hasCompleted("ServiceTask_UpdateTeamForCampaign");
         verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
     }
 

@@ -35,4 +35,22 @@ public class MPAMCommonTests {
         verify(processScenario).hasFinished(endEvent);
     }
 
+    void whenUpdateEnquirySubjectReason_thenShouldContinue(String mpamFlow, String coreVariable, String endEvent,
+                                                                     ProcessScenario processScenario, BpmnService bpmnService) {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "UpdateEnquirySubject")))
+                .thenReturn(task -> task.complete(withVariables(
+                    "valid", true,
+                    coreVariable, "TEST_COMPLETE",
+                        "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey(mpamFlow)
+                .execute();
+
+        verify(processScenario).hasFinished(endEvent);
+    }
+
 }

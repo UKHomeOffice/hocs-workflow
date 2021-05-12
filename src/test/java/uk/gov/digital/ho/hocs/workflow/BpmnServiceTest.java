@@ -90,6 +90,8 @@ public class BpmnServiceTest {
         String teamName = "Team1";
         TeamDto team = new TeamDto(teamName, draftingString, true, new HashSet<>());
         Map<String, String> teamsForTopic = new HashMap<>();
+        teamsForTopic.put("OverrideDraftingTeamUUID", "");
+        teamsForTopic.put("OverrideDraftingTeamName", "");
         teamsForTopic.put("DraftingTeamUUID", draftingString.toString());
         teamsForTopic.put("DraftingTeamName", teamName);
 

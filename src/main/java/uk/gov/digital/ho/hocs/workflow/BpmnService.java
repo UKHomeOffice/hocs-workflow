@@ -197,6 +197,10 @@ public class BpmnService {
 
         log.info("Writing draft team with {}", draftingUUIDString);
         TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
+
+        teamsForTopic.put("OverrideDraftingTeamUUID", "");
+        teamsForTopic.put("OverrideDraftingTeamName", "");
+
         teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
         teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
 
