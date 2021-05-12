@@ -85,14 +85,19 @@ public class MPAMDraftEscalate extends MPAMCommonTests {
 
         when(processScenario.waitsAtUserTask("UserTask_RequestContributionInput"))
                 .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", "false")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
                         "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
                 .startByKey("MPAM_DRAFT_ESCALATE")
                 .execute();
 
-        verify(processScenario).hasCompleted("ServiceTask_RequestContributionInput");
-        verify(processScenario).hasCompleted("UserTask_RequestContributionInput");
+        verify(processScenario, times(3)).hasCompleted("ServiceTask_RequestContributionInput");
+        verify(processScenario, times(3)).hasCompleted("UserTask_RequestContributionInput");
         verify(processScenario).hasFinished("EndEvent_MpamDraftEscalate");
     }
 

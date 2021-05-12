@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0vlcfuo" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0vlcfuo" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0">
   <bpmn:process id="MPAM_TRIAGE_ESCALATE" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0ioswxl</bpmn:outgoing>
@@ -13,6 +13,7 @@
       <bpmn:incoming>SequenceFlow_1m70lbc</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_19l3zia</bpmn:incoming>
       <bpmn:incoming>Flow_01s6las</bpmn:incoming>
+      <bpmn:incoming>Flow_1vct2cg</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1l0z7z9</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="Validate_UserInput" name="Validate User Input">
@@ -105,6 +106,7 @@
       <bpmn:outgoing>SequenceFlow_0ixi7ye</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0mflb41</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1e2t09x</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1dxk4p3</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0ixi7ye" sourceRef="ExclusiveGateway_0o5wz31" targetRef="ExclusiveGateway_0qsaemy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
@@ -403,6 +405,18 @@
     <bpmn:sequenceFlow id="Flow_01s6las" sourceRef="Gateway_0eqa8f5" targetRef="Screen_UserInput">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:callActivity id="Activity_0l0ilnw" name="Update Enquiry Reason" calledElement="MPAM_UPDATE_ENQUIRY_SUBJECT_REASON">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in source="CaseUUID" target="CaseUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1dxk4p3</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vct2cg</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1dxk4p3" name="UpdateEnquirySubject" sourceRef="ExclusiveGateway_0o5wz31" targetRef="Activity_0l0ilnw">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "UpdateEnquirySubject"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1vct2cg" sourceRef="Activity_0l0ilnw" targetRef="Screen_UserInput" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_TRIAGE_ESCALATE">
@@ -764,6 +778,19 @@
           <dc:Bounds x="568" y="606" width="24" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dxk4p3_di" bpmnElement="Flow_1dxk4p3">
+        <di:waypoint x="580" y="815" />
+        <di:waypoint x="580" y="2100" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="486" y="2036" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vct2cg_di" bpmnElement="Flow_1vct2cg">
+        <di:waypoint x="530" y="2140" />
+        <di:waypoint x="280" y="2140" />
+        <di:waypoint x="280" y="627" />
+        <di:waypoint x="350" y="627" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="179" y="609" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -943,6 +970,9 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="834" y="361" width="78" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l0ilnw_di" bpmnElement="Activity_0l0ilnw">
+        <dc:Bounds x="530" y="2100" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
