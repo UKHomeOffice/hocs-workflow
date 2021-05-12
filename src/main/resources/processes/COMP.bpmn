@@ -89,10 +89,12 @@
       <bpmn:incoming>SequenceFlow_0rody0g</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1tn7n28</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0e8vpnc</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1mrdijx</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_000uqx9</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_12bwajh</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0iowipv</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_09ub2ao</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0jvkgxw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_000uqx9" sourceRef="ExclusiveGateway_11h64pd" targetRef="CallActivity_COMP_SERVICE_WFM">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "Service"}</bpmn:conditionExpression>
@@ -233,6 +235,7 @@
       <bpmn:incoming>SequenceFlow_0zax5vg</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_09ub2ao</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1aq52w0</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1nh0j6q</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1four01</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_1four01" sourceRef="CallActivity_COMP_CLOSED" targetRef="ExclusiveGateway_1j1whvx" />
@@ -280,6 +283,58 @@
       <bpmn:outgoing>SequenceFlow_0e8vpnc</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_0e8vpnc" sourceRef="CallActivity_0vese19" targetRef="ExclusiveGateway_11h64pd" />
+    <bpmn:callActivity id="CallActivity_COMP_MINOR_CHECK" name="Minor Check" calledElement="STAGE_WITH_USER">
+      <bpmn:extensionElements>
+        <camunda:in source="MinorCheckUUID" target="StageUUID" />
+        <camunda:in sourceExpression="COMP_MINOR_CHECK" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="MinorCheckUUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="COMP_MINOR_CHECK" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
+        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
+        <camunda:out source="CompType" target="CompType" />
+        <camunda:out source="MinorAccept" target="MinorAccept" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0jvkgxw</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0uac5hc</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="SequenceFlow_0jvkgxw" sourceRef="ExclusiveGateway_11h64pd" targetRef="CallActivity_COMP_MINOR_CHECK">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "Minor"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0o61v4x" default="SequenceFlow_1mrdijx">
+      <bpmn:incoming>SequenceFlow_0uac5hc</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1mrdijx</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0htf303</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_0uac5hc" sourceRef="CallActivity_COMP_MINOR_CHECK" targetRef="ExclusiveGateway_0o61v4x" />
+    <bpmn:sequenceFlow id="SequenceFlow_1mrdijx" sourceRef="ExclusiveGateway_0o61v4x" targetRef="ExclusiveGateway_11h64pd" />
+    <bpmn:callActivity id="CallActivity_0r8r4v9" name="Minor Response" calledElement="STAGE_WITH_USER">
+      <bpmn:extensionElements>
+        <camunda:in source="MinorRespUUID" target="StageUUID" />
+        <camunda:in sourceExpression="COMP_MINOR_RESP" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="MinorRespUUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="COMP_MINOR_RESP" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
+        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0htf303</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1nh0j6q</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="SequenceFlow_0htf303" sourceRef="ExclusiveGateway_0o61v4x" targetRef="CallActivity_0r8r4v9">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MinorAccept == "Yes"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_1nh0j6q" sourceRef="CallActivity_0r8r4v9" targetRef="CallActivity_COMP_CLOSED" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP">
@@ -454,6 +509,40 @@
       <bpmndi:BPMNEdge id="SequenceFlow_0e8vpnc_di" bpmnElement="SequenceFlow_0e8vpnc">
         <di:waypoint x="665" y="121" />
         <di:waypoint x="665" y="333" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="CallActivity_0ifbpqm_di" bpmnElement="CallActivity_COMP_MINOR_CHECK">
+        <dc:Bounds x="810" y="743" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0jvkgxw_di" bpmnElement="SequenceFlow_0jvkgxw">
+        <di:waypoint x="665" y="383" />
+        <di:waypoint x="665" y="783" />
+        <di:waypoint x="810" y="783" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0o61v4x_di" bpmnElement="ExclusiveGateway_0o61v4x" isMarkerVisible="true">
+        <dc:Bounds x="1036" y="758" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0uac5hc_di" bpmnElement="SequenceFlow_0uac5hc">
+        <di:waypoint x="910" y="783" />
+        <di:waypoint x="1036" y="783" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1mrdijx_di" bpmnElement="SequenceFlow_1mrdijx">
+        <di:waypoint x="1061" y="808" />
+        <di:waypoint x="1061" y="934" />
+        <di:waypoint x="594" y="934" />
+        <di:waypoint x="594" y="358" />
+        <di:waypoint x="639" y="358" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="CallActivity_0r8r4v9_di" bpmnElement="CallActivity_0r8r4v9">
+        <dc:Bounds x="1462" y="743" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0htf303_di" bpmnElement="SequenceFlow_0htf303">
+        <di:waypoint x="1086" y="783" />
+        <di:waypoint x="1462" y="783" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1nh0j6q_di" bpmnElement="SequenceFlow_1nh0j6q">
+        <di:waypoint x="1562" y="783" />
+        <di:waypoint x="2654" y="783" />
+        <di:waypoint x="2654" y="398" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
