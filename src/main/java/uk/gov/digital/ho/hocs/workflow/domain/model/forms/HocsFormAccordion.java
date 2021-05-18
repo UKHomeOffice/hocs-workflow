@@ -7,7 +7,6 @@ public class HocsFormAccordion extends HocsFormField {
     public HocsFormAccordion(List<HocsFormSection> hocsFormSections) {
         this.props = new HashMap<>();
         //props.put("label", "accordion");
-        props.put("name", UUID.randomUUID());
         this.component = "accordion";
         this.props.put("sections", hocsFormSections);
     }
@@ -23,6 +22,11 @@ public class HocsFormAccordion extends HocsFormField {
                 expandableItems = null;
                 if (accordion == null) {
                     accordion = new ArrayList();
+
+                    if (field.getProps().get("name") == null) {
+                        field.getProps().put("name", UUID.randomUUID());
+                    }
+
                     returnFields.add(new HocsFormAccordion(accordion));
                 }
                 section = new HocsFormSection(field);
