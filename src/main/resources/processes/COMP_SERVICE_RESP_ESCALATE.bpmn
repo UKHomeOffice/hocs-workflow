@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0y1qd3t" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.1.2">
+  <bpmn:process id="COMP_SERVICE_RESP_ESCALATE" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_15fsykb</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_185z2og">
+      <bpmn:incoming>SequenceFlow_1ennqvb</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0aedxp3</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0y3mwb3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Screen_Input" name="Input" camunda:expression="COMP_SERVICE_RESP_ESCALATE_INPUT" camunda:resultVariable="screen">
+      <bpmn:incoming>SequenceFlow_0aedxp3</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_15fsykb</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_19qkstd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Validate_Input" name="Validate Input">
+      <bpmn:incoming>SequenceFlow_19qkstd</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1ennqvb</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_12uwrlr">
+      <bpmn:incoming>SequenceFlow_17i89yi</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="ServiceTask_UpdateTeamByStageAndTexts" name="Update Team for Service Draft" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;COMP_SERVICE_DRAFT&#34;,&#34;QueueTeamUUID&#34;,&#34;QueueTeamName&#34;,&#34;Stage&#34;)}">
+      <bpmn:incoming>SequenceFlow_0y3mwb3</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_17i89yi</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1ennqvb" sourceRef="Validate_Input" targetRef="ExclusiveGateway_185z2og" />
+    <bpmn:sequenceFlow id="SequenceFlow_0aedxp3" name="false" sourceRef="ExclusiveGateway_185z2og" targetRef="Screen_Input">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_0y3mwb3" sourceRef="ExclusiveGateway_185z2og" targetRef="ServiceTask_UpdateTeamByStageAndTexts">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_19qkstd" sourceRef="Screen_Input" targetRef="Validate_Input" />
+    <bpmn:sequenceFlow id="SequenceFlow_17i89yi" sourceRef="ServiceTask_UpdateTeamByStageAndTexts" targetRef="EndEvent_12uwrlr" />
+    <bpmn:sequenceFlow id="SequenceFlow_15fsykb" sourceRef="StartEvent_1" targetRef="Screen_Input" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP_SERVICE_RESP_ESCALATE">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="103" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_185z2og_di" bpmnElement="ExclusiveGateway_185z2og" isMarkerVisible="true">
+        <dc:Bounds x="620" y="96" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0mlvckz_di" bpmnElement="Screen_Input">
+        <dc:Bounds x="415" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_0ncc64u_di" bpmnElement="Validate_Input">
+        <dc:Bounds x="415" y="244" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_12uwrlr_di" bpmnElement="EndEvent_12uwrlr">
+        <dc:Bounds x="1154" y="103" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1ipbr6t_di" bpmnElement="ServiceTask_UpdateTeamByStageAndTexts">
+        <dc:Bounds x="931" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1ennqvb_di" bpmnElement="SequenceFlow_1ennqvb">
+        <di:waypoint x="515" y="284" />
+        <di:waypoint x="645" y="284" />
+        <di:waypoint x="645" y="146" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0aedxp3_di" bpmnElement="SequenceFlow_0aedxp3">
+        <di:waypoint x="620" y="121" />
+        <di:waypoint x="515" y="121" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="603.5" y="101" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0y3mwb3_di" bpmnElement="SequenceFlow_0y3mwb3">
+        <di:waypoint x="670" y="121" />
+        <di:waypoint x="931" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_19qkstd_di" bpmnElement="SequenceFlow_19qkstd">
+        <di:waypoint x="465" y="161" />
+        <di:waypoint x="465" y="244" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_17i89yi_di" bpmnElement="SequenceFlow_17i89yi">
+        <di:waypoint x="1031" y="121" />
+        <di:waypoint x="1154" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_15fsykb_di" bpmnElement="SequenceFlow_15fsykb">
+        <di:waypoint x="215" y="121" />
+        <di:waypoint x="415" y="121" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
