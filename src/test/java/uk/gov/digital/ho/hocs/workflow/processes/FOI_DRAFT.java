@@ -29,6 +29,8 @@ public class FOI_DRAFT {
     public static final String CASE_UUID = UUID.randomUUID().toString();
     public static final String STAGE_UUID = UUID.randomUUID().toString();
     public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
+    public static final String G6G7ApprovalTeam = UUID.randomUUID().toString();
+    public static final String ScsApprovalTeam = UUID.randomUUID().toString();
 
     public static final String ACCEPT_OR_REJECT = "ACCEPT_OR_REJECT";
     public static final String REJECT_CASE = "REJECT_CASE";
@@ -99,7 +101,7 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(VALIDITY))
             .thenReturn(task -> task.complete(withVariables(
-                "DraftValidity", "N", "DIRECTION", "FORWARD")));
+                "DraftValidity", "DraftValid-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(INVALID))
             .thenReturn(task -> task.complete(withVariables(
@@ -132,11 +134,11 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(VALIDITY))
             .thenReturn(task -> task.complete(withVariables(
-                "DraftValidity", "Y", "DIRECTION", "FORWARD")));
+                "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
             .thenReturn(task -> task.complete(withVariables(
-                "ContributionsRequired", "Y", "DIRECTION", "FORWARD")));
+                "ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS))
             .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
@@ -154,10 +156,12 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(QA_OFFLINE))
                 .thenReturn(task -> task.complete(withVariables(
-                        "QaOffline", "N", "DIRECTION", "FORWARD")));
+                        "QaOffline", "QaOffline-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(SELECT_ONLINE_G6OR7_APPROVAL_TEAM))
-                .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete(withVariables(
+                        "G6G7ApprovalTeam", G6G7ApprovalTeam)));
+
 
         Scenario.run(processScenario).startBy(
             () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -187,11 +191,11 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(VALIDITY))
             .thenReturn(task -> task.complete(withVariables(
-                "DraftValidity", "Y", "DIRECTION", "FORWARD")));
+                "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
             .thenReturn(task -> task.complete(withVariables(
-                "ContributionsRequired", "N", "DIRECTION", "FORWARD")));
+                "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
             .thenReturn(task -> task.complete(withVariables(
@@ -233,11 +237,11 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(VALIDITY))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DraftValidity", "Y", "DIRECTION", "FORWARD")));
+                        "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
                 .thenReturn(task -> task.complete(withVariables(
-                        "ContributionsRequired", "N", "DIRECTION", "FORWARD")));
+                        "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
                 .thenReturn(task -> task.complete(withVariables(
@@ -245,7 +249,7 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(QA_OFFLINE))
                 .thenReturn(task -> task.complete(withVariables(
-                        "QaOffline", "N", "DIRECTION", "FORWARD")));
+                        "QaOffline", "QaOffline-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
@@ -255,7 +259,8 @@ public class FOI_DRAFT {
                         "Sensitivity", "HIGH", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(SELECT_SCS_APPROVAL_TEAM))
-                .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete(withVariables(
+                        "ScsApprovalTeam", ScsApprovalTeam)));
 
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -288,11 +293,11 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(VALIDITY))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DraftValidity", "Y", "DIRECTION", "FORWARD")));
+                        "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
                 .thenReturn(task -> task.complete(withVariables(
-                        "ContributionsRequired", "N", "DIRECTION", "FORWARD")));
+                        "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
                 .thenReturn(task -> task.complete(withVariables(
@@ -300,7 +305,7 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(QA_OFFLINE))
                 .thenReturn(task -> task.complete(withVariables(
-                        "QaOffline", "Y", "DIRECTION", "FORWARD")));
+                        "QaOffline", "QaOffline-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
@@ -310,7 +315,8 @@ public class FOI_DRAFT {
                         "Sensitivity", "LOW", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(SELECT_OFFLINE_G6OR7_APPROVAL_TEAM))
-                .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete(withVariables(
+                        "G6G7ApprovalTeam", G6G7ApprovalTeam)));
 
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -342,11 +348,11 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(VALIDITY))
             .thenReturn(task -> task.complete(withVariables(
-                "DraftValidity", "Y", "DIRECTION", "FORWARD")));
+                "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
             .thenReturn(task -> task.complete(withVariables(
-                "ContributionsRequired", "N", "DIRECTION", "FORWARD")));
+                "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
             .thenReturn(task -> task.complete(withVariables(
@@ -354,7 +360,7 @@ public class FOI_DRAFT {
 
         when(processScenario.waitsAtUserTask(QA_OFFLINE))
             .thenReturn(task -> task.complete(withVariables(
-                "QaOffline", "N", "DIRECTION", "FORWARD")));
+                "QaOffline", "QaOffline-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
             .thenReturn(task -> task.complete());
@@ -364,7 +370,8 @@ public class FOI_DRAFT {
                         "Sensitivity", "LOW", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(SELECT_ONLINE_G6OR7_APPROVAL_TEAM))
-                .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete(withVariables(
+                        "G6G7ApprovalTeam", G6G7ApprovalTeam)));
 
         Scenario.run(processScenario).startBy(
             () -> rule.getRuntimeService().startProcessInstanceByKey(

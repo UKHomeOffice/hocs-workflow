@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:process id="FOI" isExecutable="true">
     <bpmn:startEvent id="FOI_START" name="Start Case">
       <bpmn:outgoing>SequenceFlow_1pepep6</bpmn:outgoing>
@@ -9,7 +9,8 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1pepep6" sourceRef="FOI_START" targetRef="Activity_0jtkbij" />
     <bpmn:serviceTask id="Activity_1d2ue6g" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
-      <bpmn:incoming>case_accepted_at_draft</bpmn:incoming>
+      <bpmn:incoming>Flow_1fatm2o</bpmn:incoming>
+      <bpmn:incoming>Flow_1qigs8y</bpmn:incoming>
       <bpmn:outgoing>Flow_0cz5i2m</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0cz5i2m" sourceRef="Activity_1d2ue6g" targetRef="FOI_END" />
@@ -65,6 +66,7 @@
         <camunda:in source="DraftAcceptCase" target="DraftAcceptCase" />
         <camunda:out source="AcceptanceDate" target="AcceptanceDate" />
         <camunda:in source="AcceptanceDate" target="AcceptanceDate" />
+        <camunda:out source="DraftTeam" target="DraftTeam" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_16c9c0x</bpmn:incoming>
       <bpmn:incoming>case_rejected_at_draft</bpmn:incoming>
@@ -99,8 +101,11 @@
         <camunda:out source="DraftTeam" target="DraftTeam" />
         <camunda:out source="DraftAcceptCase" target="DraftAcceptCase" />
         <camunda:in source="AcceptanceTeam" target="AcceptanceTeam" />
+        <camunda:out source="Sensitivity" target="Sensitivity" />
+        <camunda:out source="QaOffline" target="QaOffline" />
       </bpmn:extensionElements>
       <bpmn:incoming>case_accepted</bpmn:incoming>
+      <bpmn:incoming>Flow_1pidsfn</bpmn:incoming>
       <bpmn:outgoing>Flow_1cx8ha2</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1cx8ha2" sourceRef="FOI_DRAFT" targetRef="is_case_accepted_by_draft_team" />
@@ -109,27 +114,80 @@
       <bpmn:outgoing>case_accepted_at_draft</bpmn:outgoing>
       <bpmn:outgoing>case_rejected_at_draft</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="case_accepted_at_draft" sourceRef="is_case_accepted_by_draft_team" targetRef="Activity_1d2ue6g">
+    <bpmn:sequenceFlow id="case_accepted_at_draft" sourceRef="is_case_accepted_by_draft_team" targetRef="qa-offline">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftAcceptCase=="Y"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="case_rejected_at_draft" name="no" sourceRef="is_case_accepted_by_draft_team" targetRef="ACCEPTANCE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftAcceptCase=="N"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:callActivity id="FOI_QA" name="QA" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in sourceExpression="FOI_QA" target="StageWorkFlow" />
+        <camunda:in sourceExpression="FOI_QA" target="StageType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:in source="FOI_QA" target="EmailType" />
+        <camunda:in source="QaStageUUID" target="StageUUID" />
+        <camunda:out source="StageUUID" target="DraftStageUUID" />
+        <camunda:in variables="all" />
+        <camunda:out source="DraftAcceptCase" target="DraftAcceptCase" />
+        <camunda:out source="AllocationTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in source="AllocationTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in source="DraftTeam" target="DraftTeam" />
+        <camunda:out source="DraftTeam" target="DraftTeam" />
+        <camunda:out source="DraftAcceptCase" target="DraftAcceptCase" />
+        <camunda:in source="AcceptanceTeam" target="AcceptanceTeam" />
+        <camunda:out source="Sensitivity" target="Sensitivity" />
+        <camunda:in source="Sensitivity" target="Sensitivity" />
+        <camunda:out source="G6orG7AcceptCase" target="G6orG7AcceptCase" />
+        <camunda:out source="G6orG7AcceptSensitivityLevel" target="G6orG7AcceptSensitivityLevel" />
+        <camunda:in source="DraftTeam" target="DraftTeam" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12lcos6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c9n5wi</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1c9n5wi" sourceRef="FOI_QA" targetRef="is_case_accepted_approval_team" />
+    <bpmn:exclusiveGateway id="is_case_accepted_approval_team" name="has the case been accepted by the draft team?">
+      <bpmn:incoming>Flow_1c9n5wi</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pidsfn</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1fatm2o</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1pidsfn" sourceRef="is_case_accepted_approval_team" targetRef="FOI_DRAFT">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${G6orG7AcceptCase=="G6orG7AcceptCase-N" || G6orG7AcceptSensitivityLevel=="G6orG7AcceptSensitivityLevel-N"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1fatm2o" sourceRef="is_case_accepted_approval_team" targetRef="Activity_1d2ue6g">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${G6orG7AcceptCase=="G6orG7AcceptCase-Y" &amp;&amp; G6orG7AcceptSensitivityLevel=="G6orG7AcceptSensitivityLevel-Y"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="qa-offline" name="Will this case be QA&#39;d offline?">
+      <bpmn:incoming>case_accepted_at_draft</bpmn:incoming>
+      <bpmn:outgoing>Flow_12lcos6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1qigs8y</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_12lcos6" sourceRef="qa-offline" targetRef="FOI_QA">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QaOffline=="QaOffline-N"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1qigs8y" sourceRef="qa-offline" targetRef="Activity_1d2ue6g">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QaOffline=="QaOffline-Y"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI">
+      <bpmndi:BPMNEdge id="Flow_1c9n5wi_di" bpmnElement="Flow_1c9n5wi">
+        <di:waypoint x="1390" y="228" />
+        <di:waypoint x="1455" y="228" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1swv1z2_di" bpmnElement="case_rejected_at_draft">
         <di:waypoint x="1120" y="253" />
-        <di:waypoint x="1120" y="390" />
-        <di:waypoint x="670" y="390" />
-        <di:waypoint x="670" y="270" />
+        <di:waypoint x="1120" y="370" />
+        <di:waypoint x="670" y="370" />
+        <di:waypoint x="670" y="268" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="889" y="372" width="13" height="14" />
+          <dc:Bounds x="889" y="352" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1t6mjax_di" bpmnElement="case_accepted_at_draft">
         <di:waypoint x="1145" y="228" />
-        <di:waypoint x="1200" y="228" />
+        <di:waypoint x="1185" y="228" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1270" y="210" width="86" height="27" />
         </bpmndi:BPMNLabel>
@@ -167,8 +225,8 @@
         <di:waypoint x="430" y="228" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0cz5i2m_di" bpmnElement="Flow_0cz5i2m">
-        <di:waypoint x="1300" y="228" />
-        <di:waypoint x="1362" y="228" />
+        <di:waypoint x="1670" y="228" />
+        <di:waypoint x="1702" y="228" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1pepep6_di" bpmnElement="SequenceFlow_1pepep6">
         <di:waypoint x="198" y="228" />
@@ -177,20 +235,37 @@
           <dc:Bounds x="1102.5" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pidsfn_di" bpmnElement="Flow_1pidsfn">
+        <di:waypoint x="1480" y="253" />
+        <di:waypoint x="1480" y="330" />
+        <di:waypoint x="980" y="330" />
+        <di:waypoint x="980" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fatm2o_di" bpmnElement="Flow_1fatm2o">
+        <di:waypoint x="1505" y="228" />
+        <di:waypoint x="1570" y="228" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12lcos6_di" bpmnElement="Flow_12lcos6">
+        <di:waypoint x="1235" y="228" />
+        <di:waypoint x="1290" y="228" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1222" y="210" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qigs8y_di" bpmnElement="Flow_1qigs8y">
+        <di:waypoint x="1210" y="203" />
+        <di:waypoint x="1210" y="140" />
+        <di:waypoint x="1620" y="140" />
+        <di:waypoint x="1620" y="188" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1374" y="292" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="FOI_START">
         <dc:Bounds x="162" y="210" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="154" y="256" width="52" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_1y4bj2w_di" bpmnElement="FOI_END">
-        <dc:Bounds x="1362" y="210" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1408" y="221" width="49" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1d2ue6g_di" bpmnElement="Activity_1d2ue6g">
-        <dc:Bounds x="1200" y="188" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0jtkbij_di" bpmnElement="Activity_0jtkbij">
         <dc:Bounds x="250" y="188" width="100" height="80" />
@@ -214,6 +289,30 @@
         <dc:Bounds x="1095" y="203" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1075" y="153" width="90" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1y4bj2w_di" bpmnElement="FOI_END">
+        <dc:Bounds x="1702" y="210" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1748" y="221" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1d2ue6g_di" bpmnElement="Activity_1d2ue6g">
+        <dc:Bounds x="1570" y="188" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1xoy35m_di" bpmnElement="is_case_accepted_approval_team" isMarkerVisible="true">
+        <dc:Bounds x="1455" y="203" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1435" y="153" width="90" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gsy77c_di" bpmnElement="FOI_QA">
+        <dc:Bounds x="1290" y="188" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_02k1ni1_di" bpmnElement="qa-offline" isMarkerVisible="true">
+        <dc:Bounds x="1185" y="203" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1170" y="263" width="80" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
