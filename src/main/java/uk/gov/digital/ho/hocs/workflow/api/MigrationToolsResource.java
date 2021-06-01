@@ -17,6 +17,7 @@ import uk.gov.digital.ho.hocs.workflow.api.MigrationService.MigrationResult;
 import uk.gov.digital.ho.hocs.workflow.api.MigrationService.Report;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseExecution;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseTask;
 
 @RestController
 @Slf4j
@@ -39,6 +40,12 @@ public class MigrationToolsResource {
   public ResponseEntity<CaseExecution> getExecution(@PathVariable UUID executionUuid) {
     CaseExecution caseExecution = migrationService.getExecution(executionUuid);
     return ResponseEntity.ok(caseExecution);
+  }
+
+  @GetMapping(value = "/tool/task/{taskUuid}", produces = APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<CaseTask> getTask(@PathVariable UUID taskUuid) {
+    CaseTask task = migrationService.getTask(taskUuid);
+    return ResponseEntity.ok(task);
   }
 
   @GetMapping(value = "/tool/report/{caseUuid}", produces = APPLICATION_JSON_UTF8_VALUE)

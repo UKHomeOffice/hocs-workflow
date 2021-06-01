@@ -1,7 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -80,10 +79,16 @@ public class CamundaMigrationClient {
         .collect(Collectors.toList());
   }
 
-  public CaseTask getCaseTask(UUID stageUUID) {
+  public CaseTask getCaseTaskByStageUuid(UUID stageUUID) {
     Task task = taskService.createTaskQuery().initializeFormKeys().processInstanceBusinessKeyIn(stageUUID.toString()).singleResult();
     Map<String, Object> taskVariables = taskService.getVariables(task.getId());
-    return new CaseTask(task.getTaskDefinitionKey(), task.getName(), task.getFormKey(), task.getProcessDefinitionId(), taskVariables);
+    return new CaseTask(task.getId(), task.getTaskDefinitionKey(), task.getName(), task.getFormKey(), task.getProcessDefinitionId(), taskVariables);
+  }
+
+  public CaseTask getTask(UUID taskUUID) {
+    Task task = taskService.createTaskQuery().initializeFormKeys().taskId(taskUUID.toString()).singleResult();
+    Map<String, Object> taskVariables = taskService.getVariables(task.getId());
+    return new CaseTask(task.getId(), task.getTaskDefinitionKey(), task.getName(), task.getFormKey(), task.getProcessDefinitionId(), taskVariables);
   }
 
   public Map<String, List<String>> diagramsKey(String processDefinitionKey) {
@@ -140,6 +145,7 @@ public class CamundaMigrationClient {
   @Getter
   public class CaseTask {
 
+    private final String id;
     private final String definitionKey;
     private final String name;
     private final String formKey;

@@ -34,18 +34,18 @@ public class MigrationService {
 
     String source = migrationRequest.getSource();
     String processDefinitionKey = source.substring(0, source.indexOf(":"));
-    System.out.println(processDefinitionKey);
     Map<String, List<String>> before = camundaMigrationClient.diagramsKey(processDefinitionKey);
-
     List<String> migratedBusinessKeys = camundaMigrationClient.migrate(migrationRequest);
-
     Map<String, List<String>> after = camundaMigrationClient.diagramsKey(processDefinitionKey);
-
     return new MigrationResult(before, after, migratedBusinessKeys);
   }
 
   public CaseExecution getExecution(UUID executionUuid) {
     return camundaMigrationClient.getExecution(executionUuid);
+  }
+
+  public CaseTask getTask(UUID taskUUID) {
+    return camundaMigrationClient.getTask(taskUUID);
   }
 
   public Report report(UUID caseUuid) {
@@ -68,7 +68,7 @@ public class MigrationService {
     allExecutions.addAll(caseExecutions);
     allExecutions.addAll(stageExecutions);
 
-    CaseTask caseTask = camundaMigrationClient.getCaseTask(stageUuid);
+    CaseTask caseTask = camundaMigrationClient.getCaseTaskByStageUuid(stageUuid);
 
     Report report = new Report(caseData, new Camunda(allExecutions, caseTask));
 
