@@ -91,6 +91,14 @@ public class CamundaMigrationClient {
     return new CaseTask(task.getId(), task.getTaskDefinitionKey(), task.getName(), task.getFormKey(), task.getProcessDefinitionId(), taskVariables);
   }
 
+  public void setExecutionVariable(UUID executionUuid, String variable, String value) {
+      runtimeService.setVariable(executionUuid.toString(), variable, value);
+  }
+
+  public void setTaskVariable(UUID taskUuid, String variable, String value) {
+    taskService.setVariable(taskUuid.toString(), variable, value);
+  }
+
   public Map<String, List<String>> diagramsKey(String processDefinitionKey) {
     return getMap(processDefinitionKey);
   }

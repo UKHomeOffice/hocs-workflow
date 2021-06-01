@@ -17,13 +17,13 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesFor
 
 @Service
 @Slf4j
-public class MigrationService {
+public class MigrationUtilsService {
 
   private final CamundaMigrationClient camundaMigrationClient;
   private final CaseworkClient caseworkClient;
 
   @Autowired
-  public MigrationService(CamundaMigrationClient camundaMigrationClient, CaseworkClient caseworkClient) {
+  public MigrationUtilsService(CamundaMigrationClient camundaMigrationClient, CaseworkClient caseworkClient) {
     this.camundaMigrationClient = camundaMigrationClient;
     this.caseworkClient = caseworkClient;
   }
@@ -36,6 +36,14 @@ public class MigrationService {
     List<String> migratedBusinessKeys = camundaMigrationClient.migrateWithMapEqualActivities(migrationRequest);
     Map<String, List<String>> after = camundaMigrationClient.diagramsKey(processDefinitionKey);
     return new MigrationResult(before, after, migratedBusinessKeys);
+  }
+
+  public void setExecutionVariable(UUID executionUuid, String variable, String value) {
+    camundaMigrationClient.setExecutionVariable(executionUuid, variable, value);
+  }
+
+  public void setTaskVariable(UUID taskUuid, String variable, String value) {
+    camundaMigrationClient.setTaskVariable(taskUuid, variable, value);
   }
 
   public CaseExecution getExecution(UUID executionUuid) {
