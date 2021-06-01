@@ -7,8 +7,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
@@ -19,6 +17,8 @@ import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseExecution;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseTask;
 
 @Service
 @Slf4j
@@ -136,28 +136,5 @@ public class CamundaMigrationClient {
     }
 
     return executionKeyMap;
-  }
-
-  @AllArgsConstructor()
-  @Getter
-  public class CaseExecution {
-
-    private final String processDefinitionId;
-    private final String businessKey;
-    private final String processInstanceId;
-    private final String executionId;
-    private final Map<String, Object> variables;
-  }
-
-  @AllArgsConstructor()
-  @Getter
-  public class CaseTask {
-
-    private final String id;
-    private final String definitionKey;
-    private final String name;
-    private final String formKey;
-    private final String processDefinitionId;
-    private final Map<String, Object> variables;
   }
 }

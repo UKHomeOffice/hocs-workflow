@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.digital.ho.hocs.workflow.api.MigrationUtilsService.MigrationResult;
-import uk.gov.digital.ho.hocs.workflow.api.MigrationUtilsService.Report;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationResult;
 import uk.gov.digital.ho.hocs.workflow.api.dto.VariableChangeRequest;
-import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseExecution;
-import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseTask;
+import uk.gov.digital.ho.hocs.workflow.api.dto.VariableReport;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseExecution;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseTask;
 
 @RestController
 @RequestMapping("migration-utils")
@@ -64,8 +64,8 @@ public class MigrationUtilsResource {
   }
 
   @GetMapping(value = "/report/{caseUuid}", produces = APPLICATION_JSON_UTF8_VALUE)
-  public ResponseEntity<Report> report(@PathVariable UUID caseUuid) {
-    Report response = migrationUtilsService.report(caseUuid);
+  public ResponseEntity<VariableReport> report(@PathVariable UUID caseUuid) {
+    VariableReport response = migrationUtilsService.report(caseUuid);
     return ResponseEntity.ok(response);
   }
 

@@ -3,15 +3,15 @@ package uk.gov.digital.ho.hocs.workflow.api;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationResult;
+import uk.gov.digital.ho.hocs.workflow.api.dto.VariableReport;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient;
-import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseExecution;
-import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseTask;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseExecution;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseTask;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 
@@ -54,7 +54,7 @@ public class MigrationUtilsService {
     return camundaMigrationClient.getTask(taskUUID);
   }
 
-  public Report report(UUID caseUuid) {
+  public VariableReport report(UUID caseUuid) {
 
     try {
       caseworkClient.getCase(caseUuid);
@@ -70,10 +70,10 @@ public class MigrationUtilsService {
 
     CaseTask caseTask = camundaMigrationClient.getCaseTaskByStageUuid(stageUuid);
 
-    return new Report(caseUuid.toString(), stageUuid.toString(), caseExecutions, stageExecutions, caseTask);
+    return new VariableReport(caseUuid.toString(), stageUuid.toString(), caseExecutions, stageExecutions, caseTask);
   }
 
-  private Report reportStage(UUID stageUuid) {
+  private VariableReport reportStage(UUID stageUuid) {
     CaseExecution stageExecution = camundaMigrationClient.findExecutionsByBusinessKey(stageUuid).stream().findFirst().get();
     String caseUuid = (String)stageExecution.getVariables().get("CaseUUID");
     return report(UUID.fromString(caseUuid));
@@ -85,26 +85,6 @@ public class MigrationUtilsService {
 
   public Map<String, Integer> diagramsCounts(String processDefinitionKey) {
     return camundaMigrationClient.diagramsCounts(processDefinitionKey);
-  }
-
-  @AllArgsConstructor()
-  @Getter
-  public class Report {
-
-    private final String caseUuid;
-    private final String stageUuid;
-    private final List<CaseExecution> caseExecutions;
-    private final List<CaseExecution> stageExecutions;
-    private final CaseTask task;
-  }
-
-  @AllArgsConstructor()
-  @Getter
-  public class MigrationResult {
-
-    private final Map<String, List<String>> before;
-    private final Map<String, List<String>> after;
-    private final List<String> migrated;
   }
 
 }
