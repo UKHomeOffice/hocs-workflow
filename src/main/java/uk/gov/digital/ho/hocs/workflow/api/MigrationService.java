@@ -1,0 +1,101 @@
+package uk.gov.digital.ho.hocs.workflow.api;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseExecution;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseTask;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+
+@Service
+@Slf4j
+public class MigrationService {
+
+  private final CamundaMigrationClient camundaMigrationClient;
+  private final CaseworkClient caseworkClient;
+
+  @Autowired
+  public MigrationService(CamundaMigrationClient camundaMigrationClient, CaseworkClient caseworkClient) {
+    this.camundaMigrationClient = camundaMigrationClient;
+    this.caseworkClient = caseworkClient;
+  }
+
+  public List<String> migrate(MigrationRequest migrationRequest) {
+    return camundaMigrationClient.migrate(migrationRequest);
+  }
+
+  public CaseExecution getExecution(UUID executionUuid) {
+    return camundaMigrationClient.getExecution(executionUuid);
+  }
+
+  public MigrationCompare report(UUID caseUuid) {
+
+    GetCaseworkCaseDataResponse caseData = null;
+    try {
+      caseData = caseworkClient.getFullCase(caseUuid);
+      System.out.println("Case found with that UUID");
+    } catch (Exception e) {
+      System.out.println("No case found with that UUID");
+      return reportStage(caseUuid);
+    }
+
+    List<CaseExecution> caseExecutions = camundaMigrationClient.findExecutionsByBusinessKey(caseUuid);
+
+    GetAllStagesForCaseResponse stagesResp = caseworkClient.getAllStagesForCase(caseUuid);
+    UUID stageUuid = stagesResp.getStages().get(0).getUuid();
+
+    List<CaseExecution> stageExecutions = camundaMigrationClient.findExecutionsByBusinessKey(stageUuid);
+
+    List<CaseExecution> allExecutions = new ArrayList<>();
+    allExecutions.addAll(caseExecutions);
+    allExecutions.addAll(stageExecutions);
+
+    CaseTask caseTask = camundaMigrationClient.getCaseTask(stageUuid);
+
+    MigrationCompare migrationCompare = new MigrationCompare(caseData, new Camunda(allExecutions, caseTask));
+
+    return migrationCompare;
+  }
+
+  private MigrationCompare reportStage(UUID stageUuid) {
+
+    CaseExecution stageExecution = camundaMigrationClient.findExecutionsByBusinessKey(stageUuid).stream().findFirst().get();
+    String caseUuid = (String)stageExecution.getVariables().get("CaseUUID");
+    return report(UUID.fromString(caseUuid));
+  }
+
+  public Map<String, List<String>> diagramsKey(String processDefinitionKey) {
+    return camundaMigrationClient.diagramsKey(processDefinitionKey);
+  }
+
+  public Map<String, Integer> diagramsCounts(String processDefinitionKey) {
+    return camundaMigrationClient.diagramsCounts(processDefinitionKey);
+  }
+
+  @AllArgsConstructor()
+  @Getter
+  public class Camunda {
+
+    private final List<CaseExecution> executions;
+    private final CaseTask task;
+  }
+
+  @AllArgsConstructor()
+  @Getter
+  public class MigrationCompare {
+
+    private final GetCaseworkCaseDataResponse caseData;
+    private final Camunda camunda;
+  }
+
+}

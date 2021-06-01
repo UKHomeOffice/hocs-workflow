@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.api;
+package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,19 +20,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 
 @Service
 @Slf4j
-public class MigrationToolsService {
+public class CamundaMigrationClient {
 
   private final RuntimeService runtimeService;
   private final TaskService taskService;
   private final CaseworkClient caseworkClient;
 
   @Autowired
-  public MigrationToolsService(RuntimeService runtimeService, TaskService taskService, CaseworkClient caseworkClient) {
+  public CamundaMigrationClient(RuntimeService runtimeService, TaskService taskService, CaseworkClient caseworkClient) {
     this.runtimeService = runtimeService;
     this.taskService = taskService;
     this.caseworkClient = caseworkClient;
@@ -79,53 +77,16 @@ public class MigrationToolsService {
     return caseExecution;
   }
 
-  public MigrationCompare report(UUID caseUuid) {
+  public List<CaseExecution> findExecutionsByBusinessKey(UUID businessKey) {
 
-    GetCaseworkCaseDataResponse caseData = null;
-    try {
-      caseData = caseworkClient.getFullCase(caseUuid);
-      System.out.println("Case found with that UUID");
-    } catch (Exception e) {
-      System.out.println("No case found with that UUID");
-      return reportStage(caseUuid);
-    }
+    return runtimeService.createProcessInstanceQuery()
+        .processInstanceBusinessKey(businessKey.toString())
+        .list().stream().map(pi -> getExecution(UUID.fromString(pi.getId()))).collect(Collectors.toList());
+  }
 
-    GetAllStagesForCaseResponse stagesResp = caseworkClient.getAllStagesForCase(caseUuid);
-    UUID stageUuid = stagesResp.getStages().get(0).getUuid();
-
-    Task task = taskService.createTaskQuery().processInstanceBusinessKeyIn(stageUuid.toString()).singleResult();
-    CaseTask caseTask = new CaseTask(task.getTaskDefinitionKey(), task.getName(), task.getProcessDefinitionId());
-
-    //Actually executions are being returned here. Can get more than one for a single business key
-    List<ProcessInstance> caseExecutionsList = runtimeService.createProcessInstanceQuery()
-        .processInstanceBusinessKey(caseUuid.toString())
-        .list();
-
-    List<ProcessInstance> stageExecutions = runtimeService.createProcessInstanceQuery()
-        .processInstanceBusinessKey(stageUuid.toString())
-        .list();
-
-    List<ProcessInstance> executions = new ArrayList<>();
-    executions.addAll(caseExecutionsList);
-    executions.addAll(stageExecutions);
-
-    //lower levels have the STAGE id as the business key FFF.
-
-    List<CaseExecution> caseExecutions = new ArrayList<>();
-    for (ProcessInstance execution : executions) {
-      CaseExecution caseExecution = new CaseExecution(
-          execution.getProcessDefinitionId(),
-          execution.getBusinessKey(),
-          execution.getProcessInstanceId(),
-          execution.getId(),
-          runtimeService.getVariables(execution.getId())
-      );
-      caseExecutions.add(caseExecution);
-    }
-
-    MigrationCompare migrationCompare = new MigrationCompare(caseData, new Camunda(caseExecutions, caseTask));
-
-    return migrationCompare;
+  public CaseTask getCaseTask(UUID stageUUID) {
+    Task task = taskService.createTaskQuery().processInstanceBusinessKeyIn(stageUUID.toString()).singleResult();
+    return new CaseTask(task.getTaskDefinitionKey(), task.getName(), task.getProcessDefinitionId());
   }
 
   public Map<String, List<String>> diagramsKey(String processDefinitionKey) {
@@ -145,17 +106,6 @@ public class MigrationToolsService {
     }
 
     return executionCounts;
-  }
-
-  private MigrationCompare reportStage(UUID stageUuid) {
-
-    List<ProcessInstance> stageExecutions = runtimeService.createProcessInstanceQuery()
-        .processInstanceBusinessKey(stageUuid.toString())
-        .list();
-
-    ProcessInstance execution = stageExecutions.get(0);
-    String caseUuid = (String)runtimeService.getVariable(execution.getId(), "CaseUUID");
-    return report(UUID.fromString(caseUuid));
   }
 
   private SortedMap<String, List<String>> getMap(String processDefinitionKey) {
@@ -198,21 +148,4 @@ public class MigrationToolsService {
     private final String name;
     private final String processDefinitionId;
   }
-
-  @AllArgsConstructor()
-  @Getter
-  public class Camunda {
-
-    private final List<CaseExecution> executions;
-    private final CaseTask task;
-  }
-
-  @AllArgsConstructor()
-  @Getter
-  public class MigrationCompare {
-
-    private final GetCaseworkCaseDataResponse caseData;
-    private final Camunda camunda;
-  }
-
 }
