@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.digital.ho.hocs.workflow.api.MigrationService.MigrationCompare;
-import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseExecution;
-import uk.gov.digital.ho.hocs.workflow.api.dto.MigrateResponse;
+import uk.gov.digital.ho.hocs.workflow.api.MigrationService.MigrationResult;
+import uk.gov.digital.ho.hocs.workflow.api.MigrationService.Report;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseExecution;
 
 @RestController
 @Slf4j
@@ -30,9 +30,9 @@ public class MigrationToolsResource {
   }
 
   @PostMapping(value = "/tool/migrate", produces = APPLICATION_JSON_UTF8_VALUE)
-  public ResponseEntity<MigrateResponse> migrate(@RequestBody MigrationRequest migrationRequest) {
-    List<String> businessKeys = migrationService.migrate(migrationRequest);
-    return ResponseEntity.ok( new MigrateResponse(businessKeys));
+  public ResponseEntity<MigrationResult> migrate(@RequestBody MigrationRequest migrationRequest) {
+    MigrationResult migrationResult = migrationService.migrate(migrationRequest);
+    return ResponseEntity.ok(migrationResult);
   }
 
   @GetMapping(value = "/tool/execution/{executionUuid}", produces = APPLICATION_JSON_UTF8_VALUE)
@@ -42,8 +42,8 @@ public class MigrationToolsResource {
   }
 
   @GetMapping(value = "/tool/report/{caseUuid}", produces = APPLICATION_JSON_UTF8_VALUE)
-  public ResponseEntity<MigrationCompare> report(@PathVariable UUID caseUuid) {
-    MigrationCompare response = migrationService.report(caseUuid);
+  public ResponseEntity<Report> report(@PathVariable UUID caseUuid) {
+    Report response = migrationService.report(caseUuid);
     return ResponseEntity.ok(response);
   }
 

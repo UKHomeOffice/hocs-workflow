@@ -13,4 +13,7 @@ public class MigrationRequest {
 
     @JsonProperty("target")
     private String target;
+
+    @JsonProperty("action")
+    private String action;
 }

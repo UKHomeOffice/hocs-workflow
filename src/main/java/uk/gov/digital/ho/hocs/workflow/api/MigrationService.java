@@ -30,22 +30,31 @@ public class MigrationService {
     this.caseworkClient = caseworkClient;
   }
 
-  public List<String> migrate(MigrationRequest migrationRequest) {
-    return camundaMigrationClient.migrate(migrationRequest);
+  public MigrationResult migrate(MigrationRequest migrationRequest) {
+
+    String source = migrationRequest.getSource();
+    String processDefinitionKey = source.substring(0, source.indexOf(":"));
+    System.out.println(processDefinitionKey);
+    Map<String, List<String>> before = camundaMigrationClient.diagramsKey(processDefinitionKey);
+
+    List<String> migratedBusinessKeys = camundaMigrationClient.migrate(migrationRequest);
+
+    Map<String, List<String>> after = camundaMigrationClient.diagramsKey(processDefinitionKey);
+
+    return new MigrationResult(before, after, migratedBusinessKeys);
   }
 
   public CaseExecution getExecution(UUID executionUuid) {
     return camundaMigrationClient.getExecution(executionUuid);
   }
 
-  public MigrationCompare report(UUID caseUuid) {
+  public Report report(UUID caseUuid) {
 
-    GetCaseworkCaseDataResponse caseData = null;
+    GetCaseworkCaseDataResponse caseData ;
     try {
       caseData = caseworkClient.getFullCase(caseUuid);
-      System.out.println("Case found with that UUID");
     } catch (Exception e) {
-      System.out.println("No case found with that UUID");
+      // possibly this could be a stageUUID
       return reportStage(caseUuid);
     }
 
@@ -53,7 +62,6 @@ public class MigrationService {
 
     GetAllStagesForCaseResponse stagesResp = caseworkClient.getAllStagesForCase(caseUuid);
     UUID stageUuid = stagesResp.getStages().get(0).getUuid();
-
     List<CaseExecution> stageExecutions = camundaMigrationClient.findExecutionsByBusinessKey(stageUuid);
 
     List<CaseExecution> allExecutions = new ArrayList<>();
@@ -62,13 +70,12 @@ public class MigrationService {
 
     CaseTask caseTask = camundaMigrationClient.getCaseTask(stageUuid);
 
-    MigrationCompare migrationCompare = new MigrationCompare(caseData, new Camunda(allExecutions, caseTask));
+    Report report = new Report(caseData, new Camunda(allExecutions, caseTask));
 
-    return migrationCompare;
+    return report;
   }
 
-  private MigrationCompare reportStage(UUID stageUuid) {
-
+  private Report reportStage(UUID stageUuid) {
     CaseExecution stageExecution = camundaMigrationClient.findExecutionsByBusinessKey(stageUuid).stream().findFirst().get();
     String caseUuid = (String)stageExecution.getVariables().get("CaseUUID");
     return report(UUID.fromString(caseUuid));
@@ -92,10 +99,19 @@ public class MigrationService {
 
   @AllArgsConstructor()
   @Getter
-  public class MigrationCompare {
+  public class Report {
 
     private final GetCaseworkCaseDataResponse caseData;
     private final Camunda camunda;
+  }
+
+  @AllArgsConstructor()
+  @Getter
+  public class MigrationResult {
+
+    private final Map<String, List<String>> before;
+    private final Map<String, List<String>> after;
+    private final List<String> migrated;
   }
 
 }

@@ -19,7 +19,6 @@ import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 
 @Service
 @Slf4j
@@ -27,18 +26,14 @@ public class CamundaMigrationClient {
 
   private final RuntimeService runtimeService;
   private final TaskService taskService;
-  private final CaseworkClient caseworkClient;
 
   @Autowired
-  public CamundaMigrationClient(RuntimeService runtimeService, TaskService taskService, CaseworkClient caseworkClient) {
+  public CamundaMigrationClient(RuntimeService runtimeService, TaskService taskService) {
     this.runtimeService = runtimeService;
     this.taskService = taskService;
-    this.caseworkClient = caseworkClient;
   }
 
   public List<String> migrate(MigrationRequest migrationRequest) {
-
-    //SHOW COUNTS AND BUSINESS KEYS FOR TARGET SOURCE AND PROC DEFINITION
 
     // ProcessInstanceQuery created which identifies the executions we need to migrate/modify
     ProcessInstanceQuery processInstanceQuery = runtimeService.createProcessInstanceQuery()
@@ -51,11 +46,10 @@ public class CamundaMigrationClient {
         .build();
 
     //Execute this plan using the ProcessInstanceQuery
+    if (migrationRequest.getAction() != null && migrationRequest.getAction().equals("PERFORM_MIGRATION"))
     runtimeService.newMigration(migrationPlan)
         .processInstanceQuery(processInstanceQuery)
         .execute();
-
-    //SHOW COUNTS AND BUSINESS KEYS FOR TARGET PROC DEFINITION
 
     return businessKeys;
   }
@@ -66,22 +60,23 @@ public class CamundaMigrationClient {
         .processInstanceId(executionUuid.toString())
         .singleResult();
 
-    CaseExecution caseExecution = new CaseExecution(
+    return new CaseExecution(
         execution.getProcessDefinitionId(),
         execution.getBusinessKey(),
         execution.getProcessInstanceId(),
         execution.getId(),
         runtimeService.getVariables(execution.getId())
     );
-
-    return caseExecution;
   }
 
   public List<CaseExecution> findExecutionsByBusinessKey(UUID businessKey) {
 
     return runtimeService.createProcessInstanceQuery()
         .processInstanceBusinessKey(businessKey.toString())
-        .list().stream().map(pi -> getExecution(UUID.fromString(pi.getId()))).collect(Collectors.toList());
+        .list()
+        .stream()
+        .map(pi -> getExecution(UUID.fromString(pi.getId())))
+        .collect(Collectors.toList());
   }
 
   public CaseTask getCaseTask(UUID stageUUID) {
@@ -90,10 +85,7 @@ public class CamundaMigrationClient {
   }
 
   public Map<String, List<String>> diagramsKey(String processDefinitionKey) {
-
-    Map<String, List<String>> executionKeyMap = getMap(processDefinitionKey);
-
-    return executionKeyMap;
+    return getMap(processDefinitionKey);
   }
 
   public Map<String, Integer> diagramsCounts(String processDefinitionKey) {
@@ -110,7 +102,7 @@ public class CamundaMigrationClient {
 
   private SortedMap<String, List<String>> getMap(String processDefinitionKey) {
 
-    //Actually executions are being returned here. Can get more than one for a single business key
+    //Actual executions are being returned here. Can get more than one for a single business key
     List<ProcessInstance> caseExecutionsList = runtimeService.createProcessInstanceQuery()
         .processDefinitionKey(processDefinitionKey)
         .list();
@@ -123,6 +115,8 @@ public class CamundaMigrationClient {
         List<String> newList = new ArrayList<>();
         executionKeyMap.put(definitionId, newList);
         newList.add(processInstance.getBusinessKey());
+      } else {
+        keyMap.add(processInstance.getBusinessKey());
       }
     }
 
