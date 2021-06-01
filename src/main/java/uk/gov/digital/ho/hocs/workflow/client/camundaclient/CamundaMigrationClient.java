@@ -1,6 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -80,8 +81,9 @@ public class CamundaMigrationClient {
   }
 
   public CaseTask getCaseTask(UUID stageUUID) {
-    Task task = taskService.createTaskQuery().processInstanceBusinessKeyIn(stageUUID.toString()).singleResult();
-    return new CaseTask(task.getTaskDefinitionKey(), task.getName(), task.getProcessDefinitionId());
+    Task task = taskService.createTaskQuery().initializeFormKeys().processInstanceBusinessKeyIn(stageUUID.toString()).singleResult();
+    Map<String, Object> taskVariables = taskService.getVariables(task.getId());
+    return new CaseTask(task.getTaskDefinitionKey(), task.getName(), task.getFormKey(), task.getProcessDefinitionId(), taskVariables);
   }
 
   public Map<String, List<String>> diagramsKey(String processDefinitionKey) {
@@ -140,6 +142,8 @@ public class CamundaMigrationClient {
 
     private final String definitionKey;
     private final String name;
+    private final String formKey;
     private final String processDefinitionId;
+    private final Map<String, Object> variables;
   }
 }
