@@ -50,29 +50,21 @@ public class MigrationService {
 
   public Report report(UUID caseUuid) {
 
-    GetCaseworkCaseDataResponse caseData ;
     try {
-      caseData = caseworkClient.getFullCase(caseUuid);
+      caseworkClient.getCase(caseUuid);
     } catch (Exception e) {
       // possibly this could be a stageUUID
       return reportStage(caseUuid);
     }
 
     List<CaseExecution> caseExecutions = camundaMigrationClient.findExecutionsByBusinessKey(caseUuid);
-
     GetAllStagesForCaseResponse stagesResp = caseworkClient.getAllStagesForCase(caseUuid);
     UUID stageUuid = stagesResp.getStages().get(0).getUuid();
     List<CaseExecution> stageExecutions = camundaMigrationClient.findExecutionsByBusinessKey(stageUuid);
 
-    List<CaseExecution> allExecutions = new ArrayList<>();
-    allExecutions.addAll(caseExecutions);
-    allExecutions.addAll(stageExecutions);
-
     CaseTask caseTask = camundaMigrationClient.getCaseTaskByStageUuid(stageUuid);
 
-    Report report = new Report(caseData, new Camunda(allExecutions, caseTask));
-
-    return report;
+    return new Report(caseUuid.toString(), stageUuid.toString(), caseExecutions, stageExecutions, caseTask);
   }
 
   private Report reportStage(UUID stageUuid) {
@@ -91,18 +83,13 @@ public class MigrationService {
 
   @AllArgsConstructor()
   @Getter
-  public class Camunda {
-
-    private final List<CaseExecution> executions;
-    private final CaseTask task;
-  }
-
-  @AllArgsConstructor()
-  @Getter
   public class Report {
 
-    private final GetCaseworkCaseDataResponse caseData;
-    private final Camunda camunda;
+    private final String caseUuid;
+    private final String stageUuid;
+    private final List<CaseExecution> caseExecutions;
+    private final List<CaseExecution> stageExecutions;
+    private final CaseTask task;
   }
 
   @AllArgsConstructor()
