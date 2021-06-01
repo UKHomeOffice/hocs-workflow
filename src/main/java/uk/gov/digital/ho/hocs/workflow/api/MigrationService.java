@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -15,7 +14,6 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClie
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaMigrationClient.CaseTask;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 
 @Service
 @Slf4j
@@ -30,12 +28,12 @@ public class MigrationService {
     this.caseworkClient = caseworkClient;
   }
 
-  public MigrationResult migrate(MigrationRequest migrationRequest) {
+  public MigrationResult migrateWithMapEqualActivities(MigrationRequest migrationRequest) {
 
     String source = migrationRequest.getSource();
     String processDefinitionKey = source.substring(0, source.indexOf(":"));
     Map<String, List<String>> before = camundaMigrationClient.diagramsKey(processDefinitionKey);
-    List<String> migratedBusinessKeys = camundaMigrationClient.migrate(migrationRequest);
+    List<String> migratedBusinessKeys = camundaMigrationClient.migrateWithMapEqualActivities(migrationRequest);
     Map<String, List<String>> after = camundaMigrationClient.diagramsKey(processDefinitionKey);
     return new MigrationResult(before, after, migratedBusinessKeys);
   }

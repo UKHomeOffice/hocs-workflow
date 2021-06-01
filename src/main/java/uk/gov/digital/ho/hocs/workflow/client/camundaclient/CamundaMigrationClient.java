@@ -33,7 +33,7 @@ public class CamundaMigrationClient {
     this.taskService = taskService;
   }
 
-  public List<String> migrate(MigrationRequest migrationRequest) {
+  public List<String> migrateWithMapEqualActivities(MigrationRequest migrationRequest) {
 
     // ProcessInstanceQuery created which identifies the executions we need to migrate/modify
     ProcessInstanceQuery processInstanceQuery = runtimeService.createProcessInstanceQuery()

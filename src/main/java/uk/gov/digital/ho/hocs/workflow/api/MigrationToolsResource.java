@@ -30,9 +30,9 @@ public class MigrationToolsResource {
     this.migrationService = migrationService;
   }
 
-  @PostMapping(value = "/tool/migrate", produces = APPLICATION_JSON_UTF8_VALUE)
+  @PostMapping(value = "/tool/migrateWithMapEqualActivities", produces = APPLICATION_JSON_UTF8_VALUE)
   public ResponseEntity<MigrationResult> migrate(@RequestBody MigrationRequest migrationRequest) {
-    MigrationResult migrationResult = migrationService.migrate(migrationRequest);
+    MigrationResult migrationResult = migrationService.migrateWithMapEqualActivities(migrationRequest);
     return ResponseEntity.ok(migrationResult);
   }
 
