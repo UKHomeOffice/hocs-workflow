@@ -59,7 +59,7 @@ public class MigrationUtilsService {
     try {
       caseworkClient.getCase(caseUuid);
     } catch (Exception e) {
-      // possibly this could be a stageUUID
+      // this could be a stageUUID
       return reportStage(caseUuid);
     }
 

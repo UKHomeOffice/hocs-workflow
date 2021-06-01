@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VariableChangeRequest {
 
-    @JsonProperty("variable")
+    @JsonProperty
     private String variable;
 
-    @JsonProperty("value")
+    @JsonProperty
     private String value;
 }

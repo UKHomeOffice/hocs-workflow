@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 public class UpdateCaseValueRequest {
 
-    @JsonProperty("value")
+    @JsonProperty
     private String value;
 
 }

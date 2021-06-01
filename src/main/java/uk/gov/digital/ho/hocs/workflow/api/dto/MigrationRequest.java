@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MigrationRequest {
 
-    @JsonProperty("source")
+    @JsonProperty
     private String source;
 
-    @JsonProperty("target")
+    @JsonProperty
     private String target;
 
-    @JsonProperty("action")
+    @JsonProperty
     private String action;
 }
