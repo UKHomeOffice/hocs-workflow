@@ -22,8 +22,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/COMP_CREATION.bpmn")
-public class COMP_CREATION {
+@Deployment(resources = "processes/COMP_REGISTRATION.bpmn")
+public class COMP_REGISTRATION {
 
     @Rule
     @ClassRule
@@ -49,16 +49,13 @@ public class COMP_CREATION {
 
         when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT"))).thenReturn(true);
 
-        when(compRegistrationProcess.waitsAtUserTask("Validate_CreationComplainant"))
+        when(compRegistrationProcess.waitsAtUserTask("Validate_Complainant"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         when(compRegistrationProcess.waitsAtUserTask("Validate_Complaint"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         when(compRegistrationProcess.waitsAtUserTask("UserTask_0k00jya"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Documents"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         when(compRegistrationProcess.waitsAtUserTask("Validate_Category"))
@@ -68,11 +65,8 @@ public class COMP_CREATION {
     @Test
     public void happyPath() {
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_CREATION")
+                .startByKey("COMP_REGISTRATION")
                 .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_UpdatePrimaryCorrespondent");
 
         verify(compRegistrationProcess)
                 .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
@@ -83,16 +77,13 @@ public class COMP_CREATION {
 
     @Test
     public void backwardsFromValidateComplainant(){
-        when(compRegistrationProcess.waitsAtUserTask("Validate_CreationComplainant"))
+        when(compRegistrationProcess.waitsAtUserTask("Validate_Complainant"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_CREATION")
+                .startByKey("COMP_REGISTRATION")
                 .execute();
-
-        verify(compRegistrationProcess, times(2))
-                .hasCompleted("Service_UpdatePrimaryCorrespondent");
 
         verify(compRegistrationProcess, times(2))
                 .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
@@ -111,11 +102,8 @@ public class COMP_CREATION {
                 .thenReturn(task -> task.complete(withVariables("valid", true)));
 
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_CREATION")
+                .startByKey("COMP_REGISTRATION")
                 .execute();
-
-        verify(compRegistrationProcess, times(2))
-                .hasCompleted("Service_UpdatePrimaryCorrespondent");
 
         verify(compRegistrationProcess, times(2))
                 .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
@@ -134,11 +122,8 @@ public class COMP_CREATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_CREATION")
+                .startByKey("COMP_REGISTRATION")
                 .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_UpdatePrimaryCorrespondent");
 
         verify(compRegistrationProcess)
                 .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
@@ -154,31 +139,8 @@ public class COMP_CREATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_CREATION")
+                .startByKey("COMP_REGISTRATION")
                 .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_UpdatePrimaryCorrespondent");
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
-
-        verify(compRegistrationProcess)
-                .hasCompleted("ServiceTask_0pumxnf");
-    }
-
-    @Test
-    public void backwardsFromValidateDocuments(){
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Documents"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
-        Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_CREATION")
-                .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_UpdatePrimaryCorrespondent");
 
         verify(compRegistrationProcess)
                 .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
@@ -194,11 +156,8 @@ public class COMP_CREATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Not_Service")));
 
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_CREATION")
+                .startByKey("COMP_REGISTRATION")
                 .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_UpdatePrimaryCorrespondent");
 
         verify(compRegistrationProcess)
                 .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
@@ -213,11 +172,8 @@ public class COMP_CREATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Service")));
 
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_CREATION")
+                .startByKey("COMP_REGISTRATION")
                 .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_UpdatePrimaryCorrespondent");
 
         verify(compRegistrationProcess)
                 .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
