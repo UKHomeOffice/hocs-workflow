@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public class MigrationResult {
 
+  private final List<String> businessKeys;
   private final Map<String, List<String>> before;
   private final Map<String, List<String>> after;
-  private final List<String> migrated;
 }

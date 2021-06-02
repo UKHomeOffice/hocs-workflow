@@ -36,9 +36,9 @@ public class MigrationUtilsService {
     String source = migrationRequest.getSource();
     String processDefinitionKey = source.substring(0, source.indexOf(":"));
     Map<String, List<String>> before = camundaMigrationClient.diagramsKey(processDefinitionKey);
-    List<String> migratedBusinessKeys = camundaMigrationClient.migrateWithMapEqualActivities(migrationRequest);
+    List<String> businessKeys = camundaMigrationClient.migrateWithMapEqualActivities(migrationRequest);
     Map<String, List<String>> after = camundaMigrationClient.diagramsKey(processDefinitionKey);
-    return new MigrationResult(before, after, migratedBusinessKeys);
+    return new MigrationResult(businessKeys, before, after);
   }
 
   public void setExecutionVariable(UUID executionUuid, String variable, String value) {
