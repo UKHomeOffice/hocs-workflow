@@ -57,25 +57,25 @@ public class MigrationUtilsService {
     return camundaMigrationClient.getTask(taskUUID);
   }
 
-  public VariableReport report(UUID caseUuid) {
+  public VariableReport report(UUID businessKey) {
 
     GetCaseworkCaseDataResponse caseData;
     try {
-      caseData = caseworkClient.getFullCase(caseUuid);
+      caseData = caseworkClient.getFullCase(businessKey);
     } catch (Exception e) {
       // this could be a stageUUID
-      return reportStage(caseUuid);
+      return reportStage(businessKey);
     }
 
-    List<CaseExecution> caseExecutions = camundaMigrationClient.findExecutionsByBusinessKey(caseUuid);
-    GetAllStagesForCaseResponse stagesResp = caseworkClient.getAllStagesForCase(caseUuid);
-    UUID stageUuid = stagesResp.getStages().stream().filter(StageDto::isActive).findFirst().get().getUuid();
-    List<CaseExecution> stageExecutions = camundaMigrationClient.findExecutionsByBusinessKey(stageUuid);
+    List<CaseExecution> caseExecutions = camundaMigrationClient.findExecutionsByBusinessKey(businessKey);
+    GetAllStagesForCaseResponse stagesResp = caseworkClient.getAllStagesForCase(businessKey);
+    StageDto stage = stagesResp.getStages().stream().filter(StageDto::isActive).findFirst().get();
+    List<CaseExecution> stageExecutions = camundaMigrationClient.findExecutionsByBusinessKey(stage.getUuid());
 
-    CaseTask caseTask = camundaMigrationClient.getCaseTaskByStageUuid(stageUuid);
+    CaseTask caseTask = camundaMigrationClient.getCaseTaskByStageUuid(stage.getUuid());
 
     CamundaVariableReport camundaVariableReport = new CamundaVariableReport(caseExecutions, stageExecutions, caseTask);
-    return new VariableReport(caseUuid.toString(), stageUuid.toString(), caseData, camundaVariableReport);
+    return new VariableReport(caseData, stage, camundaVariableReport);
   }
 
   private VariableReport reportStage(UUID stageUuid) {
