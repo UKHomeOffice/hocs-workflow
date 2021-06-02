@@ -237,9 +237,9 @@ public class WorkflowServiceTest {
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = GetCaseworkCaseDataResponseBuilder.aGetCaseworkCaseDataResponse()
                 .withUuid(caseUUID).withType(caseType).withData(data).withReference(caseRef).build();
 
-        StageDto stageDto1 = new StageDto(UUID.randomUUID(), "STAGE1");
-        StageDto stageDto2 = new StageDto(UUID.randomUUID(), "STAGE2");
-        StageDto stageDto3 = new StageDto(UUID.randomUUID(), "STAGE3");
+        StageDto stageDto1 = new StageDto(UUID.randomUUID(), "STAGE1", true);
+        StageDto stageDto2 = new StageDto(UUID.randomUUID(), "STAGE2", true);
+        StageDto stageDto3 = new StageDto(UUID.randomUUID(), "STAGE3", true);
         List<StageDto> stageDtos = new ArrayList<StageDto>();
         stageDtos.add(stageDto1);
         stageDtos.add(stageDto2);
@@ -307,8 +307,8 @@ public class WorkflowServiceTest {
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = GetCaseworkCaseDataResponseBuilder.aGetCaseworkCaseDataResponse()
                 .withUuid(caseUUID).withType(caseType).withData(data).withReference(caseRef).build();
 
-        StageDto stageDto1 = new StageDto(UUID.randomUUID(), stageType1);
-        StageDto stageDto2 = new StageDto(UUID.randomUUID(), stageType2);
+        StageDto stageDto1 = new StageDto(UUID.randomUUID(), stageType1, true);
+        StageDto stageDto2 = new StageDto(UUID.randomUUID(), stageType2, true);
         List<StageDto> stageDtos = new ArrayList<StageDto>();
         stageDtos.add(stageDto1);
         stageDtos.add(stageDto2);
