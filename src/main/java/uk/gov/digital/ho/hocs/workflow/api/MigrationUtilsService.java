@@ -16,6 +16,7 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseTask;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 
 @Service
 @Slf4j
@@ -68,7 +69,7 @@ public class MigrationUtilsService {
 
     List<CaseExecution> caseExecutions = camundaMigrationClient.findExecutionsByBusinessKey(caseUuid);
     GetAllStagesForCaseResponse stagesResp = caseworkClient.getAllStagesForCase(caseUuid);
-    UUID stageUuid = stagesResp.getStages().get(0).getUuid();
+    UUID stageUuid = stagesResp.getStages().stream().filter(StageDto::isActive).findFirst().get().getUuid();
     List<CaseExecution> stageExecutions = camundaMigrationClient.findExecutionsByBusinessKey(stageUuid);
 
     CaseTask caseTask = camundaMigrationClient.getCaseTaskByStageUuid(stageUuid);

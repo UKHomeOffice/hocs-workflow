@@ -17,4 +17,7 @@ public class StageDto {
 
     @JsonProperty("stageType")
     private String type;
+
+    @JsonProperty("active")
+    private boolean active;
 }

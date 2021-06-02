@@ -81,6 +81,9 @@ public class CamundaMigrationClient {
 
   public CaseTask getCaseTaskByStageUuid(UUID stageUUID) {
     Task task = taskService.createTaskQuery().initializeFormKeys().processInstanceBusinessKeyIn(stageUUID.toString()).singleResult();
+    if (task == null) {
+      return null;
+    }
     Map<String, Object> taskVariables = taskService.getVariables(task.getId());
     return new CaseTask(task.getId(), task.getTaskDefinitionKey(), task.getName(), task.getFormKey(), task.getProcessDefinitionId(), taskVariables);
   }
