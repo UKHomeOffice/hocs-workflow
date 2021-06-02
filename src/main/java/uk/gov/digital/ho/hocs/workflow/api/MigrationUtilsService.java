@@ -6,6 +6,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CamundaVariableReport;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationRequest;
 import uk.gov.digital.ho.hocs.workflow.api.dto.MigrationResult;
 import uk.gov.digital.ho.hocs.workflow.api.dto.VariableReport;
@@ -14,6 +15,7 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseExecution;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.dto.CaseTask;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 
 @Service
 @Slf4j
@@ -56,8 +58,9 @@ public class MigrationUtilsService {
 
   public VariableReport report(UUID caseUuid) {
 
+    GetCaseworkCaseDataResponse caseData;
     try {
-      caseworkClient.getCase(caseUuid);
+      caseData = caseworkClient.getFullCase(caseUuid);
     } catch (Exception e) {
       // this could be a stageUUID
       return reportStage(caseUuid);
@@ -70,7 +73,8 @@ public class MigrationUtilsService {
 
     CaseTask caseTask = camundaMigrationClient.getCaseTaskByStageUuid(stageUuid);
 
-    return new VariableReport(caseUuid.toString(), stageUuid.toString(), caseExecutions, stageExecutions, caseTask);
+    CamundaVariableReport camundaVariableReport = new CamundaVariableReport(caseExecutions, stageExecutions, caseTask);
+    return new VariableReport(caseUuid.toString(), stageUuid.toString(), caseData, camundaVariableReport);
   }
 
   private VariableReport reportStage(UUID stageUuid) {
