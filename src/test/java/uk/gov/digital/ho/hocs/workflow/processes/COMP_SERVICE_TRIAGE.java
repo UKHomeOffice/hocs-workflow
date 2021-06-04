@@ -57,6 +57,7 @@ public class COMP_SERVICE_TRIAGE {
         verify(compServiceTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(compServiceTriageProcess, times(3)).hasCompleted("Screen_Transfer");
         verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
     }
 
     @Test
@@ -108,6 +109,7 @@ public class COMP_SERVICE_TRIAGE {
 
         verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote_Escalate");
         verify(compServiceTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Escalate");
+        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("SEND_TO_WORKFLOW_MANAGER"));
     }
 
     @Test
