@@ -50,14 +50,14 @@ public class COMP_SERVICE_TRIAGE {
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Transfer"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
 
         Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
 
         verify(compServiceTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(compServiceTriageProcess, times(3)).hasCompleted("Screen_Transfer");
         verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote");
-        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
     }
 
     @Test
@@ -103,13 +103,13 @@ public class COMP_SERVICE_TRIAGE {
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Escalate"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageEscalate", "Escalate")));
 
         Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
 
         verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote_Escalate");
         verify(compServiceTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Escalate");
-        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("SEND_TO_WORKFLOW_MANAGER"));
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Escalate"), eq("SEND_TO_WORKFLOW_MANAGER"));
     }
 
     @Test
@@ -135,11 +135,12 @@ public class COMP_SERVICE_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes", "CaseNote_CompleteReason", "Complete")));
 
         Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
 
         verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote_Complete");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Complete"), eq("CLOSE"));
     }
 
 }
