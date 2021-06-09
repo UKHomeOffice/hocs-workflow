@@ -420,9 +420,7 @@ public class BpmnService {
     }
 
     public void allocateUserToStage(String caseUUIDString, String stageUUIDString, String userUUIDString) {
-
-        log.debug("Allocating user {}, to stage {} for case {}", caseUUIDString, stageUUIDString, userUUIDString);
-
+        
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
         UUID userUUID = UUID.fromString(userUUIDString);
