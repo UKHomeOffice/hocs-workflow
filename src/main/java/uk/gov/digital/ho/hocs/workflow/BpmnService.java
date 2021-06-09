@@ -419,6 +419,19 @@ public class BpmnService {
         caseworkClient.updateStageUser(caseUUID, stageUUID, null);
     }
 
+    public void allocateUserToStage(String caseUUIDString, String stageUUIDString, String userUUIDString) {
+
+        log.debug("Allocating user {}, to stage {} for case {}", caseUUIDString, stageUUIDString, userUUIDString);
+
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID userUUID = UUID.fromString(userUUIDString);
+
+        log.debug("Allocating user {}, to stage {} for case {}", userUUID, stageUUID, caseUUID);
+
+        caseworkClient.updateStageUser(caseUUID, stageUUID, userUUID);
+    }
+
     public Date calculateDeadline(String caseType, int workingDays) {
         LocalDate startDate = LocalDate.now(clock);
         return infoClient.calculateDeadline(caseType, startDate, workingDays);

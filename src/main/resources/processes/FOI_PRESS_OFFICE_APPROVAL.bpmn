@@ -5,15 +5,16 @@
       <bpmn:outgoing>Flow_15ve7wn</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="END_EVENT">
-      <bpmn:incoming>Flow_0p1p5vh</bpmn:incoming>
       <bpmn:incoming>Flow_0jtazic</bpmn:incoming>
+      <bpmn:incoming>Flow_1ftxqs5</bpmn:incoming>
+      <bpmn:incoming>Flow_0x20nd7</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:exclusiveGateway id="select_approval_type" name="What is the case sensitivity?">
+    <bpmn:exclusiveGateway id="case_sensitivity" name="What is the case sensitivity?">
       <bpmn:incoming>Flow_15ve7wn</bpmn:incoming>
       <bpmn:outgoing>Flow_0zxsmo6</bpmn:outgoing>
       <bpmn:outgoing>Flow_0bqzulq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0zxsmo6" name="High Sensitivity" sourceRef="select_approval_type" targetRef="PPO_APPROVAL">
+    <bpmn:sequenceFlow id="Flow_0zxsmo6" name="High Sensitivity" sourceRef="case_sensitivity" targetRef="PPO_APPROVAL">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Sensitivity=="HIGH"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="PPO_APPROVAL" name="PPO Approval" camunda:formKey="FOI_PPO_APPROVAL">
@@ -24,8 +25,8 @@
       <bpmn:incoming>Flow_0bqzulq</bpmn:incoming>
       <bpmn:outgoing>Flow_0p1p5vh</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_15ve7wn" sourceRef="StartEvent_1" targetRef="select_approval_type" />
-    <bpmn:sequenceFlow id="Flow_0bqzulq" name="Low Sensitivity" sourceRef="select_approval_type" targetRef="PO_APPROVAL">
+    <bpmn:sequenceFlow id="Flow_15ve7wn" sourceRef="StartEvent_1" targetRef="case_sensitivity" />
+    <bpmn:sequenceFlow id="Flow_0bqzulq" name="Low Sensitivity" sourceRef="case_sensitivity" targetRef="PO_APPROVAL">
       <bpmn:extensionElements>
         <camunda:properties>
           <camunda:property />
@@ -33,60 +34,105 @@
       </bpmn:extensionElements>
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Sensitivity=="LOW"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0p1p5vh" sourceRef="PO_APPROVAL" targetRef="END_EVENT" />
+    <bpmn:sequenceFlow id="Flow_0p1p5vh" sourceRef="PO_APPROVAL" targetRef="SAVE_APPROVAL_NOTE_CONDITION" />
     <bpmn:sequenceFlow id="Flow_0jtazic" sourceRef="PPO_APPROVAL" targetRef="END_EVENT" />
+    <bpmn:exclusiveGateway id="SAVE_APPROVAL_NOTE_CONDITION" name="Save Approval Note ?">
+      <bpmn:incoming>Flow_0p1p5vh</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ftxqs5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_101xbwu</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1ftxqs5" name="No" sourceRef="SAVE_APPROVAL_NOTE_CONDITION" targetRef="END_EVENT">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${POApproval=="POAPPROVE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="SAVE_PO_APPROVAL_NOTE" name="Save PO Approval Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;POAPPROVEWITHNOTESText&#34;), &#34;PO_APPROVAL&#34;)}">
+      <bpmn:incoming>Flow_101xbwu</bpmn:incoming>
+      <bpmn:outgoing>Flow_0x20nd7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_101xbwu" name="Yes" sourceRef="SAVE_APPROVAL_NOTE_CONDITION" targetRef="SAVE_PO_APPROVAL_NOTE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${POApproval=="POAPPROVEWITHNOTES"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0x20nd7" sourceRef="SAVE_PO_APPROVAL_NOTE" targetRef="END_EVENT" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_PRESS_OFFICE_APPROVAL">
+      <bpmndi:BPMNEdge id="Flow_0x20nd7_di" bpmnElement="Flow_0x20nd7">
+        <di:waypoint x="710" y="120" />
+        <di:waypoint x="980" y="120" />
+        <di:waypoint x="980" y="314" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_101xbwu_di" bpmnElement="Flow_101xbwu">
+        <di:waypoint x="540" y="195" />
+        <di:waypoint x="540" y="120" />
+        <di:waypoint x="610" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="546" y="155" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ftxqs5_di" bpmnElement="Flow_1ftxqs5">
+        <di:waypoint x="565" y="220" />
+        <di:waypoint x="860" y="220" />
+        <di:waypoint x="860" y="332" />
+        <di:waypoint x="962" y="332" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="602" y="203" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0jtazic_di" bpmnElement="Flow_0jtazic">
-        <di:waypoint x="497" y="340" />
-        <di:waypoint x="623" y="340" />
-        <di:waypoint x="623" y="232" />
-        <di:waypoint x="749" y="232" />
+        <di:waypoint x="480" y="440" />
+        <di:waypoint x="860" y="440" />
+        <di:waypoint x="860" y="332" />
+        <di:waypoint x="962" y="332" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0p1p5vh_di" bpmnElement="Flow_0p1p5vh">
-        <di:waypoint x="497" y="120" />
-        <di:waypoint x="623" y="120" />
-        <di:waypoint x="623" y="232" />
-        <di:waypoint x="749" y="232" />
+        <di:waypoint x="480" y="220" />
+        <di:waypoint x="515" y="220" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0bqzulq_di" bpmnElement="Flow_0bqzulq">
-        <di:waypoint x="297" y="207" />
-        <di:waypoint x="297" y="120" />
-        <di:waypoint x="397" y="120" />
+        <di:waypoint x="297" y="307" />
+        <di:waypoint x="297" y="220" />
+        <di:waypoint x="380" y="220" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="276" y="161" width="73" height="14" />
+          <dc:Bounds x="276" y="261" width="73" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15ve7wn_di" bpmnElement="Flow_15ve7wn">
-        <di:waypoint x="215" y="232" />
-        <di:waypoint x="272" y="232" />
+        <di:waypoint x="215" y="332" />
+        <di:waypoint x="272" y="332" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0zxsmo6_di" bpmnElement="Flow_0zxsmo6">
-        <di:waypoint x="297" y="257" />
-        <di:waypoint x="297" y="340" />
-        <di:waypoint x="397" y="340" />
+        <di:waypoint x="297" y="357" />
+        <di:waypoint x="297" y="440" />
+        <di:waypoint x="380" y="440" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="272" y="293" width="76" height="14" />
+          <dc:Bounds x="272" y="393" width="76" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="179" y="214" width="36" height="36" />
+        <dc:Bounds x="179" y="314" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1phy81h_di" bpmnElement="END_EVENT">
-        <dc:Bounds x="749" y="214" width="36" height="36" />
+        <dc:Bounds x="962" y="314" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0mx276x_di" bpmnElement="select_approval_type" isMarkerVisible="true">
-        <dc:Bounds x="272" y="207" width="50" height="50" />
+      <bpmndi:BPMNShape id="Gateway_0mx276x_di" bpmnElement="case_sensitivity" isMarkerVisible="true">
+        <dc:Bounds x="272" y="307" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="332" y="218.5" width="82" height="27" />
+          <dc:Bounds x="332" y="319" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1he9chg_di" bpmnElement="PPO_APPROVAL">
-        <dc:Bounds x="397" y="300" width="100" height="80" />
+        <dc:Bounds x="380" y="400" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0t2c3p1_di" bpmnElement="PO_APPROVAL">
-        <dc:Bounds x="397" y="80" width="100" height="80" />
+        <dc:Bounds x="380" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_024az4e_di" bpmnElement="SAVE_APPROVAL_NOTE_CONDITION" isMarkerVisible="true">
+        <dc:Bounds x="515" y="195" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="506" y="252" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17jolk9_di" bpmnElement="SAVE_PO_APPROVAL_NOTE">
+        <dc:Bounds x="610" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

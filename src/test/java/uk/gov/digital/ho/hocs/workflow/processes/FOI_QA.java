@@ -31,12 +31,15 @@ public class FOI_QA {
     public static final String STAGE_UUID = UUID.randomUUID().toString();
     public static final String DRAFT_TEAM_UUID = UUID.randomUUID().toString();
 
+    public static final String SET_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE = "SET_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE";
     public static final String ACCEPT_OR_REJECT_CASE_G6_OR_G7 = "ACCEPT_OR_REJECT_CASE_G6_OR_G7";
     public static final String SAVE_ALLOCATION_NOTE = "SAVE_ALLOCATION_NOTE";
     public static final String REJECT_CASE = "REJECT_CASE";
     public static final String ALLOCATE_TO_DRAFT_TEAM = "ALLOCATE_TO_DRAFT_TEAM";
     public static final String ACCEPT_OR_REJECT_SENSITIVITY_G6_OR_G7 = "ACCEPT_OR_REJECT_SENSITIVITY_G6_OR_G7";
     public static final String APPROVAL_G6_OR_G7 = "APPROVAL_G6_OR_G7";
+    public static final String ALLOCATE_TO_PRIVATE_PRESS_OFFICE_TEAM = "ALLOCATE_TO_PPO_TEAM";
+    public static final String ALLOCATE_TO_PRESS_OFFICE_TEAM = "ALLOCATE_TO_PO_TEAM";
     public static final String END_EVENT = "END_EVENT";
 
     @Rule
@@ -81,9 +84,11 @@ public class FOI_QA {
                                 "DraftTeam", DRAFT_TEAM_UUID)
                 )).execute();
 
+        verify(processScenario, times(1)).hasCompleted(SET_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE);
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_CASE_G6_OR_G7);
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_G6_OR_G7);
         verify(processScenario, times(1)).hasCompleted(APPROVAL_G6_OR_G7);
+        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_PRESS_OFFICE_TEAM);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
 
@@ -143,6 +148,8 @@ public class FOI_QA {
                         Map.of("CaseUUID", CASE_UUID, "Sensitivity", "HIGH",
                                 "DraftTeam", DRAFT_TEAM_UUID)
                 )).execute();
+
+        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_PRIVATE_PRESS_OFFICE_TEAM);
 
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
