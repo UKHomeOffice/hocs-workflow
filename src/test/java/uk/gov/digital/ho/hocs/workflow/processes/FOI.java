@@ -38,6 +38,7 @@ public class FOI {
     public static final String ACCEPTANCE_ACTIVITY = "ACCEPTANCE";
     public static final String FOI_DRAFT = "FOI_DRAFT";
     public static final String FOI_QA = "FOI_QA";
+    public static final String FOI_PRESS_OFFICE_APPROVAL = "FOI_PRESS_OFFICE_APPROVAL";
 
     @Rule
     @ClassRule
@@ -77,6 +78,9 @@ public class FOI {
                         "G6orG7AcceptSensitivityLevel", "G6orG7AcceptSensitivityLevel-Y")
                 .deploy(rule);
 
+        whenAtCallActivity(FOI_PRESS_OFFICE_APPROVAL)
+                .deploy(rule);
+
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
                 .execute();
@@ -98,6 +102,9 @@ public class FOI {
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_QA);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(FOI_PRESS_OFFICE_APPROVAL);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
@@ -144,6 +151,8 @@ public class FOI {
 
         verify(FOIProcess, never()).waitsAtUserTask(FOI_QA);
 
+        verify(FOIProcess, never()).waitsAtUserTask(FOI_PRESS_OFFICE_APPROVAL);
+
         verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
 
@@ -174,6 +183,9 @@ public class FOI {
                         "G6orG7AcceptSensitivityLevel", "G6orG7AcceptSensitivityLevel-Y")
                 .deploy(rule);
 
+        whenAtCallActivity(FOI_PRESS_OFFICE_APPROVAL)
+                .deploy(rule);
+
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
                 .execute();
@@ -195,6 +207,9 @@ public class FOI {
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_QA);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(FOI_PRESS_OFFICE_APPROVAL);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
@@ -227,6 +242,9 @@ public class FOI {
                         "G6orG7AcceptSensitivityLevel", "G6orG7AcceptSensitivityLevel-Y")
                 .deploy(rule);
 
+        whenAtCallActivity(FOI_PRESS_OFFICE_APPROVAL)
+                .deploy(rule);
+
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
                 .execute();
@@ -248,6 +266,9 @@ public class FOI {
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_QA);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(FOI_PRESS_OFFICE_APPROVAL);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
