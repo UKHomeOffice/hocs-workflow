@@ -642,4 +642,19 @@ public class BpmnServiceTest {
         //then
         assertThat(date).isEqualTo(dateReturnedByInfo);
     }
+
+    @Test
+    public void shouldAllocateUserToStage() {
+
+        UUID caseUUID  = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID userUUID = UUID.randomUUID();
+
+        bpmnService.allocateUserToStage(caseUUID.toString(), stageUUID.toString(), userUUID.toString());
+
+        verify(caseworkClient, times(1)).updateStageUser(caseUUID, stageUUID, userUUID);
+        verify(caseworkClient).updateStageUser(eq(caseUUID), eq(stageUUID), eq(userUUID));
+
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
 }
