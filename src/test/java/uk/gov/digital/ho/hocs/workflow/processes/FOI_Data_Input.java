@@ -27,6 +27,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/FOI_DATA_INPUT.bpmn"})
 public class FOI_Data_Input {
 
+    public static final String ALLOCATE_TO_CASE_CREATOR = "ALLOCATE_TO_CASE_CREATOR";
     public static final String SAVE_PRIMARY_CORRESPONDENT = "ServiceTask_097z7cz";
     public static final String UPDATE_DEADLINES = "ServiceTask_00xpp4j";
     public static final String SET_PRIMARY_CORRESPONDENT = "ServiceTask_1qqx9t6";
@@ -74,6 +75,9 @@ public class FOI_Data_Input {
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DATA_INPUT")
                 .execute();
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(UPDATE_DEADLINES);
