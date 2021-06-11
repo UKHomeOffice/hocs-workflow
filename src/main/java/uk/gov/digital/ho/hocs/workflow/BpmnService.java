@@ -328,7 +328,6 @@ public class BpmnService {
      * @param stageUUIDString
      * @param allocationNote the content of the allocation note
      * @param allocationNoteType The type of allocation note, usually REJECT or ALLOCATE
-     * @param oldTeamUUID The uuid of the team that created the allocation request
      * @param newTeamUUID The destination of the allocation
      * @param allocationStageUUID The stage at which the allocation request was made
      */
@@ -339,9 +338,9 @@ public class BpmnService {
         StageTypeDto stageTypeDto = infoClient.getAllStageTypes().stream().filter(st -> st.getType().equals(caseworkStageType)).findFirst().get();
         if (allocationNoteType.equals("ALLOCATE")){
             String newTeamName = infoClient.getTeam(UUID.fromString(newTeamUUID)).getDisplayName();
-            allocationNote = oldTeamName + " allocated case to " + newTeamName + " at " + stageTypeDto.getDisplayName() + " Stage: " + allocationNote;
+            allocationNote = oldTeamName + " allocated case to " + newTeamName + " at " + stageTypeDto.getDisplayName() + " stage: " + allocationNote;
         } else {
-            allocationNote = oldTeamName + " rejected case at " + stageTypeDto.getDisplayName() + "Stage: " + allocationNote;
+            allocationNote = oldTeamName + " rejected case at " + stageTypeDto.getDisplayName() + " stage: " + allocationNote;
         }
 
         log.debug("######## Save Allocation Note ########");
