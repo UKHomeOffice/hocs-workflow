@@ -31,6 +31,7 @@ public class FOI_QA {
     public static final String STAGE_UUID = UUID.randomUUID().toString();
     public static final String DRAFT_TEAM_UUID = UUID.randomUUID().toString();
 
+    public static final String N_TEXT = "NoteText";
     public static final String SET_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE = "SET_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE";
     public static final String ACCEPT_OR_REJECT_CASE_G6_OR_G7 = "ACCEPT_OR_REJECT_CASE_G6_OR_G7";
     public static final String SAVE_ALLOCATION_NOTE = "SAVE_ALLOCATION_NOTE";
@@ -41,6 +42,7 @@ public class FOI_QA {
     public static final String ALLOCATE_TO_PRIVATE_PRESS_OFFICE_TEAM = "ALLOCATE_TO_PPO_TEAM";
     public static final String ALLOCATE_TO_PRESS_OFFICE_TEAM = "ALLOCATE_TO_PO_TEAM";
     public static final String END_EVENT = "END_EVENT";
+    public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
 
     @Rule
     @ClassRule
@@ -104,11 +106,14 @@ public class FOI_QA {
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
                         Map.of("CaseUUID", CASE_UUID, "Sensitivity", "LOW",
-                                "DraftTeam", DRAFT_TEAM_UUID))
+                                "DraftTeam", DRAFT_TEAM_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
+                                "NText", N_TEXT, "StageUUID", STAGE_UUID))
         ).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_CASE_G6_OR_G7);
         verify(processScenario, times(1)).hasCompleted(SAVE_ALLOCATION_NOTE);
+        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(N_TEXT),
+                eq("REJECT"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
         verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
