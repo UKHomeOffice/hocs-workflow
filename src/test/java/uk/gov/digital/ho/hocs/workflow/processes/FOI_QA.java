@@ -107,7 +107,7 @@ public class FOI_QA {
                         PROCESS_KEY, STAGE_UUID,
                         Map.of("CaseUUID", CASE_UUID, "Sensitivity", "LOW",
                                 "DraftTeam", DRAFT_TEAM_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
-                                "NText", N_TEXT, "StageUUID", STAGE_UUID))
+                                "G6orG7AcceptCase-NText", N_TEXT, "StageUUID", STAGE_UUID))
         ).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_CASE_G6_OR_G7);
