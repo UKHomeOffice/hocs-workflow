@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0yfhzfq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_0yfhzfq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:process id="FOI_ACCEPTANCE" isExecutable="true">
     <bpmn:startEvent id="START_FOI_ACCEPTANCE" name="Stage Stage">
       <bpmn:outgoing>Flow_0y329xm</bpmn:outgoing>
@@ -41,7 +41,7 @@
       <bpmn:incoming>case_rejected</bpmn:incoming>
       <bpmn:outgoing>Flow_19r0f4t</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="SAVE_ALLOCATION_NOTE" name="Save Allocation Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;NText&#34;), &#34;ALLOCATE&#34;)}">
+    <bpmn:serviceTask id="SAVE_ALLOCATION_NOTE" name="Save Allocation Note" camunda:expression="${bpmnService.updateAllocationNoteWithDetails(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;NText&#34;), &#34;REJECT&#34;, execution.getVariable(&#34;AcceptanceTeam&#34;), execution.getVariable(&#34;StageUUID&#34;))}">
       <bpmn:incoming>Flow_19r0f4t</bpmn:incoming>
       <bpmn:outgoing>Flow_1unjlmz</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -83,6 +83,10 @@
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_ACCEPTANCE">
+      <bpmndi:BPMNEdge id="Flow_1r680pp_di" bpmnElement="Flow_1r680pp">
+        <di:waypoint x="920" y="280" />
+        <di:waypoint x="950" y="280" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1es0j8i_di" bpmnElement="Flow_1es0j8i">
         <di:waypoint x="1180" y="280" />
         <di:waypoint x="1222" y="280" />
@@ -152,10 +156,6 @@
         <di:waypoint x="653" y="280" />
         <di:waypoint x="715" y="280" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1r680pp_di" bpmnElement="Flow_1r680pp">
-        <di:waypoint x="920" y="280" />
-        <di:waypoint x="950" y="280" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="START_FOI_ACCEPTANCE">
         <dc:Bounds x="172" y="262" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -164,6 +164,18 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_118ky5k_di" bpmnElement="ACCEPT_OR_REJECT">
         <dc:Bounds x="553" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1p4d6iv_di" bpmnElement="END_FOI_ACCEPTANCE">
+        <dc:Bounds x="1222" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1215" y="305" width="52" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0li7pgk_di" bpmnElement="CHOOSE_DRAFT_TEAM">
+        <dc:Bounds x="950" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bfgolq_di" bpmnElement="DEADLINE_PASSED">
+        <dc:Bounds x="553" y="400" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ic873f_di" bpmnElement="CALCULATE_ACCEPTANCE_DEADLINE">
         <dc:Bounds x="396" y="240" width="100" height="80" />
@@ -186,23 +198,11 @@
           <dc:Bounds x="248" y="183" width="84" height="93" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1p4d6iv_di" bpmnElement="END_FOI_ACCEPTANCE">
-        <dc:Bounds x="1222" y="262" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1215" y="305" width="52" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0li7pgk_di" bpmnElement="CHOOSE_DRAFT_TEAM">
-        <dc:Bounds x="950" y="240" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1bfgolq_di" bpmnElement="DEADLINE_PASSED">
-        <dc:Bounds x="553" y="400" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_06r8uey_di" bpmnElement="ALLOCATE_TO_DRAFT_TEAM">
+        <dc:Bounds x="1080" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0oxvate_di" bpmnElement="SET_ACCEPTANCE_DATE">
         <dc:Bounds x="820" y="240" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_06r8uey_di" bpmnElement="ALLOCATE_TO_DRAFT_TEAM">
-        <dc:Bounds x="1080" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0bge9re_di" bpmnElement="Event_0flqj0g">
         <dc:Bounds x="585" y="302" width="36" height="36" />

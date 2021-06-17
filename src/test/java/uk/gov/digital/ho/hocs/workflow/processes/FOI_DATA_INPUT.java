@@ -25,7 +25,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/FOI_DATA_INPUT.bpmn"})
-public class FOI_Data_Input {
+public class FOI_DATA_INPUT {
 
     public static final String ALLOCATE_TO_CASE_CREATOR = "ALLOCATE_TO_CASE_CREATOR";
     public static final String SAVE_PRIMARY_CORRESPONDENT = "ServiceTask_097z7cz";
