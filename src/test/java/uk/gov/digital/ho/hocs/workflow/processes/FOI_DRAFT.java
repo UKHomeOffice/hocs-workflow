@@ -32,6 +32,7 @@ public class FOI_DRAFT {
     public static final String G6G7ApprovalTeam = UUID.randomUUID().toString();
     public static final String ScsApprovalTeam = UUID.randomUUID().toString();
 
+    public static final String N_TEXT = "NoteText";
     public static final String ACCEPT_OR_REJECT = "ACCEPT_OR_REJECT";
     public static final String REJECT_CASE = "REJECT_CASE";
     public static final String ALLOCATE_TO_ACCEPTANCE_TEAM = "ALLOCATE_TO_ACCEPTANCE_TEAM";
@@ -73,21 +74,24 @@ public class FOI_DRAFT {
     @Test
     public void caseRejected() {
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftAcceptCase", "N")));
+                .thenReturn(task -> task.complete(
+                        withVariables("DraftAcceptCase", "N")));
 
 
         Scenario.run(processScenario).startBy(
-            () -> rule.getRuntimeService().startProcessInstanceByKey(
-                PROCESS_KEY, STAGE_UUID,
-                Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID)
-            )).execute();
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID, "NText", N_TEXT,
+                                "StageUUID", STAGE_UUID)
+                )).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_ACCEPTANCE_TEAM);
         verify(processScenario, times(1)).hasCompleted(SAVE_ALLOCATION_NOTE);
         verify(bpmnService).wipeVariables(eq(CASE_UUID), eq(STAGE_UUID), eq("DraftTeam"));
+        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(N_TEXT),
+                eq("REJECT"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
         verify(processScenario).hasFinished(END_EVENT);
 
     }
@@ -96,25 +100,25 @@ public class FOI_DRAFT {
     public void invalidRequest() {
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftAcceptCase", "Y")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftAcceptCase", "Y")));
 
         when(processScenario.waitsAtUserTask(VALIDITY))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftValidity", "DraftValid-N", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftValidity", "DraftValid-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(INVALID))
-            .thenReturn(task -> task.complete(withVariables(
-                "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
-            .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete());
 
         Scenario.run(processScenario).startBy(
-            () -> rule.getRuntimeService().startProcessInstanceByKey(
-                PROCESS_KEY, STAGE_UUID,
-                Map.of("CaseUUID", CASE_UUID)
-            )).execute();
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID)
+                )).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);
@@ -129,26 +133,26 @@ public class FOI_DRAFT {
     public void multipleContributions() {
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftAcceptCase", "Y")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftAcceptCase", "Y")));
 
         when(processScenario.waitsAtUserTask(VALIDITY))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
-            .thenReturn(task -> task.complete(withVariables(
-                "ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS))
-            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
-            .thenReturn(task -> task.complete(withVariables(
-                "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
-            .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete());
 
         when(processScenario.waitsAtUserTask(SENSITIVITY))
                 .thenReturn(task -> task.complete(withVariables(
@@ -164,10 +168,10 @@ public class FOI_DRAFT {
 
 
         Scenario.run(processScenario).startBy(
-            () -> rule.getRuntimeService().startProcessInstanceByKey(
-                PROCESS_KEY, STAGE_UUID,
-                Map.of("CaseUUID", CASE_UUID)
-            )).execute();
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID)
+                )).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);
@@ -186,34 +190,33 @@ public class FOI_DRAFT {
     public void exemption() {
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftAcceptCase", "Y")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftAcceptCase", "Y")));
 
         when(processScenario.waitsAtUserTask(VALIDITY))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
-            .thenReturn(task -> task.complete(withVariables(
-                "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
-            .thenReturn(task -> task.complete(withVariables(
-                "ResponseType", "EXEMPTION", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "ResponseType", "EXEMPTION", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(EXEMPTION))
-            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
-            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
 
         Scenario.run(processScenario).startBy(
-            () -> rule.getRuntimeService().startProcessInstanceByKey(
-                PROCESS_KEY, STAGE_UUID,
-                Map.of("CaseUUID", CASE_UUID)
-            )).execute();
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID)
+                )).execute();
 
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
@@ -343,27 +346,27 @@ public class FOI_DRAFT {
     public void happyPath() {
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftAcceptCase", "Y")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftAcceptCase", "Y")));
 
         when(processScenario.waitsAtUserTask(VALIDITY))
-            .thenReturn(task -> task.complete(withVariables(
-                "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftValidity", "DraftValid-Y", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
-            .thenReturn(task -> task.complete(withVariables(
-                "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
-            .thenReturn(task -> task.complete(withVariables(
-                "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(QA_OFFLINE))
-            .thenReturn(task -> task.complete(withVariables(
-                "QaOffline", "QaOffline-N", "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(
+                        "QaOffline", "QaOffline-N", "DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
-            .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete());
 
         when(processScenario.waitsAtUserTask(SENSITIVITY))
                 .thenReturn(task -> task.complete(withVariables(
@@ -374,10 +377,10 @@ public class FOI_DRAFT {
                         "G6G7ApprovalTeam", G6G7ApprovalTeam)));
 
         Scenario.run(processScenario).startBy(
-            () -> rule.getRuntimeService().startProcessInstanceByKey(
-                PROCESS_KEY, STAGE_UUID,
-                Map.of("CaseUUID", CASE_UUID)
-            )).execute();
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID)
+                )).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);

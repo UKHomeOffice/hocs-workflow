@@ -44,6 +44,8 @@ public class FOI_ACCEPTANCE {
     public static final String FOI_CASE_TYPE = "FOI";
     public static final String ALLOCATE_TO_DRAFT_TEAM = "ALLOCATE_TO_DRAFT_TEAM";
     public static final String SET_ACCEPTANCE_DATE = "SET_ACCEPTANCE_DATE";
+    public static final String N_TEXT = "NoteText";
+    public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
 
     @Rule
     @ClassRule
@@ -147,7 +149,8 @@ public class FOI_ACCEPTANCE {
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
-                        Map.of("CaseUUID", CASE_UUID)
+                        Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,"NText", N_TEXT,
+                                "StageUUID", STAGE_UUID)
                 )).execute();
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
@@ -155,5 +158,7 @@ public class FOI_ACCEPTANCE {
         verify(processScenario, times(1)).hasCompleted(SAVE_ALLOCATION_NOTE);
         verify(processScenario, times(0)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(bpmnService).wipeVariables(eq(CASE_UUID), eq(STAGE_UUID), eq("AcceptanceTeam"), eq("Directorate"));
+        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(N_TEXT), eq("REJECT"),
+                eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
     }
 }

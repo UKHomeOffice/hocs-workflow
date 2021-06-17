@@ -14,6 +14,7 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 
@@ -69,6 +70,21 @@ public class InfoClient {
         });
         log.info("Got {} teams", teams.size(), value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
         return teams;
+    }
+
+    @Cacheable(value = "InfoClientGetStageType", unless = "#result == null", key = "#stageTypeUUID")
+    public StageTypeDto getStageType(UUID stageTypeUUID) {
+        StageTypeDto response = restHelper.get(serviceBaseURL, String.format("/stageType/%s", stageTypeUUID), StageTypeDto.class);
+        log.info("Got Stage Type stageTypeUID {}", response.getShortCode(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
+        return response;
+    }
+
+    @Cacheable(value = "InfoClientGetAllStageTypes", unless = "#result.size() == 0")
+    public Set<StageTypeDto> getAllStageTypes() {
+        Set<StageTypeDto> response = restHelper.get(serviceBaseURL,"/stageType",
+                new ParameterizedTypeReference<Set<StageTypeDto>>(){ });
+        log.info("Got {} Stage Types", response.size(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
+        return response;
     }
 
     @Cacheable(value = "InfoClientGetTeam", unless = "#result == null", key = "#teamUUID")
