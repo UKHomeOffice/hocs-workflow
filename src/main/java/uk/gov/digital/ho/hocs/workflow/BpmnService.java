@@ -12,6 +12,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCase
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
@@ -349,6 +350,32 @@ public class BpmnService {
     }
 
     public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType) {
+        log.debug("######## Save Allocation Note ########");
+        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
+        log.info("Adding Casenote to Case: {}", caseUUIDString);
+    }
+
+    /**
+     *
+     * @param caseUUIDString The UUID string for the case that is being updated
+     * @param stageUUIDString
+     * @param allocationNote the content of the allocation note
+     * @param allocationNoteType The type of allocation note, usually REJECT or ALLOCATE
+     * @param newTeamUUID The destination of the allocation
+     * @param allocationStageUUID The stage at which the allocation request was made
+     */
+    public void updateAllocationNoteWithDetails(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType,
+                                                String newTeamUUID, String allocationStageUUID ) {
+        String oldTeamName =  infoClient.getTeam(caseworkClient.getStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID))).getDisplayName();
+        String caseworkStageType = caseworkClient.getStageType(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID));
+        StageTypeDto stageTypeDto = infoClient.getAllStageTypes().stream().filter(st -> st.getType().equals(caseworkStageType)).findFirst().get();
+        if (allocationNoteType.equals("ALLOCATE")){
+            String newTeamName = infoClient.getTeam(UUID.fromString(newTeamUUID)).getDisplayName();
+            allocationNote = oldTeamName + " allocated case to " + newTeamName + " at " + stageTypeDto.getDisplayName() + " stage: " + allocationNote;
+        } else {
+            allocationNote = oldTeamName + " rejected case at " + stageTypeDto.getDisplayName() + " stage: " + allocationNote;
+        }
+
         log.debug("######## Save Allocation Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
         log.info("Adding Casenote to Case: {}", caseUUIDString);

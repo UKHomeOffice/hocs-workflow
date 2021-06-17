@@ -7,6 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
+import java.util.UUID;
+
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
@@ -33,6 +35,7 @@ public class FOI_ALLOCATION {
     public static final String STAGE_UUID = "987-654-321";
     public static final String ALLOCATION_MESSAGE = "allocation message.";
     public static final String PROCESS_KEY = "FOI_ALLOCATION";
+    public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
 
     @Rule
     @ClassRule
@@ -63,18 +66,21 @@ public class FOI_ALLOCATION {
         when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
                 .thenReturn(task -> task.complete(withVariables(
                         "DIRECTION", "FORWARD",
-                    "AllocationCaseNote", ALLOCATION_MESSAGE)
-                    ));
+                        "AllocationCaseNote", ALLOCATION_MESSAGE)
+                ));
 
         //when
         Scenario.run(processScenario).startBy(() -> {
-            return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID, Map.of("CaseUUID", CASE_UUID));
+            return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
+                    Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
+                            "StageUUID", STAGE_UUID));
         }).execute();
 
         //then
         verify(processScenario, times(1)).hasCompleted(CHOOSE_REQUEST_TYPE);
         verify(processScenario, times(1)).hasCompleted(CHOOSE_FOI_HUB);
-        verify(bpmnService).updateAllocationNote(eq(CASE_UUID), eq(STAGE_UUID), eq(ALLOCATION_MESSAGE), eq("ALLOCATE"));
+        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(ALLOCATION_MESSAGE),
+                eq("ALLOCATE"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
     }
 
     @Test
@@ -82,23 +88,26 @@ public class FOI_ALLOCATION {
 
         //given
         when(processScenario.waitsAtUserTask(CHOOSE_REQUEST_TYPE))
-            .thenReturn(task -> task.complete())
-            .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete())
+                .thenReturn(task -> task.complete());
         when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
-            .thenReturn(task -> task.complete(withVariables(
-                "DIRECTION", "BACKWARD")))
-            .thenReturn(task -> task.complete(withVariables(
-                "DIRECTION", "FORWARD",
-                "AllocationCaseNote", ALLOCATION_MESSAGE)));
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "AllocationCaseNote", ALLOCATION_MESSAGE)));
 
         //when
         Scenario.run(processScenario).startBy(() -> {
-            return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID, Map.of("CaseUUID", CASE_UUID));
+            return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
+                    Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
+                            "StageUUID", STAGE_UUID));
         }).execute();
 
         //then
         verify(processScenario, times(2)).hasCompleted(CHOOSE_REQUEST_TYPE);
         verify(processScenario, times(2)).hasCompleted(CHOOSE_FOI_HUB);
-        verify(bpmnService).updateAllocationNote(eq(CASE_UUID), eq(STAGE_UUID), eq(ALLOCATION_MESSAGE), eq("ALLOCATE"));
+        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(ALLOCATION_MESSAGE),
+                eq("ALLOCATE"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
     }
 }
