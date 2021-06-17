@@ -151,6 +151,12 @@ public class CaseworkClient {
         return response;
     }
 
+    public String getStageType(UUID caseUUID, UUID stageUUID) {
+        String response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/type", caseUUID, stageUUID), String.class);
+        log.info("Got Stage Type: {} for Case: {}", stageUUID, caseUUID);
+        return response;
+    }
+
     public GetAllStagesForCaseResponse getAllStagesForCase(UUID caseUUID) {
         GetAllStagesForCaseResponse response = restHelper.get(
                 serviceBaseURL, String.format("/stage/case/%s", caseUUID), GetAllStagesForCaseResponse.class
