@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:process id="FOI" isExecutable="true">
     <bpmn:startEvent id="FOI_START" name="Start Case">
       <bpmn:outgoing>SequenceFlow_1pepep6</bpmn:outgoing>
@@ -104,6 +104,7 @@
         <camunda:out source="Sensitivity" target="Sensitivity" />
         <camunda:out source="QaOffline" target="QaOffline" />
         <camunda:out source="G6G7ApprovalTeamMembers" target="G6G7ApprovalTeamMembers" />
+        <camunda:out source="ScsApprovalTeamMembers" target="ScsApprovalTeamMembers" />
       </bpmn:extensionElements>
       <bpmn:incoming>case_accepted</bpmn:incoming>
       <bpmn:incoming>Flow_1pidsfn</bpmn:incoming>
@@ -144,6 +145,9 @@
         <camunda:out source="G6orG7AcceptSensitivityLevel" target="G6orG7AcceptSensitivityLevel" />
         <camunda:in source="DraftTeam" target="DraftTeam" />
         <camunda:in source="G6G7ApprovalTeamMembers" target="G6G7ApprovalTeamMembers" />
+        <camunda:in source="ScsApprovalTeamMembers" target="ScsApprovalTeamMembers" />
+        <camunda:out source="ScsAcceptCase" target="ScsAcceptCase" />
+        <camunda:out source="ScsAcceptSensitivityLevel" target="ScsAcceptSensitivityLevel" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_12lcos6</bpmn:incoming>
       <bpmn:outgoing>Flow_1c9n5wi</bpmn:outgoing>
@@ -158,7 +162,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${G6orG7AcceptCase=="G6orG7AcceptCase-N" || G6orG7AcceptSensitivityLevel=="G6orG7AcceptSensitivityLevel-N"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1fatm2o" sourceRef="is_case_accepted_approval_team" targetRef="FOI_PRESS_OFFICE_APPROVAL">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${G6orG7AcceptCase=="G6orG7AcceptCase-Y" &amp;&amp; G6orG7AcceptSensitivityLevel=="G6orG7AcceptSensitivityLevel-Y"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${(G6orG7AcceptCase=="G6orG7AcceptCase-Y" &amp;&amp; G6orG7AcceptSensitivityLevel=="G6orG7AcceptSensitivityLevel-Y") || (ScsAcceptCase=="ScsAcceptCase-Y" &amp;&amp; ScsAcceptSensitivityLevel=="ScsAcceptSensitivityLevel-Y") }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="qa-offline" name="Will this case be QA&#39;d offline?">
       <bpmn:incoming>case_accepted_at_draft</bpmn:incoming>
