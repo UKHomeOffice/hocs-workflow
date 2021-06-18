@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_132u4hm" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.14.0">
+  <bpmn:process id="FOI_DISPATCH" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0i3pner</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="DISPATCH_CONFIRMATION" name="Dispatch Confirmation" camunda:formKey="FOI_DISPATCH_CONFIRMATION">
+      <bpmn:incoming>Flow_1jkk9w7</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ezh95i</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0i3pner" sourceRef="StartEvent_1" targetRef="ALLOCATE_TO_CASE_CREATOR" />
+    <bpmn:endEvent id="END_EVENT">
+      <bpmn:incoming>Flow_12miwv3</bpmn:incoming>
+      <bpmn:incoming>Flow_17qs3fi</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1ezh95i" sourceRef="DISPATCH_CONFIRMATION" targetRef="DISPATCHED" />
+    <bpmn:serviceTask id="ALLOCATE_TO_CASE_CREATOR" name="Allocate to Case Creator" camunda:expression="${bpmnService.allocateUserToStage(execution.getVariable(&#34;CaseUUID&#34;), execution.getVariable(&#34;StageUUID&#34;), execution.getVariable(&#34;LastUpdatedByUserUUID&#34;))}">
+      <bpmn:incoming>Flow_0i3pner</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jkk9w7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1jkk9w7" sourceRef="ALLOCATE_TO_CASE_CREATOR" targetRef="DISPATCH_CONFIRMATION" />
+    <bpmn:serviceTask id="DEALLOCATE_TEAM" name="Deallocate team" camunda:expression="${bpmnService.wipeVariables(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;AllocationTeamUUID&#34;)}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="AllocationTeamUUID">${""}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1hcxdn0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ukatij</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="DISPATCHED" name="has the case been dispatched?" default="Flow_1hcxdn0">
+      <bpmn:incoming>Flow_1ezh95i</bpmn:incoming>
+      <bpmn:outgoing>Flow_12miwv3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1hcxdn0</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_12miwv3" name="No" sourceRef="DISPATCHED" targetRef="END_EVENT">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ShouldDispatch == "ShouldDispatch-N"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1hcxdn0" name="Yes" sourceRef="DISPATCHED" targetRef="DEALLOCATE_TEAM" />
+    <bpmn:sequenceFlow id="Flow_1ukatij" sourceRef="DEALLOCATE_TEAM" targetRef="SET_DISPATCH_DATE" />
+    <bpmn:serviceTask id="SET_DISPATCH_DATE" name="Set Dispatch Date" camunda:expression="${bpmnService.saveTodaysDateToCaseVariable(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;dateOfResponse&#34;)}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="AllocationTeamUUID">${""}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ukatij</bpmn:incoming>
+      <bpmn:outgoing>Flow_17qs3fi</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_17qs3fi" sourceRef="SET_DISPATCH_DATE" targetRef="END_EVENT" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_DISPATCH">
+      <bpmndi:BPMNEdge id="Flow_1ukatij_di" bpmnElement="Flow_1ukatij">
+        <di:waypoint x="770" y="120" />
+        <di:waypoint x="830" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hcxdn0_di" bpmnElement="Flow_1hcxdn0">
+        <di:waypoint x="610" y="202" />
+        <di:waypoint x="610" y="120" />
+        <di:waypoint x="670" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="616" y="158" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12miwv3_di" bpmnElement="Flow_12miwv3">
+        <di:waypoint x="635" y="227" />
+        <di:waypoint x="982" y="227" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="803" y="209" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jkk9w7_di" bpmnElement="Flow_1jkk9w7">
+        <di:waypoint x="370" y="227" />
+        <di:waypoint x="400" y="227" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ezh95i_di" bpmnElement="Flow_1ezh95i">
+        <di:waypoint x="500" y="227" />
+        <di:waypoint x="585" y="227" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0i3pner_di" bpmnElement="Flow_0i3pner">
+        <di:waypoint x="228" y="227" />
+        <di:waypoint x="270" y="227" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17qs3fi_di" bpmnElement="Flow_17qs3fi">
+        <di:waypoint x="930" y="120" />
+        <di:waypoint x="1000" y="120" />
+        <di:waypoint x="1000" y="209" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="192" y="209" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vq3x3s_di" bpmnElement="DISPATCH_CONFIRMATION">
+        <dc:Bounds x="400" y="187" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1t8q2s3_di" bpmnElement="ALLOCATE_TO_CASE_CREATOR">
+        <dc:Bounds x="270" y="187" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1j7pjr8_di" bpmnElement="DISPATCHED" isMarkerVisible="true">
+        <dc:Bounds x="585" y="202" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="565" y="259" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_171ufiu_di" bpmnElement="DEALLOCATE_TEAM">
+        <dc:Bounds x="670" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0pq3ve1_di" bpmnElement="SET_DISPATCH_DATE">
+        <dc:Bounds x="830" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0qd9vc8_di" bpmnElement="END_EVENT">
+        <dc:Bounds x="982" y="209" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
