@@ -34,14 +34,16 @@ public class FOI_PRESS_OFFICE_APPROVAL {
     public static final String PO_APPROVAL = "PO_APPROVAL";
     public static final String PPO_APPROVAL= "PPO_APPROVAL";
     public static final String SAVE_APPROVAL_NOTE_CONDITION= "SAVE_APPROVAL_NOTE_CONDITION";
+    public static final String SAVE_PPO_APPROVAL_NOTE_CONDITION="SAVE_PPO_APPROVAL_NOTE_CONDITION";
     public static final String SAVE_PO_APPROVAL_NOTE= "SAVE_PO_APPROVAL_NOTE";
+    public static final String SAVE_PPO_APPROVAL_NOTE= "SAVE_PPO_APPROVAL_NOTE";
     public static final String END_EVENT = "END_EVENT";
 
 
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-           // .assertClassCoverageAtLeast(0.75)
+            .assertClassCoverageAtLeast(0.75)
             .build();
 
     @Rule
@@ -101,7 +103,8 @@ public class FOI_PRESS_OFFICE_APPROVAL {
     public void happyPath_high_sensitivity() {
 
         when(processScenario.waitsAtUserTask(PPO_APPROVAL))
-                .thenReturn(task -> task.complete());
+                .thenReturn(task -> task.complete(withVariables(
+                        "PPOApproval", "PPOAPPROVE")));
 
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -111,6 +114,26 @@ public class FOI_PRESS_OFFICE_APPROVAL {
                 )).execute();
 
         verify(processScenario, times(1)).hasCompleted(PPO_APPROVAL);
+        verify(processScenario, times(1)).hasCompleted(SAVE_PPO_APPROVAL_NOTE_CONDITION);
+        verify(processScenario, times(1)).hasCompleted(END_EVENT);
+    }
+
+    @Test
+    public void happyPath_high_sensitivity_with_approval_notes() {
+
+        when(processScenario.waitsAtUserTask(PPO_APPROVAL))
+                .thenReturn(task -> task.complete(withVariables("PPOApproval", "PPOAPPROVEWITHNOTES")));
+
+        Scenario.run(processScenario).startBy(
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID, "Sensitivity", "HIGH",
+                                "DraftTeam", DRAFT_TEAM_UUID)
+                )).execute();
+
+        verify(processScenario, times(1)).hasCompleted(PPO_APPROVAL);
+        verify(processScenario, times(1)).hasCompleted(SAVE_PPO_APPROVAL_NOTE_CONDITION);
+        verify(processScenario, times(1)).hasCompleted(SAVE_PPO_APPROVAL_NOTE);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
 }
