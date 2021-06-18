@@ -253,14 +253,17 @@ public class FOI_QA {
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
                         Map.of("CaseUUID", CASE_UUID, "Sensitivity", "HIGH",
-                                "DraftTeam", DRAFT_TEAM_UUID)
-                )).execute();
+                                "DraftTeam", DRAFT_TEAM_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
+                                "ScsAcceptCase-NText", N_TEXT, "StageUUID", STAGE_UUID))
+                ).execute();
 
         verify(processScenario, times(1)).hasCompleted(SET_SCS_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE);
         verify(processScenario, times(2)).hasCompleted(ACCEPT_OR_REJECT_CASE_SCS);
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_SCS);
         verify(processScenario, times(1)).hasCompleted(APPROVAL_SCS);
         verify(processScenario, times(1)).hasCompleted(SCS_SAVE_ALLOCATION_NOTE);
+        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(N_TEXT),
+                eq("REJECT"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
         verify(processScenario, times(1)).hasCompleted(SCS_REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(SCS_ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
