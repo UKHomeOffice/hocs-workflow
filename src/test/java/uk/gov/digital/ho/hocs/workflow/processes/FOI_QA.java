@@ -33,12 +33,19 @@ public class FOI_QA {
 
     public static final String N_TEXT = "NoteText";
     public static final String SET_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE = "SET_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE";
+    public static final String SET_SCS_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE = "SET_SCS_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE";
     public static final String ACCEPT_OR_REJECT_CASE_G6_OR_G7 = "ACCEPT_OR_REJECT_CASE_G6_OR_G7";
+    public static final String ACCEPT_OR_REJECT_CASE_SCS = "ACCEPT_OR_REJECT_CASE_SCS";
     public static final String SAVE_ALLOCATION_NOTE = "SAVE_ALLOCATION_NOTE";
+    public static final String SCS_SAVE_ALLOCATION_NOTE ="SCS_SAVE_ALLOCATION_NOTE";
     public static final String REJECT_CASE = "REJECT_CASE";
+    public static final String SCS_REJECT_CASE="SCS_REJECT_CASE";
     public static final String ALLOCATE_TO_DRAFT_TEAM = "ALLOCATE_TO_DRAFT_TEAM";
+    public static final String SCS_ALLOCATE_TO_DRAFT_TEAM="SCS_ALLOCATE_TO_DRAFT_TEAM";
     public static final String ACCEPT_OR_REJECT_SENSITIVITY_G6_OR_G7 = "ACCEPT_OR_REJECT_SENSITIVITY_G6_OR_G7";
+    public static final String ACCEPT_OR_REJECT_SENSITIVITY_SCS = "ACCEPT_OR_REJECT_SENSITIVITY_SCS";
     public static final String APPROVAL_G6_OR_G7 = "APPROVAL_G6_OR_G7";
+    public static final String APPROVAL_SCS = "APPROVAL_SCS";
     public static final String ALLOCATE_TO_PRIVATE_PRESS_OFFICE_TEAM = "ALLOCATE_TO_PPO_TEAM";
     public static final String ALLOCATE_TO_PRESS_OFFICE_TEAM = "ALLOCATE_TO_PO_TEAM";
     public static final String END_EVENT = "END_EVENT";
@@ -147,6 +154,19 @@ public class FOI_QA {
 
     @Test
     public void happyPath_high_sensitivity() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT_CASE_SCS)).thenReturn(task -> task.complete(withVariables(
+                "ScsAcceptCase", "ScsAcceptCase-Y", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT_SENSITIVITY_SCS))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ScsAcceptSensitivityLevel", "ScsAcceptSensitivityLevel-Y","DIRECTION", "FORWARD"
+                )));
+
+        when(processScenario.waitsAtUserTask(APPROVAL_SCS)).thenReturn(task -> task.complete(withVariables(
+                "ScsApproval", "ScsApproval-Y"
+                )));
+
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
@@ -154,8 +174,98 @@ public class FOI_QA {
                                 "DraftTeam", DRAFT_TEAM_UUID)
                 )).execute();
 
+        verify(processScenario, times(1)).hasCompleted(SET_SCS_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE);
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_CASE_SCS);
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_SCS);
+        verify(processScenario, times(1)).hasCompleted(APPROVAL_SCS);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_PRIVATE_PRESS_OFFICE_TEAM);
+        verify(processScenario, times(1)).hasCompleted(END_EVENT);
+    }
 
+    @Test
+    public void caseRejected_high_sensitivity() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT_CASE_SCS)).thenReturn(task -> task.complete(withVariables(
+                "ScsAcceptCase", "ScsAcceptCase-N", "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario).startBy(
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID, "Sensitivity", "HIGH",
+                                "DraftTeam", DRAFT_TEAM_UUID)
+                )).execute();
+
+        verify(processScenario, times(1)).hasCompleted(SET_SCS_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE);
+        verify(processScenario, times(1)).hasCompleted(SCS_SAVE_ALLOCATION_NOTE);
+        verify(processScenario, times(1)).hasCompleted(SCS_REJECT_CASE);
+        verify(processScenario, times(1)).hasCompleted(SCS_ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(END_EVENT);
+    }
+
+    @Test
+    public void caseRejectedSensitivityLevel_high_sensitivity() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT_CASE_SCS)).thenReturn(task -> task.complete(withVariables(
+                "ScsAcceptCase", "ScsAcceptCase-Y", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT_SENSITIVITY_SCS))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ScsAcceptSensitivityLevel", "ScsAcceptSensitivityLevel-N","DIRECTION", "FORWARD"
+                )));
+
+        Scenario.run(processScenario).startBy(
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID, "Sensitivity", "HIGH",
+                                "DraftTeam", DRAFT_TEAM_UUID)
+                )).execute();
+
+        verify(processScenario, times(1)).hasCompleted(SET_SCS_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE);
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_CASE_SCS);
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_SCS);
+        verify(processScenario, times(1)).hasCompleted(SCS_REJECT_CASE);
+        verify(processScenario, times(1)).hasCompleted(SCS_ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(END_EVENT);
+    }
+
+    @Test
+    public void caseRejectedAtApproval_high_sensitivity() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT_CASE_SCS))
+                .thenReturn(task -> task.complete(withVariables(
+                "ScsAcceptCase", "ScsAcceptCase-Y", "DIRECTION", "FORWARD"
+                )))
+                .thenReturn(task -> task.complete(withVariables(
+                "ScsAcceptCase", "ScsAcceptCase-N", "DIRECTION", "FORWARD"
+                )));
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT_SENSITIVITY_SCS))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ScsAcceptSensitivityLevel", "ScsAcceptSensitivityLevel-Y","DIRECTION", "FORWARD"
+                )));
+
+        when(processScenario.waitsAtUserTask(APPROVAL_SCS)).
+                thenReturn(task -> task.complete(withVariables(
+                "ScsApproval", "ScsApproval-N"
+                )));
+
+        Scenario.run(processScenario).startBy(
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID, "Sensitivity", "HIGH",
+                                "DraftTeam", DRAFT_TEAM_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
+                                "ScsAcceptCase-NText", N_TEXT, "StageUUID", STAGE_UUID))
+                ).execute();
+
+        verify(processScenario, times(1)).hasCompleted(SET_SCS_APPROVAL_TEAM_MEMBER_FOR_QA_STAGE);
+        verify(processScenario, times(2)).hasCompleted(ACCEPT_OR_REJECT_CASE_SCS);
+        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_SCS);
+        verify(processScenario, times(1)).hasCompleted(APPROVAL_SCS);
+        verify(processScenario, times(1)).hasCompleted(SCS_SAVE_ALLOCATION_NOTE);
+        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(N_TEXT),
+                eq("REJECT"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
+        verify(processScenario, times(1)).hasCompleted(SCS_REJECT_CASE);
+        verify(processScenario, times(1)).hasCompleted(SCS_ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
 }
