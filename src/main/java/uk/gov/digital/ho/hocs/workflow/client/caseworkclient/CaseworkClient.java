@@ -59,6 +59,11 @@ public class CaseworkClient {
         log.info("Set Date Received for Case {}", caseUUID);
     }
 
+    public void updateDispatchDeadlineDate(UUID caseUUID, UUID stageUUID, LocalDate dispatchDate) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dispatchDeadlineDate", caseUUID, stageUUID), dispatchDate, Void.class);
+        log.info("Set Dispatch Deadline Date for Case {}", caseUUID);
+    }
+
     public void updateDeadlineDays(UUID caseUUID, UUID stageUUID, int days){
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/deadline", caseUUID, stageUUID), days, Void.class);
         log.info("Set Date Received for Case {} to {} days", caseUUID, days);

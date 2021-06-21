@@ -88,6 +88,10 @@ public class BpmnService {
         caseworkClient.updateDateReceived(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), LocalDate.parse(dateReceived));
     }
 
+    public void updateDispatchDeadlineDate(String caseUUIDString, String stageUUIDString, String dispatchDeadlineDate) {
+        caseworkClient.updateDispatchDeadlineDate(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), LocalDate.parse(dispatchDeadlineDate));
+    }
+
     public void updateDeadlineDays(String caseUUIDString, String stageUUIDString, String daysString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);

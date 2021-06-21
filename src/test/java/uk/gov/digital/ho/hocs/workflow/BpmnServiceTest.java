@@ -16,6 +16,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +38,10 @@ public class BpmnServiceTest {
 
     private BpmnService bpmnService;
 
-    private String caseUUID = UUID.randomUUID().toString();
+    private final String caseUUID = UUID.randomUUID().toString();
 
-    private String stageUUID = UUID.randomUUID().toString();
+    private final String stageUUID = UUID.randomUUID().toString();
+    private final String dateReceived = LocalDate.now().toString();
 
 
     @Before
@@ -54,6 +56,28 @@ public class BpmnServiceTest {
         bpmnService.calculateTotals(caseUUID, stageUUID, "list");
 
         verify(caseworkClient).calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list");
+        verifyNoMoreInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shoudUpdateDeadline() {
+
+        bpmnService.updateDeadline(caseUUID, stageUUID, dateReceived);
+
+        verify(caseworkClient).updateDateReceived(UUID.fromString(caseUUID), UUID.fromString(stageUUID), LocalDate.parse(dateReceived));
+        verifyNoMoreInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shoudUpdateDispatchDeadlineDate() {
+
+        bpmnService.updateDispatchDeadlineDate(caseUUID, stageUUID, dateReceived);
+
+        verify(caseworkClient).updateDispatchDeadlineDate(UUID.fromString(caseUUID), UUID.fromString(stageUUID), LocalDate.parse(dateReceived));
         verifyNoMoreInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
