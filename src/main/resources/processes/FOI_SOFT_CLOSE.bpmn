@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0rmq5l0" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.14.0">
+  <bpmn:process id="FOI_SOFT_CLOSE" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_17it7j7</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="END_EVENT">
+      <bpmn:incoming>Flow_0vo49w1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_17it7j7" sourceRef="StartEvent_1" targetRef="ALLOCATE_TO_CASE_CREATOR" />
+    <bpmn:serviceTask id="ALLOCATE_TO_CASE_CREATOR" name="Allocate to Case Creator" camunda:expression="${bpmnService.allocateUserToStage(execution.getVariable(&#34;CaseUUID&#34;), execution.getVariable(&#34;StageUUID&#34;), execution.getVariable(&#34;LastUpdatedByUserUUID&#34;))}">
+      <bpmn:incoming>Flow_17it7j7</bpmn:incoming>
+      <bpmn:outgoing>Flow_1btl2sl</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1btl2sl" sourceRef="ALLOCATE_TO_CASE_CREATOR" targetRef="SOFT_CLOSE" />
+    <bpmn:userTask id="SOFT_CLOSE" name="Soft Close" camunda:formKey="FOI_SOFT_CLOSE">
+      <bpmn:incoming>Flow_1btl2sl</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ho615e</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0ho615e" sourceRef="SOFT_CLOSE" targetRef="DEALLOCATE_TEAM" />
+    <bpmn:serviceTask id="DEALLOCATE_TEAM" name="Deallocate team" camunda:expression="${bpmnService.wipeVariables(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;AllocationTeamUUID&#34;)}">
+      <bpmn:incoming>Flow_0ho615e</bpmn:incoming>
+      <bpmn:outgoing>Flow_0vo49w1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0vo49w1" sourceRef="DEALLOCATE_TEAM" targetRef="END_EVENT" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_SOFT_CLOSE">
+      <bpmndi:BPMNEdge id="Flow_0vo49w1_di" bpmnElement="Flow_0vo49w1">
+        <di:waypoint x="660" y="97" />
+        <di:waypoint x="762" y="97" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ho615e_di" bpmnElement="Flow_0ho615e">
+        <di:waypoint x="500" y="97" />
+        <di:waypoint x="560" y="97" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1btl2sl_di" bpmnElement="Flow_1btl2sl">
+        <di:waypoint x="350" y="97" />
+        <di:waypoint x="400" y="97" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17it7j7_di" bpmnElement="Flow_17it7j7">
+        <di:waypoint x="215" y="97" />
+        <di:waypoint x="250" y="97" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="79" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0dfyrd8_di" bpmnElement="END_EVENT">
+        <dc:Bounds x="762" y="79" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ygfey9_di" bpmnElement="ALLOCATE_TO_CASE_CREATOR">
+        <dc:Bounds x="250" y="57" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_162bphh_di" bpmnElement="SOFT_CLOSE">
+        <dc:Bounds x="400" y="57" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1sdlkof_di" bpmnElement="DEALLOCATE_TEAM">
+        <dc:Bounds x="560" y="57" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

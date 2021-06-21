@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -28,17 +30,21 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/FOI_ALLOCATION.bpmn",
         "processes/FOI_ACCEPTANCE.bpmn",
         "processes/FOI_DRAFT.bpmn",
-        "processes/FOI_QA.bpmn"
+        "processes/FOI_QA.bpmn",
+        "processes/FOI_DISPATCH.bpmn",
+        "processes/FOI_SOFT_CLOSE.bpmn"
 })
 public class FOI {
 
     public static final String DATA_INPUT_ACTIVITY = "Activity_0jtkbij";
     public static final String ALLOCATION_ACTIVITY = "Activity_16l1q7b";
-    public static final String COMPLETE_CASE_ACTIVITY = "Activity_1d2ue6g";
+    public static final String COMPLETE_CASE_ACTIVITY = "COMPLETE_CASE";
     public static final String ACCEPTANCE_ACTIVITY = "ACCEPTANCE";
     public static final String FOI_DRAFT = "FOI_DRAFT";
     public static final String FOI_QA = "FOI_QA";
     public static final String FOI_PRESS_OFFICE_APPROVAL = "FOI_PRESS_OFFICE_APPROVAL";
+    public static final String FOI_DISPATCH = "FOI_DISPATCH";
+    public static final String FOI_SOFT_CLOSE = "FOI_SOFT_CLOSE";
 
     @Rule
     @ClassRule
@@ -66,19 +72,29 @@ public class FOI {
             .deploy(rule);
 
         whenAtCallActivity("FOI_ACCEPTANCE")
-                .thenReturn("AcceptCase", "Y")
+                .alwaysReturn("AcceptCase", "Y")
                 .deploy(rule);
 
         whenAtCallActivity(FOI_DRAFT)
-                .thenReturn("DraftAcceptCase", "Y", "QaOffline", "QaOffline-N")
+                .alwaysReturn("DraftAcceptCase", "Y", "QaOffline", "QaOffline-N")
                 .deploy(rule);
 
         whenAtCallActivity(FOI_QA)
-                .thenReturn("G6orG7AcceptCase", "G6orG7AcceptCase-Y",
+                .alwaysReturn("G6orG7AcceptCase", "G6orG7AcceptCase-Y",
                         "G6orG7AcceptSensitivityLevel", "G6orG7AcceptSensitivityLevel-Y")
                 .deploy(rule);
 
         whenAtCallActivity(FOI_PRESS_OFFICE_APPROVAL)
+                .deploy(rule);
+
+        whenAtCallActivity(FOI_DISPATCH)
+                .alwaysReturn("ShouldDispatch", "ShouldDispatch-Y")
+
+                .deploy(rule);
+
+        whenAtCallActivity(FOI_SOFT_CLOSE)
+                .thenReturn("blank", "blank")
+                .thenReturn("ForceClose", "true")
                 .deploy(rule);
 
         Scenario.run(FOIProcess)
@@ -91,23 +107,26 @@ public class FOI {
         verify(FOIProcess, times(1))
                 .hasCompleted(DATA_INPUT_ACTIVITY);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
             .hasCompleted(ALLOCATION_ACTIVITY);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(ACCEPTANCE_ACTIVITY);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(FOI_DRAFT);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(FOI_QA);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(FOI_PRESS_OFFICE_APPROVAL);
 
-        verify(FOIProcess, times(1))
-                .hasCompleted(COMPLETE_CASE_ACTIVITY);
+        verify(FOIProcess, times(2))
+                .hasCompleted(FOI_DISPATCH);
+
+        verify(FOIProcess, times(2))
+                .hasCompleted(FOI_SOFT_CLOSE);
 
         verify(bpmnService).completeCase(any());
 
@@ -128,6 +147,14 @@ public class FOI {
 
         whenAtCallActivity(FOI_DRAFT)
                 .thenReturn("DraftAcceptCase", "Y", "QaOffline", "QaOffline-Y")
+                .deploy(rule);
+
+        whenAtCallActivity(FOI_DISPATCH)
+                .alwaysReturn("ShouldDispatch", "ShouldDispatch-Y")
+                .deploy(rule);
+
+        whenAtCallActivity(FOI_SOFT_CLOSE)
+                .thenReturn("ForceClose", "true")
                 .deploy(rule);
 
         Scenario.run(FOIProcess)
@@ -154,7 +181,14 @@ public class FOI {
         verify(FOIProcess, never()).waitsAtUserTask(FOI_PRESS_OFFICE_APPROVAL);
 
         verify(FOIProcess, times(1))
+                .hasCompleted(FOI_DISPATCH);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(FOI_SOFT_CLOSE);
+
+        verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
+
 
         verify(bpmnService).completeCase(any());
 
@@ -186,6 +220,14 @@ public class FOI {
         whenAtCallActivity(FOI_PRESS_OFFICE_APPROVAL)
                 .deploy(rule);
 
+        whenAtCallActivity(FOI_DISPATCH)
+                .alwaysReturn("ShouldDispatch", "ShouldDispatch-Y")
+                .deploy(rule);
+
+        whenAtCallActivity(FOI_SOFT_CLOSE)
+                .thenReturn("ForceClose", "true")
+                .deploy(rule);
+
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
                 .execute();
@@ -212,6 +254,12 @@ public class FOI {
                 .hasCompleted(FOI_PRESS_OFFICE_APPROVAL);
 
         verify(FOIProcess, times(1))
+                .hasCompleted(FOI_DISPATCH);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(FOI_SOFT_CLOSE);
+
+        verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);
 
         verify(bpmnService).completeCase(any());
@@ -219,8 +267,6 @@ public class FOI {
 
     @Test
     public void caseRejectedByDraftTeam() {
-
-
         whenAtCallActivity("FOI_DATA_INPUT")
                 .deploy(rule);
 
@@ -245,6 +291,14 @@ public class FOI {
         whenAtCallActivity(FOI_PRESS_OFFICE_APPROVAL)
                 .deploy(rule);
 
+        whenAtCallActivity(FOI_DISPATCH)
+                .alwaysReturn("ShouldDispatch", "ShouldDispatch-Y")
+                .deploy(rule);
+
+        whenAtCallActivity(FOI_SOFT_CLOSE)
+                .thenReturn("ForceClose", "true")
+                .deploy(rule);
+
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
                 .execute();
@@ -269,6 +323,12 @@ public class FOI {
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_PRESS_OFFICE_APPROVAL);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(FOI_DISPATCH);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(FOI_SOFT_CLOSE);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(COMPLETE_CASE_ACTIVITY);

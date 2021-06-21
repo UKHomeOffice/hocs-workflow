@@ -657,4 +657,27 @@ public class BpmnServiceTest {
 
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
+
+    @Test
+    public void shouldSetTodaysDate() {
+        LocalDate localDate = LocalDate.of(1989, 01, 13);
+        Clock fixedClock = Clock.fixed(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+        doReturn(fixedClock.instant()).when(clock).instant();
+
+        UUID caseUUID  = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        bpmnService.saveTodaysDateToCaseVariable(caseUUID.toString(), stageUUID.toString(), "destination");
+
+        verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), valueCapture.capture());
+        assertThat(valueCapture.getValue().size()).isEqualTo(1);
+        assertThat(valueCapture.getValue().keySet()).contains("destination");
+        assertThat(valueCapture.getValue().values()).contains("13-01-1989");
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
 }
