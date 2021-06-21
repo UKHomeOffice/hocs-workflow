@@ -16,10 +16,14 @@ public class ExecutionVariableSequence implements Consumer<DelegateExecution> {
     @Override
     public void accept(DelegateExecution delegateExecution) {
 
-        List<CallActivityReturnVariable> callSequenceVariableList = variableListList.get(callCount++);
+        try {
+            List<CallActivityReturnVariable> callSequenceVariableList = variableListList.get(callCount++);
 
-        for (CallActivityReturnVariable callActivityReturnVariable : callSequenceVariableList) {
-            delegateExecution.setVariable(callActivityReturnVariable.getKey(), callActivityReturnVariable.getValue());
+            for (CallActivityReturnVariable callActivityReturnVariable : callSequenceVariableList) {
+                delegateExecution.setVariable(callActivityReturnVariable.getKey(), callActivityReturnVariable.getValue());
+            }
+        } catch (Exception e) {
+            throw e;
         }
     }
 }

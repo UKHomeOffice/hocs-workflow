@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow;
 
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.time.LocalTime.now;
 
 @Service
 @Slf4j
@@ -308,6 +311,13 @@ public class BpmnService {
         }
     }
 
+    public void saveTodaysDateToCaseVariable(String caseUUIDString, String stageUUIDString, String destination) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        String todaysDateFormatted = simpleDateFormat.format(Date.from(clock.instant()));
+
+        updateCaseValue(caseUUIDString, stageUUIDString, destination, todaysDateFormatted);
+    }
+
     public void updateCaseValue(String caseUUIDString, String stageUUIDString, String... argPairs) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
@@ -317,7 +327,6 @@ public class BpmnService {
         if (!CollectionUtils.isEmpty(data)) {
             caseworkClient.updateCase(caseUUID, stageUUID, data);
         }
-
     }
 
     private Map<String, String> parseArgPairs(String... argPairs) {
