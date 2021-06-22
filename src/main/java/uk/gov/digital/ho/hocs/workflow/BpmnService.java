@@ -279,7 +279,7 @@ public class BpmnService {
     }
 
     public void saveTodaysDateToCaseVariable(String caseUUIDString, String stageUUIDString, String destination) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String todaysDateFormatted = simpleDateFormat.format(Date.from(clock.instant()));
 
         updateCaseValue(caseUUIDString, stageUUIDString, destination, todaysDateFormatted);

@@ -674,7 +674,7 @@ public class BpmnServiceTest {
         verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), valueCapture.capture());
         assertThat(valueCapture.getValue().size()).isEqualTo(1);
         assertThat(valueCapture.getValue().keySet()).contains("destination");
-        assertThat(valueCapture.getValue().values()).contains("13-01-1989");
+        assertThat(valueCapture.getValue().values()).contains("1989-01-13");
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
