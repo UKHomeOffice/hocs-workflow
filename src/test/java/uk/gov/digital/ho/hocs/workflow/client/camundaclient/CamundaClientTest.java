@@ -2,8 +2,12 @@ package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
@@ -135,4 +139,77 @@ public class CamundaClientTest {
     //then
     assertThat(screenName).isEqualTo(FINISH);
   }
+
+  @Test
+  public void hasProcessInstanceVariableWithValueShouldReturnTrueIfThereAreMatches() {
+
+    //given
+    String businessKey = "business-key";
+    String variableName = "ABC";
+    String value = "123";
+    List<ProcessInstance> matches = new ArrayList<>();
+    matches.add(mock(ProcessInstance.class));
+    when(runtimeService.createProcessInstanceQuery()).thenReturn(processInstanceQuery);
+    when(processInstanceQuery.processInstanceBusinessKey(businessKey)).thenReturn(processInstanceQuery);
+    when(processInstanceQuery.variableValueEquals(variableName, value)).thenReturn(processInstanceQuery);
+    when(processInstanceQuery.list()).thenReturn(matches);
+
+    //when
+    boolean result = camundaClient.hasProcessInstanceVariableWithValue(businessKey, variableName, value);
+
+    //then
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  public void hasProcessInstanceVariableWithValueShouldReturnFalseIfNoMatches() {
+
+    //given
+    String businessKey = "business-key";
+    String variableName = "ABC";
+    String value = "123";
+    List<ProcessInstance> matches = new ArrayList<>();
+    when(runtimeService.createProcessInstanceQuery()).thenReturn(processInstanceQuery);
+    when(processInstanceQuery.processInstanceBusinessKey(businessKey)).thenReturn(processInstanceQuery);
+    when(processInstanceQuery.variableValueEquals(variableName, value)).thenReturn(processInstanceQuery);
+    when(processInstanceQuery.list()).thenReturn(matches);
+
+    //when
+    boolean result = camundaClient.hasProcessInstanceVariableWithValue(businessKey, variableName, value);
+
+    //then
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void removeProcessInstanceVariableFromAllScopesInvokesRuntimeServiceCorrectly() {
+
+    //given
+    final String variableName = "V_NAME";
+    final String caseUUID = "CASE_UUID";
+    final String stageUUID = "STAGE_UUID";
+    when(runtimeService.createProcessInstanceQuery()).thenReturn(processInstanceQuery);
+    ProcessInstanceQuery caseProcessInstanceQuery = mock(ProcessInstanceQuery.class);
+    ProcessInstanceQuery stageProcessInstanceQuery = mock(ProcessInstanceQuery.class);
+    when(processInstanceQuery.processInstanceBusinessKey(caseUUID)).thenReturn(caseProcessInstanceQuery);
+    when(processInstanceQuery.processInstanceBusinessKey(stageUUID)).thenReturn(stageProcessInstanceQuery);
+    ProcessInstance caseMatch = mock(ProcessInstance.class);
+    when(caseMatch.getProcessInstanceId()).thenReturn(caseUUID);
+    ProcessInstance stageMatch = mock(ProcessInstance.class);
+    when(stageMatch.getProcessInstanceId()).thenReturn(stageUUID);
+    List<ProcessInstance> caseMatches = new ArrayList<>();
+    caseMatches.add(caseMatch);
+    List<ProcessInstance> stageMatches = new ArrayList<>();
+    stageMatches.add(stageMatch);
+    when(caseProcessInstanceQuery.list()).thenReturn(caseMatches);
+    when(stageProcessInstanceQuery.list()).thenReturn(stageMatches);
+
+    //when
+    camundaClient.removeProcessInstanceVariableFromAllScopes(caseUUID, stageUUID, variableName);
+
+    //then
+    verify(runtimeService).removeVariable(caseUUID, variableName);
+    verify(runtimeService).removeVariable(stageUUID, variableName);
+  }
+
 }
