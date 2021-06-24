@@ -1,15 +1,13 @@
 package uk.gov.digital.ho.hocs.migration;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
+@AllArgsConstructor
 public class UpdateProcessVariableRequest {
-    @Getter
-    @Setter
-    private String type;
-    @Getter
-    @Setter
-    private String value;
-    @Getter
-    private Object valueInfo;
+    final private String type;
+    final private String value;
+    final private Object valueInfo;
 }

@@ -1,6 +1,7 @@
 package uk.gov.digital.ho.hocs.migration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -15,32 +16,34 @@ import java.util.HashMap;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class Migration {
-    private CamundaClient camundaClient;
-    private CaseworkClient caseworkClient;
-
-    public Migration( CamundaClient camundaClient, CaseworkClient caseworkClient){
-        this.camundaClient = camundaClient;
-        this.caseworkClient = caseworkClient;
-    }
+    final private CamundaClient camundaClient;
+    final private CaseworkClient caseworkClient;
 
     public void fixCase(String caseUuid) throws IOException {
 
         String variableName = "CaseworkTeamUUID";
-        String variableTrueValue = "f2134fcc-284b-435b-b8cf-247d7397422b";
-        String variableType = "String";
-        int targetDefinitionVersion = 3;
+        String trueVariableType = "String";
+        Stage activeStage = caseworkClient.getActiveStage(caseUuid);
 
-        String stageUuid = caseworkClient.getActiveStage(caseUuid).getUuid();
-        ArrayList<ProcessExecution> executionsList = new ArrayList<ProcessExecution>();
-        executionsList.addAll(camundaClient.getExecutionsByBusinessKey(caseUuid));
-        executionsList.addAll(camundaClient.getExecutionsByBusinessKey(stageUuid));
+        ArrayList<ProcessExecution> executionsList = getExecutionsByCaseUuid(caseUuid, activeStage);
+
+        HashMap<String, ProcessExecution> executionHashMap = getExecutionsHashMap(executionsList);
+
+        //Find true value for CaseworkTeamUUID (look up caseData for now)
+        String trueVariableValue = caseworkClient.getCase(caseUuid).getCaseData().getCaseworkTeamUuid();
+
+        //Find true value for ActiveTeamUUID (look up caseData for now)
+        String trueActiveStageTeamUuid = caseworkClient.getCase(caseUuid).getCaseData().getCaseworkTeamUuid();
 
         for (ProcessExecution execution: executionsList) {
-            if (execution.getDefinitionKey().equals("WCS")){
-                migrate(execution, 3);
-            }
+            fixProcessVariable(execution, variableName, trueVariableType, trueVariableValue);
         }
+
+        fixActiveStageTeam(activeStage, trueActiveStageTeamUuid);
+
+        migrate(executionHashMap.get("WCS"), 3);
     }
 
     private void migrate (ProcessExecution execution, int targetDefinitionVersion) throws IOException {
@@ -55,13 +58,13 @@ public class Migration {
 
     }
 
-    private MigrationPlan getMigrationPlan(ProcessExecution execution, int targetDefinitionId) throws IOException {
+    private MigrationPlan getMigrationPlan(ProcessExecution execution, int targetDefinitionVersion) throws IOException {
         String[] processDefinitionInfo = execution.getDefinitionId().split(":");
         String processDefinitionKey = processDefinitionInfo[0];
         String processDefinitionVersion = processDefinitionInfo[1];
 
         String migrationPlanFileName =
-                processDefinitionKey + "_" + processDefinitionVersion + "_" + targetDefinitionId + ".json";
+                String.format("%s_%s_%d.json", processDefinitionKey, processDefinitionVersion, targetDefinitionVersion);
 
         Resource resource = new ClassPathResource("migrationPlans/" + migrationPlanFileName);
         File file = resource.getFile();
@@ -81,12 +84,25 @@ public class Migration {
         }
     }
 
-    private void fixActiveStage(ProcessExecution execution, String variableTrueValue){
-        Stage activeStage = caseworkClient.getActiveStage(execution.getBusinessKey());
-
+    private void fixActiveStageTeam(Stage activeStage, String variableTrueValue){
         if (!activeStage.getTeamUuid().equals(variableTrueValue)) {
             caseworkClient.updateStageTeam(
-                    execution.getBusinessKey(), activeStage.getUuid(), variableTrueValue);
+                    activeStage.getCaseUuid(), activeStage.getUuid(), variableTrueValue);
         }
+    }
+
+    private ArrayList<ProcessExecution> getExecutionsByCaseUuid(String caseUuid, Stage activeStage){
+        ArrayList<ProcessExecution> executionsList = new ArrayList<>();
+        executionsList.addAll(camundaClient.getExecutionsByBusinessKey(caseUuid));
+        executionsList.addAll(camundaClient.getExecutionsByBusinessKey(activeStage.getUuid()));
+        return executionsList;
+    }
+
+    private HashMap<String, ProcessExecution> getExecutionsHashMap (ArrayList<ProcessExecution> executionsList){
+        HashMap<String, ProcessExecution> executionHashMap = new HashMap<>();
+        for (ProcessExecution execution: executionsList) {
+            executionHashMap.put(execution.getDefinitionKey(), execution);
+        }
+        return executionHashMap;
     }
 }

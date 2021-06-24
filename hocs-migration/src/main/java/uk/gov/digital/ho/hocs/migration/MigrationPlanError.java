@@ -1,9 +1,11 @@
 package uk.gov.digital.ho.hocs.migration;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class MigrationPlanError {
-    private Instruction instruction;
-    private String[] failures;
+    final private Instruction instruction;
+    final private String[] failures;
 }

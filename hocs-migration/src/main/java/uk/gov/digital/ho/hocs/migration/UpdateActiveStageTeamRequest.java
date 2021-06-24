@@ -1,10 +1,11 @@
 package uk.gov.digital.ho.hocs.migration;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
+@AllArgsConstructor
 public class UpdateActiveStageTeamRequest {
-    private String teamUUID;
+    final private String teamUUID;
 }

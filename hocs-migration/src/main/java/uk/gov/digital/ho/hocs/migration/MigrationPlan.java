@@ -1,14 +1,15 @@
 package uk.gov.digital.ho.hocs.migration;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
+@AllArgsConstructor
 public class MigrationPlan {
 
-    private String sourceProcessDefinitionId;
+    final private String sourceProcessDefinitionId;
 
-    private String targetProcessDefinitionId;
+    final private String targetProcessDefinitionId;
 
-    private Instruction[] instructions;
+    final private Instruction[] instructions;
 }

@@ -6,6 +6,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.digital.ho.hocs.migration.Case;
 import uk.gov.digital.ho.hocs.migration.Stage;
 import uk.gov.digital.ho.hocs.migration.UpdateActiveStageTeamRequest;
 
@@ -21,6 +22,13 @@ public class CaseworkClient {
         this.serviceBaseURL = caseworkUrl;
     }
 
+    public Case getCase(String caseUuid){
+        Case caseObject =
+                restTemplate.getForObject(serviceBaseURL +"/case/" + caseUuid ,
+                Case.class);
+        return caseObject;
+    }
+
     public Stage getActiveStage (String caseUuid){
         Stage activeStage =
                 restTemplate.getForObject(serviceBaseURL +"/case/" + caseUuid +"/activeStage",
@@ -34,8 +42,7 @@ public class CaseworkClient {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("X-Auth-Groups", WCS_CASEWORK_TEAM_1);
 
-        UpdateActiveStageTeamRequest requestBody = new UpdateActiveStageTeamRequest();
-        requestBody.setTeamUUID(newTeamUuid);
+        UpdateActiveStageTeamRequest requestBody = new UpdateActiveStageTeamRequest(newTeamUuid);
         HttpEntity request = new HttpEntity(requestBody, httpHeaders);
 
         restTemplate.put(serviceBaseURL +"/case/" + caseUuid + "/stage/" + stageUuid + "/team",
