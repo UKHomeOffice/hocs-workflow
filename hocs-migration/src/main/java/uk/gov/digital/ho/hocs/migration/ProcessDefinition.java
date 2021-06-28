@@ -1,7 +1,6 @@
 package uk.gov.digital.ho.hocs.migration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Case {
-    private String uuid;
-
-    @JsonProperty("data")
-    private CaseData caseData;
+public class ProcessDefinition {
+    private String id;
+    private String key;
+    private int version;
 }

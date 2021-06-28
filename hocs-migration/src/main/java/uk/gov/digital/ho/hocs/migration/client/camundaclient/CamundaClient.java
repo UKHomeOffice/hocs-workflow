@@ -20,6 +20,28 @@ public class CamundaClient {
         this.serviceBaseURL=camundaUrl;
     }
 
+    public List<ProcessExecution> getExecutionsByWorkflowId(String processDefinitionId) {
+        ProcessExecution[] executions = restTemplate.getForObject(
+                serviceBaseURL +"/rest/process-instance?processDefinitionId=" + processDefinitionId,
+                ProcessExecution[].class);
+
+        if (executions != null && executions.length > 0) {
+            log.info("Executions on workflow: {}", Arrays.toString(executions));
+        } else {
+            log.info("No executions found on specified workflow");
+        }
+
+        return Arrays.asList(executions);
+    }
+
+    public List<ProcessDefinition> getProcessDefinitionsByKey(String processDefinitionKey){
+        ProcessDefinition[] processDefinitions = restTemplate.getForObject(
+                serviceBaseURL +"/rest/process-definition?key=" + processDefinitionKey + "&sortBy=version&sortOrder=asc",
+                ProcessDefinition[].class);
+
+        return Arrays.asList(processDefinitions);
+    }
+
     public List<ProcessExecution> getExecutionsByBusinessKey(String businessKey){
         ProcessExecution[] executions = restTemplate.getForObject(
                 serviceBaseURL +"/rest/process-instance?businessKey=" + businessKey,
@@ -70,11 +92,6 @@ public class CamundaClient {
         ResponseEntity response = restTemplate.postForEntity(serviceBaseURL +"/rest/migration/execute",
                 executionRequest, ResponseEntity.class);
 
-        if (response.getStatusCodeValue() == 204){
-            log.info("Migration executed successfully");
-        } else {
-            log.error("Migration could not be executed. {}", response.getBody().toString());
-        }
     }
 
 }

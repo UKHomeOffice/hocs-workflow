@@ -1,9 +1,10 @@
 package uk.gov.digital.ho.hocs.migration.client.caseworkclient;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.digital.ho.hocs.migration.Case;
@@ -22,11 +23,17 @@ public class CaseworkClient {
         this.serviceBaseURL = caseworkUrl;
     }
 
-    public Case getCase(String caseUuid){
-        Case caseObject =
-                restTemplate.getForObject(serviceBaseURL +"/case/" + caseUuid ,
-                Case.class);
-        return caseObject;
+    public Case getCase(String caseUuid) throws JsonProcessingException {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("X-Auth-Groups", WCS_CASEWORK_TEAM_1);
+        HttpEntity request = new HttpEntity(httpHeaders);
+
+        ResponseEntity response =
+                restTemplate.exchange(serviceBaseURL +"/case/" + caseUuid , HttpMethod.GET,
+                request, String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(response.getBody().toString(), Case.class);
     }
 
     public Stage getActiveStage (String caseUuid){

@@ -3,6 +3,8 @@ package uk.gov.digital.ho.hocs.migration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -13,15 +15,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
-@Slf4j
 @AllArgsConstructor
 public class Migration {
     final private CamundaClient camundaClient;
     final private CaseworkClient caseworkClient;
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public void fixCase(String caseUuid) throws IOException {
+        log.info("Fixing case {}", caseUuid);
 
         String variableName = "CaseworkTeamUUID";
         String trueVariableType = "String";
@@ -104,5 +108,21 @@ public class Migration {
             executionHashMap.put(execution.getDefinitionKey(), execution);
         }
         return executionHashMap;
+    }
+
+    public List<String> getFixableCases(){
+        List<ProcessDefinition> definitionVersions = camundaClient.getProcessDefinitionsByKey("WCS");
+        List<ProcessExecution> outdatedExecutions = new ArrayList<>();
+        List<String> caseUuids = new ArrayList<>();
+
+        for (int i = 0; i < definitionVersions.size()-1 ; i++) {
+            outdatedExecutions.addAll(camundaClient.getExecutionsByWorkflowId(definitionVersions.get(i).getId()));
+        }
+
+        for (ProcessExecution execution: outdatedExecutions) {
+            caseUuids.add(execution.getBusinessKey());
+        }
+
+        return caseUuids;
     }
 }
