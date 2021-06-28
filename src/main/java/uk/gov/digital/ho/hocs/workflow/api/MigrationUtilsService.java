@@ -27,7 +27,7 @@ public class MigrationUtilsService {
     this.camundaMigrationClient = camundaMigrationClient;
   }
 
-  public List<ProcessDefinitionCheckSumSummary> processDefinitionChecksums(String processDefinitionKey, boolean changes) throws IOException {
+  public List<ProcessDefinitionCheckSumSummary> generateProcessDefinitionSummaryReport(String processDefinitionKey, boolean changes) throws IOException {
 
     List<ProcessInstance> caseExecutions = camundaMigrationClient.calculateCaseExecutionList(processDefinitionKey);
     Map<String, Deployment> deploymentMap = camundaMigrationClient.calculateDeploymentMap();

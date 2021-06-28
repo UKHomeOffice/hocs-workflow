@@ -28,9 +28,9 @@ public class MigrationUtilsResource {
   }
 
   @GetMapping(value = "/processDefinitionExplorer/{processDefinitionKey}", produces = APPLICATION_JSON_UTF8_VALUE)
-  public ResponseEntity<List<ProcessDefinitionCheckSumSummary>> diagramsKey(@PathVariable String processDefinitionKey, @RequestParam("changes") Optional<Boolean> optionalChanges) throws IOException {
+  public ResponseEntity<List<ProcessDefinitionCheckSumSummary>> generateProcessDefinitionSummaryReport(@PathVariable String processDefinitionKey, @RequestParam("changes") Optional<Boolean> optionalChanges) throws IOException {
     boolean changes = optionalChanges.isPresent() && optionalChanges.get();
-    List<ProcessDefinitionCheckSumSummary> executionKeyMap = migrationUtilsService.processDefinitionChecksums(processDefinitionKey, changes);
+    List<ProcessDefinitionCheckSumSummary> executionKeyMap = migrationUtilsService.generateProcessDefinitionSummaryReport(processDefinitionKey, changes);
     return ResponseEntity.ok(executionKeyMap);
   }
 }
