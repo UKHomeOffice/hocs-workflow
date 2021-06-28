@@ -1,15 +1,16 @@
-package uk.gov.digital.ho.hocs.migration;
+package uk.gov.digital.ho.hocs.migration.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.ho.hocs.migration.MigrationService;
 import uk.gov.digital.ho.hocs.migration.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.migration.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.migration.dto.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +20,12 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class Migration {
+public class MigrationHocs2739Service implements MigrationService {
     final private CamundaClient camundaClient;
     final private CaseworkClient caseworkClient;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @Override
     public void fixCase(String caseUuid) throws IOException {
         log.info("Fixing case {}", caseUuid);
 
@@ -48,6 +50,28 @@ public class Migration {
         fixActiveStageTeam(activeStage, trueActiveStageTeamUuid);
 
         migrate(executionHashMap.get("WCS"), 3);
+    }
+
+    @Override
+    public List<String> getFixableCases(){
+        List<ProcessDefinition> definitionVersions = camundaClient.getProcessDefinitionsByKey("WCS");
+        List<ProcessExecution> outdatedExecutions = new ArrayList<>();
+        List<String> caseUuids = new ArrayList<>();
+
+        for (int i = 0; i < definitionVersions.size()-1 ; i++) {
+            outdatedExecutions.addAll(camundaClient.getExecutionsByWorkflowId(definitionVersions.get(i).getId()));
+        }
+
+        for (ProcessExecution execution: outdatedExecutions) {
+            caseUuids.add(execution.getBusinessKey());
+        }
+
+        return caseUuids;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Service to fix HOCS-2739";
     }
 
     private void migrate (ProcessExecution execution, int targetDefinitionVersion) throws IOException {
@@ -110,19 +134,5 @@ public class Migration {
         return executionHashMap;
     }
 
-    public List<String> getFixableCases(){
-        List<ProcessDefinition> definitionVersions = camundaClient.getProcessDefinitionsByKey("WCS");
-        List<ProcessExecution> outdatedExecutions = new ArrayList<>();
-        List<String> caseUuids = new ArrayList<>();
 
-        for (int i = 0; i < definitionVersions.size()-1 ; i++) {
-            outdatedExecutions.addAll(camundaClient.getExecutionsByWorkflowId(definitionVersions.get(i).getId()));
-        }
-
-        for (ProcessExecution execution: outdatedExecutions) {
-            caseUuids.add(execution.getBusinessKey());
-        }
-
-        return caseUuids;
-    }
 }

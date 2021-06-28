@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.migration;
+package uk.gov.digital.ho.hocs.migration.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

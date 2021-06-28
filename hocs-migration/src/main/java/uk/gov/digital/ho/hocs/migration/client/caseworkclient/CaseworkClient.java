@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.digital.ho.hocs.migration.Case;
-import uk.gov.digital.ho.hocs.migration.Stage;
-import uk.gov.digital.ho.hocs.migration.UpdateActiveStageTeamRequest;
+import uk.gov.digital.ho.hocs.migration.dto.Case;
+import uk.gov.digital.ho.hocs.migration.dto.Stage;
+import uk.gov.digital.ho.hocs.migration.dto.UpdateActiveStageTeamRequest;
 
 @Slf4j
 @Service

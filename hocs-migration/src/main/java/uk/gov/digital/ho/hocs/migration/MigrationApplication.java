@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -23,7 +25,10 @@ public class MigrationApplication {
 	private static final Logger log = LoggerFactory.getLogger(MigrationApplication.class);
 
 	public static void main(String[] args) {
-		SpringApplication.run(MigrationApplication.class, args).close();
+		new SpringApplicationBuilder(MigrationApplication.class)
+				.web(WebApplicationType.NONE)
+				.run(args)
+				.close();
 	}
 
 	@Bean
@@ -46,9 +51,11 @@ public class MigrationApplication {
 	}
 
 	@Bean
-	public CommandLineRunner run(Migration migration)
+	public CommandLineRunner run(MigrationService migration)
 			throws Exception {
 		return args -> {
+			log.info(migration.getDescription());
+
 			if (args.length > 0){
 				String mode = args[0].toUpperCase();
 				List<String> fixableCaseUuids = migration.getFixableCases();
