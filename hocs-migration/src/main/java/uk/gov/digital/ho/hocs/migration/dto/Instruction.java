@@ -2,11 +2,12 @@ package uk.gov.digital.ho.hocs.migration.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 public class Instruction {
-    final private String[] sourceActivityIds;
-    final private String[] targetActivityIds;
-    final private String updateEventTrigger;
+    private String[] sourceActivityIds;
+    private String[] targetActivityIds;
+    private String updateEventTrigger;
 }

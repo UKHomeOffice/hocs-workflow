@@ -25,13 +25,7 @@ public class CamundaClient {
         ProcessExecution[] executions = restTemplate.getForObject(
                 serviceBaseURL +"/rest/process-instance?processDefinitionId=" + processDefinitionId,
                 ProcessExecution[].class);
-
-        if (executions != null && executions.length > 0) {
-            log.info("Executions on workflow: {}", Arrays.toString(executions));
-        } else {
-            log.info("No executions found on specified workflow");
-        }
-
+        
         return Arrays.asList(executions);
     }
 

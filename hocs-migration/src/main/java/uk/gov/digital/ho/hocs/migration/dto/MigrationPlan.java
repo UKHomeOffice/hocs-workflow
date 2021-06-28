@@ -2,14 +2,16 @@ package uk.gov.digital.ho.hocs.migration.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class MigrationPlan {
 
-    final private String sourceProcessDefinitionId;
+    private String sourceProcessDefinitionId;
 
-    final private String targetProcessDefinitionId;
+    private String targetProcessDefinitionId;
 
-    final private Instruction[] instructions;
+    private Instruction[] instructions;
 }

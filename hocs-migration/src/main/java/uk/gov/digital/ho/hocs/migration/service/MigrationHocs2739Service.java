@@ -48,8 +48,8 @@ public class MigrationHocs2739Service implements MigrationService {
         }
 
         fixActiveStageTeam(activeStage, trueActiveStageTeamUuid);
-
-        migrate(executionHashMap.get("WCS"), 3);
+        
+        migrate(executionHashMap.get("WCS"), 2);
     }
 
     @Override
@@ -82,6 +82,9 @@ public class MigrationHocs2739Service implements MigrationService {
 
         if (validationResult.getInstructionReports().length == 0){
             camundaClient.executeMigration(migrationPlan, execution.getId());
+        } else{
+            log.error("Migration plan invalid, migration not executed. Error report: {}", 
+                    validationResult.getInstructionReports().toString());
         }
 
     }
@@ -93,7 +96,8 @@ public class MigrationHocs2739Service implements MigrationService {
 
         String migrationPlanFileName =
                 String.format("%s_%s_%d.json", processDefinitionKey, processDefinitionVersion, targetDefinitionVersion);
-
+        log.info("Migration Plan file name: {}", migrationPlanFileName);
+        
         Resource resource = new ClassPathResource("migrationPlans/" + migrationPlanFileName);
         File file = resource.getFile();
         ObjectMapper objectMapper = new ObjectMapper();

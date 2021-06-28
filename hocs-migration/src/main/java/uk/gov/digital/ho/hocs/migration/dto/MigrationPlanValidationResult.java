@@ -2,10 +2,11 @@ package uk.gov.digital.ho.hocs.migration.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 public class MigrationPlanValidationResult {
-        final private MigrationPlanError[] instructionReports;
+        private MigrationPlanError[] instructionReports;
 }
 

@@ -92,7 +92,7 @@ public class MigrationApplication {
 							if (fixableCaseUuids.contains(args[1])){
 								migration.fixCase(args[1]);
 							} else {
-								log.error("Case UUID {} is able to be fixed in current setup.", args[1]);
+								log.error("Case UUID {} is unable to be fixed in current setup.", args[1]);
 							}
 						} else {
 							log.error("A case UUID is required for processing a single case.");
