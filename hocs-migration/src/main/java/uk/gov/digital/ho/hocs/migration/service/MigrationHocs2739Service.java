@@ -23,8 +23,14 @@ import java.util.List;
 public class MigrationHocs2739Service implements MigrationService {
     final private CamundaClient camundaClient;
     final private CaseworkClient caseworkClient;
+    final private MigrationHelperService helperService;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @Override
+    public String getDescription() {
+        return "Service to fix HOCS-2739";
+    }
+    
     @Override
     public void fixCase(String caseUuid) throws IOException {
         log.info("Fixing case {}", caseUuid);
@@ -33,9 +39,9 @@ public class MigrationHocs2739Service implements MigrationService {
         String trueVariableType = "String";
         Stage activeStage = caseworkClient.getActiveStage(caseUuid);
 
-        ArrayList<ProcessExecution> executionsList = getExecutionsByCaseUuid(caseUuid, activeStage);
+        ArrayList<ProcessExecution> executionsList = helperService.getExecutionsByCaseUuid(caseUuid, activeStage);
 
-        HashMap<String, ProcessExecution> executionHashMap = getExecutionsHashMap(executionsList);
+        HashMap<String, ProcessExecution> executionHashMap = helperService.getExecutionsHashMap(executionsList);
 
         //Find true value for CaseworkTeamUUID (look up caseData for now)
         String trueVariableValue = caseworkClient.getCase(caseUuid).getCaseData().getCaseworkTeamUuid();
@@ -44,12 +50,12 @@ public class MigrationHocs2739Service implements MigrationService {
         String trueActiveStageTeamUuid = caseworkClient.getCase(caseUuid).getCaseData().getCaseworkTeamUuid();
 
         for (ProcessExecution execution: executionsList) {
-            fixProcessVariable(execution, variableName, trueVariableType, trueVariableValue);
+            helperService.fixProcessVariable(execution, variableName, trueVariableType, trueVariableValue);
         }
 
-        fixActiveStageTeam(activeStage, trueActiveStageTeamUuid);
-        
-        migrate(executionHashMap.get("WCS"), 2);
+        helperService.fixActiveStageTeam(activeStage, trueActiveStageTeamUuid);
+
+        helperService.migrate(executionHashMap.get("WCS"), 2);
     }
 
     @Override
@@ -68,75 +74,4 @@ public class MigrationHocs2739Service implements MigrationService {
 
         return caseUuids;
     }
-
-    @Override
-    public String getDescription() {
-        return "Service to fix HOCS-2739";
-    }
-
-    private void migrate (ProcessExecution execution, int targetDefinitionVersion) throws IOException {
-
-        MigrationPlan migrationPlan = getMigrationPlan(execution, targetDefinitionVersion);
-
-        MigrationPlanValidationResult validationResult = camundaClient.validateMigrationPlan(migrationPlan);
-
-        if (validationResult.getInstructionReports().length == 0){
-            camundaClient.executeMigration(migrationPlan, execution.getId());
-        } else{
-            log.error("Migration plan invalid, migration not executed. Error report: {}", 
-                    validationResult.getInstructionReports().toString());
-        }
-
-    }
-
-    private MigrationPlan getMigrationPlan(ProcessExecution execution, int targetDefinitionVersion) throws IOException {
-        String[] processDefinitionInfo = execution.getDefinitionId().split(":");
-        String processDefinitionKey = processDefinitionInfo[0];
-        String processDefinitionVersion = processDefinitionInfo[1];
-
-        String migrationPlanFileName =
-                String.format("%s_%s_%d.json", processDefinitionKey, processDefinitionVersion, targetDefinitionVersion);
-        log.info("Migration Plan file name: {}", migrationPlanFileName);
-        
-        Resource resource = new ClassPathResource("migrationPlans/" + migrationPlanFileName);
-        File file = resource.getFile();
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(file, MigrationPlan.class);
-    }
-
-    private void fixProcessVariable (ProcessExecution execution, String variableName, String variableType, String variableTrueValue){
-        ProcessVariable processVariable =
-                camundaClient.getProcessVariable(execution.getId(), variableName);
-
-        if (processVariable.getType().equals("String")
-                && !processVariable.getValue().equals(variableTrueValue)){
-
-            camundaClient.updateProcessVariable(
-                    execution.getId(), variableName, variableType, variableTrueValue);
-        }
-    }
-
-    private void fixActiveStageTeam(Stage activeStage, String variableTrueValue){
-        if (!activeStage.getTeamUuid().equals(variableTrueValue)) {
-            caseworkClient.updateStageTeam(
-                    activeStage.getCaseUuid(), activeStage.getUuid(), variableTrueValue);
-        }
-    }
-
-    private ArrayList<ProcessExecution> getExecutionsByCaseUuid(String caseUuid, Stage activeStage){
-        ArrayList<ProcessExecution> executionsList = new ArrayList<>();
-        executionsList.addAll(camundaClient.getExecutionsByBusinessKey(caseUuid));
-        executionsList.addAll(camundaClient.getExecutionsByBusinessKey(activeStage.getUuid()));
-        return executionsList;
-    }
-
-    private HashMap<String, ProcessExecution> getExecutionsHashMap (ArrayList<ProcessExecution> executionsList){
-        HashMap<String, ProcessExecution> executionHashMap = new HashMap<>();
-        for (ProcessExecution execution: executionsList) {
-            executionHashMap.put(execution.getDefinitionKey(), execution);
-        }
-        return executionHashMap;
-    }
-
-
 }

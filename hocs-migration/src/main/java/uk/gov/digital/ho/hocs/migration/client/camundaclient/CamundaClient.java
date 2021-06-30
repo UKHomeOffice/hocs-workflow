@@ -16,7 +16,7 @@ public class CamundaClient {
     private final RestTemplate restTemplate;
     private final String serviceBaseURL;
 
-    public CamundaClient(RestTemplate restTemplate, @Value("${hocs.camunda-service}") String camundaUrl) {
+    public CamundaClient(RestTemplate restTemplate, @Value("${hocs.camunda-service.url}") String camundaUrl) {
         this.restTemplate = restTemplate;
         this.serviceBaseURL=camundaUrl;
     }

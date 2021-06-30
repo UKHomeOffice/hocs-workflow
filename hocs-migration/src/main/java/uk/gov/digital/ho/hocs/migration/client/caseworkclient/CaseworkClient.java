@@ -18,7 +18,7 @@ public class CaseworkClient {
     private final RestTemplate restTemplate;
     private final String serviceBaseURL;
 
-    public CaseworkClient(RestTemplate restTemplate, @Value("${hocs.case-service}") String caseworkUrl){
+    public CaseworkClient(RestTemplate restTemplate, @Value("${hocs.case-service.url}") String caseworkUrl){
         this.restTemplate = restTemplate;
         this.serviceBaseURL = caseworkUrl;
     }
