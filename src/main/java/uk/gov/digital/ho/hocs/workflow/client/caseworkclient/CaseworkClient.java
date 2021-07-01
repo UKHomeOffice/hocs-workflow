@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +10,6 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
@@ -57,6 +57,11 @@ public class CaseworkClient {
     public void updateDateReceived(UUID caseUUID, UUID stageUUID, LocalDate dateReceived) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dateReceived", caseUUID, stageUUID), dateReceived, Void.class);
         log.info("Set Date Received for Case {}", caseUUID);
+    }
+
+    public void updateDispatchDeadlineDate(UUID caseUUID, UUID stageUUID, LocalDate dispatchDate) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/dispatchDeadlineDate", caseUUID, stageUUID), dispatchDate, Void.class);
+        log.info("Set Dispatch Deadline Date for Case {}", caseUUID);
     }
 
     public void updateDeadlineDays(UUID caseUUID, UUID stageUUID, int days){
@@ -157,6 +162,10 @@ public class CaseworkClient {
         );
         log.info("Got all stages for case: {}", caseUUID);
         return response;
+    }
+
+    public Optional<StageDto> getActiveStage(UUID caseUUID) {
+        return getAllStagesForCase(caseUUID).getStages().stream().filter(s -> s.getTeamUUID() != null).findFirst();
     }
 
     public GetCorrespondentsResponse getCorrespondentsForCase(UUID caseUUID) {

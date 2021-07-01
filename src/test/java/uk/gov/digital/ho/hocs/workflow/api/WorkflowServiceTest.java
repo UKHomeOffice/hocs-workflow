@@ -1,5 +1,19 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +21,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.digital.ho.hocs.workflow.api.dto.*;
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDtoBuilder;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseDetailsResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDtoBuilder;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SecondaryActionDto;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
@@ -18,11 +39,7 @@ import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
-
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowServiceTest {
@@ -39,10 +56,28 @@ public class WorkflowServiceTest {
     @Mock
     private InfoClient infoClient;
 
+    @Mock
+    private UserPermissionsService userPermissionsService;
+
     private WorkflowService workflowService;
 
     private final String testFieldName = "field_name";
     private final UUID testDocumentUuid = UUID.randomUUID();
+
+    private final String schemaTitle = "schema-title";
+    private final String fieldComponent = "f-comp";
+    private final String fieldLabel = "f-label";
+    private final String fieldName = "f-name";
+    private final String schemaDefaultActionLabel = "schemaDefaultActionLabel";
+    private final String secondaryActionComponent = "sa-component";
+    private final String secondaryActionName = "sa-name";
+    private final String secondaryActionLabel = "sa-label";
+    private final String caseRef = "case-ref";
+    private final Map<String, String> caseResponseData = new HashMap<>();
+    private final Object[] fieldValidation = new Object[] {};
+    private final String[] secondaryActionValidation = new String[] {};
+    private final Object schemaDtoValidation = new Object();
+    private final Object schemaDtoProps = new Object();
 
     @Before
     public void beforeTest() {
@@ -50,7 +85,8 @@ public class WorkflowServiceTest {
                 caseworkClient,
                 documentClient,
                 infoClient,
-                camundaClient);
+                camundaClient,
+                userPermissionsService);
     }
 
     @Test
@@ -237,9 +273,9 @@ public class WorkflowServiceTest {
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = GetCaseworkCaseDataResponseBuilder.aGetCaseworkCaseDataResponse()
                 .withUuid(caseUUID).withType(caseType).withData(data).withReference(caseRef).build();
 
-        StageDto stageDto1 = new StageDto("STAGE1");
-        StageDto stageDto2 = new StageDto("STAGE2");
-        StageDto stageDto3 = new StageDto("STAGE3");
+        StageDto stageDto1 = new StageDto(UUID.randomUUID(), "STAGE1", UUID.randomUUID());
+        StageDto stageDto2 = new StageDto(UUID.randomUUID(), "STAGE2", UUID.randomUUID());
+        StageDto stageDto3 = new StageDto(UUID.randomUUID(), "STAGE3", UUID.randomUUID());
         List<StageDto> stageDtos = new ArrayList<StageDto>();
         stageDtos.add(stageDto1);
         stageDtos.add(stageDto2);
@@ -307,8 +343,8 @@ public class WorkflowServiceTest {
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = GetCaseworkCaseDataResponseBuilder.aGetCaseworkCaseDataResponse()
                 .withUuid(caseUUID).withType(caseType).withData(data).withReference(caseRef).build();
 
-        StageDto stageDto1 = new StageDto(stageType1);
-        StageDto stageDto2 = new StageDto(stageType2);
+        StageDto stageDto1 = new StageDto(UUID.randomUUID(), stageType1, UUID.randomUUID());
+        StageDto stageDto2 = new StageDto(UUID.randomUUID(), stageType2, UUID.randomUUID());
         List<StageDto> stageDtos = new ArrayList<StageDto>();
         stageDtos.add(stageDto1);
         stageDtos.add(stageDto2);
@@ -346,6 +382,148 @@ public class WorkflowServiceTest {
         verify(caseworkClient).getAllStagesForCase(caseUUID);
         verify(infoClient).getSchemasForCaseTypeAndStages(caseType, allCaseStages);
         verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient, documentClient);
+    }
+
+    @Test
+    public void getStage() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String screenName = "DATA_INPUT";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null, caseRef, caseResponseData, null, null, null, null, null, null);
+        when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
+        SchemaDto schemaDto = exampleSchemaDto();
+        when(infoClient.getSchema(screenName)).thenReturn(schemaDto);
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getStageUUID()).isSameAs(stageUUID);
+        assertThat(response.getCaseReference()).isSameAs(caseRef);
+        assertThat(response.getForm().getSchema().getTitle()).isSameAs(schemaTitle);
+        assertThat(response.getForm().getSchema().getDefaultActionLabel()).isSameAs(schemaDefaultActionLabel);
+        assertThat(response.getForm().getSchema().getFields().get(0).getComponent()).isSameAs(fieldComponent);
+        assertThat(response.getForm().getSchema().getFields().get(0).getValidation()).isSameAs(fieldValidation);
+        assertThat(response.getForm().getSchema().getFields().get(0).getProps().get("label")).isSameAs(fieldLabel);
+        assertThat(response.getForm().getSchema().getFields().get(0).getProps().get("name")).isSameAs(fieldName);
+        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getComponent()).isSameAs(secondaryActionComponent);
+        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getValidation()).isSameAs(secondaryActionValidation);
+        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getProps().get("label")).isSameAs(secondaryActionLabel);
+        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getProps().get("name")).isSameAs(secondaryActionName);
+        assertThat(response.getForm().getSchema().getProps()).isSameAs(schemaDtoProps);
+        assertThat(response.getForm().getSchema().getValidation()).isSameAs(schemaDtoValidation);
+        assertThat(response.getForm().getData()).isSameAs(caseResponseData);
+    }
+
+    @Test
+    public void getStageReturnsWorkstackTriggeringResponseForFinishScreenNameWhenThereIsNoActiveStage() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String screenName = "FINISH";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.empty());
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getForm()).isNull();
+        assertThat(response.getCaseReference()).isNull();
+        assertThat(response.getStageUUID()).isEqualTo(stageUUID);
+        verify(caseworkClient).getActiveStage(caseUUID);
+        verifyNoMoreInteractions(caseworkClient, infoClient);
+    }
+
+    @Test
+    public void getStageReturnsWorkstackTriggeringResponseForFinishScreenNameWhenNotOnNextStageTeam() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String screenName = "FINISH";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        UUID nextStageUUID = UUID.randomUUID();
+        StageDto nextStage = new StageDto(nextStageUUID, "stage-type", UUID.randomUUID());
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(nextStage));
+        when(userPermissionsService.isUserOnTeam(nextStage.getTeamUUID())).thenReturn(false);
+        when(camundaClient.hasProcessInstanceVariableWithValue(anyString(), anyString(), anyString())).thenReturn(true);
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getForm()).isNull();
+        assertThat(response.getCaseReference()).isNull();
+        assertThat(response.getStageUUID()).isEqualTo(stageUUID);
+        verify(caseworkClient).getActiveStage(caseUUID);
+        verifyNoMoreInteractions(caseworkClient, infoClient);
+    }
+
+    @Test
+    public void getStageReturnsWorkstackTriggeringResponseForFinishScreenNameWhenStickyCasesOff() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String screenName = "FINISH";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        UUID nextStageUUID = UUID.randomUUID();
+        StageDto nextStage = new StageDto(nextStageUUID, "stage-type", UUID.randomUUID());
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(nextStage));
+        when(userPermissionsService.isUserOnTeam(nextStage.getTeamUUID())).thenReturn(true);
+        when(camundaClient.hasProcessInstanceVariableWithValue(anyString(), anyString(), anyString())).thenReturn(false);
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getForm()).isNull();
+        assertThat(response.getCaseReference()).isNull();
+        assertThat(response.getStageUUID()).isEqualTo(stageUUID);
+        verify(caseworkClient).getActiveStage(caseUUID);
+        verifyNoMoreInteractions(caseworkClient, infoClient);
+    }
+
+    @Test
+    public void getStageReturnsDataForNextStageForFinishScreenNameWhenStickyCasesOnAndOnNextStageTeam() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID userUUID = UUID.randomUUID();
+        String screenName = "FINISH";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        UUID nextStageUUID = UUID.randomUUID();
+        String nextStageScreenName = "DATA-INPUT";
+        when(camundaClient.getStageScreenName(nextStageUUID)).thenReturn(nextStageScreenName);
+        StageDto nextStage = new StageDto(nextStageUUID, "stage-type", UUID.randomUUID());
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(nextStage));
+        when(userPermissionsService.isUserOnTeam(nextStage.getTeamUUID())).thenReturn(true);
+        when(userPermissionsService.getUserId()).thenReturn(userUUID);
+        when(camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), "STICKY_CASES", "true")).thenReturn(true);
+        when(infoClient.getSchema(nextStageScreenName)).thenReturn(exampleSchemaDto());
+        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null, caseRef, caseResponseData, null, null, null, null, null, null);
+        when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getStageUUID()).isEqualTo(nextStageUUID);
+        assertThat(response.getForm()).isNotNull();
+        assertThat(response.getCaseReference()).isNotNull();
+        verify(caseworkClient).updateStageUser(caseUUID, nextStageUUID, userUUID);
+        verify(camundaClient).removeProcessInstanceVariableFromAllScopes(caseUUID.toString(), nextStageUUID.toString(), "STICKY_CASES");
+    }
+
+    private SchemaDto exampleSchemaDto() {
+        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), false, false);
+        List<FieldDto> fields = new ArrayList<>();
+        fields.add(fieldDto);
+        SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), secondaryActionName, secondaryActionLabel, secondaryActionComponent, secondaryActionValidation, new HashMap<>());
+        List<SecondaryActionDto> secondaryActions = new ArrayList<>();
+        secondaryActions.add(secondaryActionDto);
+        return new SchemaDto(UUID.randomUUID(), "schema-stage-type", "schema-type", schemaTitle, schemaDefaultActionLabel, false, fields, secondaryActions, schemaDtoProps, schemaDtoValidation);
     }
 
     private List<SchemaDto> setupTestSchemas() {
