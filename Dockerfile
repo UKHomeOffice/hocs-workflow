@@ -1,10 +1,11 @@
-FROM quay.io/ukhomeofficedigital/alpine:3.10
+FROM quay.io/ukhomeofficedigital/alpine:v3.13
 
 ENV USER user_hocs_workflow
-ENV USER_ID 1000
 ENV GROUP group_hocs_workflow
 ENV NAME hocs-workflow
 ENV JAR_PATH build/libs
+
+USER root
 
 RUN apk add openjdk11-jre
 
