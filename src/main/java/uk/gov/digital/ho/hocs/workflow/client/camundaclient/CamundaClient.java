@@ -124,4 +124,18 @@ public class CamundaClient {
             return null;
         }
     }
+
+
+    public void jumpToStep(UUID businessKey, String sourceStep, String destinationStep) {
+        String processInstanceId = getProcessIdByBusinessKey(businessKey);
+
+        System.out.println("Jump from: " + sourceStep + " to: " + destinationStep);
+
+        runtimeService.createProcessInstanceModification(processInstanceId)
+                .cancelAllForActivity(sourceStep)
+                .startBeforeActivity(destinationStep)
+                .execute();
+
+        System.out.println("method complete");
+    }
 }

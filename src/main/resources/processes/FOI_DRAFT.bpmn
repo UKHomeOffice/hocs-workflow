@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_0vgkz02" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_0vgkz02" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:process id="FOI_DRAFT" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_1t9pg7t</bpmn:outgoing>
@@ -11,10 +11,7 @@
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1t9pg7t" sourceRef="StartEvent_1" targetRef="ACCEPT_OR_REJECT" />
     <bpmn:endEvent id="END_EVENT">
-      <bpmn:incoming>Flow_0egr2es</bpmn:incoming>
-      <bpmn:incoming>Flow_0u3mpbo</bpmn:incoming>
-      <bpmn:incoming>Flow_12ep1q9</bpmn:incoming>
-      <bpmn:incoming>Flow_051720t</bpmn:incoming>
+      <bpmn:incoming>Flow_0dgjgea</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1izqtkp" sourceRef="ACCEPT_OR_REJECT" targetRef="draft_case_acceptance_status" />
     <bpmn:exclusiveGateway id="draft_case_acceptance_status" name="has case been accepted by the draft team?">
@@ -42,7 +39,7 @@
       <bpmn:incoming>Flow_0o0krux</bpmn:incoming>
       <bpmn:outgoing>Flow_0egr2es</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0egr2es" sourceRef="SAVE_ALLOCATION_NOTE" targetRef="END_EVENT" />
+    <bpmn:sequenceFlow id="Flow_0egr2es" sourceRef="SAVE_ALLOCATION_NOTE" targetRef="FOI_DRAFT_CHECK_ANSWERS" />
     <bpmn:userTask id="VALIDITY" name="Is request valid?" camunda:formKey="FOI_VALIDITY">
       <bpmn:incoming>case_accepted</bpmn:incoming>
       <bpmn:incoming>Flow_1sddo5x</bpmn:incoming>
@@ -239,7 +236,7 @@
       <bpmn:outgoing>Flow_0u3mpbo</bpmn:outgoing>
       <bpmn:outgoing>Flow_0iyuwqi</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0u3mpbo" name="no" sourceRef="Gateway_1ma44jq" targetRef="END_EVENT">
+    <bpmn:sequenceFlow id="Flow_0u3mpbo" name="no" sourceRef="Gateway_1ma44jq" targetRef="FOI_DRAFT_CHECK_ANSWERS">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftValidity == "DraftValid-N" || ResponseType == "EXEMPTION"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0sw685k">
@@ -332,8 +329,8 @@
     <bpmn:sequenceFlow id="Flow_1ep8ae1" sourceRef="Gateway_0camoyd" targetRef="SAVE_G6_OR_G7_APPROVAL_TEAM">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_12ep1q9" sourceRef="SAVE_SCS_APPROVAL_TEAM" targetRef="END_EVENT" />
-    <bpmn:sequenceFlow id="Flow_051720t" sourceRef="SAVE_G6_OR_G7_APPROVAL_TEAM" targetRef="END_EVENT" />
+    <bpmn:sequenceFlow id="Flow_12ep1q9" sourceRef="SAVE_SCS_APPROVAL_TEAM" targetRef="FOI_DRAFT_CHECK_ANSWERS" />
+    <bpmn:sequenceFlow id="Flow_051720t" sourceRef="SAVE_G6_OR_G7_APPROVAL_TEAM" targetRef="FOI_DRAFT_CHECK_ANSWERS" />
     <bpmn:serviceTask id="SAVE_G6_OR_G7_APPROVAL_TEAM" name="Save G6/G7 Approval Team" camunda:expression="${G6G7ApprovalTeam}" camunda:resultVariable="AllocationTeamUUID">
       <bpmn:incoming>Flow_1ep8ae1</bpmn:incoming>
       <bpmn:outgoing>Flow_051720t</bpmn:outgoing>
@@ -342,17 +339,25 @@
       <bpmn:incoming>Flow_06v6cbn</bpmn:incoming>
       <bpmn:outgoing>Flow_12ep1q9</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:userTask id="FOI_DRAFT_CHECK_ANSWERS" name="Summary Screen" camunda:formKey="FOI_DRAFT_CHECK_ANSWERS">
+      <bpmn:incoming>Flow_0egr2es</bpmn:incoming>
+      <bpmn:incoming>Flow_0u3mpbo</bpmn:incoming>
+      <bpmn:incoming>Flow_051720t</bpmn:incoming>
+      <bpmn:incoming>Flow_12ep1q9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0dgjgea</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0dgjgea" sourceRef="FOI_DRAFT_CHECK_ANSWERS" targetRef="END_EVENT" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_DRAFT">
       <bpmndi:BPMNEdge id="Flow_051720t_di" bpmnElement="Flow_051720t">
         <di:waypoint x="3130" y="290" />
-        <di:waypoint x="3180" y="290" />
-        <di:waypoint x="3180" y="374" />
+        <di:waypoint x="3250" y="290" />
+        <di:waypoint x="3250" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12ep1q9_di" bpmnElement="Flow_12ep1q9">
         <di:waypoint x="3130" y="392" />
-        <di:waypoint x="3162" y="392" />
+        <di:waypoint x="3200" y="392" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ep8ae1_di" bpmnElement="Flow_1ep8ae1">
         <di:waypoint x="2995" y="290" />
@@ -461,10 +466,10 @@
       <bpmndi:BPMNEdge id="Flow_0u3mpbo_di" bpmnElement="Flow_0u3mpbo">
         <di:waypoint x="2050" y="367" />
         <di:waypoint x="2050" y="180" />
-        <di:waypoint x="3180" y="180" />
-        <di:waypoint x="3180" y="374" />
+        <di:waypoint x="3250" y="180" />
+        <di:waypoint x="3250" y="350" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2609" y="162" width="13" height="14" />
+          <dc:Bounds x="2644" y="162" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tfbvmt_di" bpmnElement="Flow_0tfbvmt" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
@@ -642,8 +647,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0egr2es_di" bpmnElement="Flow_0egr2es">
         <di:waypoint x="920" y="120" />
-        <di:waypoint x="3180" y="120" />
-        <di:waypoint x="3180" y="374" />
+        <di:waypoint x="3250" y="120" />
+        <di:waypoint x="3250" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0o0krux_di" bpmnElement="Flow_0o0krux">
         <di:waypoint x="780" y="120" />
@@ -678,14 +683,15 @@
         <di:waypoint x="215" y="339" />
         <di:waypoint x="290" y="339" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dgjgea_di" bpmnElement="Flow_0dgjgea">
+        <di:waypoint x="3300" y="392" />
+        <di:waypoint x="3372" y="392" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="179" y="321" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0begqc1_di" bpmnElement="ACCEPT_OR_REJECT">
         <dc:Bounds x="290" y="299" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1phy81h_di" bpmnElement="END_EVENT">
-        <dc:Bounds x="3162" y="374" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_12nzvkg_di" bpmnElement="draft_case_acceptance_status" isMarkerVisible="true">
         <dc:Bounds x="465" y="367" width="50" height="50" />
@@ -848,6 +854,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_10ayrkb_di" bpmnElement="SAVE_SCS_APPROVAL_TEAM">
         <dc:Bounds x="3030" y="352" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1phy81h_di" bpmnElement="END_EVENT">
+        <dc:Bounds x="3372" y="374" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1b8occe_di" bpmnElement="FOI_DRAFT_CHECK_ANSWERS">
+        <dc:Bounds x="3200" y="352" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

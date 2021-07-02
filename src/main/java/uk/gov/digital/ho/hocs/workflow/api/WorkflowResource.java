@@ -86,4 +86,11 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping(value = "/test/{stageUuid}", produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity jumpToStep(@PathVariable UUID stageUuid,
+                                     @RequestBody JumpToStepRequest request) {
+        workflowService.jumpToStep(stageUuid, request.getSourceStep(), request.getDestinationStep());
+
+        return ResponseEntity.ok().build();
+    }
 }

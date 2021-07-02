@@ -256,4 +256,8 @@ public class WorkflowService {
 
         camundaClient.completeTask(stageUUID, values);
     }
+
+    public void jumpToStep(UUID businessKey, String sourceStep, String destinationStep) {
+        camundaClient.jumpToStep(businessKey, sourceStep, destinationStep);
+    }
 }
