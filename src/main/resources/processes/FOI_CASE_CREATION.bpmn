@@ -1,37 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_01xpdpn" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_01xpdpn" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="FOI_CASE_CREATION" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0h69u2w</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_0h69u2w" sourceRef="StartEvent_1" targetRef="Activity_0f68xh7" />
     <bpmn:endEvent id="Event_1a4lkfs">
-      <bpmn:incoming>Flow_0x9apw9</bpmn:incoming>
+      <bpmn:incoming>Flow_1vvdc7f</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0x9apw9" sourceRef="Activity_0f68xh7" targetRef="Event_1a4lkfs" />
+    <bpmn:sequenceFlow id="Flow_0x9apw9" sourceRef="Activity_0f68xh7" targetRef="ALLOCATE_TO_CASE_CREATOR" />
     <bpmn:serviceTask id="Activity_0f68xh7" name="Pass Through" camunda:expression="${execution.processBusinessKey}">
       <bpmn:incoming>Flow_0h69u2w</bpmn:incoming>
       <bpmn:outgoing>Flow_0x9apw9</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_15jbsqs" sourceRef="CHECK_ANSWERS" targetRef="CHANGE_FIELD_CLICKED" />
+    <bpmn:userTask id="CHECK_ANSWERS" name="Check answers" camunda:formKey="FOI_CASE_CREATION_CHECK_ANSWERS">
+      <bpmn:incoming>Flow_0qnp0ho</bpmn:incoming>
+      <bpmn:incoming>Flow_17hoi7k</bpmn:incoming>
+      <bpmn:outgoing>Flow_15jbsqs</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="ALLOCATE_TO_CASE_CREATOR" name="Allocate to Case Creator" camunda:expression="${bpmnService.allocateUserToStage(execution.getVariable(&#34;CaseUUID&#34;), execution.getVariable(&#34;StageUUID&#34;), execution.getVariable(&#34;LastUpdatedByUserUUID&#34;))}">
+      <bpmn:incoming>Flow_0x9apw9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qnp0ho</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0qnp0ho" sourceRef="ALLOCATE_TO_CASE_CREATOR" targetRef="CHECK_ANSWERS" />
+    <bpmn:exclusiveGateway id="CHANGE_FIELD_CLICKED" name="Has the user clicked &#39;Change&#39; on a field?" default="Flow_0bziov9">
+      <bpmn:incoming>Flow_15jbsqs</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vvdc7f</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0bziov9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1vvdc7f" sourceRef="CHANGE_FIELD_CLICKED" targetRef="Event_1a4lkfs">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0bziov9" sourceRef="CHANGE_FIELD_CLICKED" targetRef="CHANGE_ANSWERS" />
+    <bpmn:userTask id="CHANGE_ANSWERS" name="Change Answers" camunda:formKey="FOI_CASE_CREATION">
+      <bpmn:incoming>Flow_0bziov9</bpmn:incoming>
+      <bpmn:outgoing>Flow_17hoi7k</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_17hoi7k" sourceRef="CHANGE_ANSWERS" targetRef="CHECK_ANSWERS" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_CASE_CREATION">
-      <bpmndi:BPMNEdge id="Flow_0h69u2w_di" bpmnElement="Flow_0h69u2w">
-        <di:waypoint x="208" y="117" />
-        <di:waypoint x="280" y="117" />
+      <bpmndi:BPMNEdge id="Flow_0qnp0ho_di" bpmnElement="Flow_0qnp0ho">
+        <di:waypoint x="510" y="277" />
+        <di:waypoint x="560" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15jbsqs_di" bpmnElement="Flow_15jbsqs">
+        <di:waypoint x="660" y="277" />
+        <di:waypoint x="765" y="277" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0x9apw9_di" bpmnElement="Flow_0x9apw9">
-        <di:waypoint x="380" y="117" />
-        <di:waypoint x="472" y="117" />
+        <di:waypoint x="360" y="277" />
+        <di:waypoint x="410" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h69u2w_di" bpmnElement="Flow_0h69u2w">
+        <di:waypoint x="188" y="277" />
+        <di:waypoint x="260" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vvdc7f_di" bpmnElement="Flow_1vvdc7f">
+        <di:waypoint x="815" y="277" />
+        <di:waypoint x="902" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bziov9_di" bpmnElement="Flow_0bziov9">
+        <di:waypoint x="790" y="252" />
+        <di:waypoint x="790" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17hoi7k_di" bpmnElement="Flow_17hoi7k">
+        <di:waypoint x="740" y="120" />
+        <di:waypoint x="610" y="120" />
+        <di:waypoint x="610" y="237" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="172" y="99" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1a4lkfs_di" bpmnElement="Event_1a4lkfs">
-        <dc:Bounds x="472" y="99" width="36" height="36" />
+        <dc:Bounds x="152" y="259" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0lmw02k_di" bpmnElement="Activity_0f68xh7">
-        <dc:Bounds x="280" y="77" width="100" height="80" />
+        <dc:Bounds x="260" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1arlnh8_di" bpmnElement="CHECK_ANSWERS">
+        <dc:Bounds x="560" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_190pd46_di" bpmnElement="ALLOCATE_TO_CASE_CREATOR">
+        <dc:Bounds x="410" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0akadya_di" bpmnElement="CHANGE_FIELD_CLICKED" isMarkerVisible="true">
+        <dc:Bounds x="765" y="252" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="751" y="309" width="80" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0u6t62c_di" bpmnElement="CHANGE_ANSWERS">
+        <dc:Bounds x="740" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1a4lkfs_di" bpmnElement="Event_1a4lkfs">
+        <dc:Bounds x="902" y="259" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
