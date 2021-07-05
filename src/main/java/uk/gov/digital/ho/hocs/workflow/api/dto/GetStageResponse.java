@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
+@ToString
 public class GetStageResponse {
 
     @JsonProperty("stageUUID")
