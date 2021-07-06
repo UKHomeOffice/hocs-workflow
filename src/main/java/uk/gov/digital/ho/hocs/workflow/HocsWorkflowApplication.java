@@ -22,7 +22,7 @@ public class HocsWorkflowApplication {
 
     @PreDestroy
     public void stop() {
-        log.info("hocs-workflow stopping gracefully");
+        log.info("Stopping gracefully");
     }
 
 }
