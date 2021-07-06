@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.domain.model.forms;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor()
 @Getter
+@ToString
 public class HocsFormField {
 
     protected String component;
