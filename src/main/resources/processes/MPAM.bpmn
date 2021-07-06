@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_05fb2zj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.6.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_05fb2zj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:process id="MPAM" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1" name="Start case">
       <bpmn:outgoing>SequenceFlow_14toxc6</bpmn:outgoing>
@@ -57,9 +57,9 @@
       <bpmn:incoming>SequenceFlow_0oah2ej</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_00jq2tl</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0jlr3pd</bpmn:incoming>
-      <bpmn:incoming>Flow_0xagdv6</bpmn:incoming>
       <bpmn:incoming>Flow_0xx44cs</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1eflymy</bpmn:incoming>
+      <bpmn:incoming>Flow_1d8wuy8</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_009f2xi</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_0u2xrvf" sourceRef="CallActivity_13zxdve" targetRef="Gateway_1m98s1t" />
@@ -1022,7 +1022,7 @@
       <bpmn:outgoing>Flow_0xagdv6</bpmn:outgoing>
       <bpmn:outgoing>Flow_0fz9w03</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0xagdv6" name="false" sourceRef="Gateway_1m98s1t" targetRef="CallActivity_Triage">
+    <bpmn:sequenceFlow id="Flow_0xagdv6" name="false" sourceRef="Gateway_1m98s1t" targetRef="Activity_0l8tjxc">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BusArea != "TransferToOgd" &amp;&amp; BusArea != "TransferToOther"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0fz9w03" name="true" sourceRef="Gateway_1m98s1t" targetRef="Activity_0esggvd">
@@ -1116,6 +1116,16 @@
     <bpmn:sequenceFlow id="Flow_0vtrsho" sourceRef="ExclusiveGateway_1nyjaew" targetRef="CallActivity_DraftEscalated_FromRequestContribution">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftStatus == "RequestContribution"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1d8wuy8" sourceRef="Activity_0l8tjxc" targetRef="CallActivity_Triage" />
+    <bpmn:serviceTask id="Activity_0l8tjxc" name="Sticky Cases On" camunda:expression="${execution.setVariable(&#34;STICKY_CASES&#34;, &#34;true&#34;)}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="Input_3lfe834" />
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0xagdv6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1d8wuy8</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM">
@@ -1249,11 +1259,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0xagdv6_di" bpmnElement="Flow_0xagdv6">
         <di:waypoint x="494" y="502" />
-        <di:waypoint x="641" y="502" />
-        <di:waypoint x="641" y="497" />
-        <di:waypoint x="727" y="497" />
+        <di:waypoint x="570" y="502" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="557" y="485" width="24" height="14" />
+          <dc:Bounds x="527" y="485" width="24" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_086nasv_di" bpmnElement="Flow_086nasv">
@@ -1913,6 +1921,10 @@
         <di:waypoint x="238" y="502" />
         <di:waypoint x="280" y="502" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1d8wuy8_di" bpmnElement="Flow_1d8wuy8">
+        <di:waypoint x="670" y="497" />
+        <di:waypoint x="727" y="497" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="202" y="484" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -2215,6 +2227,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1orri9h_di" bpmnElement="Gateway_1orri9h" isMarkerVisible="true">
         <dc:Bounds x="3024" y="665" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_146rhix_di" bpmnElement="Activity_0l8tjxc">
+        <dc:Bounds x="570" y="462" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
