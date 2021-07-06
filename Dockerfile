@@ -1,19 +1,18 @@
-FROM quay.io/ukhomeofficedigital/openjdk11:v11.0.5_10
+FROM quay.io/ukhomeofficedigital/alpine:v3.13
 
 ENV USER user_hocs_workflow
-ENV USER_ID 1000
 ENV GROUP group_hocs_workflow
 ENV NAME hocs-workflow
 ENV JAR_PATH build/libs
 
-RUN yum update -y glibc && \
-    yum update -y nss && \
-    yum update -y bind-license
+USER root
+
+RUN apk add openjdk11-jre
 
 WORKDIR /app
 
-RUN groupadd -r ${GROUP} && \
-    useradd -r -u ${USER_ID} -g ${GROUP} ${USER} -d /app && \
+RUN addgroup -S ${GROUP} && \
+    adduser -S ${USER} -G ${GROUP} -h /app && \
     mkdir -p /app && \
     chown -R ${USER}:${GROUP} /app
 
@@ -25,6 +24,6 @@ RUN chmod a+x /app/scripts/*
 
 EXPOSE 8080
 
-USER ${USER_ID}
+USER ${USER}
 
-CMD /app/scripts/run.sh
+CMD ["sh", "/app/scripts/run.sh"]
