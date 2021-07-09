@@ -26,6 +26,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @Deployment(resources = {
         "processes/STAGE.bpmn",
         "processes/FOI.bpmn",
+        "processes/FOI_CASE_CREATION.bpmn",
         "processes/FOI_DATA_INPUT.bpmn",
         "processes/FOI_ALLOCATION.bpmn",
         "processes/FOI_ACCEPTANCE.bpmn",
@@ -36,6 +37,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 })
 public class FOI {
 
+    public static final String CASE_CREATION_ACTIVITY = "Activity_1w0zoo5";
     public static final String DATA_INPUT_ACTIVITY = "Activity_0jtkbij";
     public static final String ALLOCATION_ACTIVITY = "Activity_16l1q7b";
     public static final String COMPLETE_CASE_ACTIVITY = "COMPLETE_CASE";
@@ -64,6 +66,9 @@ public class FOI {
 
     @Test
     public void happyPath() {
+
+        whenAtCallActivity("FOI_CASE_CREATION")
+                .deploy(rule);
 
         whenAtCallActivity("FOI_DATA_INPUT")
                 .deploy(rule);
@@ -105,6 +110,9 @@ public class FOI {
                 .hasCompleted("FOI_START");
 
         verify(FOIProcess, times(1))
+                .hasCompleted(CASE_CREATION_ACTIVITY);
+
+        verify(FOIProcess, times(1))
                 .hasCompleted(DATA_INPUT_ACTIVITY);
 
         verify(FOIProcess, times(2))
@@ -135,6 +143,9 @@ public class FOI {
     @Test
     public void happyPath_caseQAdOffline() {
 
+        whenAtCallActivity("FOI_CASE_CREATION")
+                .deploy(rule);
+
         whenAtCallActivity("FOI_DATA_INPUT")
                 .deploy(rule);
 
@@ -163,6 +174,9 @@ public class FOI {
 
         verify(FOIProcess, times(1))
                 .hasCompleted("FOI_START");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(CASE_CREATION_ACTIVITY);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(DATA_INPUT_ACTIVITY);
@@ -196,6 +210,9 @@ public class FOI {
 
     @Test
     public void caseRejectedAtAllocation() {
+
+        whenAtCallActivity("FOI_CASE_CREATION")
+                .deploy(rule);
 
         whenAtCallActivity("FOI_DATA_INPUT")
                 .deploy(rule);
@@ -236,6 +253,9 @@ public class FOI {
                 .hasCompleted("FOI_START");
 
         verify(FOIProcess, times(1))
+                .hasCompleted(CASE_CREATION_ACTIVITY);
+
+        verify(FOIProcess, times(1))
                 .hasCompleted(DATA_INPUT_ACTIVITY);
 
         verify(FOIProcess, times(2))
@@ -267,6 +287,10 @@ public class FOI {
 
     @Test
     public void caseRejectedByDraftTeam() {
+
+        whenAtCallActivity("FOI_CASE_CREATION")
+                .deploy(rule);
+
         whenAtCallActivity("FOI_DATA_INPUT")
                 .deploy(rule);
 
@@ -305,6 +329,9 @@ public class FOI {
 
         verify(FOIProcess, times(1))
                 .hasCompleted("FOI_START");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(CASE_CREATION_ACTIVITY);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(DATA_INPUT_ACTIVITY);
