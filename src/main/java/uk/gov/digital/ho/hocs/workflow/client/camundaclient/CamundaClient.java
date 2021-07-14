@@ -72,8 +72,6 @@ public class CamundaClient {
         return formKeyScreenName != null ? formKeyScreenName : getStageScreenNameFromProcessVariable(stageUUID);
     }
 
-
-
     public String getFormKeyForCurrentTask(UUID stageUUID) {
         Task task = taskService.createTaskQuery()
             .processInstanceBusinessKey(stageUUID.toString())
@@ -147,5 +145,4 @@ public class CamundaClient {
             return null;
         }
     }
-
 }

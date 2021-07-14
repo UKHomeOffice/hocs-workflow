@@ -76,7 +76,6 @@ public class WorkflowServiceTest {
     private final Map<String, String> caseResponseData = new HashMap<>();
     private final Object[] fieldValidation = new Object[] {};
     private final String[] secondaryActionValidation = new String[] {};
-    private final Object schemaDtoValidation = new Object();
     private final Object schemaDtoProps = new Object();
 
     @Before
@@ -413,7 +412,6 @@ public class WorkflowServiceTest {
         assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getProps().get("label")).isSameAs(secondaryActionLabel);
         assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getProps().get("name")).isSameAs(secondaryActionName);
         assertThat(response.getForm().getSchema().getProps()).isSameAs(schemaDtoProps);
-//        assertThat(response.getForm().getSchema().getValidation()).isSameAs(schemaDtoValidation);
         assertThat(response.getForm().getData()).isSameAs(caseResponseData);
     }
 
