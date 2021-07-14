@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +10,6 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
@@ -163,6 +163,10 @@ public class CaseworkClient {
         );
         log.info("Got all stages for case: {}", caseUUID);
         return response;
+    }
+
+    public Optional<StageDto> getActiveStage(UUID caseUUID) {
+        return getAllStagesForCase(caseUUID).getStages().stream().filter(s -> s.getTeamUUID() != null).findFirst();
     }
 
     public GetCorrespondentsResponse getCorrespondentsForCase(UUID caseUUID) {

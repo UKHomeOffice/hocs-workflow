@@ -55,6 +55,10 @@ public class UserPermissionsService {
         return userTeams;
     }
 
+    public boolean isUserOnTeam(UUID teamUUID) {
+        return getUserTeams().contains(teamUUID);
+    }
+
     public Set<String> getUserCaseTypes() {
         Set<String> userCaseTypes = getUserPermission().stream()
                 .map(p -> p.getCaseTypeCode())
