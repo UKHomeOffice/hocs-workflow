@@ -5,7 +5,7 @@
       <bpmn:outgoing>Flow_0h69u2w</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_0h69u2w" sourceRef="StartEvent_1" targetRef="Activity_0f68xh7" />
-    <bpmn:endEvent id="Event_1a4lkfs">
+    <bpmn:endEvent id="END_EVENT">
       <bpmn:incoming>Flow_1vvdc7f</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0x9apw9" sourceRef="Activity_0f68xh7" targetRef="ALLOCATE_TO_CASE_CREATOR" />
@@ -29,7 +29,7 @@
       <bpmn:outgoing>Flow_1vvdc7f</bpmn:outgoing>
       <bpmn:outgoing>Flow_0bziov9</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1vvdc7f" sourceRef="CHANGE_FIELD_CLICKED" targetRef="Event_1a4lkfs">
+    <bpmn:sequenceFlow id="Flow_1vvdc7f" sourceRef="CHANGE_FIELD_CLICKED" targetRef="END_EVENT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0bziov9" sourceRef="CHANGE_FIELD_CLICKED" targetRef="CHANGE_ANSWERS" />
@@ -37,15 +37,33 @@
       <bpmn:incoming>Flow_0bziov9</bpmn:incoming>
       <bpmn:outgoing>Flow_1x2wc2q</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Activity_0534q9f" name="Update Deadlines" camunda:expression="${bpmnService.updateDeadline(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;DateReceived&#34;))}">
+    <bpmn:serviceTask id="UPDATE_DEADLINES" name="Update Deadlines" camunda:expression="${bpmnService.updateDeadline(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;DateReceived&#34;))}">
       <bpmn:incoming>Flow_1x2wc2q</bpmn:incoming>
       <bpmn:outgoing>Flow_1spcv8x</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1spcv8x" sourceRef="Activity_0534q9f" targetRef="CHECK_ANSWERS" />
-    <bpmn:sequenceFlow id="Flow_1x2wc2q" sourceRef="CHANGE_ANSWERS" targetRef="Activity_0534q9f" />
+    <bpmn:sequenceFlow id="Flow_1spcv8x" sourceRef="UPDATE_DEADLINES" targetRef="CHECK_ANSWERS" />
+    <bpmn:sequenceFlow id="Flow_1x2wc2q" sourceRef="CHANGE_ANSWERS" targetRef="UPDATE_DEADLINES" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_CASE_CREATION">
+      <bpmndi:BPMNEdge id="Flow_1x2wc2q_di" bpmnElement="Flow_1x2wc2q">
+        <di:waypoint x="770" y="120" />
+        <di:waypoint x="720" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1spcv8x_di" bpmnElement="Flow_1spcv8x">
+        <di:waypoint x="620" y="120" />
+        <di:waypoint x="550" y="120" />
+        <di:waypoint x="550" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bziov9_di" bpmnElement="Flow_0bziov9">
+        <di:waypoint x="920" y="212" />
+        <di:waypoint x="920" y="120" />
+        <di:waypoint x="870" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vvdc7f_di" bpmnElement="Flow_1vvdc7f">
+        <di:waypoint x="945" y="237" />
+        <di:waypoint x="1022" y="237" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qnp0ho_di" bpmnElement="Flow_0qnp0ho">
         <di:waypoint x="460" y="237" />
         <di:waypoint x="500" y="237" />
@@ -62,41 +80,20 @@
         <di:waypoint x="188" y="237" />
         <di:waypoint x="220" y="237" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1spcv8x_di" bpmnElement="Flow_1spcv8x">
-        <di:waypoint x="620" y="120" />
-        <di:waypoint x="550" y="120" />
-        <di:waypoint x="550" y="197" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1vvdc7f_di" bpmnElement="Flow_1vvdc7f">
-        <di:waypoint x="945" y="237" />
-        <di:waypoint x="1022" y="237" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0bziov9_di" bpmnElement="Flow_0bziov9">
-        <di:waypoint x="920" y="212" />
-        <di:waypoint x="920" y="120" />
-        <di:waypoint x="870" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1x2wc2q_di" bpmnElement="Flow_1x2wc2q">
-        <di:waypoint x="770" y="120" />
-        <di:waypoint x="720" y="120" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="219" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1a4lkfs_di" bpmnElement="END_EVENT">
+        <dc:Bounds x="1022" y="219" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0lmw02k_di" bpmnElement="Activity_0f68xh7">
         <dc:Bounds x="220" y="197" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_190pd46_di" bpmnElement="ALLOCATE_TO_CASE_CREATOR">
-        <dc:Bounds x="360" y="197" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1arlnh8_di" bpmnElement="CHECK_ANSWERS">
         <dc:Bounds x="500" y="197" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0534q9f_di" bpmnElement="Activity_0534q9f">
-        <dc:Bounds x="620" y="80" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0u6t62c_di" bpmnElement="CHANGE_ANSWERS">
-        <dc:Bounds x="770" y="80" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_190pd46_di" bpmnElement="ALLOCATE_TO_CASE_CREATOR">
+        <dc:Bounds x="360" y="197" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0akadya_di" bpmnElement="CHANGE_FIELD_CLICKED" isMarkerVisible="true">
         <dc:Bounds x="895" y="212" width="50" height="50" />
@@ -104,8 +101,11 @@
           <dc:Bounds x="881" y="269" width="80" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1a4lkfs_di" bpmnElement="Event_1a4lkfs">
-        <dc:Bounds x="1022" y="219" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_0u6t62c_di" bpmnElement="CHANGE_ANSWERS">
+        <dc:Bounds x="770" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0534q9f_di" bpmnElement="UPDATE_DEADLINES">
+        <dc:Bounds x="620" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
