@@ -59,9 +59,9 @@ public class WorkflowService {
         this.camundaClient = camundaClient;
     }
 
-    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID) {
+    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
-        Map<String, String> data = new HashMap<>();
+        Map<String, String> data = new HashMap<>(receivedData);
         data.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         data.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived);

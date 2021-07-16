@@ -37,4 +37,7 @@ public class FieldDto {
 
     @JsonProperty("active")
     private boolean active;
+
+    @JsonProperty("child")
+    private FieldDto child;
 }

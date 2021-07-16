@@ -16,6 +16,7 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +77,7 @@ public class AuthorisationAspectTest {
     public void shouldNotCallCaseServiceWhenNewCase() throws Throwable {
         String type = "MIN";
         Object[] args = new Object[1];
-        args[0] = new CreateCaseRequest("MIN", LocalDate.now(), new ArrayList<>());
+        args[0] = new CreateCaseRequest("MIN", LocalDate.now(), new HashMap<>(), new ArrayList<>());
         when(annotation.accessLevel()).thenReturn(AccessLevel.READ);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
 
