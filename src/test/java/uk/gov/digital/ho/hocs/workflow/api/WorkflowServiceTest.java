@@ -526,6 +526,147 @@ public class WorkflowServiceTest {
         return new SchemaDto(UUID.randomUUID(), "schema-stage-type", "schema-type", schemaTitle, schemaDefaultActionLabel, false, fields, secondaryActions, schemaDtoProps, schemaDtoValidation);
     }
 
+    @Test
+    public void getStage() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String screenName = "DATA_INPUT";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null, caseRef, caseResponseData, null, null, null, null, null, null);
+        when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
+        SchemaDto schemaDto = exampleSchemaDto();
+        when(infoClient.getSchema(screenName)).thenReturn(schemaDto);
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getStageUUID()).isSameAs(stageUUID);
+        assertThat(response.getCaseReference()).isSameAs(caseRef);
+        assertThat(response.getForm().getSchema().getTitle()).isSameAs(schemaTitle);
+        assertThat(response.getForm().getSchema().getDefaultActionLabel()).isSameAs(schemaDefaultActionLabel);
+        assertThat(response.getForm().getSchema().getFields().get(0).getComponent()).isSameAs(fieldComponent);
+        assertThat(response.getForm().getSchema().getFields().get(0).getValidation()).isSameAs(fieldValidation);
+        assertThat(response.getForm().getSchema().getFields().get(0).getProps().get("label")).isSameAs(fieldLabel);
+        assertThat(response.getForm().getSchema().getFields().get(0).getProps().get("name")).isSameAs(fieldName);
+        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getComponent()).isSameAs(secondaryActionComponent);
+        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getValidation()).isSameAs(secondaryActionValidation);
+        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getProps().get("label")).isSameAs(secondaryActionLabel);
+        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getProps().get("name")).isSameAs(secondaryActionName);
+        assertThat(response.getForm().getSchema().getProps()).isSameAs(schemaDtoProps);
+        assertThat(response.getForm().getData()).isSameAs(caseResponseData);
+    }
+
+    @Test
+    public void getStageReturnsWorkstackTriggeringResponseForFinishScreenNameWhenThereIsNoActiveStage() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String screenName = "FINISH";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.empty());
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getForm()).isNull();
+        assertThat(response.getCaseReference()).isNull();
+        assertThat(response.getStageUUID()).isEqualTo(stageUUID);
+        verify(caseworkClient).getActiveStage(caseUUID);
+        verifyNoMoreInteractions(caseworkClient, infoClient);
+    }
+
+    @Test
+    public void getStageReturnsWorkstackTriggeringResponseForFinishScreenNameWhenNotOnNextStageTeam() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String screenName = "FINISH";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        UUID nextStageUUID = UUID.randomUUID();
+        StageDto nextStage = new StageDto(nextStageUUID, "stage-type", UUID.randomUUID());
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(nextStage));
+        when(userPermissionsService.isUserOnTeam(nextStage.getTeamUUID())).thenReturn(false);
+        when(camundaClient.hasProcessInstanceVariableWithValue(anyString(), anyString(), anyString())).thenReturn(true);
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getForm()).isNull();
+        assertThat(response.getCaseReference()).isNull();
+        assertThat(response.getStageUUID()).isEqualTo(stageUUID);
+        verify(caseworkClient).getActiveStage(caseUUID);
+        verifyNoMoreInteractions(caseworkClient, infoClient);
+    }
+
+    @Test
+    public void getStageReturnsWorkstackTriggeringResponseForFinishScreenNameWhenStickyCasesOff() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String screenName = "FINISH";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        UUID nextStageUUID = UUID.randomUUID();
+        StageDto nextStage = new StageDto(nextStageUUID, "stage-type", UUID.randomUUID());
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(nextStage));
+        when(userPermissionsService.isUserOnTeam(nextStage.getTeamUUID())).thenReturn(true);
+        when(camundaClient.hasProcessInstanceVariableWithValue(anyString(), anyString(), anyString())).thenReturn(false);
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getForm()).isNull();
+        assertThat(response.getCaseReference()).isNull();
+        assertThat(response.getStageUUID()).isEqualTo(stageUUID);
+        verify(caseworkClient).getActiveStage(caseUUID);
+        verifyNoMoreInteractions(caseworkClient, infoClient);
+    }
+
+    @Test
+    public void getStageReturnsDataForNextStageForFinishScreenNameWhenStickyCasesOnAndOnNextStageTeam() {
+        //given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID userUUID = UUID.randomUUID();
+        String screenName = "FINISH";
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        UUID nextStageUUID = UUID.randomUUID();
+        String nextStageScreenName = "DATA-INPUT";
+        when(camundaClient.getStageScreenName(nextStageUUID)).thenReturn(nextStageScreenName);
+        StageDto nextStage = new StageDto(nextStageUUID, "stage-type", UUID.randomUUID());
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(nextStage));
+        when(userPermissionsService.isUserOnTeam(nextStage.getTeamUUID())).thenReturn(true);
+        when(userPermissionsService.getUserId()).thenReturn(userUUID);
+        when(camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), "STICKY_CASES", "true")).thenReturn(true);
+        when(infoClient.getSchema(nextStageScreenName)).thenReturn(exampleSchemaDto());
+        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null, caseRef, caseResponseData, null, null, null, null, null, null);
+        when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
+
+        //when
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+
+        //then
+        assertThat(response.getStageUUID()).isEqualTo(nextStageUUID);
+        assertThat(response.getForm()).isNotNull();
+        assertThat(response.getCaseReference()).isNotNull();
+        verify(caseworkClient).updateStageUser(caseUUID, nextStageUUID, userUUID);
+        verify(camundaClient).removeProcessInstanceVariableFromAllScopes(caseUUID.toString(), nextStageUUID.toString(), "STICKY_CASES");
+    }
+
+    private SchemaDto exampleSchemaDto() {
+        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), false, false);
+        List<FieldDto> fields = new ArrayList<>();
+        fields.add(fieldDto);
+        SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), secondaryActionName, secondaryActionLabel, secondaryActionComponent, secondaryActionValidation, new HashMap<>());
+        List<SecondaryActionDto> secondaryActions = new ArrayList<>();
+        secondaryActions.add(secondaryActionDto);
+        return new SchemaDto(UUID.randomUUID(), "schema-stage-type", "schema-type", schemaTitle, schemaDefaultActionLabel, false, fields, secondaryActions, schemaDtoProps);
+    }
+
     private List<SchemaDto> setupTestSchemas() {
 
         Map<String, Object> props = Map.of("entity", "document");

@@ -138,6 +138,17 @@ public class WorkflowService {
 
     private boolean isStickyCasesModeOn(UUID caseUUID) {
         return camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), STICKY_CASES_VARIABLE, Boolean.TRUE.toString());
+        SchemaDto schemaDto = infoClient.getSchema(screenName);
+        List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
+        List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(toList());
+        fields = HocsFormAccordion.loadFormAccordions(fields);
+        HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions, schemaDto.getProps());
+        HocsForm form = new HocsForm(schema, inputResponse.getData());
+        return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
+    }
+
+    private boolean isStickyCasesModeOn(UUID caseUUID) {
+        return camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), STICKY_CASES_VARIABLE, Boolean.TRUE.toString());
     }
 
     private void turnOffStickyCases(UUID caseUUID, UUID stageUUID) {
