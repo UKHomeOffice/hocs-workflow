@@ -73,6 +73,21 @@ public class MPAMUpdateEnquirySubjectReason {
     }
 
     @Test
+    public void whenEnquirySubjectInvalidDirection_thenClearCalledAndEndEvent() {
+        when(processScenario.waitsAtUserTask(MPAM_ENQUIRY_SUBJECT_ACTIVITY))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "TEST")));
+
+        Scenario.run(processScenario)
+                .startByKey(MPAM_UPDATE_ENQUIRY_SUBJECT_REASON_BPMN)
+                .execute();
+
+        verify(processScenario).hasCompleted(MPAM_ENQUIRY_SUBJECT_ACTIVITY);
+        verify(processScenario).hasCompleted(CLEAR_TEMP_ENQUIRY_SUBJECT_ACTIVITY);
+        verify(processScenario).hasFinished(MPAM_UPDATE_ENQUIRY_SUBJECT_REASON_END_EVENT);
+    }
+
+    @Test
     public void whenEnquirySubjectSubmittedInvalid_thenReloadsActivity() {
         when(processScenario.waitsAtUserTask(MPAM_ENQUIRY_SUBJECT_ACTIVITY))
                 .thenReturn(task -> task.complete(withVariables(
@@ -98,6 +113,27 @@ public class MPAMUpdateEnquirySubjectReason {
         when(processScenario.waitsAtUserTask(MPAM_ENQUIRY_REASON_ACTIVITY))
                 .thenReturn(task -> task.complete(withVariables(
                         "DIRECTION", "BACKWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey(MPAM_UPDATE_ENQUIRY_SUBJECT_REASON_BPMN)
+                .execute();
+
+        verify(processScenario).hasCompleted(MPAM_ENQUIRY_SUBJECT_ACTIVITY);
+        verify(processScenario).hasCompleted(MPAM_ENQUIRY_REASON_ACTIVITY);
+        verify(processScenario).hasCompleted(CLEAR_TEMP_ENQUIRY_SUBJECT_REASON_ACTIVITY);
+        verify(processScenario).hasFinished(MPAM_UPDATE_ENQUIRY_SUBJECT_REASON_END_EVENT);
+    }
+
+    @Test
+    public void whenEnquiryReasonInvalidDirection_thenClearCalledAndEndEvent() {
+        when(processScenario.waitsAtUserTask(MPAM_ENQUIRY_SUBJECT_ACTIVITY))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "valid", "true")));
+
+        when(processScenario.waitsAtUserTask(MPAM_ENQUIRY_REASON_ACTIVITY))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "TEST")));
 
         Scenario.run(processScenario)
                 .startByKey(MPAM_UPDATE_ENQUIRY_SUBJECT_REASON_BPMN)
