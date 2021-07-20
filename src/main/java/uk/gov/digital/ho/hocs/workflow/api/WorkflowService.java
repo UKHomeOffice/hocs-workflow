@@ -18,6 +18,8 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
+import uk.gov.digital.ho.hocs.workflow.migration.MigrationCaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.migration.MigrationCreateCaseworkCorrespondentRequest;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
 import java.time.LocalDate;
@@ -37,6 +39,7 @@ public class WorkflowService {
     private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
+    private final MigrationCaseworkClient migrationCaseworkClient;
 
     private static final String COMPONENT_ENTITY_LIST = "entity-list";
     private static final String COMPONENT_DROPDOWN = "dropdown";
@@ -52,16 +55,45 @@ public class WorkflowService {
     public WorkflowService(CaseworkClient caseworkClient,
                            DocumentClient documentClient,
                            InfoClient infoClient,
-                           CamundaClient camundaClient) {
+                           CamundaClient camundaClient,
+                           MigrationCaseworkClient migrationCaseworkClient) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
+        this.migrationCaseworkClient = migrationCaseworkClient;
     }
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>(receivedData);
+        MigrationCreateCaseworkCorrespondentRequest correspondentRequest = null;
+
+        //If we have a name we have correspondent details attached to the case creation request
+        if(data.get("Fullname").length() > 0){
+            correspondentRequest = new MigrationCreateCaseworkCorrespondentRequest(
+                    "FOI Requester",
+                    data.get("Fullname"),
+                    data.get("Postcode"),
+                    data.get("Address1"),
+                    data.get("Address2"),
+                    data.get("Address3"),
+                    data.get("Country"),
+                    data.get("Telephone"),
+                    data.get("Email"),
+                    data.get("Reference")
+            );
+            data.remove("Fullname");
+            data.remove("Postcode");
+            data.remove("Address1");
+            data.remove("Address2");
+            data.remove("Address3");
+            data.remove("Country");
+            data.remove("Telephone");
+            data.remove("Email");
+            data.remove("Reference");
+        }
+
         data.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         data.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived);
@@ -77,6 +109,13 @@ public class WorkflowService {
             seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
             seedData.putAll(data);
             camundaClient.startCase(caseUUID, caseDataType, seedData);
+
+            //Create correspondent
+            if (correspondentRequest != null) {
+                UUID stageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
+                UUID correspondentUUID = migrationCaseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
+                caseworkClient.updatePrimaryCorrespondent(caseUUID, stageUUID, correspondentUUID);
+            }
 
         } else {
             log.error("Failed to start case, invalid caseUUID!, event: {}", value(EVENT, CASE_STARTED_FAILURE));

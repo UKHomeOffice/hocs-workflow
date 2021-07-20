@@ -18,6 +18,7 @@ import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.migration.MigrationCaseworkClient;
 
 import java.util.*;
 
@@ -39,6 +40,9 @@ public class WorkflowServiceTest {
     @Mock
     private InfoClient infoClient;
 
+    @Mock
+    MigrationCaseworkClient migrationCaseworkClient;
+
     private WorkflowService workflowService;
 
     private final String testFieldName = "field_name";
@@ -50,7 +54,8 @@ public class WorkflowServiceTest {
                 caseworkClient,
                 documentClient,
                 infoClient,
-                camundaClient);
+                camundaClient,
+                migrationCaseworkClient);
     }
 
     @Test
