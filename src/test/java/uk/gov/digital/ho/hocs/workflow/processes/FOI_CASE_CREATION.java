@@ -29,6 +29,10 @@ public class FOI_CASE_CREATION {
     public static final String CHANGE_ANSWERS = "CHANGE_ANSWERS";
     public static final String UPDATE_DEADLINES = "UPDATE_DEADLINES";
     public static final String END_EVENT = "END_EVENT";
+    public static final String SAVE_PRIMARY_TOPIC_PRE_CHANGE = "Activity_1xbxkjm";
+    public static final String SAVE_PRIMARY_TOPIC_POST_CHANGE = "Activity_0krulfl";
+
+
 
     @Rule
     @ClassRule
@@ -67,6 +71,9 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
+
         verify(FOICaseCreationProcess, times(2))
                 .hasCompleted(CHECK_ANSWERS);
 
@@ -76,8 +83,47 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(UPDATE_DEADLINES);
 
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_POST_CHANGE);
+
         verify(FOICaseCreationProcess).hasFinished(END_EVENT);
 
     }
 
+    @Test
+    public void testAnswersNotChanged() {
+
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD")));
+
+        Scenario.run(FOICaseCreationProcess)
+                .startByKey("FOI_CASE_CREATION")
+                .execute();
+
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
+
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
+
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(CHECK_ANSWERS);
+
+        // NOT INVOKED
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(CHANGE_ANSWERS);
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_POST_CHANGE);
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(UPDATE_DEADLINES);
+
+        // END NOT INVOKED
+
+        verify(FOICaseCreationProcess).hasFinished(END_EVENT);
+
+    }
 }

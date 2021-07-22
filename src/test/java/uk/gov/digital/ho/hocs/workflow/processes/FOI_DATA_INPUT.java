@@ -33,7 +33,6 @@ public class FOI_DATA_INPUT {
     public static final String SET_PRIMARY_CORRESPONDENT = "ServiceTask_1qqx9t6";
     public static final String VALIDATE_CORRESPONDENCE_DETAILS = "UserTask_0ni11p2";
     public static final String VALIDATE_SET_PRIMARY_CORRESPONDENT = "UserTask_0zpiaus";
-    public static final String SAVE_PRIMARY_TOPIC = "Activity_1gjc7c1";
 
     @Rule
     @ClassRule
@@ -85,9 +84,6 @@ public class FOI_DATA_INPUT {
 
         verify(FOIDataInputProcess, times(2))
                 .hasCompleted(SET_PRIMARY_CORRESPONDENT);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SAVE_PRIMARY_TOPIC);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SAVE_PRIMARY_CORRESPONDENT);

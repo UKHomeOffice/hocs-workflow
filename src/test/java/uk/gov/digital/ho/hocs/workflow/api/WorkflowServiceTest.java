@@ -77,6 +77,7 @@ public class WorkflowServiceTest {
     private final Object[] fieldValidation = new Object[] {};
     private final String[] secondaryActionValidation = new String[] {};
     private final Object schemaDtoProps = new Object();
+    private FieldDto childField = new FieldDto(UUID.randomUUID(),"test", "test", "test", fieldValidation, new HashMap<>(), false, false, null);
 
     @Before
     public void beforeTest() {
@@ -515,7 +516,7 @@ public class WorkflowServiceTest {
     }
 
     private SchemaDto exampleSchemaDto() {
-        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), false, false);
+        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), false, false, childField);
         List<FieldDto> fields = new ArrayList<>();
         fields.add(fieldDto);
         SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), secondaryActionName, secondaryActionLabel, secondaryActionComponent, secondaryActionValidation, new HashMap<>());
