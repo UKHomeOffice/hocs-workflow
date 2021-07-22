@@ -62,7 +62,6 @@ class WorkflowResource {
     @GetMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) {
         GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
-        log.info(response.toString());
         return ResponseEntity.ok(response);
     }
 
