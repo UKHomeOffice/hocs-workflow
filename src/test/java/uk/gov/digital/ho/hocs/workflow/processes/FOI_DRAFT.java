@@ -37,6 +37,8 @@ public class FOI_DRAFT {
     public static final String REJECT_CASE = "REJECT_CASE";
     public static final String ALLOCATE_TO_ACCEPTANCE_TEAM = "ALLOCATE_TO_ACCEPTANCE_TEAM";
     public static final String SAVE_ALLOCATION_NOTE = "SAVE_ALLOCATION_NOTE";
+    public static final String SET_TO_REJECTED_BY_DRAFT = "SET_TO_REJECTED_BY_DRAFT";
+    public static final String CLEAR_REJECTED = "CLEAR_REJECTED";
     public static final String MULTIPLE_CONTRIBUTIONS = "MULTIPLE_CONTRIBUTIONS";
     public static final String END_EVENT = "END_EVENT";
     public static final String VALIDITY = "VALIDITY";
@@ -89,6 +91,7 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_ACCEPTANCE_TEAM);
         verify(processScenario, times(1)).hasCompleted(SAVE_ALLOCATION_NOTE);
+        verify(processScenario, times(1)).hasCompleted(SET_TO_REJECTED_BY_DRAFT);
         verify(bpmnService).wipeVariables(eq(CASE_UUID), eq(STAGE_UUID), eq("DraftTeam"));
         verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(N_TEXT),
                 eq("REJECT"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
@@ -122,6 +125,7 @@ public class FOI_DRAFT {
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(CLEAR_REJECTED);
         verify(processScenario, times(1)).hasCompleted(INVALID);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
         verify(processScenario).hasFinished(END_EVENT);
@@ -175,6 +179,7 @@ public class FOI_DRAFT {
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(CLEAR_REJECTED);
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
@@ -221,6 +226,7 @@ public class FOI_DRAFT {
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(CLEAR_REJECTED);
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
@@ -273,6 +279,7 @@ public class FOI_DRAFT {
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(CLEAR_REJECTED);
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
@@ -329,6 +336,7 @@ public class FOI_DRAFT {
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(CLEAR_REJECTED);
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
@@ -384,6 +392,7 @@ public class FOI_DRAFT {
 
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(VALIDITY);
+        verify(processScenario, times(1)).hasCompleted(CLEAR_REJECTED);
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
