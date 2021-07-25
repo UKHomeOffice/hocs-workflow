@@ -10,16 +10,17 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponseBuilder;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.migration.MigrationCaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.migration.MigrationCreateCaseworkCorrespondentRequest;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,7 +93,106 @@ public class WorkflowServiceTest {
         verify(infoClient).getTeam(uuid);
         // assert nothing else happened
         verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient, documentClient);
+    }
 
+    @Test
+    public void getCreateCaseRequest_WithEmailCorrespondentDetails(){
+        UUID caseUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        UUID userUUID = UUID.fromString("11111111-1111-1111-1111-111111111112");
+        UUID correspondentUUID = UUID.fromString("11111111-1111-1111-1111-111111111113");
+
+        MigrationCreateCaseworkCorrespondentRequest correspondentRequest =
+                new MigrationCreateCaseworkCorrespondentRequest(
+                        "FOI Requester",
+                        "John Doe",
+                        null,
+                        null,
+                        null,
+                        null,
+                        "United Kingdom",
+                        null,
+                        "test@test.com",
+                        "Test Reference"
+                );
+
+        caseworkClient.saveCorrespondent(caseUUID, userUUID, correspondentRequest);
+
+        GetCorrespondentResponse correspondentResponse = new GetCorrespondentResponse(correspondentUUID,
+                LocalDateTime.of(1970, Month.JANUARY, 1, 0, 0), "FOI", caseUUID,
+                "John Doe", null, null, "test@test.com", "Test Reference");
+
+        List<GetCorrespondentResponse> correspondentsList = new ArrayList<>();
+
+        correspondentsList.add(correspondentResponse);
+
+        when(caseworkClient.getCorrespondentsForCase(caseUUID)).thenReturn(new GetCorrespondentsResponse(correspondentsList));
+
+        GetCorrespondentsResponse correspondents = caseworkClient.getCorrespondentsForCase(caseUUID);
+        GetCorrespondentResponse correspondent = correspondents.getCorrespondents().get(0);
+
+        assertThat(correspondent).isNotNull();
+        assertThat(correspondent.getUuid()).isEqualTo(correspondentUUID);
+        assertThat(correspondent.getType()).isEqualTo("FOI");
+        assertThat(correspondent.getFullname()).isEqualTo("John Doe");
+        assertThat(correspondent.getReference()).isEqualTo("Test Reference");
+        assertThat(correspondent.getEmail()).isEqualTo("test@test.com");
+    }
+
+    @Test
+    public void getCreateCaseRequest_WithPostCorrespondentDetails(){
+        UUID caseUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        UUID userUUID = UUID.fromString("11111111-1111-1111-1111-111111111112");
+        UUID correspondentUUID = UUID.fromString("11111111-1111-1111-1111-111111111113");
+
+        MigrationCreateCaseworkCorrespondentRequest correspondentRequest =
+                new MigrationCreateCaseworkCorrespondentRequest(
+                        "FOI Requester",
+                        "John Doe",
+                        "AL4 4AL",
+                        "Address 1",
+                        "Address 2",
+                        "Address 3",
+                        "United Kingdom",
+                        "01234567890",
+                        null,
+                        "Test Reference"
+                );
+
+        caseworkClient.saveCorrespondent(caseUUID, userUUID, correspondentRequest);
+
+        AddressDto addressDto = new AddressDto(
+                "AL4 4AL",
+                "Address 1",
+                "Address 2",
+                "Address 3",
+                "United Kingdom"
+        );
+
+        GetCorrespondentResponse correspondentResponse = new GetCorrespondentResponse(correspondentUUID,
+                LocalDateTime.of(1970, Month.JANUARY, 1, 0, 0), "FOI", caseUUID,
+                "John Doe", addressDto, "01234567890", null, "Test Reference");
+
+        List<GetCorrespondentResponse> correspondentsList = new ArrayList<>();
+
+        correspondentsList.add(correspondentResponse);
+
+        when(caseworkClient.getCorrespondentsForCase(caseUUID)).thenReturn(new GetCorrespondentsResponse(correspondentsList));
+
+        GetCorrespondentsResponse correspondents = caseworkClient.getCorrespondentsForCase(caseUUID);
+        GetCorrespondentResponse correspondent = correspondents.getCorrespondents().get(0);
+
+        assertThat(correspondent).isNotNull();
+        assertThat(correspondent.getUuid()).isEqualTo(correspondentUUID);
+        assertThat(correspondent.getType()).isEqualTo("FOI");
+        assertThat(correspondent.getFullname()).isEqualTo("John Doe");
+        assertThat(correspondent.getTelephone()).isEqualTo("01234567890");
+        assertThat(correspondent.getAddress().getPostcode()).isEqualTo("AL4 4AL");
+        assertThat(correspondent.getAddress().getAddress1()).isEqualTo("Address 1");
+        assertThat(correspondent.getAddress().getAddress2()).isEqualTo("Address 2");
+        assertThat(correspondent.getAddress().getAddress3()).isEqualTo("Address 3");
+        assertThat(correspondent.getAddress().getCountry()).isEqualTo("United Kingdom");
+        assertThat(correspondent.getReference()).isEqualTo("Test Reference");
+        assertThat(correspondent.getEmail()).isEqualTo(null);
     }
 
     @Test

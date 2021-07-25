@@ -112,9 +112,8 @@ public class WorkflowService {
 
             //Create correspondent
             if (correspondentRequest != null) {
-                UUID stageUUID = migrationCaseworkClient.getStageUUID(caseUUID);
-                UUID correspondentUUID = migrationCaseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
-                caseworkClient.updatePrimaryCorrespondent(caseUUID, stageUUID, correspondentUUID);
+                UUID stageUUID = caseworkClient.getStageUUID(caseUUID);
+                caseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
             }
 
         } else {
