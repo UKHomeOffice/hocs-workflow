@@ -28,7 +28,10 @@ public class FOI_DISPATCH {
     public static final String DISPATCH_CONFIRMATION = "DISPATCH_CONFIRMATION";
     public static final String DEALLOCATE_TEAM = "DEALLOCATE_TEAM";
     public static final String SET_DISPATCH_DATE = "SET_DISPATCH_DATE";
+    public static final String CLEAR_REJECTED = "CLEAR_REJECTED";
+    public static final String SET_TO_REJECTED_BY_DISPATCH = "SET_TO_REJECTED_BY_DISPATCH";
     public static final String END_EVENT = "END_EVENT";
+
 
     @Rule
     @ClassRule
@@ -69,6 +72,9 @@ public class FOI_DISPATCH {
                 .hasCompleted(DEALLOCATE_TEAM);
 
         verify(FOIDataInputProcess, times(1))
+                .hasCompleted(SET_TO_REJECTED_BY_DISPATCH);
+
+        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(END_EVENT);
 
     }
@@ -95,6 +101,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(CLEAR_REJECTED);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(END_EVENT);
