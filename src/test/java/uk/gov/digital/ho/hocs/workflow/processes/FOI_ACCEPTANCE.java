@@ -43,6 +43,8 @@ public class FOI_ACCEPTANCE {
     public static final String DRAFT_TEAM = UUID.randomUUID().toString();
     public static final String FOI_CASE_TYPE = "FOI";
     public static final String ALLOCATE_TO_DRAFT_TEAM = "ALLOCATE_TO_DRAFT_TEAM";
+    public static final String CLEAR_REJECTED = "CLEAR_REJECTED";
+    public static final String SET_TO_REJECTED_BY_ACCEPTANCE = "SET_TO_REJECTED_BY_ACCEPTANCE";
     public static final String SET_ACCEPTANCE_DATE = "SET_ACCEPTANCE_DATE";
     public static final String N_TEXT = "NoteText";
     public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
@@ -91,6 +93,7 @@ public class FOI_ACCEPTANCE {
         verify(processScenario, times(1)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times( 1)).hasCompleted(CLEAR_REJECTED);
     }
 
     @Test
@@ -117,6 +120,7 @@ public class FOI_ACCEPTANCE {
         verify(processScenario, times(1)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times( 1)).hasCompleted(CLEAR_REJECTED);
     }
 
     @Test
@@ -156,6 +160,7 @@ public class FOI_ACCEPTANCE {
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(SAVE_ALLOCATION_NOTE);
+        verify(processScenario, times( 1)).hasCompleted(SET_TO_REJECTED_BY_ACCEPTANCE);
         verify(processScenario, times(0)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(bpmnService).wipeVariables(eq(CASE_UUID), eq(STAGE_UUID), eq("AcceptanceTeam"), eq("Directorate"));
         verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(N_TEXT), eq("REJECT"),

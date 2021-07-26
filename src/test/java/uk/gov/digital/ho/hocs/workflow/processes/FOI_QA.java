@@ -38,6 +38,10 @@ public class FOI_QA {
     public static final String ACCEPT_OR_REJECT_CASE_SCS = "ACCEPT_OR_REJECT_CASE_SCS";
     public static final String SAVE_ALLOCATION_NOTE = "SAVE_ALLOCATION_NOTE";
     public static final String SCS_SAVE_ALLOCATION_NOTE ="SCS_SAVE_ALLOCATION_NOTE";
+    public static final String SET_TO_REJECTED_BY_APPROVAL = "SET_TO_REJECTED_BY_APPROVAL";
+    public static final String CLEAR_REJECTED = "CLEAR_REJECTED";
+    public static final String SET_TO_REJECTED_BY_SCS_APPROVAL = "SET_TO_REJECTED_BY_SCS_APPROVAL";
+    public static final String CLEAR_SCS_REJECTED = "CLEAR_SCS_REJECTED";
     public static final String REJECT_CASE = "REJECT_CASE";
     public static final String SCS_REJECT_CASE="SCS_REJECT_CASE";
     public static final String ALLOCATE_TO_DRAFT_TEAM = "ALLOCATE_TO_DRAFT_TEAM";
@@ -97,6 +101,7 @@ public class FOI_QA {
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_CASE_G6_OR_G7);
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_G6_OR_G7);
         verify(processScenario, times(1)).hasCompleted(APPROVAL_G6_OR_G7);
+        verify(processScenario, times( 1)).hasCompleted(CLEAR_REJECTED);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_PRESS_OFFICE_TEAM);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
@@ -123,6 +128,7 @@ public class FOI_QA {
                 eq("REJECT"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
         verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(SET_TO_REJECTED_BY_APPROVAL);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
 
@@ -148,6 +154,7 @@ public class FOI_QA {
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_G6_OR_G7);
         verify(processScenario, times(1)).hasCompleted(REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(SET_TO_REJECTED_BY_APPROVAL);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
 
     }
@@ -178,6 +185,7 @@ public class FOI_QA {
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_CASE_SCS);
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_SCS);
         verify(processScenario, times(1)).hasCompleted(APPROVAL_SCS);
+        verify(processScenario, times(1)).hasCompleted(CLEAR_SCS_REJECTED);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_PRIVATE_PRESS_OFFICE_TEAM);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
@@ -199,6 +207,7 @@ public class FOI_QA {
         verify(processScenario, times(1)).hasCompleted(SCS_SAVE_ALLOCATION_NOTE);
         verify(processScenario, times(1)).hasCompleted(SCS_REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(SCS_ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(SET_TO_REJECTED_BY_SCS_APPROVAL);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
 
@@ -225,6 +234,7 @@ public class FOI_QA {
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT_SENSITIVITY_SCS);
         verify(processScenario, times(1)).hasCompleted(SCS_REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(SCS_ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(SET_TO_REJECTED_BY_SCS_APPROVAL);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
 
@@ -266,6 +276,7 @@ public class FOI_QA {
                 eq("REJECT"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
         verify(processScenario, times(1)).hasCompleted(SCS_REJECT_CASE);
         verify(processScenario, times(1)).hasCompleted(SCS_ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(SET_TO_REJECTED_BY_SCS_APPROVAL);
         verify(processScenario, times(1)).hasCompleted(END_EVENT);
     }
 }
