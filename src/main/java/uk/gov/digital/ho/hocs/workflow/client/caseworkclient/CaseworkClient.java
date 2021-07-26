@@ -164,7 +164,7 @@ public class CaseworkClient {
     }
 
     public UUID saveCorrespondent(UUID caseUUID, UUID stageUUID, CreateCaseworkCorrespondentRequest correspondent) {
-        UUID correspondentUUID = restHelper.post(serviceBaseURL, String.format("/migration/case/%s/stage/%s/correspondent", caseUUID, stageUUID), correspondent, UUID.class);
+        UUID correspondentUUID = restHelper.post(serviceBaseURL, String.format("/case/%s/stage/%s/correspondent", caseUUID, stageUUID), correspondent, UUID.class);
         log.info("Added correspondent to Case: {}", caseUUID);
         return correspondentUUID;
     }
