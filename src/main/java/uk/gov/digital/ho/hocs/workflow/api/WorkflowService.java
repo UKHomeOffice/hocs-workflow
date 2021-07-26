@@ -18,8 +18,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
-import uk.gov.digital.ho.hocs.workflow.migration.MigrationCaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.migration.MigrationCreateCaseworkCorrespondentRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
 import java.time.LocalDate;
@@ -39,7 +38,6 @@ public class WorkflowService {
     private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
-    private final MigrationCaseworkClient migrationCaseworkClient;
 
     private static final String COMPONENT_ENTITY_LIST = "entity-list";
     private static final String COMPONENT_DROPDOWN = "dropdown";
@@ -55,34 +53,33 @@ public class WorkflowService {
     public WorkflowService(CaseworkClient caseworkClient,
                            DocumentClient documentClient,
                            InfoClient infoClient,
-                           CamundaClient camundaClient,
-                           MigrationCaseworkClient migrationCaseworkClient) {
+                           CamundaClient camundaClient) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
-        this.migrationCaseworkClient = migrationCaseworkClient;
     }
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>(receivedData);
-        MigrationCreateCaseworkCorrespondentRequest correspondentRequest = null;
+        CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
         //If we have a name we have correspondent details attached to the case creation request
-        if(data.get("Fullname").length() > 0){
-            correspondentRequest = new MigrationCreateCaseworkCorrespondentRequest(
-                    "FOI Requester",
-                    data.get("Fullname"),
-                    data.get("Postcode"),
-                    data.get("Address1"),
-                    data.get("Address2"),
-                    data.get("Address3"),
-                    data.get("Country"),
-                    data.get("Telephone"),
-                    data.get("Email"),
-                    data.get("Reference")
-            );
+        if(data.containsKey("Fullname")) {
+            correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
+                    .type("FOI Requester")
+                    .fullname(data.get("Fullname"))
+                    .postcode(data.get("Postcode"))
+                    .address1(data.get("Address1"))
+                    .address2(data.get("Address2"))
+                    .address3(data.get("Address3"))
+                    .country(data.get("Country"))
+                    .telephone(data.get("Telephone"))
+                    .email(data.get("Email"))
+                    .reference(data.get("Reference"))
+                    .build();
+
             data.remove("Fullname");
             data.remove("Postcode");
             data.remove("Address1");

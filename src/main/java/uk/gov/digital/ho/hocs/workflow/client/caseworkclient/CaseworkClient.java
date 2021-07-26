@@ -6,11 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
-import uk.gov.digital.ho.hocs.workflow.migration.MigrationCreateCaseworkCorrespondentRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
@@ -164,9 +163,9 @@ public class CaseworkClient {
         return stageUUID;
     }
 
-    public UUID saveCorrespondent(UUID caseUUID, UUID stageUUID, MigrationCreateCaseworkCorrespondentRequest correspondent) {
+    public UUID saveCorrespondent(UUID caseUUID, UUID stageUUID, CreateCaseworkCorrespondentRequest correspondent) {
         UUID correspondentUUID = restHelper.post(serviceBaseURL, String.format("/migration/case/%s/stage/%s/correspondent", caseUUID, stageUUID), correspondent, UUID.class);
-        log.info("Added correspondent {} to Case: {}", correspondent.getFullname(), caseUUID);
+        log.info("Added correspondent to Case: {}", caseUUID);
         return correspondentUUID;
     }
 
