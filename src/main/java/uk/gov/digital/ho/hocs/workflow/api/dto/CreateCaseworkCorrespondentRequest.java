@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import org.springframework.lang.NonNull;
 
 import javax.validation.constraints.NotEmpty;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 @Builder
 public class CreateCaseworkCorrespondentRequest {
 
