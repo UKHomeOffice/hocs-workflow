@@ -26,6 +26,10 @@ public class HocsFormField {
         props.put("label", fieldDto.getLabel());
         props.put("name", fieldDto.getName());
 
+        if(fieldDto.getChild() != null) {
+            props.put("child", HocsFormField.from(fieldDto.getChild()));
+        }
+
         return new HocsFormField(fieldDto.getComponent(), fieldDto.getValidation(), props);
     }
 

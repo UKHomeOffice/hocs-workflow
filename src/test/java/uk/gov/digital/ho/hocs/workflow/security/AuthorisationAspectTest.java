@@ -16,6 +16,7 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;

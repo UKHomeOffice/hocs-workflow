@@ -37,7 +37,7 @@ class WorkflowResource {
     @Authorised(accessLevel = AccessLevel.OWNER)
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
-        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments(), userUUID, request.getFromCaseUUID());
+        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments(), userUUID, request.getFromCaseUUID(), request.getData());
         return ResponseEntity.ok(response);
     }
 
@@ -46,6 +46,7 @@ class WorkflowResource {
     public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
         List<DocumentSummary> list = request.getDocuments();
         list.forEach( (documentSummary) -> workflowService.createCase(request.getType(), request.getDateReceived(), Collections.singletonList(documentSummary), userUUID, null));
+        list.forEach( (documentSummary) -> workflowService.createCase(request.getType(), request.getDateReceived(), Collections.singletonList(documentSummary), userUUID, request.getData()));
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }
 
@@ -65,8 +66,8 @@ class WorkflowResource {
 
     @Allocated(allocatedTo = AllocationLevel.TEAM_USER)
     @GetMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID) {
-        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
+    public ResponseEntity<GetStageResponse> getStage(@PathVariable UUID caseUUID, @PathVariable UUID stageUID) {
+        GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);U
         return ResponseEntity.ok(response);
     }
 
