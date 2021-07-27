@@ -116,11 +116,13 @@ public class WorkflowResourceTest {
         String caseType = "type1";
         UUID fromCaseUUID = null;
         LocalDate dateReceived = LocalDate.now();
+        Map<String, String> requestData = new HashMap<>();
+        requestData.put("TestVariable", "TestVariable1");
         List<DocumentSummary> documents = List.of(new DocumentSummary("Doc1.txt", "FINAL", "locationUrl"));
-        CreateCaseRequest request = new CreateCaseRequest(caseType, dateReceived, documents, null);
+        CreateCaseRequest request = new CreateCaseRequest(caseType, dateReceived, requestData, documents, null);
         CreateCaseResponse response = new CreateCaseResponse(caseUUID, caseRef);
 
-        when(workflowService.createCase(caseType, dateReceived, documents, userUUID, fromCaseUUID)).thenReturn(response);
+        when(workflowService.createCase(caseType, dateReceived, documents, userUUID, fromCaseUUID, requestData)).thenReturn(response);
 
         ResponseEntity<CreateCaseResponse> result = workflowResource.createCase(request, userUUID);
 
@@ -130,7 +132,7 @@ public class WorkflowResourceTest {
         assertThat(result.getBody().getUuid()).isEqualTo(caseUUID);
         assertThat(result.getBody().getReference()).isEqualTo(caseRef);
 
-        verify(workflowService).createCase(caseType, dateReceived, documents, userUUID, fromCaseUUID);
+        verify(workflowService).createCase(caseType, dateReceived, documents, userUUID, fromCaseUUID, requestData);
         verifyNoMoreInteractions(workflowService);
 
     }
@@ -143,16 +145,18 @@ public class WorkflowResourceTest {
         String caseRef = "caseRefABC";
         UUID userUUID = UUID.randomUUID();
         String caseType = "type1";
+        Map<String, String> requestData = new HashMap<>();
+        requestData.put("TestVariable", "TestVariable1");
         UUID fromCaseUUID = null;
         LocalDate dateReceived = LocalDate.now();
         DocumentSummary doc1 = new DocumentSummary("Doc1.txt", "FINAL", "locationUrl");
         DocumentSummary doc2 = new DocumentSummary("Doc2.txt", "DRAFT", "locationUrl2");
         List<DocumentSummary> documents = List.of(doc1, doc2);
-        CreateCaseRequest request = new CreateCaseRequest(caseType, dateReceived, documents, null);
+        CreateCaseRequest request = new CreateCaseRequest(caseType, dateReceived, requestData, documents, null);
         CreateCaseResponse response = new CreateCaseResponse(caseUUID, caseRef);
 
-        when(workflowService.createCase(caseType, dateReceived, List.of(doc1), userUUID, fromCaseUUID)).thenReturn(response);
-        when(workflowService.createCase(caseType, dateReceived, List.of(doc2), userUUID, fromCaseUUID)).thenReturn(response);
+        when(workflowService.createCase(caseType, dateReceived, List.of(doc1), userUUID, fromCaseUUID, requestData)).thenReturn(response);
+        when(workflowService.createCase(caseType, dateReceived, List.of(doc2), userUUID, fromCaseUUID, requestData)).thenReturn(response);
 
         ResponseEntity<CreateBulkCaseResponse> result = workflowResource.createCaseBulk(request, userUUID);
 
@@ -161,8 +165,9 @@ public class WorkflowResourceTest {
         assertThat(result.getBody()).isNotNull();
         assertThat(result.getBody().getCount()).isEqualTo(2);
 
-        verify(workflowService).createCase(caseType, dateReceived, List.of(doc1), userUUID, fromCaseUUID);
-        verify(workflowService).createCase(caseType, dateReceived, List.of(doc2), userUUID, fromCaseUUID);
+        verify(workflowService).createCase(caseType, dateReceived, List.of(doc1), userUUID, fromCaseUUID, requestData);
+        verify(workflowService).createCase(caseType, dateReceived, List.of(doc2), userUUID, fromCaseUUID, requestData);
+
         verifyNoMoreInteractions(workflowService);
 
     }
