@@ -87,9 +87,6 @@ public class FOI_DATA_INPUT {
                 .hasCompleted(SET_PRIMARY_CORRESPONDENT);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SAVE_PRIMARY_TOPIC);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SAVE_PRIMARY_CORRESPONDENT);
 
     }
