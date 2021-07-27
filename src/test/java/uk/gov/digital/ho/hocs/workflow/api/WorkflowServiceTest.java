@@ -17,29 +17,28 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDtoBuilder;
-import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseDetailsResponse;
-import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseResponse;
-import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
-import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDtoBuilder;
-import uk.gov.digital.ho.hocs.workflow.api.dto.SecondaryActionDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponseBuilder;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.*;
+
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowServiceTest {
@@ -59,6 +58,9 @@ public class WorkflowServiceTest {
     @Mock
     private UserPermissionsService userPermissionsService;
 
+    @Captor
+    ArgumentCaptor<CreateCaseworkCorrespondentRequest> argumentCaptor;
+
     private WorkflowService workflowService;
 
     private final String testFieldName = "field_name";
@@ -77,6 +79,7 @@ public class WorkflowServiceTest {
     private final Object[] fieldValidation = new Object[] {};
     private final String[] secondaryActionValidation = new String[] {};
     private final Object schemaDtoProps = new Object();
+    private FieldDto childField = new FieldDto(UUID.randomUUID(),"test", "test", "test", fieldValidation, new HashMap<>(), false, false, null);
 
     @Before
     public void beforeTest() {
@@ -122,7 +125,105 @@ public class WorkflowServiceTest {
         verify(infoClient).getTeam(uuid);
         // assert nothing else happened
         verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient, documentClient);
+    }
 
+    @Test
+    public void createCase_whenNoInitialCorrespondentDetails() {
+
+        String caseDataType = "FOI";
+        LocalDate dateReceived = LocalDate.EPOCH;
+        List<DocumentSummary> documents =  new ArrayList<>();
+        UUID userUUID = UUID.randomUUID();
+        Map<String, String> receivedData = new HashMap<>();
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(UUID.randomUUID(), null);
+
+        when(caseworkClient.createCase(any(), any(), any())).thenReturn(createCaseworkCaseResponse);
+
+        CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID, receivedData);
+        assertThat(output.getUuid()).isNotNull();
+        verify(camundaClient, times(1)).startCase(any(), any(), any());
+        verify(caseworkClient, times(0)).saveCorrespondent(any(), any(), any());
+    }
+
+    @Test
+    public void createCase_whenHasInitialEmailCorrespondentDetails() {
+
+        String expectedReference = "REFERENCE";
+        String expectedCountry = "United Kingdom";
+        String expectedEmail = "test@test.com";
+        String expectedFullname = "John Doe";
+
+        String caseDataType = "FOI";
+        LocalDate dateReceived = LocalDate.EPOCH;
+        List<DocumentSummary> documents =  new ArrayList<>();
+        UUID userUUID = UUID.randomUUID();
+        UUID caseUUID = UUID.randomUUID();
+        Map<String, String> receivedData = new HashMap<>();
+        receivedData.put("Fullname", expectedFullname);
+        receivedData.put("Email", expectedEmail);
+        receivedData.put("Country", expectedCountry);
+        receivedData.put("Reference", expectedReference);
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null);
+
+        when(caseworkClient.createCase(any(), any(), any())).thenReturn(createCaseworkCaseResponse);
+
+        CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID, receivedData);
+        assertThat(output.getUuid()).isNotNull();
+        verify(camundaClient, times(1)).startCase(any(), any(), any());
+        verify(caseworkClient, times(1)).saveCorrespondent(any(), any(), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getFullname()).isEqualTo(expectedFullname);
+        assertThat(argumentCaptor.getValue().getEmail()).isEqualTo(expectedEmail);
+        assertThat(argumentCaptor.getValue().getCountry()).isEqualTo(expectedCountry);
+        assertThat(argumentCaptor.getValue().getReference()).isEqualTo(expectedReference);
+    }
+
+    @Test
+    public void createCase_whenHasInitialPostCorrespondentDetails() {
+
+        String expectedReference = "REFERENCE";
+        String expectedCountry = "United Kingdom";
+        String expectedEmail = "test@test.com";
+        String expectedFullname = "John Doe";
+        String expectedAddress1 = "Building";
+        String expectedAddress2 = "Street";
+        String expectedAddress3 = "Town Or City";
+        String expectedPostcode = "TE5 7ER";
+        String expectedTelephone = "01234567890";
+
+        String caseDataType = "FOI";
+        LocalDate dateReceived = LocalDate.EPOCH;
+        List<DocumentSummary> documents =  new ArrayList<>();
+        UUID userUUID = UUID.randomUUID();
+        UUID caseUUID = UUID.randomUUID();
+        Map<String, String> receivedData = new HashMap<>();
+        receivedData.put("Fullname", expectedFullname);
+        receivedData.put("Address1", expectedAddress1);
+        receivedData.put("Address2", expectedAddress2);
+        receivedData.put("Address3", expectedAddress3);
+        receivedData.put("Postcode", expectedPostcode);
+        receivedData.put("Telephone", expectedTelephone);
+        receivedData.put("Email", expectedEmail);
+        receivedData.put("Country", expectedCountry);
+        receivedData.put("Reference", expectedReference);
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null);
+
+
+        when(caseworkClient.createCase(any(), any(), any())).thenReturn(createCaseworkCaseResponse);
+
+        CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID, receivedData);
+        assertThat(output.getUuid()).isNotNull();
+        verify(camundaClient, times(1)).startCase(any(), any(), any());
+        verify(caseworkClient, times(1)).saveCorrespondent(any(), any(), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getFullname()).isEqualTo(expectedFullname);
+        assertThat(argumentCaptor.getValue().getAddress1()).isEqualTo(expectedAddress1);
+        assertThat(argumentCaptor.getValue().getAddress2()).isEqualTo(expectedAddress2);
+        assertThat(argumentCaptor.getValue().getAddress3()).isEqualTo(expectedAddress3);
+        assertThat(argumentCaptor.getValue().getPostcode()).isEqualTo(expectedPostcode);
+        assertThat(argumentCaptor.getValue().getTelephone()).isEqualTo(expectedTelephone);
+        assertThat(argumentCaptor.getValue().getEmail()).isEqualTo(expectedEmail);
+        assertThat(argumentCaptor.getValue().getCountry()).isEqualTo(expectedCountry);
+        assertThat(argumentCaptor.getValue().getReference()).isEqualTo(expectedReference);
+        caseworkClient.getCorrespondentsForCase(caseUUID);
     }
 
     @Test
@@ -515,7 +616,7 @@ public class WorkflowServiceTest {
     }
 
     private SchemaDto exampleSchemaDto() {
-        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), false, false);
+        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), false, false, childField);
         List<FieldDto> fields = new ArrayList<>();
         fields.add(fieldDto);
         SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), secondaryActionName, secondaryActionLabel, secondaryActionComponent, secondaryActionValidation, new HashMap<>());
@@ -527,7 +628,7 @@ public class WorkflowServiceTest {
     private List<SchemaDto> setupTestSchemas() {
 
         Map<String, Object> props = Map.of("entity", "document");
-        List<FieldDto> fieldDtos = List.of(new FieldDto(null, testFieldName, null, "entity-list", null, props, true, true));
+        List<FieldDto> fieldDtos = List.of(new FieldDto(null, testFieldName, null, "entity-list", null, props, true, true, null));
         SchemaDto schemaDto = new SchemaDto(UUID.randomUUID(), null, null, null, null, true, fieldDtos, null, null);
         return List.of(schemaDto);
     }

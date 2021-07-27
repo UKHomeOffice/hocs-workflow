@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -155,6 +156,18 @@ public class CaseworkClient {
         String response = restHelper.get(serviceBaseURL, String.format("/case/%s/stage/%s/type", caseUUID, stageUUID), String.class);
         log.info("Got Stage Type: {} for Case: {}", stageUUID, caseUUID);
         return response;
+    }
+
+    public UUID getStageUUID(UUID caseUUID) {
+        UUID stageUUID = restHelper.get(serviceBaseURL, String.format("/migration/case/%s", caseUUID), UUID.class);
+        log.info("Got Stage UUID for Case: {}", stageUUID, caseUUID);
+        return stageUUID;
+    }
+
+    public UUID saveCorrespondent(UUID caseUUID, UUID stageUUID, CreateCaseworkCorrespondentRequest correspondent) {
+        UUID correspondentUUID = restHelper.post(serviceBaseURL, String.format("/case/%s/stage/%s/correspondent", caseUUID, stageUUID), correspondent, UUID.class);
+        log.info("Added correspondent to Case: {}", caseUUID);
+        return correspondentUUID;
     }
 
     public GetAllStagesForCaseResponse getAllStagesForCase(UUID caseUUID) {
