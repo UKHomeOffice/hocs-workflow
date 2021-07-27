@@ -98,30 +98,6 @@ public class FOI_DRAFT {
     }
 
     @Test
-    public void invalidRequest() {
-
-        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DraftAcceptCase", "Y")));
-
-        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
-                .thenReturn(task -> task.complete());
-
-        Scenario.run(processScenario).startBy(
-                () -> rule.getRuntimeService().startProcessInstanceByKey(
-                        PROCESS_KEY, STAGE_UUID,
-                        Map.of("CaseUUID", CASE_UUID)
-                )).execute();
-
-        verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
-        verify(processScenario, times(1)).hasCompleted(CLEAR_REJECTED);
-        verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario).hasFinished(END_EVENT);
-        verify(processScenario, never()).waitsAtUserTask(ARE_MCS_REQUIRED);
-        verify(processScenario, never()).waitsAtUserTask(SENSITIVITY);
-    }
-
-    @Test
     public void multipleContributions() {
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
