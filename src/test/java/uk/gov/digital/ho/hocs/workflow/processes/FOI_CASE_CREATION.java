@@ -32,6 +32,10 @@ public class FOI_CASE_CREATION {
     public static final String VALID_TEMPLATES = "VALID_TEMPLATES";
     public static final String NON_VALID_TEMPLATES = "NON_VALID_TEMPLATES";
     public static final String END_EVENT = "END_EVENT";
+    public static final String SAVE_PRIMARY_TOPIC_PRE_CHANGE = "Activity_1xbxkjm";
+    public static final String SAVE_PRIMARY_TOPIC_POST_CHANGE = "Activity_0krulfl";
+
+
 
     @Rule
     @ClassRule
@@ -52,7 +56,7 @@ public class FOI_CASE_CREATION {
     }
 
     @Test
-    public void changeAnswersOnceThenAcceptThenValidResponse() {
+    public void testChangeAnswersOnceThenAcceptThenValidResponse() {
 
         when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS))
                 .thenReturn(task -> task.complete(withVariables(
@@ -77,6 +81,9 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
+
         verify(FOICaseCreationProcess, times(2))
                 .hasCompleted(CHECK_ANSWERS);
 
@@ -92,12 +99,15 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(VALID_TEMPLATES);
 
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_POST_CHANGE);
+
         verify(FOICaseCreationProcess).hasFinished(END_EVENT);
 
     }
 
     @Test
-    public void acceptThenInvalidResponse() {
+    public void testAnswersThenInvalidResponse() {
 
         when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS))
                 .thenReturn(task -> task.complete(withVariables(
@@ -126,6 +136,23 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(NON_VALID_TEMPLATES);
 
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
+
+        // NOT INVOKED
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(CHANGE_ANSWERS);
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_POST_CHANGE);
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(UPDATE_DEADLINES);
+
+        // END NOT INVOKED
+
         verify(FOICaseCreationProcess).hasFinished(END_EVENT);
+
     }
 }

@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
@@ -83,6 +84,26 @@ public class CamundaClient {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
         log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName, value(EVENT, CURRENT_STAGE_RETRIEVED));
         return screenName == null || screenName.equals("null") ? "FINISH" : screenName;
+    }
+
+    public boolean hasProcessInstanceVariableWithValue(String businessKey, String variableName, String value) {
+        List<ProcessInstance> matches = runtimeService.createProcessInstanceQuery()
+            .processInstanceBusinessKey(businessKey)
+            .variableValueEquals(variableName, value)
+            .list();
+        return !matches.isEmpty();
+    }
+
+    public void removeProcessInstanceVariableFromAllScopes(String caseUUID, String stageUUID, String variableName) {
+        List<ProcessInstance> caseProcessInstanceList = runtimeService.createProcessInstanceQuery()
+            .processInstanceBusinessKey(caseUUID)
+            .list();
+        caseProcessInstanceList.forEach(pI -> runtimeService.removeVariable(pI.getProcessInstanceId(), variableName));
+
+        List<ProcessInstance> stageProcessInstanceList = runtimeService.createProcessInstanceQuery()
+            .processInstanceBusinessKey(stageUUID)
+            .list();
+        stageProcessInstanceList.forEach(pI -> runtimeService.removeVariable(pI.getProcessInstanceId(), variableName));
     }
 
     private String getTaskIdByBusinessKey(UUID businessKey) {

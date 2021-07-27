@@ -1,5 +1,8 @@
 package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -186,6 +189,46 @@ public class CaseworkClientTest {
         caseworkClient.updateDeadlineForStages(caseUUID, stageUUID, stageTypeAndDaysMap);
 
         verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateDeadlineForStagesRequest.class), eq(Void.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void getActiveStageShouldReturnOneIfItExists() {
+
+        String resourcePath = String.format("/stage/case/%s", caseUUID);
+        StageDto stageDtoWithoutTeam = new StageDto(UUID.randomUUID(), "type", null);
+        StageDto stageDtoWithTeam = new StageDto(UUID.randomUUID(), "type", UUID.randomUUID());
+        List<StageDto> stages = new ArrayList<>();
+        stages.add(stageDtoWithoutTeam);
+        stages.add(stageDtoWithTeam);
+        GetAllStagesForCaseResponse expectedResponse = new GetAllStagesForCaseResponse(stages);
+
+        when(restHelper.get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class))).thenReturn(expectedResponse);
+
+        Optional<StageDto> optionalStageDto = caseworkClient.getActiveStage(caseUUID);
+        assertThat(optionalStageDto.isPresent()).isTrue();
+        StageDto responseStageDto = optionalStageDto.get();
+        assertThat(responseStageDto).isEqualTo(stageDtoWithTeam);
+        verify(restHelper).get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void getActiveStageShouldReturnEmptyOptionalIfNoneExists() {
+
+        String resourcePath = String.format("/stage/case/%s", caseUUID);
+        StageDto stageDtoWithoutTeam = new StageDto(UUID.randomUUID(), "type", null);
+        StageDto stageDtoWithoutTeam2 = new StageDto(UUID.randomUUID(), "type", null);
+        List<StageDto> stages = new ArrayList<>();
+        stages.add(stageDtoWithoutTeam);
+        stages.add(stageDtoWithoutTeam2);
+        GetAllStagesForCaseResponse expectedResponse = new GetAllStagesForCaseResponse(stages);
+
+        when(restHelper.get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class))).thenReturn(expectedResponse);
+
+        Optional<StageDto> optionalStageDto = caseworkClient.getActiveStage(caseUUID);
+        assertThat(optionalStageDto.isEmpty());
+        verify(restHelper).get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class));
         verifyNoMoreInteractions(restHelper);
     }
 }

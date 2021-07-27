@@ -11,6 +11,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
@@ -18,6 +19,8 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
+import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
 import java.time.LocalDate;
@@ -37,6 +40,7 @@ public class WorkflowService {
     private final DocumentClient documentClient;
     private final InfoClient infoClient;
     private final CamundaClient camundaClient;
+    private final UserPermissionsService userPermissionsService;
 
     private static final String COMPONENT_ENTITY_LIST = "entity-list";
     private static final String COMPONENT_DROPDOWN = "dropdown";
@@ -48,20 +52,52 @@ public class WorkflowService {
 
     private static final String DOCUMENT_NOT_FOUND = "Document not found";
 
+    public static final String STICKY_CASES_VARIABLE = "STICKY_CASES";
+
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
                            DocumentClient documentClient,
                            InfoClient infoClient,
-                           CamundaClient camundaClient) {
+                           CamundaClient camundaClient,
+                           UserPermissionsService userPermissionsService) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
+        this.userPermissionsService = userPermissionsService;
     }
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>(receivedData);
+        CreateCaseworkCorrespondentRequest correspondentRequest = null;
+
+        //If we have a name we have correspondent details attached to the case creation request
+        if(data.containsKey("Fullname")) {
+            correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
+                    .type("FOI Requester")
+                    .fullname(data.get("Fullname"))
+                    .postcode(data.get("Postcode"))
+                    .address1(data.get("Address1"))
+                    .address2(data.get("Address2"))
+                    .address3(data.get("Address3"))
+                    .country(data.get("Country"))
+                    .telephone(data.get("Telephone"))
+                    .email(data.get("Email"))
+                    .reference(data.get("Reference"))
+                    .build();
+
+            data.remove("Fullname");
+            data.remove("Postcode");
+            data.remove("Address1");
+            data.remove("Address2");
+            data.remove("Address3");
+            data.remove("Country");
+            data.remove("Telephone");
+            data.remove("Email");
+            data.remove("Reference");
+        }
+
         data.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         data.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived);
@@ -77,6 +113,12 @@ public class WorkflowService {
             seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
             seedData.putAll(data);
             camundaClient.startCase(caseUUID, caseDataType, seedData);
+
+            //Create correspondent
+            if (correspondentRequest != null) {
+                UUID stageUUID = caseworkClient.getStageUUID(caseUUID);
+                caseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
+            }
 
         } else {
             log.error("Failed to start case, invalid caseUUID!, event: {}", value(EVENT, CASE_STARTED_FAILURE));
@@ -97,20 +139,44 @@ public class WorkflowService {
     public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
         String screenName = camundaClient.getStageScreenName(stageUUID);
 
-        if (!screenName.equals("FINISH")) {
+        if (screenName.equals("FINISH")) {
+            Optional<StageDto> maybeActiveStage = caseworkClient.getActiveStage(caseUUID);
+            if (maybeActiveStage.isPresent()) {
+                StageDto nextStage = maybeActiveStage.get();
+                UUID nextStageId = nextStage.getUuid();
+                boolean isUserOnTheTeamForNextStage = userPermissionsService.isUserOnTeam(nextStage.getTeamUUID());
+                boolean isStickyCasesModeOn = isStickyCasesModeOn(caseUUID);
+                if (isStickyCasesModeOn && isUserOnTheTeamForNextStage) {
+                    //assign user to the next stage
+                    caseworkClient.updateStageUser(caseUUID, nextStageId, userPermissionsService.getUserId());
 
-            GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
+                    //turn off sticky cases
+                    turnOffStickyCases(caseUUID, nextStageId);
 
-            SchemaDto schemaDto = infoClient.getSchema(screenName);
-            List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
-            List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(toList());
-            fields = HocsFormAccordion.loadFormAccordions(fields);
-            HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions, schemaDto.getProps());
-            HocsForm form = new HocsForm(schema, inputResponse.getData());
-            return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
-        } else {
+                    //return information about the screen on the next stage
+                    return getStage(caseUUID, nextStageId);
+                }
+            }
             return new GetStageResponse(stageUUID, null, null);
         }
+
+        GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
+
+        SchemaDto schemaDto = infoClient.getSchema(screenName);
+        List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
+        List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(toList());
+        fields = HocsFormAccordion.loadFormAccordions(fields);
+        HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions, schemaDto.getProps());
+        HocsForm form = new HocsForm(schema, inputResponse.getData());
+        return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
+    }
+
+    private boolean isStickyCasesModeOn(UUID caseUUID) {
+        return camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), STICKY_CASES_VARIABLE, Boolean.TRUE.toString());
+    }
+
+    private void turnOffStickyCases(UUID caseUUID, UUID stageUUID) {
+        camundaClient.removeProcessInstanceVariableFromAllScopes(caseUUID.toString(), stageUUID.toString(), STICKY_CASES_VARIABLE);
     }
 
     public GetCaseResponse getAllCaseStages(UUID caseUUID) {
