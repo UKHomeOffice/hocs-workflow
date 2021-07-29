@@ -37,7 +37,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 })
 public class FOI {
 
-    public static final String CASE_CREATION_ACTIVITY = "Activity_1w0zoo5";
+    public static final String CASE_CREATION_ACTIVITY = "CASE_CREATION";
     public static final String DATA_INPUT_ACTIVITY = "Activity_0jtkbij";
     public static final String ALLOCATION_ACTIVITY = "Activity_16l1q7b";
     public static final String COMPLETE_CASE_ACTIVITY = "COMPLETE_CASE";
@@ -109,10 +109,10 @@ public class FOI {
         verify(FOIProcess, times(1))
                 .hasCompleted("FOI_START");
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(CASE_CREATION_ACTIVITY);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(DATA_INPUT_ACTIVITY);
 
         verify(FOIProcess, times(2))
