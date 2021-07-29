@@ -23,10 +23,10 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/FOI_PRESS_OFFICE_APPROVAL.bpmn"})
-public class FOI_PRESS_OFFICE_APPROVAL {
+@Deployment(resources = {"processes/FOI_APPROVAL.bpmn"})
+public class FOI_APPROVAL {
 
-    public static final String PROCESS_KEY = "FOI_PRESS_OFFICE_APPROVAL";
+    public static final String PROCESS_KEY = "FOI_APPROVAL";
     public static final String CASE_UUID = UUID.randomUUID().toString();
     public static final String STAGE_UUID = UUID.randomUUID().toString();
     public static final String DRAFT_TEAM_UUID = UUID.randomUUID().toString();
