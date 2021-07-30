@@ -43,7 +43,6 @@ public class FOI_DRAFT {
     public static final String RESPONSE_TYPE = "RESPONSE_TYPE";
     public static final String UPLOAD_DRAFT = "UPLOAD_DRAFT";
     public static final String EXEMPTION = "EXEMPTION";
-    public static final String SENSITIVITY = "SENSITIVITY";
 
     @Rule
     @ClassRule
@@ -112,10 +111,6 @@ public class FOI_DRAFT {
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
 
-        when(processScenario.waitsAtUserTask(SENSITIVITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "Sensitivity", "LOW", "DIRECTION", "FORWARD")));
-
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
@@ -128,7 +123,6 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
     }
@@ -170,7 +164,6 @@ public class FOI_DRAFT {
 
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
-        verify(processScenario, never()).waitsAtUserTask(SENSITIVITY);
     }
 
     @Test
@@ -191,10 +184,6 @@ public class FOI_DRAFT {
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
 
-        when(processScenario.waitsAtUserTask(SENSITIVITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "Sensitivity", "HIGH", "DIRECTION", "FORWARD")));
-
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
@@ -207,7 +196,6 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
@@ -231,10 +219,6 @@ public class FOI_DRAFT {
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
 
-        when(processScenario.waitsAtUserTask(SENSITIVITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "Sensitivity", "LOW", "DIRECTION", "FORWARD")));
-
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
@@ -246,7 +230,6 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
@@ -270,10 +253,6 @@ public class FOI_DRAFT {
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
 
-        when(processScenario.waitsAtUserTask(SENSITIVITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "Sensitivity", "LOW", "DIRECTION", "FORWARD")));
-
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
@@ -285,7 +264,6 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
        verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
