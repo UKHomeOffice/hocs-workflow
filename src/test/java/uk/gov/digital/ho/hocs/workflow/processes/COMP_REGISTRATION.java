@@ -53,7 +53,7 @@ public class COMP_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         when(compRegistrationProcess.waitsAtUserTask("Validate_Complaint"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","CompType", "Service")));
 
         when(compRegistrationProcess.waitsAtUserTask("UserTask_0k00jya"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
@@ -119,7 +119,7 @@ public class COMP_REGISTRATION {
     public void backwardsFromValidateComplaint(){
         when(compRegistrationProcess.waitsAtUserTask("Validate_Complaint"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Service")));
 
         Scenario.run(compRegistrationProcess)
                 .startByKey("COMP_REGISTRATION")
@@ -183,5 +183,23 @@ public class COMP_REGISTRATION {
 
         verify(compRegistrationProcess)
                 .hasCompleted("Service_UpdateTeamByStageAndTexts");
+    }
+
+    @Test
+    public void skipCategoryIfExGratia(){
+        when(compRegistrationProcess.waitsAtUserTask("Validate_Complaint"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Ex-Gratia")));
+
+        when(compRegistrationProcess.waitsAtUserTask("ExGracia_Input"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD",  "CompType", "Service")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", "false", "CompType", "Service")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", "true","CompType", "Service", "CompType", "Ex-Gratia")));
+
+        Scenario.run(compRegistrationProcess)
+                .startByKey("COMP_REGISTRATION")
+                .execute();
+
+        verify(compRegistrationProcess)
+                .hasCompleted("UpdateTeamForExGracia");
     }
 }

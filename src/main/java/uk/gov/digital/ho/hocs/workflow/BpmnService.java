@@ -287,6 +287,7 @@ public class BpmnService {
         camundaClient.updateTask(stageUUID, teamForText);
         caseworkClient.updateCase(caseUUID, stageUUID, teamForText);
 
+
         log.debug("######## Updated Team For Stage And Text ########");
     }
 
