@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:process id="FOI" isExecutable="true">
     <bpmn:startEvent id="FOI_START" name="Start Case">
       <bpmn:outgoing>SequenceFlow_1pepep6</bpmn:outgoing>
@@ -19,7 +19,6 @@
         <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
         <camunda:out sourceExpression="${&#34;DATA_INPUT&#34;}" target="LastStage" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0u1lwhu</bpmn:incoming>
       <bpmn:outgoing>Flow_0oacrn4</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="Activity_16l1q7b" name="Allocation" calledElement="STAGE">
@@ -39,7 +38,9 @@
         <camunda:in source="null" target="AllocationTeamUUID" />
       </bpmn:extensionElements>
       <bpmn:incoming>case_rejected</bpmn:incoming>
-      <bpmn:incoming>Flow_0oacrn4</bpmn:incoming>
+      <bpmn:incoming>Flow_0h51m3d</bpmn:incoming>
+      <bpmn:incoming>Flow_1h0s2gy</bpmn:incoming>
+      <bpmn:incoming>Flow_0f8i3tz</bpmn:incoming>
       <bpmn:outgoing>Flow_16c9c0x</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_16c9c0x" sourceRef="Activity_16l1q7b" targetRef="ACCEPTANCE" />
@@ -272,27 +273,23 @@
       <bpmn:outgoing>Flow_1h0s2gy</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1h0s2gy" sourceRef="CASE_CREATION" targetRef="SHOULD_DISPATCH_AFTER_DATA_INPUT" />
-    <bpmn:exclusiveGateway id="SHOULD_DISPATCH_AFTER_DATA_INPUT" default="Flow_0u1lwhu">
+    <bpmn:exclusiveGateway id="SHOULD_DISPATCH_AFTER_DATA_INPUT">
       <bpmn:incoming>Flow_1h0s2gy</bpmn:incoming>
       <bpmn:outgoing>Flow_17lyviv</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0u1lwhu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0f8i3tz</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_17lyviv" name="To dispatch" sourceRef="SHOULD_DISPATCH_AFTER_DATA_INPUT" targetRef="FOI_DISPATCH">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RequestValidity=="RequestValid-N"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0u1lwhu" sourceRef="SHOULD_DISPATCH_AFTER_DATA_INPUT" targetRef="Activity_0jtkbij" />
     <bpmn:sequenceFlow id="Flow_0jcjuey" name="return to case creation" sourceRef="Gateway_04z0ecf" targetRef="CASE_CREATION">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${LastStage == "CASE_CREATION"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0f8i3tz" sourceRef="SHOULD_DISPATCH_AFTER_DATA_INPUT" targetRef="Activity_16l1q7b" />
     <bpmn:sequenceFlow id="Flow_0oacrn4" sourceRef="Activity_0jtkbij" targetRef="Activity_16l1q7b" />
     <bpmn:sequenceFlow id="Flow_0de9oms" sourceRef="is_case_accepted_by_draft_team" targetRef="FOI_APPROVAL" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI">
-      <bpmndi:BPMNEdge id="Flow_0oacrn4_di" bpmnElement="Flow_0oacrn4">
-        <di:waypoint x="600" y="338" />
-        <di:waypoint x="660" y="338" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0jcjuey_di" bpmnElement="Flow_0jcjuey" bioc:stroke="rgb(30, 136, 229)" bioc:fill="rgb(187, 222, 251)">
         <di:waypoint x="1950" y="147" />
         <di:waypoint x="1950" y="100" />
@@ -301,10 +298,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1586" y="68" width="68" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0u1lwhu_di" bpmnElement="Flow_0u1lwhu">
-        <di:waypoint x="455" y="340" />
-        <di:waypoint x="500" y="340" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_17lyviv_di" bpmnElement="Flow_17lyviv" bioc:stroke="rgb(142, 36, 170)" bioc:fill="rgb(225, 190, 231)">
         <di:waypoint x="430" y="315" />
@@ -437,14 +430,15 @@
         <di:waypoint x="2225" y="338" />
         <di:waypoint x="2270" y="338" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f8i3tz_di" bpmnElement="Flow_0f8i3tz">
+        <di:waypoint x="455" y="340" />
+        <di:waypoint x="660" y="340" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="FOI_START">
         <dc:Bounds x="162" y="322" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="154" y="368" width="52" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0jtkbij_di" bpmnElement="Activity_0jtkbij">
-        <dc:Bounds x="500" y="298" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_16l1q7b_di" bpmnElement="Activity_16l1q7b" bioc:stroke="black" bioc:fill="white">
         <dc:Bounds x="660" y="298" width="100" height="80" />
