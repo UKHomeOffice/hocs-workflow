@@ -29,8 +29,6 @@ public class FOI_DRAFT {
     public static final String CASE_UUID = UUID.randomUUID().toString();
     public static final String STAGE_UUID = UUID.randomUUID().toString();
     public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
-    public static final String G6G7ApprovalTeam = UUID.randomUUID().toString();
-    public static final String ScsApprovalTeam = UUID.randomUUID().toString();
 
     public static final String N_TEXT = "NoteText";
     public static final String ACCEPT_OR_REJECT = "ACCEPT_OR_REJECT";
@@ -45,11 +43,6 @@ public class FOI_DRAFT {
     public static final String RESPONSE_TYPE = "RESPONSE_TYPE";
     public static final String UPLOAD_DRAFT = "UPLOAD_DRAFT";
     public static final String EXEMPTION = "EXEMPTION";
-    public static final String SENSITIVITY = "SENSITIVITY";
-    public static final String QA_OFFLINE = "QA_OFFLINE";
-    public static final String SELECT_ONLINE_G6OR7_APPROVAL_TEAM = "SELECT_ONLINE_G6OR7_APPROVAL_TEAM";
-    public static final String SELECT_OFFLINE_G6OR7_APPROVAL_TEAM = "SELECT_OFFLINE_G6OR7_APPROVAL_TEAM";
-    public static final String SELECT_SCS_APPROVAL_TEAM = "SELECT_SCS_APPROVAL_TEAM";
 
     @Rule
     @ClassRule
@@ -118,19 +111,6 @@ public class FOI_DRAFT {
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
 
-        when(processScenario.waitsAtUserTask(SENSITIVITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "Sensitivity", "LOW", "DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask(QA_OFFLINE))
-                .thenReturn(task -> task.complete(withVariables(
-                        "QaOffline", "QaOffline-N", "DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask(SELECT_ONLINE_G6OR7_APPROVAL_TEAM))
-                .thenReturn(task -> task.complete(withVariables(
-                        "G6G7ApprovalTeam", G6G7ApprovalTeam)));
-
-
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
                         PROCESS_KEY, STAGE_UUID,
@@ -143,8 +123,6 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
-        verify(processScenario, times(1)).hasCompleted(SELECT_ONLINE_G6OR7_APPROVAL_TEAM);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
     }
@@ -186,7 +164,6 @@ public class FOI_DRAFT {
 
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
-        verify(processScenario, never()).waitsAtUserTask(SENSITIVITY);
     }
 
     @Test
@@ -204,20 +181,8 @@ public class FOI_DRAFT {
                 .thenReturn(task -> task.complete(withVariables(
                         "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask(QA_OFFLINE))
-                .thenReturn(task -> task.complete(withVariables(
-                        "QaOffline", "QaOffline-N", "DIRECTION", "FORWARD")));
-
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
-
-        when(processScenario.waitsAtUserTask(SENSITIVITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "Sensitivity", "HIGH", "DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask(SELECT_SCS_APPROVAL_TEAM))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ScsApprovalTeam", ScsApprovalTeam)));
 
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -231,14 +196,9 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
-        verify(processScenario, times(1)).hasCompleted(QA_OFFLINE);
-        verify(processScenario, times(1)).hasCompleted(SELECT_SCS_APPROVAL_TEAM);
-        verify(processScenario, times(1)).hasCompleted(QA_OFFLINE);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
-        verify(processScenario, never()).waitsAtUserTask(SELECT_ONLINE_G6OR7_APPROVAL_TEAM);
     }
 
     @Test
@@ -256,20 +216,8 @@ public class FOI_DRAFT {
                 .thenReturn(task -> task.complete(withVariables(
                         "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask(QA_OFFLINE))
-                .thenReturn(task -> task.complete(withVariables(
-                        "QaOffline", "QaOffline-Y", "DIRECTION", "FORWARD")));
-
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
-
-        when(processScenario.waitsAtUserTask(SENSITIVITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "Sensitivity", "LOW", "DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask(SELECT_OFFLINE_G6OR7_APPROVAL_TEAM))
-                .thenReturn(task -> task.complete(withVariables(
-                        "G6G7ApprovalTeam", G6G7ApprovalTeam)));
 
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -282,13 +230,9 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
-        verify(processScenario, times(1)).hasCompleted(QA_OFFLINE);
-        verify(processScenario, times(1)).hasCompleted(SELECT_OFFLINE_G6OR7_APPROVAL_TEAM);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
-        verify(processScenario, never()).waitsAtUserTask(SELECT_SCS_APPROVAL_TEAM);
     }
 
     @Test
@@ -306,20 +250,8 @@ public class FOI_DRAFT {
                 .thenReturn(task -> task.complete(withVariables(
                         "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask(QA_OFFLINE))
-                .thenReturn(task -> task.complete(withVariables(
-                        "QaOffline", "QaOffline-N", "DIRECTION", "FORWARD")));
-
         when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
                 .thenReturn(task -> task.complete());
-
-        when(processScenario.waitsAtUserTask(SENSITIVITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "Sensitivity", "LOW", "DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask(SELECT_ONLINE_G6OR7_APPROVAL_TEAM))
-                .thenReturn(task -> task.complete(withVariables(
-                        "G6G7ApprovalTeam", G6G7ApprovalTeam)));
 
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -332,12 +264,8 @@ public class FOI_DRAFT {
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
-        verify(processScenario, times(1)).hasCompleted(SENSITIVITY);
-        verify(processScenario, times(1)).hasCompleted(QA_OFFLINE);
-        verify(processScenario, times(1)).hasCompleted(SELECT_ONLINE_G6OR7_APPROVAL_TEAM);
-        verify(processScenario).hasFinished(END_EVENT);
+       verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
         verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
-        verify(processScenario, never()).waitsAtUserTask(SELECT_SCS_APPROVAL_TEAM);
     }
 }
