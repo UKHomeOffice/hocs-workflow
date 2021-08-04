@@ -17,11 +17,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/COMP_SERVICE_TRIAGE.bpmn")
-public class COMP_SERVICE_TRIAGE {
+@Deployment(resources = "processes/EXGRATIA_TRIAGE.bpmn")
+public class EX_GRATIA_TRIAGE {
 
     @Rule
     @ClassRule
@@ -34,7 +37,7 @@ public class COMP_SERVICE_TRIAGE {
     private BpmnService bpmnService;
 
     @Mock
-    private ProcessScenario compServiceTriageProcess;
+    private ProcessScenario exGratiaTriageProcess;
 
     @Before
     public void setup() {
@@ -43,115 +46,114 @@ public class COMP_SERVICE_TRIAGE {
 
     @Test
     public void testRejectTriage(){
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Transfer"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Transfer"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
 
-        Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
+        Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
 
-        verify(compServiceTriageProcess, times(3)).hasCompleted("Screen_Accept");
-        verify(compServiceTriageProcess, times(3)).hasCompleted("Screen_Transfer");
-        verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Accept");
+        verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Transfer");
+        verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
     }
 
     @Test
     public void testTriageResultDraft(){
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_BusArea"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "Pending")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Draft")));
 
-        Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
+        Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
 
-        verify(compServiceTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Draft");
+        verify(exGratiaTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Draft");
     }
 
     @Test
     public void testTriageResultEscalate(){
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_BusArea"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Escalate")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Escalate"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Escalate"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageEscalate", "Escalate")));
 
-        Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
+        Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
 
-        verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote_Escalate");
-        verify(compServiceTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Escalate");
+        verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote_Escalate");
+        verify(exGratiaTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Escalate");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Escalate"), eq("SEND_TO_WORKFLOW_MANAGER"));
     }
 
     @Test
     public void testTriageResultComplete(){
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_BusArea"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Complete")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_CompleteReason"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_CompleteReason"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_CompleteConfirm"))
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_CompleteConfirm"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes", "CaseNote_CompleteReason", "Complete")));
 
-        Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
+        Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
 
-        verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote_Complete");
+        verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote_Complete");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Complete"), eq("CLOSE"));
     }
-
 }
