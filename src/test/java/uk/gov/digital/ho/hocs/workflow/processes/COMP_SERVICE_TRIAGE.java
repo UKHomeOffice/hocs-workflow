@@ -65,6 +65,11 @@ public class COMP_SERVICE_TRIAGE {
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
@@ -91,6 +96,9 @@ public class COMP_SERVICE_TRIAGE {
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
@@ -116,6 +124,9 @@ public class COMP_SERVICE_TRIAGE {
     public void testTriageResultComplete(){
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
