@@ -45,24 +45,176 @@ public class MPAMPo {
     }
 
     @Test
-    public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam() {
+    public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaUkvi() {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
-                        "PoStatus", "Reject-PfS")));
-        when(processScenario.waitsAtUserTask("Validate_RejectToDraft"))
+                        "PoStatus", "Reject-PfS",
+                        "BusArea", "UKVI")));
+        when(processScenario.waitsAtUserTask("Validate_Reject"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
-                        "CaseNote_RejectPfs", "Casenote Reject")));
+                        "CaseNote_RejectPfs", "Casenote Reject",
+                        "BusArea", "UKVI")));
 
         Scenario.run(processScenario)
                 .startByKey("MPAM_PO")
                 .execute();
 
-        verify(processScenario).hasCompleted("Screen_RejectToDraft");
+        verify(processScenario).hasCompleted("Screen_Reject");
+        verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Casenote Reject"), eq("REJECT"));
+        verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
+        verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
+        verify(processScenario).hasCompleted("Service_UpdateTeamForQA");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaBf() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Reject-PfS",
+                        "BusArea", "BF")));
+        when(processScenario.waitsAtUserTask("Validate_Reject"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "CaseNote_RejectPfs", "Casenote Reject",
+                        "BusArea", "BF")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("Screen_Reject");
+        verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Casenote Reject"), eq("REJECT"));
+        verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
+        verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
+        verify(processScenario).hasCompleted("Service_UpdateTeamForQA");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaIe() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Reject-PfS",
+                        "BusArea", "IE")));
+        when(processScenario.waitsAtUserTask("Validate_Reject"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "CaseNote_RejectPfs", "Casenote Reject",
+                        "BusArea", "IE")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("Screen_Reject");
+        verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Casenote Reject"), eq("REJECT"));
+        verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
+        verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
+        verify(processScenario).hasCompleted("Service_UpdateTeamForQA");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaEuss() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Reject-PfS",
+                        "BusArea", "EUSS")));
+        when(processScenario.waitsAtUserTask("Validate_Reject"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "CaseNote_RejectPfs", "Casenote Reject",
+                        "BusArea", "EUSS")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("Screen_Reject");
+        verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Casenote Reject"), eq("REJECT"));
+        verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
+        verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
+        verify(processScenario).hasCompleted("Service_UpdateTeamForDraft");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaHmpo() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Reject-PfS",
+                        "BusArea", "HMPO")));
+        when(processScenario.waitsAtUserTask("Validate_Reject"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "CaseNote_RejectPfs", "Casenote Reject",
+                        "BusArea", "HMPO")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("Screen_Reject");
+        verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Casenote Reject"), eq("REJECT"));
+        verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
+        verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
+        verify(processScenario).hasCompleted("Service_UpdateTeamForDraft");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaWindrush() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Reject-PfS",
+                        "BusArea", "Windrush")));
+        when(processScenario.waitsAtUserTask("Validate_Reject"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "CaseNote_RejectPfs", "Casenote Reject",
+                        "BusArea", "Windrush")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("Screen_Reject");
         verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Casenote Reject"), eq("REJECT"));
         verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
