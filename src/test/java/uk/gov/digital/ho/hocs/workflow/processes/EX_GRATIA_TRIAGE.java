@@ -154,6 +154,7 @@ public class EX_GRATIA_TRIAGE {
         Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
 
         verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote_Complete");
+        verify(exGratiaTriageProcess, times(2)).hasCompleted("Screen_Input");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Complete"), eq("CLOSE"));
     }
 }
