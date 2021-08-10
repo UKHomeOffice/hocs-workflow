@@ -82,33 +82,4 @@ public class FOI_ALLOCATION {
                 eq("ALLOCATE"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
         verify(processScenario, times(1)).hasCompleted(CONFIRMATION_SCREEN);
     }
-
-    @Test
-    public void happyPathWithBack() {
-
-        //given
-        when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD",
-                        "AllocationCaseNote", ALLOCATION_MESSAGE)));
-        when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN))
-                .thenReturn(task -> task.complete());
-
-        //when
-        Scenario.run(processScenario).startBy(() -> {
-            return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
-                    Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
-                            "StageUUID", STAGE_UUID));
-        }).execute();
-
-        //then
-
-        verify(processScenario, times(2)).hasCompleted(CHOOSE_FOI_HUB);
-        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(ALLOCATION_MESSAGE),
-                eq("ALLOCATE"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
-        verify(processScenario, times(1)).hasCompleted(CONFIRMATION_SCREEN);
-
-    }
 }
