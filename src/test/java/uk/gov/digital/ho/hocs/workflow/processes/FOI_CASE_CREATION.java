@@ -155,4 +155,65 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess).hasFinished(END_EVENT);
 
     }
+
+
+    @Test
+    public void testAnswersThenBackThenForwardWithValidResponse() {
+
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD")));
+
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_VALIDITY))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD",
+                        "RequestValidity", "RequestValid-Y")));
+
+        when(FOICaseCreationProcess.waitsAtUserTask(VALID_TEMPLATES))
+                .thenReturn(task -> task.complete());
+
+        Scenario.run(FOICaseCreationProcess)
+                .startByKey("FOI_CASE_CREATION")
+                .execute();
+
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
+
+        verify(FOICaseCreationProcess, times(2))
+                .hasCompleted(CHECK_ANSWERS);
+
+        verify(FOICaseCreationProcess, times(2))
+                .hasCompleted(CHECK_VALIDITY);
+
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(VALID_TEMPLATES);
+
+        verify(FOICaseCreationProcess, times(1))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
+
+        // NOT INVOKED
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(CHANGE_ANSWERS);
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(SAVE_PRIMARY_TOPIC_POST_CHANGE);
+
+        verify(FOICaseCreationProcess, times(0))
+                .hasCompleted(UPDATE_DEADLINES);
+
+        // END NOT INVOKED
+
+        verify(FOICaseCreationProcess).hasFinished(END_EVENT);
+
+    }
+
+
+
+
+
+
+
 }
