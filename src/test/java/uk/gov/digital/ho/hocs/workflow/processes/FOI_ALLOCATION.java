@@ -29,8 +29,8 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 @Deployment(resources = {"processes/FOI_ALLOCATION.bpmn"})
 public class FOI_ALLOCATION {
 
-    public static final String CHOOSE_REQUEST_TYPE = "Activity_0gpqsvz";
     public static final String CHOOSE_FOI_HUB = "Activity_0egyc0f";
+    public static final String CONFIRMATION_SCREEN = "Activity_0gpqsvz";
     public static final String CASE_UUID = "123-456-789";
     public static final String STAGE_UUID = "987-654-321";
     public static final String ALLOCATION_MESSAGE = "allocation message.";
@@ -61,13 +61,13 @@ public class FOI_ALLOCATION {
     public void happyPath() {
 
         //given
-        when(processScenario.waitsAtUserTask(CHOOSE_REQUEST_TYPE))
-                .thenReturn(task -> task.complete());
         when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
                 .thenReturn(task -> task.complete(withVariables(
                         "DIRECTION", "FORWARD",
                         "AllocationCaseNote", ALLOCATION_MESSAGE)
                 ));
+        when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN))
+                .thenReturn(task -> task.complete());
 
         //when
         Scenario.run(processScenario).startBy(() -> {
@@ -77,37 +77,9 @@ public class FOI_ALLOCATION {
         }).execute();
 
         //then
-        verify(processScenario, times(1)).hasCompleted(CHOOSE_REQUEST_TYPE);
         verify(processScenario, times(1)).hasCompleted(CHOOSE_FOI_HUB);
         verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(ALLOCATION_MESSAGE),
                 eq("ALLOCATE"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
-    }
-
-    @Test
-    public void happyPathWithBack() {
-
-        //given
-        when(processScenario.waitsAtUserTask(CHOOSE_REQUEST_TYPE))
-                .thenReturn(task -> task.complete())
-                .thenReturn(task -> task.complete());
-        when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD",
-                        "AllocationCaseNote", ALLOCATION_MESSAGE)));
-
-        //when
-        Scenario.run(processScenario).startBy(() -> {
-            return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
-                    Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
-                            "StageUUID", STAGE_UUID));
-        }).execute();
-
-        //then
-        verify(processScenario, times(2)).hasCompleted(CHOOSE_REQUEST_TYPE);
-        verify(processScenario, times(2)).hasCompleted(CHOOSE_FOI_HUB);
-        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(ALLOCATION_MESSAGE),
-                eq("ALLOCATE"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
+        verify(processScenario, times(1)).hasCompleted(CONFIRMATION_SCREEN);
     }
 }
