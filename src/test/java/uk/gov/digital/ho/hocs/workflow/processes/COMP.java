@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.processes;
 
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
@@ -7,16 +8,14 @@ import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageP
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
@@ -55,6 +54,7 @@ public class COMP {
     @Before
     public void setup() {
         Mocks.register("bpmnService", bpmnService);
+        
     }
 
     @Test
@@ -463,4 +463,17 @@ public class COMP {
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
+
+    @After
+    public void after(){
+        RepositoryService repositoryService = processEngineRule.getRepositoryService();
+
+        List<org.camunda.bpm.engine.repository.Deployment> deployments = repositoryService.createDeploymentQuery().list();
+        for (org.camunda.bpm.engine.repository.Deployment deployment : deployments) {
+            repositoryService.deleteDeployment(deployment.getId());
+        }
+        
+        Mocks.reset();
+    }
+
 }
