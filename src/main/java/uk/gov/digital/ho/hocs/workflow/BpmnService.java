@@ -345,11 +345,13 @@ public class BpmnService {
         String oldTeamName =  infoClient.getTeam(caseworkClient.getStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID))).getDisplayName();
         String caseworkStageType = caseworkClient.getStageType(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID));
         StageTypeDto stageTypeDto = infoClient.getAllStageTypes().stream().filter(st -> st.getType().equals(caseworkStageType)).findFirst().get();
+        String allocationNoteText = allocationNote.isBlank() ? " stage" :" stage: " + allocationNote;
         if (allocationNoteType.equals("ALLOCATE")){
             String newTeamName = infoClient.getTeam(UUID.fromString(newTeamUUID)).getDisplayName();
-            allocationNote = oldTeamName + " allocated case to " + newTeamName + " at " + stageTypeDto.getDisplayName() + " stage: " + allocationNote;
+            allocationNote = oldTeamName + " allocated case to " + newTeamName + " at " + stageTypeDto.getDisplayName() +
+                    allocationNoteText;
         } else {
-            allocationNote = oldTeamName + " rejected case at " + stageTypeDto.getDisplayName() + " stage: " + allocationNote;
+            allocationNote = oldTeamName + " rejected case at " + stageTypeDto.getDisplayName() + allocationNoteText;
         }
 
         log.debug("######## Save Allocation Note ########");
