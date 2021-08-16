@@ -331,6 +331,18 @@ public class BpmnService {
         log.info("Adding Casenote to Case: {}", caseUUIDString);
     }
 
+    public String constructAllocationNote(String oldTeamName, String newTeamUUID, String stageName,
+                                          String allocationNote, String allocationNoteType){
+        String allocationNoteText = allocationNote.isBlank() ? " stage" :" stage: " + allocationNote;
+        if (allocationNoteType.equals("ALLOCATE")){
+            String newTeamName = infoClient.getTeam(UUID.fromString(newTeamUUID)).getDisplayName();
+            return oldTeamName + " allocated case to " + newTeamName + " at " + stageName +
+                    allocationNoteText;
+        } else {
+            return oldTeamName + " rejected case at " + stageName + allocationNoteText;
+        }
+    }
+
     /**
      *
      * @param caseUUIDString The UUID string for the case that is being updated
@@ -345,14 +357,7 @@ public class BpmnService {
         String oldTeamName =  infoClient.getTeam(caseworkClient.getStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID))).getDisplayName();
         String caseworkStageType = caseworkClient.getStageType(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID));
         StageTypeDto stageTypeDto = infoClient.getAllStageTypes().stream().filter(st -> st.getType().equals(caseworkStageType)).findFirst().get();
-        String allocationNoteText = allocationNote.isBlank() ? " stage" :" stage: " + allocationNote;
-        if (allocationNoteType.equals("ALLOCATE")){
-            String newTeamName = infoClient.getTeam(UUID.fromString(newTeamUUID)).getDisplayName();
-            allocationNote = oldTeamName + " allocated case to " + newTeamName + " at " + stageTypeDto.getDisplayName() +
-                    allocationNoteText;
-        } else {
-            allocationNote = oldTeamName + " rejected case at " + stageTypeDto.getDisplayName() + allocationNoteText;
-        }
+        allocationNote = constructAllocationNote(oldTeamName, newTeamUUID, stageTypeDto.getDisplayName(), allocationNote, allocationNoteType);
 
         log.debug("######## Save Allocation Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);

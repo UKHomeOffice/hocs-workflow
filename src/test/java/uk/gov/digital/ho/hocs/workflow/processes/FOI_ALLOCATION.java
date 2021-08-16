@@ -33,7 +33,7 @@ public class FOI_ALLOCATION {
     public static final String CONFIRMATION_SCREEN = "Activity_0gpqsvz";
     public static final String CASE_UUID = "123-456-789";
     public static final String STAGE_UUID = "987-654-321";
-    public static final String ALLOCATION_MESSAGE = "allocation message.";
+    public static final String ALLOCATION_MESSAGE = "";
     public static final String PROCESS_KEY = "FOI_ALLOCATION";
     public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
 
