@@ -202,4 +202,22 @@ public class COMP_REGISTRATION {
         verify(compRegistrationProcess)
                 .hasCompleted("UpdateTeamForExGracia");
     }
+
+    @Test
+    public void assignToMinorMisconduct(){
+        when(compRegistrationProcess.waitsAtUserTask("Validate_Complaint"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
+
+        when(compRegistrationProcess.waitsAtUserTask("ExGracia_Input"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD",  "CompType", "Service")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", "false", "CompType", "MinorMisconduct")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", "true","CompType", "MinorMisconduct")));
+
+        Scenario.run(compRegistrationProcess)
+                .startByKey("COMP_REGISTRATION")
+                .execute();
+
+        verify(compRegistrationProcess)
+                .hasCompleted("UpdateTeamForMinorMisconduct");
+    }
 }
