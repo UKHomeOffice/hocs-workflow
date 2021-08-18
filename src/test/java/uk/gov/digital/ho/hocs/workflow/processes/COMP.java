@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.processes;
 
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
@@ -7,16 +8,14 @@ import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageP
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
@@ -55,6 +54,7 @@ public class COMP {
     @Before
     public void setup() {
         Mocks.register("bpmnService", bpmnService);
+        
     }
 
     @Test
@@ -257,4 +257,223 @@ public class COMP {
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
+
+    @Test
+    public void testWhenExGratia() {
+
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_TRIAGE")
+                .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_RESPONSE_DRAFT")
+                .thenReturn("CctDraftResult", "default")
+                .thenReturn("CctDraftResult", "QA")
+                .thenReturn("CctDraftResult", "Send")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_QA")
+                .thenReturn("CctQaResult", "Reject")
+                .thenReturn("CctQaResult", "Accept")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_SEND")
+                .thenReturn("CctDraftResult", "Send","Stage", "Stage1")
+                .deploy(rule);
+        whenAtCallActivity("COMP_CLOSED")
+                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_EX_GRATIA_RESPONSE_DRAFT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testWhenExGratiaEscalate() {
+
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_TRIAGE")
+                .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate")
+                .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_ESCALATE")
+                .thenReturn("CctEscalateResult", "Triage")
+                .thenReturn("CctEscalateResult", "Draft")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_RESPONSE_DRAFT")
+                .thenReturn("CctDraftResult", "Escalate")
+                .thenReturn("CctDraftResult", "Send")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_SEND")
+                .thenReturn("CctDraftResult", "Send")
+                .deploy(rule);
+        whenAtCallActivity("COMP_CLOSED")
+                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_EX_GRATIA_RESPONSE_DRAFT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testWhenExGratia_ReturnToCch() {
+
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1")
+                .deploy(rule);
+        whenAtCallActivity("EXGRATIA_TRIAGE")
+                .thenReturn("CctTriageAccept", "No", "CctCompType", "CCH")
+                .deploy(rule);
+        whenAtCallActivity("COMP_CCH_RETURNS")
+                .thenReturn("CchCompType", "Complete")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testWhenMinorMisconduct() {
+
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("CompType", "MinorMisconduct", "Stage", "Stage1")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_TRIAGE")
+                .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_RESPONSE_DRAFT")
+                .thenReturn("CctDraftResult", "default")
+                .thenReturn("CctDraftResult", "QA")
+                .thenReturn("CctDraftResult", "Send")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_QA")
+                .thenReturn("CctQaResult", "Reject")
+                .thenReturn("CctQaResult", "Accept")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_SEND")
+                .thenReturn("CctDraftResult", "Send","Stage", "Stage1")
+                .deploy(rule);
+        whenAtCallActivity("COMP_CLOSED")
+                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_MM_DRAFT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testWhenMinorMisconductEscalate() {
+
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("CompType", "MinorMisconduct", "Stage", "Stage1")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_TRIAGE")
+                .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate")
+                .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_ESCALATE")
+                .thenReturn("CctEscalateResult", "Triage")
+                .thenReturn("CctEscalateResult", "Draft")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_RESPONSE_DRAFT")
+                .thenReturn("CctDraftResult", "Escalate")
+                .thenReturn("CctDraftResult", "Send")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_SEND")
+                .thenReturn("CctDraftResult", "Send")
+                .deploy(rule);
+        whenAtCallActivity("COMP_CLOSED")
+                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_MM_TRIAGE");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_MM_DRAFT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testWhenMinorMisconduct_ReturnToCch() {
+
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("CompType", "MinorMisconduct", "Stage", "Stage1")
+                .deploy(rule);
+        whenAtCallActivity("MINORMISCONDUCT_TRIAGE")
+                .thenReturn("CctTriageAccept", "No", "CctCompType", "CCH")
+                .deploy(rule);
+        whenAtCallActivity("COMP_CCH_RETURNS")
+                .thenReturn("CchCompType", "Complete")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @After
+    public void after(){
+        RepositoryService repositoryService = processEngineRule.getRepositoryService();
+
+        List<org.camunda.bpm.engine.repository.Deployment> deployments = repositoryService.createDeploymentQuery().list();
+        for (org.camunda.bpm.engine.repository.Deployment deployment : deployments) {
+            repositoryService.deleteDeployment(deployment.getId());
+        }
+        
+        Mocks.reset();
+    }
+
 }

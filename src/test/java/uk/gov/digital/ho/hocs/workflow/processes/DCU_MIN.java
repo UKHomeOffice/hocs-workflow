@@ -1,19 +1,19 @@
 package uk.gov.digital.ho.hocs.workflow.processes;
 
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.mock.Mocks;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
+
+import java.util.List;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -132,5 +132,17 @@ public class DCU_MIN {
 
         verify(dcuMinProcess, times(1))
                 .hasCompleted(DISPATCH);
+    }
+
+    @After
+    public void after(){
+        RepositoryService repositoryService = rule.getRepositoryService();
+
+        List<org.camunda.bpm.engine.repository.Deployment> deployments = repositoryService.createDeploymentQuery().list();
+        for (org.camunda.bpm.engine.repository.Deployment deployment : deployments) {
+            repositoryService.deleteDeployment(deployment.getId());
+        }
+
+        Mocks.reset();
     }
 }

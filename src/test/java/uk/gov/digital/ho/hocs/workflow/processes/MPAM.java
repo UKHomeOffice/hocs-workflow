@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.processes;
 
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.mock.Mocks;
 import org.camunda.bpm.extension.mockito.ProcessExpressions;
@@ -7,10 +8,7 @@ import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageP
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -20,6 +18,7 @@ import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -764,5 +763,17 @@ public class MPAM {
                 .hasCompleted("CallActivity_DraftEscalated_FromRequestContribution");
 
         verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @After
+    public void after(){
+        RepositoryService repositoryService = rule.getRepositoryService();
+
+        List<org.camunda.bpm.engine.repository.Deployment> deployments = repositoryService.createDeploymentQuery().list();
+        for (org.camunda.bpm.engine.repository.Deployment deployment : deployments) {
+            repositoryService.deleteDeployment(deployment.getId());
+        }
+
+        Mocks.reset();
     }
 }
