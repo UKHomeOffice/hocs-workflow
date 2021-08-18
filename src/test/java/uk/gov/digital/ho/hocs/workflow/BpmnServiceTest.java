@@ -3,7 +3,8 @@ package uk.gov.digital.ho.hocs.workflow;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
+import java.util.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,14 +14,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
+import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -678,6 +676,37 @@ public class BpmnServiceTest {
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
         verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldAddCaseNoteOfAllocationDetails() {
+        // GIVEN
+        String testAllocationStageUUID = "1b61dc8b-6843-4d5d-9828-7a82be5f475b";
+        String testNewTeamUUID = "833de531-446e-47c3-b021-691711f093ee";
+        String testCaseUUID = "470852ed-654e-4974-b4e4-f255f470beb0";
+        UUID mockCaseworkClientTeamResponse = UUID.randomUUID();
+        String mockExistingTeamNameResponse = "MOCK EXISTING TEAM";
+        String mockNewTeamNameResponse = "MOCK NEW TEAM NAME";
+        TeamDto mockInfoClientExistingTeamResponse = new TeamDto(mockExistingTeamNameResponse, null, true, null);
+        TeamDto mockInfoClientNewTeamResponse = new TeamDto(mockNewTeamNameResponse, null, true, null);
+
+        String mockCaseWorkType = "test_type";
+        StageTypeDto mockStageDtoResponse = new StageTypeDto(null, null, "MOCK STAGE NAME", mockCaseWorkType, null);
+
+        when(caseworkClient.getStageTeam(UUID.fromString(testCaseUUID), UUID.fromString(testAllocationStageUUID))).thenReturn(mockCaseworkClientTeamResponse);
+        when(infoClient.getTeam(mockCaseworkClientTeamResponse)).thenReturn(mockInfoClientExistingTeamResponse);
+        when(caseworkClient.getStageType(UUID.fromString(testCaseUUID), UUID.fromString(testAllocationStageUUID))).thenReturn(mockCaseWorkType);
+        when(infoClient.getAllStageTypes()).thenReturn(Set.of(mockStageDtoResponse));
+        when(infoClient.getTeam(UUID.fromString(testNewTeamUUID))).thenReturn(mockInfoClientNewTeamResponse);
+
+        String expectedCaseNote = mockExistingTeamNameResponse +
+                " allocated case to " + mockNewTeamNameResponse + " at " + mockStageDtoResponse.getDisplayName() + " stage.";
+
+        // WHEN
+        bpmnService.createAllocationDetailsNote(testCaseUUID, testNewTeamUUID, testAllocationStageUUID);
+
+        // THEN
+        verify(caseworkClient, times(1)).createCaseNote(UUID.fromString(testCaseUUID), NoteType.ALLOCATE.toString(), expectedCaseNote);
     }
 
 }

@@ -33,7 +33,6 @@ public class FOI_ALLOCATION {
     public static final String CONFIRMATION_SCREEN = "Activity_0gpqsvz";
     public static final String CASE_UUID = "123-456-789";
     public static final String STAGE_UUID = "987-654-321";
-    public static final String ALLOCATION_MESSAGE = "allocation message.";
     public static final String PROCESS_KEY = "FOI_ALLOCATION";
     public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
 
@@ -63,8 +62,7 @@ public class FOI_ALLOCATION {
         //given
         when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD",
-                        "AllocationCaseNote", ALLOCATION_MESSAGE)
+                        "DIRECTION", "FORWARD")
                 ));
         when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN))
                 .thenReturn(task -> task.complete());
@@ -78,8 +76,7 @@ public class FOI_ALLOCATION {
 
         //then
         verify(processScenario, times(1)).hasCompleted(CHOOSE_FOI_HUB);
-        verify(bpmnService).updateAllocationNoteWithDetails(eq(CASE_UUID), eq(STAGE_UUID), eq(ALLOCATION_MESSAGE),
-                eq("ALLOCATE"), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
+        verify(bpmnService).createAllocationDetailsNote(eq(CASE_UUID), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
         verify(processScenario, times(1)).hasCompleted(CONFIRMATION_SCREEN);
     }
 }
