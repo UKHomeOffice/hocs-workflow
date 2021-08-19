@@ -128,6 +128,45 @@ public class FOI_DRAFT {
     }
 
     @Test
+    public void multipleContributionsBackandForth() {
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftAcceptCase", "Y")));
+
+        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(RESPONSE_TYPE))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ResponseType", "FULL_DISCLOSURE", "DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
+                .thenReturn(task -> task.complete());
+
+        Scenario.run(processScenario).startBy(
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID)
+                )).execute();
+
+        verify(processScenario, times(2)).hasCompleted(ACCEPT_OR_REJECT);
+        verify(processScenario, times(2)).hasCompleted(CLEAR_REJECTED);
+        verify(processScenario, times(2)).hasCompleted(ARE_MCS_REQUIRED);
+        verify(processScenario, times(1)).hasCompleted(MULTIPLE_CONTRIBUTIONS);
+        verify(processScenario, times(1)).hasCompleted(RESPONSE_TYPE);
+        verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
+        verify(processScenario).hasFinished(END_EVENT);
+        verify(processScenario, never()).waitsAtUserTask(EXEMPTION);
+    }
+
+    @Test
     public void exemption() {
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
