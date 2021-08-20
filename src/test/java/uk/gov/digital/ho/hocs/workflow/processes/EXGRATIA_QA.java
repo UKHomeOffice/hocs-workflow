@@ -20,7 +20,7 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/EXGRATIA_QA.bpmn")
+@Deployment(resources = "processes/COMP_EXGRATIA_QA.bpmn")
 public class EXGRATIA_QA {
 
     @Rule
@@ -47,11 +47,11 @@ public class EXGRATIA_QA {
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctQaResult", "Accept")));
 
-        Scenario.run(exGratiaProcess).startByKey("EXGRATIA_QA").execute();
+        Scenario.run(exGratiaProcess).startByKey("COMP_EXGRATIA_QA").execute();
 
         verify(exGratiaProcess, times(2)).hasCompleted("Screen_Input");
         verify(exGratiaProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Send");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("EXGRATIA_SEND"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("COMP_EXGRATIA_SEND"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 
     @Test
@@ -65,14 +65,14 @@ public class EXGRATIA_QA {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", false)))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", true, "CaseNote_QaReject", "Rejection")));
 
-        Scenario.run(exGratiaProcess).startByKey("EXGRATIA_QA").execute();
+        Scenario.run(exGratiaProcess).startByKey("COMP_EXGRATIA_QA").execute();
 
         verify(exGratiaProcess, times(3)).hasCompleted("Screen_Input");
         verify(exGratiaProcess, times(3)).hasCompleted("Screen_Reject");
         verify(exGratiaProcess).hasCompleted("Service_UpdateAllocationNote_Reject");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Rejection"), eq("REJECT"));
         verify(exGratiaProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Draft");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("EXGRATIA_RESPONSE_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("COMP_EXGRATIA_RESPONSE_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 
     @Test
@@ -84,15 +84,15 @@ public class EXGRATIA_QA {
         when(exGratiaProcess.waitsAtUserTask("Validate_Reject"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")));
 
-        Scenario.run(exGratiaProcess).startByKey("EXGRATIA_QA").execute();
+        Scenario.run(exGratiaProcess).startByKey("COMP_EXGRATIA_QA").execute();
 
         verify(exGratiaProcess, times(2)).hasCompleted("Screen_Input");
         verify(exGratiaProcess).hasCompleted("Screen_Reject");
         verify(exGratiaProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Send");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("EXGRATIA_SEND"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("COMP_EXGRATIA_SEND"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
         verify(exGratiaProcess, never()).hasCompleted("Service_UpdateAllocationNote_Reject");
         verify(bpmnService, never()).updateAllocationNote(any(), any(), eq("Rejection"), eq("REJECT"));
         verify(exGratiaProcess, never()).hasCompleted("Service_UpdateTeamByStageAndTexts_Draft");
-        verify(bpmnService, never()).updateTeamByStageAndTexts(any(), any(), eq("EXGRATIA_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService, never()).updateTeamByStageAndTexts(any(), any(), eq("COMP_EXGRATIA_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 }

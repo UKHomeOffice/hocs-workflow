@@ -20,7 +20,7 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/EXGRATIA_SEND.bpmn")
+@Deployment(resources = "processes/COMP_EXGRATIA_SEND.bpmn")
 public class EXGRATIA_SEND {
 
     @Rule
@@ -47,7 +47,7 @@ public class EXGRATIA_SEND {
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true)));
 
-        Scenario.run(exGratiaProcess).startByKey("EXGRATIA_SEND").execute();
+        Scenario.run(exGratiaProcess).startByKey("COMP_EXGRATIA_SEND").execute();
 
         verify(exGratiaProcess, times(2)).hasCompleted("Screen_Input");
     }

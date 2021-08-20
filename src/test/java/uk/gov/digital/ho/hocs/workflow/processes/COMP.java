@@ -264,19 +264,19 @@ public class COMP {
         whenAtCallActivity("COMP_REGISTRATION")
                 .thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_TRIAGE")
+        whenAtCallActivity("COMP_EXGRATIA_TRIAGE")
                 .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_RESPONSE_DRAFT")
+        whenAtCallActivity("COMP_EXGRATIA_RESPONSE_DRAFT")
                 .thenReturn("CctDraftResult", "default")
                 .thenReturn("CctDraftResult", "QA")
                 .thenReturn("CctDraftResult", "Send")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_QA")
+        whenAtCallActivity("COMP_EXGRATIA_QA")
                 .thenReturn("CctQaResult", "Reject")
                 .thenReturn("CctQaResult", "Accept")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_SEND")
+        whenAtCallActivity("COMP_EXGRATIA_SEND")
                 .thenReturn("CctDraftResult", "Send","Stage", "Stage1")
                 .deploy(rule);
         whenAtCallActivity("COMP_CLOSED")
@@ -303,19 +303,19 @@ public class COMP {
         whenAtCallActivity("COMP_REGISTRATION")
                 .thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_TRIAGE")
+        whenAtCallActivity("COMP_EXGRATIA_TRIAGE")
                 .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate")
                 .thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_ESCALATE")
+        whenAtCallActivity("COMP_EXGRATIA_ESCALATE")
                 .thenReturn("CctEscalateResult", "Triage")
                 .thenReturn("CctEscalateResult", "Draft")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_RESPONSE_DRAFT")
+        whenAtCallActivity("COMP_EXGRATIA_RESPONSE_DRAFT")
                 .thenReturn("CctDraftResult", "Escalate")
                 .thenReturn("CctDraftResult", "Send")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_SEND")
+        whenAtCallActivity("COMP_EXGRATIA_SEND")
                 .thenReturn("CctDraftResult", "Send")
                 .deploy(rule);
         whenAtCallActivity("COMP_CLOSED")
@@ -342,7 +342,7 @@ public class COMP {
         whenAtCallActivity("COMP_REGISTRATION")
                 .thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1")
                 .deploy(rule);
-        whenAtCallActivity("EXGRATIA_TRIAGE")
+        whenAtCallActivity("COMP_EXGRATIA_TRIAGE")
                 .thenReturn("CctTriageAccept", "No", "CctCompType", "CCH")
                 .deploy(rule);
         whenAtCallActivity("COMP_CCH_RETURNS")

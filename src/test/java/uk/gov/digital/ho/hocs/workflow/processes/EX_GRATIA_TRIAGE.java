@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/EXGRATIA_TRIAGE.bpmn")
+@Deployment(resources = "processes/COMP_EXGRATIA_TRIAGE.bpmn")
 public class EX_GRATIA_TRIAGE {
 
     @Rule
@@ -55,7 +55,7 @@ public class EX_GRATIA_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
 
-        Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
+        Scenario.run(exGratiaTriageProcess).startByKey("COMP_EXGRATIA_TRIAGE").execute();
 
         verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Transfer");
@@ -89,7 +89,7 @@ public class EX_GRATIA_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "Pending")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Draft")));
 
-        Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
+        Scenario.run(exGratiaTriageProcess).startByKey("COMP_EXGRATIA_TRIAGE").execute();
 
         verify(exGratiaTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Draft");
     }
@@ -116,7 +116,7 @@ public class EX_GRATIA_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageEscalate", "Escalate")));
 
-        Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
+        Scenario.run(exGratiaTriageProcess).startByKey("COMP_EXGRATIA_TRIAGE").execute();
 
         verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote_Escalate");
         verify(exGratiaTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Escalate");
@@ -151,7 +151,7 @@ public class EX_GRATIA_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes", "CaseNote_CompleteReason", "Complete")));
 
-        Scenario.run(exGratiaTriageProcess).startByKey("EXGRATIA_TRIAGE").execute();
+        Scenario.run(exGratiaTriageProcess).startByKey("COMP_EXGRATIA_TRIAGE").execute();
 
         verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote_Complete");
         verify(exGratiaTriageProcess, times(2)).hasCompleted("Screen_Input");
