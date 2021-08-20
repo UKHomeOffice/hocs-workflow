@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.processes;
 
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
@@ -7,14 +8,13 @@ import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageP
 import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
+
+import java.util.List;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,7 +47,9 @@ public class MPAMPo {
     @Test
     public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaUkvi() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+        Mocks.register("BusArea", "UKVI");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -77,7 +79,9 @@ public class MPAMPo {
     @Test
     public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaBf() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+        Mocks.register("BusArea", "BF");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -107,7 +111,9 @@ public class MPAMPo {
     @Test
     public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaIe() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+        Mocks.register("BusArea", "IE");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD",
@@ -136,6 +142,8 @@ public class MPAMPo {
 
     @Test
     public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaEuss() {
+
+        Mocks.register("BusArea", "EUSS");
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
@@ -167,6 +175,8 @@ public class MPAMPo {
     @Test
     public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaHmpo() {
 
+        Mocks.register("BusArea", "HMPO");
+
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
@@ -197,6 +207,8 @@ public class MPAMPo {
     @Test
     public void whenRejectDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam_whenBusAreaWindrush() {
 
+        Mocks.register("BusArea", "Windrush");
+
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
@@ -222,5 +234,143 @@ public class MPAMPo {
         verify(processScenario).hasCompleted("Service_UpdateTeamForDraft");
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenApprovedMinisterialDispatch_whenBusAreaUkvi() {
+
+        Mocks.register("BusArea", "UKVI");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Approved-Ministerial-Dispatch",
+                        "BusArea", "UKVI")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenApprovedMinisterialDispatch_whenBusAreaBf() {
+
+        Mocks.register("BusArea", "BF");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Approved-Ministerial-Dispatch",
+                        "BusArea", "BF")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenApprovedMinisterialDispatch_whenBusAreaIe() {
+
+        Mocks.register("BusArea", "IE");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Approved-Ministerial-Dispatch",
+                        "BusArea", "IE")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenApprovedLocalDispatch_whenBusAreaUkvi() {
+
+        Mocks.register("BusArea", "UKVI");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Approved-Local-Dispatch",
+                        "BusArea", "UKVI")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenApprovedLocalDispatch_whenBusAreaBf() {
+
+        Mocks.register("BusArea", "BF");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Approved-Local-Dispatch",
+                        "BusArea", "BF")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @Test
+    public void whenApprovedLocalDispatch_whenBusAreaIe() {
+
+        Mocks.register("BusArea", "IE");
+
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "valid", true,
+                        "DIRECTION", "FORWARD",
+                        "PoStatus", "Approved-Local-Dispatch",
+                        "BusArea", "IE")));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO")
+                .execute();
+
+        verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(processScenario).hasFinished("EndEvent_MpamPo");
+    }
+
+    @After
+    public void after(){
+        RepositoryService repositoryService = rule.getRepositoryService();
+
+        List<org.camunda.bpm.engine.repository.Deployment> deployments = repositoryService.createDeploymentQuery().list();
+        for (org.camunda.bpm.engine.repository.Deployment deployment : deployments) {
+            repositoryService.deleteDeployment(deployment.getId());
+        }
+
+        Mocks.reset();
     }
 }

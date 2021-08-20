@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1l0bltw" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
+  <bpmn:process id="MPAM_PO_APPROVED_MIN_DISPATCH" isExecutable="true">
+    <bpmn:startEvent id="Event_0labn39">
+      <bpmn:outgoing>Flow_1srarzf</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Validate_UserInput" name="Validate User Input" camunda:formKey="MPAM_PO_APPROVED_MIN_DISPATCH">
+      <bpmn:incoming>Flow_1701vp2</bpmn:incoming>
+      <bpmn:incoming>Flow_1srarzf</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wyrl45</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1rzl6x4" default="Flow_1701vp2">
+      <bpmn:incoming>Flow_0rwc2vz</bpmn:incoming>
+      <bpmn:outgoing>Flow_1701vp2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1oj8dp4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_MPAMPoApprovedMinDispatch" name="End Stage">
+      <bpmn:incoming>Flow_1i87da6</bpmn:incoming>
+      <bpmn:incoming>Flow_1oj8dp4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1srarzf" sourceRef="Event_0labn39" targetRef="Validate_UserInput" />
+    <bpmn:sequenceFlow id="Flow_1701vp2" name="false" sourceRef="Gateway_1rzl6x4" targetRef="Validate_UserInput" />
+    <bpmn:exclusiveGateway id="Gateway_1mcuhuz" name="" default="Flow_0rwc2vz">
+      <bpmn:incoming>Flow_1wyrl45</bpmn:incoming>
+      <bpmn:outgoing>Flow_1o2cq3f</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0rwc2vz</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1o2cq3f" sourceRef="Gateway_1mcuhuz" targetRef="Activity_13s3swa">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_13s3swa" name="Update Team for Private Office" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_PO&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
+      <bpmn:incoming>Flow_1o2cq3f</bpmn:incoming>
+      <bpmn:outgoing>Flow_1i87da6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1i87da6" sourceRef="Activity_13s3swa" targetRef="EndEvent_MPAMPoApprovedMinDispatch" />
+    <bpmn:sequenceFlow id="Flow_1oj8dp4" sourceRef="Gateway_1rzl6x4" targetRef="EndEvent_MPAMPoApprovedMinDispatch">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1wyrl45" sourceRef="Validate_UserInput" targetRef="Gateway_1mcuhuz" />
+    <bpmn:sequenceFlow id="Flow_0rwc2vz" sourceRef="Gateway_1mcuhuz" targetRef="Gateway_1rzl6x4" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_PO_APPROVED_MIN_DISPATCH">
+      <bpmndi:BPMNEdge id="Flow_1oj8dp4_di" bpmnElement="Flow_1oj8dp4">
+        <di:waypoint x="503" y="203" />
+        <di:waypoint x="622" y="203" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wyrl45_di" bpmnElement="Flow_1wyrl45">
+        <di:waypoint x="348" y="203" />
+        <di:waypoint x="365" y="203" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1701vp2_di" bpmnElement="Flow_1701vp2">
+        <di:waypoint x="478" y="178" />
+        <di:waypoint x="478" y="120" />
+        <di:waypoint x="298" y="120" />
+        <di:waypoint x="298" y="163" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="488" y="133" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1srarzf_di" bpmnElement="Flow_1srarzf">
+        <di:waypoint x="188" y="203" />
+        <di:waypoint x="248" y="203" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rwc2vz_di" bpmnElement="Flow_0rwc2vz">
+        <di:waypoint x="415" y="203" />
+        <di:waypoint x="453" y="203" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1o2cq3f_di" bpmnElement="Flow_1o2cq3f">
+        <di:waypoint x="390" y="228" />
+        <di:waypoint x="390" y="320" />
+        <di:waypoint x="460" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i87da6_di" bpmnElement="Flow_1i87da6">
+        <di:waypoint x="560" y="320" />
+        <di:waypoint x="640" y="320" />
+        <di:waypoint x="640" y="221" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0labn39_di" bpmnElement="Event_0labn39">
+        <dc:Bounds x="152" y="185" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0pdoaei_di" bpmnElement="Validate_UserInput">
+        <dc:Bounds x="248" y="163" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1rzl6x4_di" bpmnElement="Gateway_1rzl6x4" isMarkerVisible="true">
+        <dc:Bounds x="453" y="178" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1mcuhuz_di" bpmnElement="Gateway_1mcuhuz" isMarkerVisible="true">
+        <dc:Bounds x="365" y="178" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="492" y="148" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0620mms_di" bpmnElement="EndEvent_MPAMPoApprovedMinDispatch">
+        <dc:Bounds x="622" y="185" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="614" y="161" width="52" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_13s3swa_di" bpmnElement="Activity_13s3swa">
+        <dc:Bounds x="460" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
