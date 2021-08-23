@@ -135,8 +135,6 @@ public class MPAMQa {
 
         when(processScenario.waitsAtUserTask("validate_request_clearance_input"))
                 .thenReturn(task -> task.complete(withVariables(
-                        "valid", false)))
-                .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "FORWARD")));
 
@@ -144,7 +142,7 @@ public class MPAMQa {
                 .startByKey("MPAM_QA")
                 .execute();
 
-        verify(processScenario, times(2)).hasCompleted("validate_request_clearance_input");
+        verify(processScenario, times(1)).hasCompleted("validate_request_clearance_input");
         verify(processScenario, times(2)).hasCompleted("Validate_UserInput_Clearance");
     }
 

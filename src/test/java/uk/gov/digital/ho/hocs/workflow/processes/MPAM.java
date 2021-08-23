@@ -824,6 +824,114 @@ public class MPAM {
                 .hasCompleted("CallActivity_0wfokmb");
     }
 
+    @Test
+    public void whenQaClearanceRequestCancelled_thenReturnToQa() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_QA")
+                .onExecutionAddVariable("QaStatus", "RequestSecretariatClearance")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("QaStatus", "RequestSecretariatClearance")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("QaStatus", "CarryOn")
+                                )
+                        )
+                ))
+                .deploy(rule);
+        ProcessExpressions.registerCallActivityMock("MPAM_QA_CLEARANCE_REQ")
+                .onExecutionAddVariable("QaStatus", "Cancelled")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_QaClearanceReq");
+
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_1rhesrm");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenQaClearanceRequestAccepted_thenContinueToPO() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_QA")
+                .onExecutionAddVariable("QaStatus", "RequestSecretariatClearance")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("QaStatus", "RequestSecretariatClearance")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("QaStatus", "CarryOn")
+                                )
+                        )
+                ))
+                .deploy(rule);
+        ProcessExpressions.registerCallActivityMock("MPAM_QA_CLEARANCE_REQ")
+                .onExecutionAddVariable("QaStatus", "ApprovePO")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_QaClearanceReq");
+
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_1rhesrm");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenQaClearanceRequestRejected_thenGoBackToDraft() {
+
+        ProcessExpressions.registerCallActivityMock("MPAM_QA")
+                .onExecutionAddVariable("QaStatus", "RequestSecretariatClearance")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("QaStatus", "RequestSecretariatClearance")
+                                ),
+                                // second call
+                                Arrays.asList(
+                                        new CallActivityReturnVariable("QaStatus", "CarryOn")
+                                )
+                        )
+                ))
+                .deploy(rule);
+        ProcessExpressions.registerCallActivityMock("MPAM_QA_CLEARANCE_REQ")
+                .onExecutionAddVariable("QaStatus", "RejectDraft")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess, times(1))
+                .hasCompleted("CallActivity_QaClearanceReq");
+
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_1rhesrm");
+
+        verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
     @After
     public void after(){
         RepositoryService repositoryService = rule.getRepositoryService();

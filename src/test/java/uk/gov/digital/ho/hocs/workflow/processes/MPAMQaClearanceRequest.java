@@ -44,7 +44,7 @@ public class MPAMQaClearanceRequest {
     public void clearanceCancelled(){
         when(process.waitsAtUserTask("Validate_Clearance_Fulfilment"))
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "QaContribiutionStatus", "Cancelled")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "QaStatus", "Cancelled")));
 
         Scenario.run(process)
                 .startByKey("MPAM_QA_CLEARANCE_REQ")
@@ -56,7 +56,7 @@ public class MPAMQaClearanceRequest {
     @Test
     public void clearanceRejected() {
         when(process.waitsAtUserTask("Validate_Clearance_Fulfilment"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "QaContribiutionStatus", "RejectDraft")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "QaStatus", "RejectDraft")));
 
         Scenario.run(process)
                 .startByKey("MPAM_QA_CLEARANCE_REQ")
@@ -68,7 +68,7 @@ public class MPAMQaClearanceRequest {
     @Test
     public void clearanceAccepted() {
         when(process.waitsAtUserTask("Validate_Clearance_Fulfilment"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "QaContribiutionStatus", "ApprovePO")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "QaStatus", "ApprovePO")));
 
         Scenario.run(process)
                 .startByKey("MPAM_QA_CLEARANCE_REQ")
