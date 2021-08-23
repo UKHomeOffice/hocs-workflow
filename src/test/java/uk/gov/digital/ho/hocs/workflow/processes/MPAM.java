@@ -53,6 +53,7 @@ public class MPAM {
     public static final String AWAITING_TRANSFER = "Activity_0esggvd";
     public static final String SAVE_DEADLINE_GATEWAY = "Gateway_1rtuzdz";
     public static final String TRANSFER_ACCEPTED_GATEWAY = "Gateway_0xmbo1i";
+    public static final String AWAITING_DISPATCH_MINISTERIAL = "CallActivity_0g8kpaf";
     public static final String COMPLETE_CASE = "ServiceTask_0rwk9ie";
 
     @Rule
@@ -87,7 +88,11 @@ public class MPAM {
                 .deploy(rule);
 
         ProcessExpressions.registerCallActivityMock("MPAM_PO")
-                .onExecutionAddVariable("PoStatus", "Dispatched-Follow-Up")
+                .onExecutionAddVariable("PoStatus", "Approved-Ministerial-Dispatch")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_MIN_DISPATCH")
+                .onExecutionAddVariable("DIRECTION", "FORWARD")
                 .deploy(rule);
 
         ProcessExpressions.registerCallActivityMock("MPAM_DISPATCHED_FOLLOW_UP")
@@ -102,9 +107,9 @@ public class MPAM {
                 .execute();
 
         verify(mpamProcess)
-                .hasCompleted("CallActivity_1c4zy60");
+                .hasCompleted(AWAITING_DISPATCH_MINISTERIAL);
         verify(mpamProcess)
-                .hasCompleted("ServiceTask_0rwk9ie");
+                .hasCompleted(COMPLETE_CASE);
 
         verify(mpamProcess).hasFinished("EndEvent_MPAM");
     }
@@ -763,6 +768,60 @@ public class MPAM {
                 .hasCompleted("CallActivity_DraftEscalated_FromRequestContribution");
 
         verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenAwaitingMinDispatchBackwards_ThenCompleteCase() {
+        ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_MIN_DISPATCH")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DIRECTION", "BACKWARD")
+                                ),
+                                // second call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DIRECTION", "FORWARD")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_0wfokmb");
+    }
+
+    @Test
+    public void whenAwaitingLocalDispatchBackwards_ThenCompleteCase() {
+        ProcessExpressions.registerCallActivityMock("MPAM_PO")
+                .onExecutionAddVariable("PoStatus", "Approved-Local-Dispatch")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_LOCAL_DISPATCH")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DIRECTION", "BACKWARD")
+                                ),
+                                // second call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("DIRECTION", "FORWARD")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_0wfokmb");
     }
 
     @After
