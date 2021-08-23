@@ -16,7 +16,7 @@ public class CreateCaseRequestTest {
         LocalDate dateReceived = LocalDate.now();
         List<DocumentSummary> documentSummaryList = new ArrayList<>();
 
-        CreateCaseRequest createCaseRequest = new CreateCaseRequest(caseDataType, dateReceived, documentSummaryList);
+        CreateCaseRequest createCaseRequest = new CreateCaseRequest(caseDataType, dateReceived, documentSummaryList, null);
 
         assertThat(createCaseRequest.getType()).isEqualTo(caseDataType);
         assertThat(createCaseRequest.getDateReceived()).isEqualTo(dateReceived);
@@ -27,7 +27,7 @@ public class CreateCaseRequestTest {
     @Test
     public void getCreateCaseRequestNull() {
 
-        CreateCaseRequest createCaseRequest = new CreateCaseRequest(null, null, null);
+        CreateCaseRequest createCaseRequest = new CreateCaseRequest(null, null, null, null);
 
         assertThat(createCaseRequest.getType()).isNull();
         assertThat(createCaseRequest.getDateReceived()).isNull();
