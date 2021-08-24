@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/COMP_EXGRATIA_ESCALATE.bpmn")
-public class EX_GRATIA_ESCALATE {
+public class COMP_EX_GRATIA_ESCALATE {
 
     @Rule
     @ClassRule

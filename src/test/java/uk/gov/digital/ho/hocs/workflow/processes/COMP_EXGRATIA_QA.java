@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/COMP_EXGRATIA_QA.bpmn")
-public class EXGRATIA_QA {
+public class COMP_EXGRATIA_QA {
 
     @Rule
     @ClassRule

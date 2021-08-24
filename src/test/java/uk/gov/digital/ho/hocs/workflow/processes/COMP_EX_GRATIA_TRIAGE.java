@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/COMP_EXGRATIA_TRIAGE.bpmn")
-public class EX_GRATIA_TRIAGE {
+public class COMP_EX_GRATIA_TRIAGE {
 
     @Rule
     @ClassRule
