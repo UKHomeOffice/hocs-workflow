@@ -44,6 +44,10 @@ public class FOI {
     public static final String FOI_APPROVAL = "FOI_APPROVAL";
     public static final String FOI_DISPATCH = "FOI_DISPATCH";
     public static final String FOI_SOFT_CLOSE = "FOI_SOFT_CLOSE";
+    public static final String STICKY_CASES_FOR_ALLOCATION = "StickyCasesForAllocation";
+    public static final String STICKY_CASES_FOR_APPROVAL = "StickyCasesForApproval";
+    public static final String STICKY_CASES_FOR_DISPATCH = "StickyCasesForDispatch";
+    public static final String STICKY_CASES_FOR_CLOSE = "StickyCasesForClose";
 
     @Rule
     @ClassRule
@@ -68,7 +72,7 @@ public class FOI {
                 .deploy(rule);
 
         whenAtCallActivity("FOI_ALLOCATION")
-            .deploy(rule);
+                .deploy(rule);
 
         whenAtCallActivity("FOI_ACCEPTANCE")
                 .alwaysReturn("AcceptCase", "Y")
@@ -101,19 +105,43 @@ public class FOI {
                 .hasCompleted(CASE_CREATION_ACTIVITY);
 
         verify(FOIProcess, times(2))
-            .hasCompleted(ALLOCATION_ACTIVITY);
+                .hasCompleted("SHOULD_DISPATCH_AFTER_DATA_INPUT");
+
+        verify(FOIProcess, times(2))
+                .hasCompleted(STICKY_CASES_FOR_ALLOCATION);
+
+        verify(FOIProcess, times(2))
+                .hasCompleted(ALLOCATION_ACTIVITY);
 
         verify(FOIProcess, times(2))
                 .hasCompleted(ACCEPTANCE_ACTIVITY);
 
         verify(FOIProcess, times(2))
+                .hasCompleted("is_case_accepted");
+
+        verify(FOIProcess, times(2))
                 .hasCompleted(FOI_DRAFT);
+
+        verify(FOIProcess, times(2))
+                .hasCompleted("SHOULD_DISPATCH_AFTER_DRAFT");
+
+        verify(FOIProcess, times(2))
+                .hasCompleted("is_case_accepted_by_draft_team");
+
+        verify(FOIProcess, times(2))
+                .hasCompleted(STICKY_CASES_FOR_APPROVAL);
 
         verify(FOIProcess, times(2))
                 .hasCompleted(FOI_APPROVAL);
 
         verify(FOIProcess, times(2))
+                .hasCompleted(STICKY_CASES_FOR_DISPATCH);
+
+        verify(FOIProcess, times(2))
                 .hasCompleted(FOI_DISPATCH);
+
+        verify(FOIProcess, times(2))
+                .hasCompleted(STICKY_CASES_FOR_CLOSE);
 
         verify(FOIProcess, times(2))
                 .hasCompleted(FOI_SOFT_CLOSE);
