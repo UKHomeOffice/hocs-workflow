@@ -22,8 +22,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/EXGRATIA_ESCALATE.bpmn")
-public class EX_GRATIA_ESCALATE {
+@Deployment(resources = "processes/COMP_EXGRATIA_ESCALATE.bpmn")
+public class COMP_EX_GRATIA_ESCALATE {
 
     @Rule
     @ClassRule
@@ -50,10 +50,10 @@ public class EX_GRATIA_ESCALATE {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctEscalateResult", "Pending")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctEscalateResult", "Triage")));
 
-        Scenario.run(exGratiaEscalateProcess).startByKey("EXGRATIA_ESCALATE").execute();
+        Scenario.run(exGratiaEscalateProcess).startByKey("COMP_EXGRATIA_ESCALATE").execute();
 
         verify(exGratiaEscalateProcess, times(3)).hasCompleted("Screen_Input");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("EXGRATIA_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("COMP_EXGRATIA_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 
     @Test
@@ -61,9 +61,9 @@ public class EX_GRATIA_ESCALATE {
         when(exGratiaEscalateProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctEscalateResult", "Draft")));
 
-        Scenario.run(exGratiaEscalateProcess).startByKey("EXGRATIA_ESCALATE").execute();
+        Scenario.run(exGratiaEscalateProcess).startByKey("COMP_EXGRATIA_ESCALATE").execute();
 
         verify(exGratiaEscalateProcess, times(1)).hasCompleted("Screen_Input");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("EXGRATIA_RESPONSE_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("COMP_EXGRATIA_RESPONSE_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 }
