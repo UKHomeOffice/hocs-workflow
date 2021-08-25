@@ -191,20 +191,44 @@ public class FOI {
         verify(FOIProcess, times(1))
                 .hasCompleted(CASE_CREATION_ACTIVITY);
 
+        verify(FOIProcess, times(1))
+                .hasCompleted("SHOULD_DISPATCH_AFTER_DATA_INPUT");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(STICKY_CASES_FOR_ALLOCATION);
+
         verify(FOIProcess, times(2))
                 .hasCompleted(ALLOCATION_ACTIVITY);
 
         verify(FOIProcess, times(2))
                 .hasCompleted(ACCEPTANCE_ACTIVITY);
 
+        verify(FOIProcess, times(2))
+                .hasCompleted("is_case_accepted");
+
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_DRAFT);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted("SHOULD_DISPATCH_AFTER_DRAFT");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted("is_case_accepted_by_draft_team");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(STICKY_CASES_FOR_APPROVAL);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_APPROVAL);
 
         verify(FOIProcess, times(1))
+                .hasCompleted(STICKY_CASES_FOR_DISPATCH);
+
+        verify(FOIProcess, times(1))
                 .hasCompleted(FOI_DISPATCH);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(STICKY_CASES_FOR_CLOSE);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_SOFT_CLOSE);
@@ -256,19 +280,40 @@ public class FOI {
                 .hasCompleted(CASE_CREATION_ACTIVITY);
 
         verify(FOIProcess, times(1))
+                .hasCompleted("SHOULD_DISPATCH_AFTER_DATA_INPUT");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(STICKY_CASES_FOR_ALLOCATION);
+
+        verify(FOIProcess, times(1))
                 .hasCompleted(ALLOCATION_ACTIVITY);
 
         verify(FOIProcess, times(2))
                 .hasCompleted(ACCEPTANCE_ACTIVITY);
 
         verify(FOIProcess, times(2))
+                .hasCompleted("is_case_accepted");
+
+        verify(FOIProcess, times(2))
                 .hasCompleted(FOI_DRAFT);
+
+        verify(FOIProcess, times(2))
+                .hasCompleted("SHOULD_DISPATCH_AFTER_DRAFT");
+
+        verify(FOIProcess, times(2))
+                .hasCompleted("is_case_accepted_by_draft_team");
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(STICKY_CASES_FOR_APPROVAL);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_APPROVAL);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_DISPATCH);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(STICKY_CASES_FOR_CLOSE);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(FOI_SOFT_CLOSE);
