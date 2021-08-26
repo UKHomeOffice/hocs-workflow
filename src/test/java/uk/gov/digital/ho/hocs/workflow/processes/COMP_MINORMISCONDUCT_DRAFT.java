@@ -20,8 +20,8 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/MINORMISCONDUCT_RESPONSE_DRAFT.bpmn")
-public class MINORMISCONDUCT_DRAFT {
+@Deployment(resources = "processes/COMP_MINORMISCONDUCT_RESPONSE_DRAFT.bpmn")
+public class COMP_MINORMISCONDUCT_DRAFT {
 
     @Rule
     @ClassRule
@@ -47,7 +47,7 @@ public class MINORMISCONDUCT_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "CctDraftResult", "Ignore")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "Ignore")));
 
-        Scenario.run(minorMisconductDraftProcess).startByKey("MINORMISCONDUCT_RESPONSE_DRAFT").execute();
+        Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
         verify(minorMisconductDraftProcess, times(2)).hasCompleted("Screen_Input");
     }
@@ -57,7 +57,7 @@ public class MINORMISCONDUCT_DRAFT {
         when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "Send")));
 
-        Scenario.run(minorMisconductDraftProcess).startByKey("MINORMISCONDUCT_RESPONSE_DRAFT").execute();
+        Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
         verify(minorMisconductDraftProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Send");
     }
@@ -67,7 +67,7 @@ public class MINORMISCONDUCT_DRAFT {
         when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "QA")));
 
-        Scenario.run(minorMisconductDraftProcess).startByKey("MINORMISCONDUCT_RESPONSE_DRAFT").execute();
+        Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
         verify(minorMisconductDraftProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_QA");
     }
@@ -81,7 +81,7 @@ public class MINORMISCONDUCT_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "false")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "true")));
 
-        Scenario.run(minorMisconductDraftProcess).startByKey("MINORMISCONDUCT_RESPONSE_DRAFT").execute();
+        Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
         verify(minorMisconductDraftProcess, times(3)).hasCompleted("Screen_Escalate");
         verify(minorMisconductDraftProcess).hasCompleted("Service_UpdateAllocationNote_Escalate");
@@ -97,7 +97,7 @@ public class MINORMISCONDUCT_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "false")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "true")));
 
-        Scenario.run(minorMisconductDraftProcess).startByKey("MINORMISCONDUCT_RESPONSE_DRAFT").execute();
+        Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
         verify(minorMisconductDraftProcess, times(3)).hasCompleted("Screen_Return");
         verify(minorMisconductDraftProcess).hasCompleted("Service_UpdateAllocationNote_Reject");

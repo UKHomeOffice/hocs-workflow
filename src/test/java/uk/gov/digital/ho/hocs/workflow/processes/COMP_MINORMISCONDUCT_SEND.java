@@ -20,8 +20,8 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/MINORMISCONDUCT_SEND.bpmn")
-public class MINORMISCONDUCT_SEND {
+@Deployment(resources = "processes/COMP_MINORMISCONDUCT_SEND.bpmn")
+public class COMP_MINORMISCONDUCT_SEND {
 
     @Rule
     @ClassRule
@@ -47,7 +47,7 @@ public class MINORMISCONDUCT_SEND {
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true)));
 
-        Scenario.run(minorMisconductProcess).startByKey("MINORMISCONDUCT_SEND").execute();
+        Scenario.run(minorMisconductProcess).startByKey("COMP_MINORMISCONDUCT_SEND").execute();
 
         verify(minorMisconductProcess, times(2)).hasCompleted("Screen_Input");
     }
