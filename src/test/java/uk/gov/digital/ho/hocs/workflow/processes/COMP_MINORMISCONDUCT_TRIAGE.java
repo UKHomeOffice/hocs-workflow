@@ -22,8 +22,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/MINORMISCONDUCT_TRIAGE.bpmn")
-public class MINORMISCONDUCT_TRIAGE {
+@Deployment(resources = "processes/COMP_MINORMISCONDUCT_TRIAGE.bpmn")
+public class COMP_MINORMISCONDUCT_TRIAGE {
 
     @Rule
     @ClassRule
@@ -54,7 +54,7 @@ public class MINORMISCONDUCT_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
 
-        Scenario.run(minorMisconductTriageProcess).startByKey("MINORMISCONDUCT_TRIAGE").execute();
+        Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
 
         verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Transfer");
@@ -83,7 +83,7 @@ public class MINORMISCONDUCT_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "Pending")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Draft")));
 
-        Scenario.run(minorMisconductTriageProcess).startByKey("MINORMISCONDUCT_TRIAGE").execute();
+        Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
 
         verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Draft");
     }
@@ -107,7 +107,7 @@ public class MINORMISCONDUCT_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageEscalate", "Escalate")));
 
-        Scenario.run(minorMisconductTriageProcess).startByKey("MINORMISCONDUCT_TRIAGE").execute();
+        Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
 
         verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateAllocationNote_Escalate");
         verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Escalate");
@@ -139,7 +139,7 @@ public class MINORMISCONDUCT_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes", "CaseNote_CompleteReason", "Complete")));
 
-        Scenario.run(minorMisconductTriageProcess).startByKey("MINORMISCONDUCT_TRIAGE").execute();
+        Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
 
         verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateAllocationNote_Complete");
         verify(minorMisconductTriageProcess, times(2)).hasCompleted("Screen_Input");
