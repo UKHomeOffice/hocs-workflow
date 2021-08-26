@@ -28,7 +28,7 @@ public class MPAMQaClearanceRequest {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.83)
+            .assertClassCoverageAtLeast(1)
             .build();
     @Mock
     BpmnService bpmnService;
