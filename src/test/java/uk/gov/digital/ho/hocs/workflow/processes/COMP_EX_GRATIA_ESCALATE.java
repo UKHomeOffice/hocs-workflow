@@ -22,8 +22,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/MINORMISCONDUCT_ESCALATE.bpmn")
-public class MINORMISCONDUCT_ESCALATE {
+@Deployment(resources = "processes/COMP_EXGRATIA_ESCALATE.bpmn")
+public class COMP_EX_GRATIA_ESCALATE {
 
     @Rule
     @ClassRule
@@ -36,7 +36,7 @@ public class MINORMISCONDUCT_ESCALATE {
     private BpmnService bpmnService;
 
     @Mock
-    private ProcessScenario minorMisconductEscalateProcess;
+    private ProcessScenario exGratiaEscalateProcess;
 
     @Before
     public void setup() {
@@ -45,25 +45,25 @@ public class MINORMISCONDUCT_ESCALATE {
 
     @Test
     public void testEscalateToTriage(){
-        when(minorMisconductEscalateProcess.waitsAtUserTask("Validate_Input"))
+        when(exGratiaEscalateProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctEscalateResult", "Pending")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctEscalateResult", "Triage")));
 
-        Scenario.run(minorMisconductEscalateProcess).startByKey("MINORMISCONDUCT_ESCALATE").execute();
+        Scenario.run(exGratiaEscalateProcess).startByKey("COMP_EXGRATIA_ESCALATE").execute();
 
-        verify(minorMisconductEscalateProcess, times(3)).hasCompleted("Screen_Input");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MINORMISCONDUCT_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(exGratiaEscalateProcess, times(3)).hasCompleted("Screen_Input");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("COMP_EXGRATIA_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 
     @Test
     public void testEscalateToDraft(){
-        when(minorMisconductEscalateProcess.waitsAtUserTask("Validate_Input"))
+        when(exGratiaEscalateProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctEscalateResult", "Draft")));
 
-        Scenario.run(minorMisconductEscalateProcess).startByKey("MINORMISCONDUCT_ESCALATE").execute();
+        Scenario.run(exGratiaEscalateProcess).startByKey("COMP_EXGRATIA_ESCALATE").execute();
 
-        verify(minorMisconductEscalateProcess, times(1)).hasCompleted("Screen_Input");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MINORMISCONDUCT_RESPONSE_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(exGratiaEscalateProcess, times(1)).hasCompleted("Screen_Input");
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("COMP_EXGRATIA_RESPONSE_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 }

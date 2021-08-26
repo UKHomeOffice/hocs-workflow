@@ -20,8 +20,8 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/EXGRATIA_RESPONSE_DRAFT.bpmn")
-public class EXGRATIA_DRAFT {
+@Deployment(resources = "processes/COMP_EXGRATIA_RESPONSE_DRAFT.bpmn")
+public class COMP_EXGRATIA_DRAFT {
 
     @Rule
     @ClassRule
@@ -47,7 +47,7 @@ public class EXGRATIA_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "CctDraftResult", "Ignore")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "Ignore")));
 
-        Scenario.run(exGratiaDraftProcess).startByKey("EXGRATIA_RESPONSE_DRAFT").execute();
+        Scenario.run(exGratiaDraftProcess).startByKey("COMP_EXGRATIA_RESPONSE_DRAFT").execute();
 
         verify(exGratiaDraftProcess, times(2)).hasCompleted("Screen_Input");
     }
@@ -57,7 +57,7 @@ public class EXGRATIA_DRAFT {
         when(exGratiaDraftProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "Send")));
 
-        Scenario.run(exGratiaDraftProcess).startByKey("EXGRATIA_RESPONSE_DRAFT").execute();
+        Scenario.run(exGratiaDraftProcess).startByKey("COMP_EXGRATIA_RESPONSE_DRAFT").execute();
 
         verify(exGratiaDraftProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_Send");
     }
@@ -67,7 +67,7 @@ public class EXGRATIA_DRAFT {
         when(exGratiaDraftProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "QA")));
 
-        Scenario.run(exGratiaDraftProcess).startByKey("EXGRATIA_RESPONSE_DRAFT").execute();
+        Scenario.run(exGratiaDraftProcess).startByKey("COMP_EXGRATIA_RESPONSE_DRAFT").execute();
 
         verify(exGratiaDraftProcess).hasCompleted("Service_UpdateTeamByStageAndTexts_QA");
     }
@@ -81,7 +81,7 @@ public class EXGRATIA_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "false")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "true")));
 
-        Scenario.run(exGratiaDraftProcess).startByKey("EXGRATIA_RESPONSE_DRAFT").execute();
+        Scenario.run(exGratiaDraftProcess).startByKey("COMP_EXGRATIA_RESPONSE_DRAFT").execute();
 
         verify(exGratiaDraftProcess, times(3)).hasCompleted("Screen_Escalate");
         verify(exGratiaDraftProcess).hasCompleted("Service_UpdateAllocationNote_Escalate");
@@ -97,7 +97,7 @@ public class EXGRATIA_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "false")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "true")));
 
-        Scenario.run(exGratiaDraftProcess).startByKey("EXGRATIA_RESPONSE_DRAFT").execute();
+        Scenario.run(exGratiaDraftProcess).startByKey("COMP_EXGRATIA_RESPONSE_DRAFT").execute();
 
         verify(exGratiaDraftProcess, times(3)).hasCompleted("Screen_Return");
         verify(exGratiaDraftProcess).hasCompleted("Service_UpdateAllocationNote_Reject");
