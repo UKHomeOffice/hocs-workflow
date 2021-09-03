@@ -58,9 +58,17 @@ public class FOI_DISPATCH {
     @Test
     public void doNotDispatch() {
 
+        when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
+                .thenReturn(task -> task.complete(withVariables("CaseType", "FOI",
+                        "TransferOutcome", "RELEASED_IN_FULL",
+                        "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
+
         when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
                 .thenReturn(task -> task.complete(withVariables(
                         "ShouldDispatch", "ShouldDispatch-N")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_CASE_TYPE_DISPATCH))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "DEALLOCATE_TEAM")));
 
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
@@ -70,17 +78,25 @@ public class FOI_DISPATCH {
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(DISPATCH_CONFIRMATION);
+                .hasCompleted(CASE_OUTCOME);
 
-        verify(FOIDataInputProcess, times(0))
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_CASE_TYPE_DISPATCH);
+
+        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(SET_DISPATCH_DATE);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_TO_REJECTED_BY_DISPATCH);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(END_EVENT);
-
     }
 
     @Test
@@ -106,9 +122,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(DISPATCH_CONFIRMATION);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
 
         verify(FOIDataInputProcess, times(1))
@@ -119,6 +132,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CLEAR_REJECTED);
@@ -136,8 +152,6 @@ public class FOI_DISPATCH {
                         "ShouldDispatch", "ShouldDispatch-Y")));
 
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "FOI",
                         "TransferOutcome", "RELEASED_IN_FULL",
                         "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
@@ -155,9 +169,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(2))
-                .hasCompleted(DISPATCH_CONFIRMATION);
-
-        verify(FOIDataInputProcess, times(3))
                 .hasCompleted(CASE_OUTCOME);
 
         verify(FOIDataInputProcess, times(2))
@@ -170,6 +181,9 @@ public class FOI_DISPATCH {
                 .hasCompleted(SET_DISPATCH_DATE);
 
         verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DISPATCH_CONFIRMATION);
+
+        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CLEAR_REJECTED);
 
         verify(FOIDataInputProcess, times(1))
@@ -180,10 +194,6 @@ public class FOI_DISPATCH {
     @Test
     public void doDispatchEIR() {
 
-        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ShouldDispatch", "ShouldDispatch-Y")));
-
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "EIR",
                         "TransferOutcome", "RELEASED_IN_FULL",
@@ -192,15 +202,16 @@ public class FOI_DISPATCH {
         when(FOIDataInputProcess.waitsAtUserTask(EIR_CASE_TYPE_DISPATCH))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "DEALLOCATE_TEAM")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ShouldDispatch", "ShouldDispatch-Y")));
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -215,6 +226,9 @@ public class FOI_DISPATCH {
                 .hasCompleted(SET_DISPATCH_DATE);
 
         verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DISPATCH_CONFIRMATION);
+
+        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CLEAR_REJECTED);
 
         verify(FOIDataInputProcess, times(1))
@@ -225,10 +239,6 @@ public class FOI_DISPATCH {
     @Test
     public void doDispatchFOIAndEIR() {
 
-        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ShouldDispatch", "ShouldDispatch-Y")));
-
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "FOI_AND_EIR",
                         "TransferOutcome", "RELEASED_IN_FULL",
@@ -237,15 +247,16 @@ public class FOI_DISPATCH {
         when(FOIDataInputProcess.waitsAtUserTask(FOI_AND_EIR_CASE_TYPE_DISPATCH))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "DEALLOCATE_TEAM")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ShouldDispatch", "ShouldDispatch-Y")));
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -260,6 +271,9 @@ public class FOI_DISPATCH {
                 .hasCompleted(SET_DISPATCH_DATE);
 
         verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DISPATCH_CONFIRMATION);
+
+        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CLEAR_REJECTED);
 
         verify(FOIDataInputProcess, times(1))
@@ -270,14 +284,14 @@ public class FOI_DISPATCH {
     @Test
     public void doDispatchNoRelease() {
 
-        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ShouldDispatch", "ShouldDispatch-Y")));
-
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "FOI_AND_EIR",
                         "TransferOutcome", "REQ_UNCLEAR",
                         "DIRECTION", "DEALLOCATE_TEAM")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ShouldDispatch", "ShouldDispatch-Y")));
 
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
@@ -287,9 +301,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(DISPATCH_CONFIRMATION);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
 
         verify(FOIDataInputProcess, times(1))
@@ -297,6 +308,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CLEAR_REJECTED);
