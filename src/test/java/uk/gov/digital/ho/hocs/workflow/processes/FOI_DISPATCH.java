@@ -87,9 +87,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(DEALLOCATE_TEAM);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
