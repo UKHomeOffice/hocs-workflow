@@ -464,6 +464,48 @@ public class COMP {
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
 
+    @Test
+    public void testWhenMinorMisconduct_HardCloseAfterTriage() {
+
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("CompType", "MinorMisconduct", "Stage", "Stage1")
+                .deploy(rule);
+
+        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE")
+                .thenReturn("CctTriageResult", "Complete")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testWhenExGratia_HardCloseAfterTriage() {
+
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1")
+                .deploy(rule);
+
+        whenAtCallActivity("COMP_EXGRATIA_TRIAGE")
+                .thenReturn("CctTriageResult", "Complete")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
     @After
     public void after(){
         RepositoryService repositoryService = processEngineRule.getRepositoryService();
