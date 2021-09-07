@@ -152,6 +152,14 @@ public class BpmnService {
         return memberPresent;
     }
 
+    public void addTopicToCase(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID topicUUID = UUID.fromString(topicUUIDString);
+
+        caseworkClient.addTopicToCase(caseUUID, stageUUID, topicUUID);
+    }
+
     public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);

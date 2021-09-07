@@ -1,6 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 
 import java.util.Optional;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -198,4 +199,11 @@ public class CaseworkClient {
         restHelper.put(serviceBaseURL, String.format("/case/%s/data/%s", caseUUID, variableName), value, Void.class);
         log.info("Updated {} value: {} for Case: {}", variableName, value, caseUUID);
     }
+
+    public void addTopicToCase(UUID caseUUID, UUID stageUUID, UUID topicUUID) {
+        CreateTopicRequest createTopicRequest = CreateTopicRequest.fromUUID(topicUUID);
+        restHelper.post(serviceBaseURL, String.format("/case/%s/stage/%s/topic", caseUUID, stageUUID), createTopicRequest, Void.class);
+        log.info("Added topic {} to case {}", topicUUID, caseUUID);
+    }
 }
+
