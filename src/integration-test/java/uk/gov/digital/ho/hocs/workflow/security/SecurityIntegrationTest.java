@@ -130,10 +130,10 @@ public class SecurityIntegrationTest {
         setUpAdminTeamLogic(caseUUID, false);
         when(userPermissionsService.getUserTeams()).thenReturn(Set.of(teamUUID));
         when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.from(5));
-        when(workflowService.createCase(caseType, LocalDate.now(),new ArrayList<>(), userUUID)).thenReturn(new CreateCaseResponse(caseUUID,"CASE_REF"));
+        when(workflowService.createCase(caseType, LocalDate.now(),new ArrayList<>(), userUUID, null)).thenReturn(new CreateCaseResponse(caseUUID,"CASE_REF"));
 
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
-        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest("MIN",LocalDate.now(), new ArrayList<>()), headers);
+        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest("MIN",LocalDate.now(), new ArrayList<>(), null), headers);
         ResponseEntity<String> result = restTemplate.exchange( getBasePath()  + "/case", HttpMethod.POST, httpEntity, String.class);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -143,7 +143,7 @@ public class SecurityIntegrationTest {
         String caseType = "TRO";
         when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.from(0));
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
-        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest(caseType,LocalDate.now(), new ArrayList<>()), headers);
+        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest(caseType,LocalDate.now(), new ArrayList<>(), null), headers);
         ResponseEntity<String> result = restTemplate.exchange( getBasePath()  + "/case", HttpMethod.POST, httpEntity, String.class);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
@@ -155,12 +155,12 @@ public class SecurityIntegrationTest {
         when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.from(6));
 
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
-        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest("MIN",LocalDate.now(), new ArrayList<>()), headers);
+        HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest("MIN",LocalDate.now(), new ArrayList<>(), null), headers);
         ResponseEntity<String> result = restTemplate.exchange( getBasePath()  + "/case", HttpMethod.POST, httpEntity, String.class);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    private Set<TeamDto>  setupMockTeams(String caseType, int permission) {
+    private Set<TeamDto> setupMockTeams(String caseType, int permission) {
         Set<TeamDto> teamDtos = new HashSet<>();
         Set<PermissionDto> permissions = new HashSet<>();
         permissions.add(new PermissionDto(caseType, AccessLevel.from(permission)));

@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Getter
@@ -19,4 +20,7 @@ public class CreateCaseworkCaseRequest {
 
     @JsonProperty("received")
     private LocalDate dateReceived;
+
+    @JsonProperty
+    private UUID fromCaseUUID;
 }

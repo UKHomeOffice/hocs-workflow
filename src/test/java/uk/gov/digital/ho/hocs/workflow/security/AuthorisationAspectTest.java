@@ -76,7 +76,7 @@ public class AuthorisationAspectTest {
     public void shouldNotCallCaseServiceWhenNewCase() throws Throwable {
         String type = "MIN";
         Object[] args = new Object[1];
-        args[0] = new CreateCaseRequest("MIN", LocalDate.now(), new ArrayList<>());
+        args[0] = new CreateCaseRequest("MIN", LocalDate.now(), new ArrayList<>(), null);
         when(annotation.accessLevel()).thenReturn(AccessLevel.READ);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
 

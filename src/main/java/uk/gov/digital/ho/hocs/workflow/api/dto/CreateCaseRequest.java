@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,4 +22,7 @@ public class CreateCaseRequest implements CreateCaseRequestInterface {
 
     @JsonProperty("documents")
     private List<DocumentSummary> documents;
+
+    @JsonProperty("fromCaseUUID")
+    private UUID fromCaseUUID;
 }

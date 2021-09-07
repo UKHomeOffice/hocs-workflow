@@ -66,12 +66,12 @@ public class WorkflowService {
         this.userPermissionsService = userPermissionsService;
     }
 
-    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID) {
+    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> data = new HashMap<>();
         data.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         data.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived, fromCaseUUID);
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {

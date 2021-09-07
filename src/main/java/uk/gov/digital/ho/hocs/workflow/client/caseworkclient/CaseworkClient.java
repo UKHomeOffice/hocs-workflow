@@ -30,8 +30,8 @@ public class CaseworkClient {
         this.serviceBaseURL = caseService;
     }
 
-    public CreateCaseworkCaseResponse createCase(String caseDataType, Map<String, String> data, LocalDate dateReceived) {
-        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data, dateReceived);
+    public CreateCaseworkCaseResponse createCase(String caseDataType, Map<String, String> data, LocalDate dateReceived, UUID fromCaseUUID) {
+        CreateCaseworkCaseRequest request = new CreateCaseworkCaseRequest(caseDataType, data, dateReceived, fromCaseUUID);
         CreateCaseworkCaseResponse response = restHelper.post(serviceBaseURL, "/case", request, CreateCaseworkCaseResponse.class);
         log.info("Created Case {}, {}, {}", response.getUuid(), response.getReference(), value(EVENT, CREATE_CASE_SUCCESS));
         return response;
