@@ -27,8 +27,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.time.LocalTime.now;
-
 @Service
 @Slf4j
 public class BpmnService {
@@ -155,6 +153,14 @@ public class BpmnService {
 
         log.info("Members present ? : " + memberPresent);
         return memberPresent;
+    }
+
+    public void addTopicToCase(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID topicUUID = UUID.fromString(topicUUIDString);
+
+        caseworkClient.addTopicToCase(caseUUID, stageUUID, topicUUID);
     }
 
     public boolean caseHasPrimaryCorrespondentType(String caseUUIDString, String type) {
