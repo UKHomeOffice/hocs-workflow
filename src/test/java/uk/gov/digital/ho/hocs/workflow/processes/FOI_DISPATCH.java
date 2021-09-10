@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
         "processes/FOI_DISPATCH.bpmn"})
 public class FOI_DISPATCH {
 
-    public static final String ALLOCATE_TO_CASE_CREATOR = "ALLOCATE_TO_CASE_CREATOR";
     public static final String DISPATCH_CONFIRMATION = "DISPATCH_CONFIRMATION";
     public static final String DEALLOCATE_TEAM = "DEALLOCATE_TEAM";
     public static final String SET_DISPATCH_DATE = "SET_DISPATCH_DATE";
@@ -75,9 +74,6 @@ public class FOI_DISPATCH {
                 .execute();
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
 
         verify(FOIDataInputProcess, times(1))
@@ -114,9 +110,6 @@ public class FOI_DISPATCH {
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -162,9 +155,6 @@ public class FOI_DISPATCH {
                 .startByKey("FOI_DISPATCH")
                 .execute();
 
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
-
         verify(FOIDataInputProcess, times(2))
                 .hasCompleted(CASE_OUTCOME);
 
@@ -207,8 +197,6 @@ public class FOI_DISPATCH {
                 .startByKey("FOI_DISPATCH")
                 .execute();
 
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -254,9 +242,6 @@ public class FOI_DISPATCH {
                 .execute();
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
 
         verify(FOIDataInputProcess, times(1))
@@ -296,9 +281,6 @@ public class FOI_DISPATCH {
                 .execute();
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
 
         verify(FOIDataInputProcess, times(1))
@@ -333,9 +315,6 @@ public class FOI_DISPATCH {
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
