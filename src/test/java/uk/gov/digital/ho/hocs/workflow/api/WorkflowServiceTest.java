@@ -260,9 +260,9 @@ public class WorkflowServiceTest {
         CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null);
 
 
-        when(caseworkClient.createCase(any(), any(), any())).thenReturn(createCaseworkCaseResponse);
+        when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
 
-        CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID, receivedData);
+        CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID, null, receivedData);
         assertThat(output.getUuid()).isNotNull();
         verify(camundaClient, times(1)).startCase(any(), any(), any());
         verify(caseworkClient, times(1)).saveCorrespondent(any(), any(), argumentCaptor.capture());
