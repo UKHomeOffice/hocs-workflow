@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
         "processes/FOI_SOFT_CLOSE.bpmn"})
 public class FOI_SOFT_CLOSE {
 
-    public static final String ALLOCATE_TO_CASE_CREATOR = "ALLOCATE_TO_CASE_CREATOR";
     public static final String SOFT_CLOSE = "SOFT_CLOSE";
     public static final String DEALLOCATE_TEAM = "DEALLOCATE_TEAM";
     public static final String END_EVENT = "END_EVENT";
@@ -55,9 +54,6 @@ public class FOI_SOFT_CLOSE {
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_SOFT_CLOSE")
                 .execute();
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SOFT_CLOSE);

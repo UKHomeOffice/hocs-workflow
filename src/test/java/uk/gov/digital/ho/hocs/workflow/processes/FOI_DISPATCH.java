@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
         "processes/FOI_DISPATCH.bpmn"})
 public class FOI_DISPATCH {
 
-    public static final String ALLOCATE_TO_CASE_CREATOR = "ALLOCATE_TO_CASE_CREATOR";
     public static final String DISPATCH_CONFIRMATION = "DISPATCH_CONFIRMATION";
     public static final String DEALLOCATE_TEAM = "DEALLOCATE_TEAM";
     public static final String SET_DISPATCH_DATE = "SET_DISPATCH_DATE";
@@ -60,7 +59,7 @@ public class FOI_DISPATCH {
 
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "FOI",
-                        "TransferOutcome", "RELEASED_IN_FULL",
+                        "TransferOutcome", "RELEASED_IN_PART",
                         "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
 
         when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
@@ -73,9 +72,6 @@ public class FOI_DISPATCH {
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -105,7 +101,7 @@ public class FOI_DISPATCH {
 
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "FOI",
-                        "TransferOutcome", "RELEASED_IN_FULL",
+                        "TransferOutcome", "RELEASED_IN_PART",
                         "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
 
         when(FOIDataInputProcess.waitsAtUserTask(FOI_CASE_TYPE_DISPATCH))
@@ -114,9 +110,6 @@ public class FOI_DISPATCH {
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -150,7 +143,7 @@ public class FOI_DISPATCH {
 
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "FOI",
-                        "TransferOutcome", "RELEASED_IN_FULL",
+                        "TransferOutcome", "RELEASED_IN_PART",
                         "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
 
         when(FOIDataInputProcess.waitsAtUserTask(FOI_CASE_TYPE_DISPATCH))
@@ -161,9 +154,6 @@ public class FOI_DISPATCH {
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(2))
                 .hasCompleted(CASE_OUTCOME);
@@ -193,7 +183,7 @@ public class FOI_DISPATCH {
 
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "EIR",
-                        "TransferOutcome", "RELEASED_IN_FULL",
+                        "TransferOutcome", "RELEASED_IN_PART",
                         "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
 
         when(FOIDataInputProcess.waitsAtUserTask(EIR_CASE_TYPE_DISPATCH))
@@ -207,8 +197,6 @@ public class FOI_DISPATCH {
                 .startByKey("FOI_DISPATCH")
                 .execute();
 
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -233,12 +221,13 @@ public class FOI_DISPATCH {
 
     }
 
+
     @Test
     public void doDispatchFOIAndEIR() {
 
         when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables("CaseType", "FOI_AND_EIR",
-                        "TransferOutcome", "RELEASED_IN_FULL",
+                        "TransferOutcome", "RELEASED_IN_PART",
                         "DIRECTION", "FOI_AND_EIR_CASE_TYPE_DISPATCH")));
 
         when(FOIDataInputProcess.waitsAtUserTask(FOI_AND_EIR_CASE_TYPE_DISPATCH))
@@ -251,9 +240,6 @@ public class FOI_DISPATCH {
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -295,11 +281,43 @@ public class FOI_DISPATCH {
                 .execute();
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
+                .hasCompleted(CASE_OUTCOME);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(SET_DISPATCH_DATE);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DISPATCH_CONFIRMATION);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(CLEAR_REJECTED);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(END_EVENT);
+
+    }
+
+    @Test
+    public void doDispatchFOIReleasedInFull() {
+
+        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ShouldDispatch", "ShouldDispatch-Y")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
+                .thenReturn(task -> task.complete(withVariables("CaseType", "FOI",
+                        "TransferOutcome", "RELEASED_IN_FULL",
+                        "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
+
+        Scenario.run(FOIDataInputProcess)
+                .startByKey("FOI_DISPATCH")
+                .execute();
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
-
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DEALLOCATE_TEAM);
 
