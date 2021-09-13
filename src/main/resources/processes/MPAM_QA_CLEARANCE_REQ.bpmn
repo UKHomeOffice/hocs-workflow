@@ -30,7 +30,7 @@
       <bpmn:outgoing>Flow_1az80al</bpmn:outgoing>
       <bpmn:outgoing>Flow_0l0p60c</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1fy5iui" sourceRef="ExclusiveGateway_1mk5us6" targetRef="mpam_qa_clearance_update_draft">
+    <bpmn:sequenceFlow id="SequenceFlow_1fy5iui" sourceRef="ExclusiveGateway_1mk5us6" targetRef="AddClearanceRejectionNote_ServiceTask">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ClearanceStatus == "RejectDraft"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="mpam_qa_clearance_update_po" name="Update Team for PO" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_PO&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
@@ -42,7 +42,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ClearanceStatus == "ApprovePO"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="mpam_qa_clearance_update_draft" name="Update Team for Draft" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_DRAFT&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
-      <bpmn:incoming>SequenceFlow_1fy5iui</bpmn:incoming>
+      <bpmn:incoming>Flow_0si4cno</bpmn:incoming>
       <bpmn:outgoing>Flow_0zau21k</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0zau21k" sourceRef="mpam_qa_clearance_update_draft" targetRef="mpam_clearance_end" />
@@ -52,6 +52,11 @@
     <bpmn:sequenceFlow id="SequenceFlow_10hrj3t" name="false" sourceRef="ExclusiveGateway_1jszt5w" targetRef="Validate_Clearance_Fulfilment">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="AddClearanceRejectionNote_ServiceTask" name="Add Rejection Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;ClearanceRejectionReason&#34;), &#34;REJECT&#34;)}">
+      <bpmn:incoming>SequenceFlow_1fy5iui</bpmn:incoming>
+      <bpmn:outgoing>Flow_0si4cno</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0si4cno" sourceRef="AddClearanceRejectionNote_ServiceTask" targetRef="mpam_qa_clearance_update_draft" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_QA_CLEARANCE_REQ">
