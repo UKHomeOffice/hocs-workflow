@@ -42,7 +42,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ClearanceStatus == "ApprovePO"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="mpam_qa_clearance_update_draft" name="Update Team for Draft" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_DRAFT&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
-      <bpmn:incoming>Flow_0si4cno</bpmn:incoming>
+      <bpmn:incoming>Flow_14mm1b3</bpmn:incoming>
       <bpmn:outgoing>Flow_0zau21k</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0zau21k" sourceRef="mpam_qa_clearance_update_draft" targetRef="mpam_clearance_end" />
@@ -56,7 +56,12 @@
       <bpmn:incoming>SequenceFlow_1fy5iui</bpmn:incoming>
       <bpmn:outgoing>Flow_0si4cno</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0si4cno" sourceRef="AddClearanceRejectionNote_ServiceTask" targetRef="mpam_qa_clearance_update_draft" />
+    <bpmn:sequenceFlow id="Flow_0si4cno" sourceRef="AddClearanceRejectionNote_ServiceTask" targetRef="UpdateRejectedByQa_ServiceTask" />
+    <bpmn:serviceTask id="UpdateRejectedByQa_ServiceTask" name="Update to Rejected by QA" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;Rejected&#34;, &#34;By QA&#34;)}">
+      <bpmn:incoming>Flow_0si4cno</bpmn:incoming>
+      <bpmn:outgoing>Flow_14mm1b3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_14mm1b3" sourceRef="UpdateRejectedByQa_ServiceTask" targetRef="mpam_qa_clearance_update_draft" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_QA_CLEARANCE_REQ">
