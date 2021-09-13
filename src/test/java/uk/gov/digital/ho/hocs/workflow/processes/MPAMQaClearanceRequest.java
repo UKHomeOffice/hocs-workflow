@@ -62,6 +62,8 @@ public class MPAMQaClearanceRequest {
                 .startByKey("MPAM_QA_CLEARANCE_REQ")
                 .execute();
 
+        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
+
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), any(), any(), any(), any());
     }
 
