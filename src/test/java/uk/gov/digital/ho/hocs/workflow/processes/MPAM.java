@@ -843,7 +843,7 @@ public class MPAM {
                 ))
                 .deploy(rule);
         ProcessExpressions.registerCallActivityMock("MPAM_QA_CLEARANCE_REQ")
-                .onExecutionAddVariable("QaStatus", "Cancelled")
+                .onExecutionAddVariable("ClearanceStatus", "Cancelled")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
@@ -879,7 +879,7 @@ public class MPAM {
                 ))
                 .deploy(rule);
         ProcessExpressions.registerCallActivityMock("MPAM_QA_CLEARANCE_REQ")
-                .onExecutionAddVariable("QaStatus", "ApprovePO")
+                .onExecutionAddVariable("ClearanceStatus", "ApprovePO")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
@@ -915,7 +915,7 @@ public class MPAM {
                 ))
                 .deploy(rule);
         ProcessExpressions.registerCallActivityMock("MPAM_QA_CLEARANCE_REQ")
-                .onExecutionAddVariable("QaStatus", "RejectDraft")
+                .onExecutionAddVariable("ClearanceStatus", "RejectDraft")
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
