@@ -64,6 +64,8 @@ public class MPAMQaClearanceRequest {
 
         verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
 
+        verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By QA"));
+
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), any(), any(), any(), any());
     }
 
