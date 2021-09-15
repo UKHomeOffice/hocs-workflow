@@ -771,60 +771,6 @@ public class MPAM {
     }
 
     @Test
-    public void whenAwaitingMinDispatchBackwards_ThenCompleteCase() {
-        ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_MIN_DISPATCH")
-                .onExecutionDo(new ExecutionVariableSequence(
-                        Arrays.asList(
-                                // first call
-                                Collections.singletonList(
-                                        new CallActivityReturnVariable("DIRECTION", "BACKWARD")
-                                ),
-                                // second call
-                                Collections.singletonList(
-                                        new CallActivityReturnVariable("DIRECTION", "FORWARD")
-                                )
-                        )
-                ))
-                .deploy(rule);
-
-        Scenario.run(mpamProcess)
-                .startByKey("MPAM")
-                .execute();
-
-        verify(mpamProcess, times(2))
-                .hasCompleted("CallActivity_0wfokmb");
-    }
-
-    @Test
-    public void whenAwaitingLocalDispatchBackwards_ThenCompleteCase() {
-        ProcessExpressions.registerCallActivityMock("MPAM_PO")
-                .onExecutionAddVariable("PoStatus", "Approved-Local-Dispatch")
-                .deploy(rule);
-
-        ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_LOCAL_DISPATCH")
-                .onExecutionDo(new ExecutionVariableSequence(
-                        Arrays.asList(
-                                // first call
-                                Collections.singletonList(
-                                        new CallActivityReturnVariable("DIRECTION", "BACKWARD")
-                                ),
-                                // second call
-                                Collections.singletonList(
-                                        new CallActivityReturnVariable("DIRECTION", "FORWARD")
-                                )
-                        )
-                ))
-                .deploy(rule);
-
-        Scenario.run(mpamProcess)
-                .startByKey("MPAM")
-                .execute();
-
-        verify(mpamProcess, times(2))
-                .hasCompleted("CallActivity_0wfokmb");
-    }
-
-    @Test
     public void whenQaClearanceRequestCancelled_thenReturnToQa() {
 
         ProcessExpressions.registerCallActivityMock("MPAM_QA")
