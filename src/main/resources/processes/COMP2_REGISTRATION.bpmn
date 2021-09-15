@@ -29,6 +29,7 @@
       <bpmn:incoming>SequenceFlow_0dxnr2k</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0ivrt61</bpmn:incoming>
       <bpmn:incoming>Flow_1phqhkq</bpmn:incoming>
+      <bpmn:incoming>Flow_1yiblq8</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1wght7h" sourceRef="StartEvent_COMP_CREATION" targetRef="Screen_Correspondents" />
     <bpmn:sequenceFlow id="SequenceFlow_1tmtkaf" sourceRef="ExclusiveGateway_02izrdr" targetRef="Service_UpdatePrimaryCorrespondent">
@@ -57,7 +58,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1ckq4uv" sourceRef="ExclusiveGateway_0q5xpfe" targetRef="Screen_Input">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true &amp;&amp; CompType != "Ex-Gratia"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true &amp;&amp; CompType != "Ex-Gratia"&amp;&amp; CompType != "MinorMisconduct"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_13i27xe" name="Direction check">
       <bpmn:incoming>SequenceFlow_0a0poq2</bpmn:incoming>
@@ -223,6 +224,7 @@
       <bpmn:outgoing>SequenceFlow_0dxnr2k</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1t807yu</bpmn:outgoing>
       <bpmn:outgoing>Flow_1xespdq</bpmn:outgoing>
+      <bpmn:outgoing>Flow_04g1zh8</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0dxnr2k" sourceRef="ExclusiveGateway_1nazxdv" targetRef="EndEvent_COMP_CREATION" />
     <bpmn:serviceTask id="Service_UpdateTeamByStageAndTexts" name="Update Team for Service Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;COMP2_SERVICE_TRIAGE&#34;,&#34;QueueTeamUUID&#34;,&#34;QueueTeamName&#34;,&#34;Stage&#34;)}">
@@ -233,7 +235,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "Service"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0ivrt61" sourceRef="Service_UpdateTeamByStageAndTexts" targetRef="EndEvent_COMP_CREATION" />
-    <bpmn:serviceTask id="UpdateTeamForExGracia" name="Update Team for Ex-Gratia Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;EXGRATIA_TRIAGE&#34;,&#34;QueueTeamUUID&#34;,&#34;QueueTeamName&#34;,&#34;Stage&#34;)}">
+    <bpmn:serviceTask id="UpdateTeamForExGracia" name="Update Team for Ex-Gratia Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;COMP2_EXGRATIA_TRIAGE&#34;,&#34;QueueTeamUUID&#34;,&#34;QueueTeamName&#34;,&#34;Stage&#34;)}">
       <bpmn:incoming>Flow_1xespdq</bpmn:incoming>
       <bpmn:outgoing>Flow_1phqhkq</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -241,7 +243,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "Ex-Gratia"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1phqhkq" sourceRef="UpdateTeamForExGracia" targetRef="EndEvent_COMP_CREATION" />
-    <bpmn:serviceTask id="Activity_04zonva" name="Input" camunda:expression="EXGRATIA_REGISTRATION_INPUT" camunda:resultVariable="screen">
+    <bpmn:serviceTask id="Activity_04zonva" name="Input With Date" camunda:expression="EXGRATIA_REGISTRATION_INPUT" camunda:resultVariable="screen">
       <bpmn:incoming>Flow_1c0y5ua</bpmn:incoming>
       <bpmn:incoming>Flow_080613g</bpmn:incoming>
       <bpmn:outgoing>Flow_1rik1fq</bpmn:outgoing>
@@ -261,7 +263,7 @@
       <bpmn:outgoing>Flow_0zt8acc</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1c0y5ua" sourceRef="ExclusiveGateway_0q5xpfe" targetRef="Activity_04zonva">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true &amp;&amp; CompType == "Ex-Gratia"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true &amp;&amp; (CompType == "Ex-Gratia" || CompType == "MinorMisconduct")}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1rik1fq" sourceRef="Activity_04zonva" targetRef="ExGracia_Input" />
     <bpmn:sequenceFlow id="Flow_0z8v8ts" sourceRef="ExGracia_Input" targetRef="Gateway_1r5j9xc" />
@@ -275,9 +277,27 @@
     <bpmn:sequenceFlow id="Flow_1tb95wz" sourceRef="Gateway_1r5j9xc" targetRef="Screen_Complaint">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="UpdateTeamForMinorMisconduct" name="Update Team for MinorMisconduct Triage" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;COMP2_MINORMISCONDUCT_TRIAGE&#34;,&#34;QueueTeamUUID&#34;,&#34;QueueTeamName&#34;,&#34;Stage&#34;)}">
+      <bpmn:incoming>Flow_04g1zh8</bpmn:incoming>
+      <bpmn:outgoing>Flow_1yiblq8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_04g1zh8" sourceRef="ExclusiveGateway_1nazxdv" targetRef="UpdateTeamForMinorMisconduct">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "MinorMisconduct"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1yiblq8" sourceRef="UpdateTeamForMinorMisconduct" targetRef="EndEvent_COMP_CREATION" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP2_REGISTRATION">
+      <bpmndi:BPMNEdge id="Flow_1yiblq8_di" bpmnElement="Flow_1yiblq8">
+        <di:waypoint x="3603" y="910" />
+        <di:waypoint x="3767" y="910" />
+        <di:waypoint x="3767" y="477" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04g1zh8_di" bpmnElement="Flow_04g1zh8">
+        <di:waypoint x="3426" y="484" />
+        <di:waypoint x="3426" y="910" />
+        <di:waypoint x="3503" y="910" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tb95wz_di" bpmnElement="Flow_1tb95wz">
         <di:waypoint x="2476" y="305" />
         <di:waypoint x="2476" y="360" />
@@ -322,9 +342,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0ivrt61_di" bpmnElement="SequenceFlow_0ivrt61">
         <di:waypoint x="3603" y="633" />
-        <di:waypoint x="3666" y="633" />
-        <di:waypoint x="3666" y="459" />
-        <di:waypoint x="3749" y="459" />
+        <di:waypoint x="3767" y="633" />
+        <di:waypoint x="3767" y="477" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1t807yu_di" bpmnElement="SequenceFlow_1t807yu">
         <di:waypoint x="3426" y="484" />
@@ -642,6 +661,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_17ws88r_di" bpmnElement="Gateway_17ws88r" isMarkerVisible="true">
         <dc:Bounds x="2451" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rh88o9_di" bpmnElement="UpdateTeamForMinorMisconduct">
+        <dc:Bounds x="3503" y="870" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
