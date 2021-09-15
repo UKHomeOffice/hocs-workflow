@@ -12,7 +12,7 @@ do
   rm -f diff.tmp
   echo "Checking $f $comp2file...\c"
   diff $f $comp2file > diff.tmp
-  diff diff.tmp $2/$diffImage
+  diff -b diff.tmp $2/$diffImage
   exitCode=$?
   rm -f diff.tmp
   if [ $exitCode -ne 0 ]; then
@@ -26,4 +26,4 @@ done
 
 # All good at this point
 exit 0
- 
+
