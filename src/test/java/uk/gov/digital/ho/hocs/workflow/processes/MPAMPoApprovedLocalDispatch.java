@@ -27,7 +27,7 @@ public class MPAMPoApprovedLocalDispatch {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.8)
+            .assertClassCoverageAtLeast(1)
             .build();
 
     @Rule
