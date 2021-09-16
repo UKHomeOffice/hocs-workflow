@@ -47,8 +47,10 @@ public class MPAMPoApprovedLocalDispatch {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
+                        "MPAMDispatchStatus", "DispatchAndClose",
                         "valid", false)))
                 .thenReturn(task -> task.complete(withVariables(
+                        "MPAMDispatchStatus", "DispatchAndClose",
                         "valid", true
                 )));
 
@@ -56,6 +58,23 @@ public class MPAMPoApprovedLocalDispatch {
                 .startByKey("MPAM_PO_APPROVED_LOCAL_DISPATCH")
                 .execute();
 
+        verify(processScenario).hasFinished("EndEvent_MPAMPoApprovedLocalDispatch");
+    }
+
+    @Test
+    public void setDirectionBackward_ThenEndStage() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "MPAMDispatchStatus", "MoveBack",
+                        "valid", true
+                )));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO_APPROVED_LOCAL_DISPATCH")
+                .execute();
+
+        verify(processScenario).hasCompleted("Activity_0ry80sz");
         verify(processScenario).hasFinished("EndEvent_MPAMPoApprovedLocalDispatch");
     }
 

@@ -92,7 +92,7 @@ public class MPAM {
                 .deploy(rule);
 
         ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_MIN_DISPATCH")
-                .onExecutionAddVariable("DIRECTION", "FORWARD")
+                .onExecutionAddVariable("MPAMDispatchStatus", "DispatchAndClose")
                 .deploy(rule);
 
         ProcessExpressions.registerCallActivityMock("MPAM_DISPATCHED_FOLLOW_UP")
@@ -768,6 +768,60 @@ public class MPAM {
                 .hasCompleted("CallActivity_DraftEscalated_FromRequestContribution");
 
         verify(mpamProcess).hasFinished("EndEvent_MPAM");
+    }
+
+    @Test
+    public void whenAwaitingMinDispatchBackwards_ThenCompleteCase() {
+        ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_MIN_DISPATCH")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("MPAMDispatchStatus", "MoveBack")
+                                ),
+                                // second call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("MPAMDispatchStatus", "DispatchAndClose")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_0wfokmb");
+    }
+
+    @Test
+    public void whenAwaitingLocalDispatchBackwards_ThenCompleteCase() {
+        ProcessExpressions.registerCallActivityMock("MPAM_PO")
+                .onExecutionAddVariable("PoStatus", "Approved-Local-Dispatch")
+                .deploy(rule);
+
+        ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_LOCAL_DISPATCH")
+                .onExecutionDo(new ExecutionVariableSequence(
+                        Arrays.asList(
+                                // first call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("MPAMDispatchStatus", "MoveBack")
+                                ),
+                                // second call
+                                Collections.singletonList(
+                                        new CallActivityReturnVariable("MPAMDispatchStatus", "DispatchAndClose")
+                                )
+                        )
+                ))
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess, times(2))
+                .hasCompleted("CallActivity_0wfokmb");
     }
 
     @Test
