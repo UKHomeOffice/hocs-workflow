@@ -27,7 +27,7 @@ public class MPAMPoApprovedMinDispatch {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(1)
+            .assertClassCoverageAtLeast(0.8)
             .build();
 
     @Rule
@@ -47,14 +47,33 @@ public class MPAMPoApprovedMinDispatch {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
+                        "MPAMDispatchStatus", "DispatchAndClose",
                         "valid", false)))
                 .thenReturn(task -> task.complete(withVariables(
+                        "MPAMDispatchStatus", "DispatchAndClose",
                         "valid", true)));
 
         Scenario.run(processScenario)
                 .startByKey("MPAM_PO_APPROVED_MIN_DISPATCH")
                 .execute();
 
+        verify(processScenario).hasFinished("EndEvent_MPAMPoApprovedMinDispatch");
+    }
+
+    @Test
+    public void setDirectionBackward_ThenEndStage() {
+
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+                .thenReturn(task -> task.complete(withVariables(
+                        "MPAMDispatchStatus", "MoveBack",
+                        "valid", true
+                )));
+
+        Scenario.run(processScenario)
+                .startByKey("MPAM_PO_APPROVED_MIN_DISPATCH")
+                .execute();
+
+        verify(processScenario).hasCompleted("Activity_13s3swa");
         verify(processScenario).hasFinished("EndEvent_MPAMPoApprovedMinDispatch");
     }
 
