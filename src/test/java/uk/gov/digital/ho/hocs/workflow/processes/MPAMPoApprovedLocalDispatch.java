@@ -47,10 +47,10 @@ public class MPAMPoApprovedLocalDispatch {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD",
+                        "MPAMDispatchStatus", "DispatchAndClose",
                         "valid", false)))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD",
+                        "MPAMDispatchStatus", "DispatchAndClose",
                         "valid", true
                 )));
 
@@ -66,7 +66,7 @@ public class MPAMPoApprovedLocalDispatch {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "BACKWARD",
+                        "MPAMDispatchStatus", "MoveBack",
                         "valid", true
                 )));
 

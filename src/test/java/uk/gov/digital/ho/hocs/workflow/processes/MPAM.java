@@ -92,7 +92,7 @@ public class MPAM {
                 .deploy(rule);
 
         ProcessExpressions.registerCallActivityMock("MPAM_PO_APPROVED_MIN_DISPATCH")
-                .onExecutionAddVariable("DIRECTION", "FORWARD")
+                .onExecutionAddVariable("MPAMDispatchStatus", "DispatchAndClose")
                 .deploy(rule);
 
         ProcessExpressions.registerCallActivityMock("MPAM_DISPATCHED_FOLLOW_UP")
@@ -777,11 +777,11 @@ public class MPAM {
                         Arrays.asList(
                                 // first call
                                 Collections.singletonList(
-                                        new CallActivityReturnVariable("DIRECTION", "BACKWARD")
+                                        new CallActivityReturnVariable("MPAMDispatchStatus", "MoveBack")
                                 ),
                                 // second call
                                 Collections.singletonList(
-                                        new CallActivityReturnVariable("DIRECTION", "FORWARD")
+                                        new CallActivityReturnVariable("MPAMDispatchStatus", "DispatchAndClose")
                                 )
                         )
                 ))
@@ -806,11 +806,11 @@ public class MPAM {
                         Arrays.asList(
                                 // first call
                                 Collections.singletonList(
-                                        new CallActivityReturnVariable("DIRECTION", "BACKWARD")
+                                        new CallActivityReturnVariable("MPAMDispatchStatus", "MoveBack")
                                 ),
                                 // second call
                                 Collections.singletonList(
-                                        new CallActivityReturnVariable("DIRECTION", "FORWARD")
+                                        new CallActivityReturnVariable("MPAMDispatchStatus", "DispatchAndClose")
                                 )
                         )
                 ))

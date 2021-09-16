@@ -47,10 +47,10 @@ public class MPAMPoApprovedMinDispatch {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD",
+                        "MPAMDispatchStatus", "DispatchAndClose",
                         "valid", false)))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD",
+                        "MPAMDispatchStatus", "DispatchAndClose",
                         "valid", true)));
 
         Scenario.run(processScenario)
@@ -65,7 +65,7 @@ public class MPAMPoApprovedMinDispatch {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "BACKWARD",
+                        "MPAMDispatchStatus", "MoveBack",
                         "valid", true
                 )));
 
