@@ -932,6 +932,20 @@ public class MPAM {
         verify(mpamProcess).hasFinished("EndEvent_MPAM");
     }
 
+    @Test
+    public void whenMinisterialFollowUp_goToDispatchedFollowUp(){
+        ProcessExpressions.registerCallActivityMock("MPAM_PO")
+                .onExecutionAddVariable("PoStatus", "Dispatched-Follow-Up")
+                .deploy(rule);
+
+        Scenario.run(mpamProcess)
+                .startByKey("MPAM")
+                .execute();
+
+        verify(mpamProcess)
+                .hasCompleted("CallActivity_1c4zy60");
+    }
+
     @After
     public void after(){
         RepositoryService repositoryService = rule.getRepositoryService();
