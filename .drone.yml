@@ -104,43 +104,62 @@ steps:
         - push
         - promote
 
-  - name: deploy to cs-dev
+  - name: deploy to gamma
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
     commands:
       - cd kube-hocs-workflow
       - ./deploy.sh
     environment:
-      ENVIRONMENT: cs-dev
+      ENVIRONMENT: hocs-gamma
       KUBE_TOKEN:
-        from_secret: hocs_workflow_cs_dev
+        from_secret: hocs_workflow_hocs_gamma
       KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
       VERSION: build_${DRONE_BUILD_NUMBER}
     when:
       branch:
-        - main
+        - foi-mvp-rebase-main
       event:
         - push
     depends_on:
       - clone kube repo
 
-  - name: deploy to wcs-dev
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
-    commands:
-      - cd kube-hocs-workflow
-      - ./deploy.sh
-    environment:
-      ENVIRONMENT: wcs-dev
-      KUBE_TOKEN:
-        from_secret: hocs_workflow_wcs_dev
-      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-      VERSION: build_${DRONE_BUILD_NUMBER}
-    when:
-      branch:
-        - main
-      event:
-        - push
-    depends_on:
-      - clone kube repo
+#  - name: deploy to cs-dev
+#    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+#    commands:
+#      - cd kube-hocs-workflow
+#      - ./deploy.sh
+#    environment:
+#      ENVIRONMENT: cs-dev
+#      KUBE_TOKEN:
+#        from_secret: hocs_workflow_cs_dev
+#      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+#      VERSION: build_${DRONE_BUILD_NUMBER}
+#    when:
+#      branch:
+#        - main
+#      event:
+#        - push
+#    depends_on:
+#      - clone kube repo
+#
+#  - name: deploy to wcs-dev
+#    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+#    commands:
+#      - cd kube-hocs-workflow
+#      - ./deploy.sh
+#    environment:
+#      ENVIRONMENT: wcs-dev
+#      KUBE_TOKEN:
+#        from_secret: hocs_workflow_wcs_dev
+#      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+#      VERSION: build_${DRONE_BUILD_NUMBER}
+#    when:
+#      branch:
+#        - main
+#      event:
+#        - push
+#    depends_on:
+#      - clone kube repo
 
   - name: wait for docker
     image: docker
@@ -183,47 +202,47 @@ steps:
       target:
         - release
 
-  - name: deploy to cs-qa
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
-    commands:
-      - source version.txt
-      - echo $VERSION
-      - cd kube-hocs-workflow
-      - ./deploy.sh
-    environment:
-      ENVIRONMENT: cs-qa
-      KUBE_TOKEN:
-        from_secret: hocs_workflow_cs_qa
-      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-    when:
-      event:
-        - promote
-      target:
-        - release
-    depends_on:
-      - clone kube repo
-      - generate & tag build
-
-  - name: deploy to wcs-qa
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
-    commands:
-      - source version.txt
-      - echo $VERSION
-      - cd kube-hocs-workflow
-      - ./deploy.sh
-    environment:
-      ENVIRONMENT: wcs-qa
-      KUBE_TOKEN:
-        from_secret: hocs_workflow_wcs_qa
-      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-    when:
-      event:
-        - promote
-      target:
-        - release
-    depends_on:
-      - clone kube repo
-      - generate & tag build
+#  - name: deploy to cs-qa
+#    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+#    commands:
+#      - source version.txt
+#      - echo $VERSION
+#      - cd kube-hocs-workflow
+#      - ./deploy.sh
+#    environment:
+#      ENVIRONMENT: cs-qa
+#      KUBE_TOKEN:
+#        from_secret: hocs_workflow_cs_qa
+#      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+#    when:
+#      event:
+#        - promote
+#      target:
+#        - release
+#    depends_on:
+#      - clone kube repo
+#      - generate & tag build
+#
+#  - name: deploy to wcs-qa
+#    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+#    commands:
+#      - source version.txt
+#      - echo $VERSION
+#      - cd kube-hocs-workflow
+#      - ./deploy.sh
+#    environment:
+#      ENVIRONMENT: wcs-qa
+#      KUBE_TOKEN:
+#        from_secret: hocs_workflow_wcs_qa
+#      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+#    when:
+#      event:
+#        - promote
+#      target:
+#        - release
+#    depends_on:
+#      - clone kube repo
+#      - generate & tag build
 
   - name: deploy to not prod
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
@@ -245,21 +264,21 @@ steps:
     depends_on:
       - clone kube repo
 
-  - name: deploy to prod
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
-    commands:
-      - cd kube-hocs-workflow
-      - ./deploy.sh
-    environment:
-      ENVIRONMENT: ${DRONE_DEPLOY_TO}
-      KUBE_TOKEN:
-        from_secret: hocs_workflow_${DRONE_DEPLOY_TO/-/_}
-      KUBE_SERVER: https://kube-api-prod.prod.acp.homeoffice.gov.uk
-    when:
-      event:
-        - promote
-      target:
-        include:
-          - "*-prod"
-    depends_on:
-      - clone kube repo
+#  - name: deploy to prod
+#    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+#    commands:
+#      - cd kube-hocs-workflow
+#      - ./deploy.sh
+#    environment:
+#      ENVIRONMENT: ${DRONE_DEPLOY_TO}
+#      KUBE_TOKEN:
+#        from_secret: hocs_workflow_${DRONE_DEPLOY_TO/-/_}
+#      KUBE_SERVER: https://kube-api-prod.prod.acp.homeoffice.gov.uk
+#    when:
+#      event:
+#        - promote
+#      target:
+#        include:
+#          - "*-prod"
+#    depends_on:
+#      - clone kube repo
