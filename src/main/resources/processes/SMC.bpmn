@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+  <bpmn:process id="SMC" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_SMC">
+      <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:callActivity id="CallActivity_SMC_REGISTRATION" name="Registration" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="RegistrationUUID" target="StageUUID" />
+        <camunda:in sourceExpression="SMC_REGISTRATION" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="RegistrationUUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="SMC_REGISTRATION" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
+        <camunda:out source="CompType" target="CompType" />
+        <camunda:out source="Stage" target="Stage" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1jkxh22</bpmn:incoming>
+      <bpmn:outgoing>Flow_08fga3p</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:endEvent id="EndEvent_SMC">
+      <bpmn:incoming>SequenceFlow_1y94fvq</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1jkxh22" sourceRef="StartEvent_SMC" targetRef="CallActivity_SMC_REGISTRATION" />
+    <bpmn:serviceTask id="ServiceTask_CompleteCase" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
+      <bpmn:incoming>Flow_08fga3p</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1y94fvq</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1y94fvq" sourceRef="ServiceTask_CompleteCase" targetRef="EndEvent_SMC" />
+    <bpmn:sequenceFlow id="Flow_08fga3p" sourceRef="CallActivity_SMC_REGISTRATION" targetRef="ServiceTask_CompleteCase" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="SMC">
+      <bpmndi:BPMNEdge id="Flow_08fga3p_di" bpmnElement="Flow_08fga3p">
+        <di:waypoint x="432" y="121" />
+        <di:waypoint x="670" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1y94fvq_di" bpmnElement="SequenceFlow_1y94fvq">
+        <di:waypoint x="770" y="121" />
+        <di:waypoint x="912" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1jkxh22_di" bpmnElement="SequenceFlow_1jkxh22">
+        <di:waypoint x="188" y="121" />
+        <di:waypoint x="332" y="121" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_SMC">
+        <dc:Bounds x="152" y="103" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_104cnqu_di" bpmnElement="CallActivity_SMC_REGISTRATION">
+        <dc:Bounds x="332" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1afztus_di" bpmnElement="EndEvent_SMC">
+        <dc:Bounds x="912" y="103" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_16gueal_di" bpmnElement="ServiceTask_CompleteCase">
+        <dc:Bounds x="670" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

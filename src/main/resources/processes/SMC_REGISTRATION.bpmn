@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0a8virv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+  <bpmn:process id="SMC_REGISTRATION" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_SCM_CREATION">
+      <bpmn:outgoing>Flow_1lciqyx</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_SCM_CREATION">
+      <bpmn:incoming>Flow_0y1qmel</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1lciqyx" sourceRef="StartEvent_SCM_CREATION" targetRef="Activity_0g03uqt" />
+    <bpmn:userTask id="Activity_0g03uqt" name="Validate Correspondents" camunda:formKey="COMP_REGISTRATION_CORRESPONDENTS">
+      <bpmn:incoming>Flow_1lciqyx</bpmn:incoming>
+      <bpmn:incoming>Flow_14xdkqw</bpmn:incoming>
+      <bpmn:outgoing>Flow_148os3u</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_148os3u" sourceRef="Activity_0g03uqt" targetRef="Gateway_0gr2qu7" />
+    <bpmn:exclusiveGateway id="Gateway_0gr2qu7">
+      <bpmn:incoming>Flow_148os3u</bpmn:incoming>
+      <bpmn:outgoing>Flow_1cs5smc</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14xdkqw</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1cs5smc" sourceRef="Gateway_0gr2qu7" targetRef="Activity_11asbfs">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_11asbfs" name="Save Primary Correspondent" camunda:expression="${bpmnService.updatePrimaryCorrespondent(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;Correspondents&#34;))}">
+      <bpmn:incoming>Flow_1cs5smc</bpmn:incoming>
+      <bpmn:outgoing>Flow_0y1qmel</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0y1qmel" sourceRef="Activity_11asbfs" targetRef="EndEvent_SCM_CREATION" />
+    <bpmn:sequenceFlow id="Flow_14xdkqw" sourceRef="Gateway_0gr2qu7" targetRef="Activity_0g03uqt">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="SMC_REGISTRATION">
+      <bpmndi:BPMNEdge id="Flow_1lciqyx_di" bpmnElement="Flow_1lciqyx">
+        <di:waypoint x="192" y="189" />
+        <di:waypoint x="300" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_148os3u_di" bpmnElement="Flow_148os3u">
+        <di:waypoint x="400" y="189" />
+        <di:waypoint x="485" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1cs5smc_di" bpmnElement="Flow_1cs5smc">
+        <di:waypoint x="535" y="189" />
+        <di:waypoint x="610" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0y1qmel_di" bpmnElement="Flow_0y1qmel">
+        <di:waypoint x="710" y="189" />
+        <di:waypoint x="832" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14xdkqw_di" bpmnElement="Flow_14xdkqw">
+        <di:waypoint x="510" y="164" />
+        <di:waypoint x="510" y="80" />
+        <di:waypoint x="350" y="80" />
+        <di:waypoint x="350" y="149" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_SCM_CREATION">
+        <dc:Bounds x="156" y="171" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0g03uqt_di" bpmnElement="Activity_0g03uqt">
+        <dc:Bounds x="300" y="149" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0pmmumb_di" bpmnElement="EndEvent_SCM_CREATION">
+        <dc:Bounds x="832" y="171" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11asbfs_di" bpmnElement="Activity_11asbfs">
+        <dc:Bounds x="610" y="149" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0gr2qu7_di" bpmnElement="Gateway_0gr2qu7" isMarkerVisible="true">
+        <dc:Bounds x="485" y="164" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
