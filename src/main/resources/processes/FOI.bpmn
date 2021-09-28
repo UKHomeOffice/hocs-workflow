@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:process id="FOI" isExecutable="true">
     <bpmn:startEvent id="FOI_START" name="Start Case">
       <bpmn:outgoing>SequenceFlow_1pepep6</bpmn:outgoing>
@@ -64,58 +64,16 @@
         <camunda:out sourceExpression="${&#34;ACCEPTANCE&#34;}" target="LastStage" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_16c9c0x</bpmn:incoming>
-      <bpmn:incoming>case_rejected_at_draft</bpmn:incoming>
       <bpmn:outgoing>Flow_1fbjy58</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1fbjy58" sourceRef="ACCEPTANCE" targetRef="is_case_accepted" />
     <bpmn:exclusiveGateway id="is_case_accepted" name="has the case been accepted?">
       <bpmn:incoming>Flow_1fbjy58</bpmn:incoming>
-      <bpmn:outgoing>case_accepted</bpmn:outgoing>
       <bpmn:outgoing>case_rejected</bpmn:outgoing>
+      <bpmn:outgoing>case_accepted</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="case_accepted" name="yes" sourceRef="is_case_accepted" targetRef="FOI_DRAFT">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${AcceptCase=="Y"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="case_rejected" name="no - return to allocation" sourceRef="is_case_accepted" targetRef="Activity_16l1q7b">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${AcceptCase=="N"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:callActivity id="FOI_DRAFT" name="Consider and Draft" calledElement="STAGE">
-      <bpmn:extensionElements>
-        <camunda:in businessKey="#{execution.processBusinessKey}" />
-        <camunda:in sourceExpression="FOI_DRAFT" target="StageWorkFlow" />
-        <camunda:in sourceExpression="FOI_DRAFT" target="StageType" />
-        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
-        <camunda:in source="FOI_DRAFT" target="EmailType" />
-        <camunda:in source="DraftAcceptanceStageUUID" target="StageUUID" />
-        <camunda:out source="StageUUID" target="DraftStageUUID" />
-        <camunda:in variables="all" />
-        <camunda:out source="DraftAcceptCase" target="DraftAcceptCase" />
-        <camunda:out source="AllocationTeamUUID" target="AllocationTeamUUID" />
-        <camunda:in source="AllocationTeamUUID" target="AllocationTeamUUID" />
-        <camunda:in source="DraftTeam" target="DraftTeam" />
-        <camunda:out source="DraftTeam" target="DraftTeam" />
-        <camunda:out source="DraftAcceptCase" target="DraftAcceptCase" />
-        <camunda:in source="AcceptanceTeam" target="AcceptanceTeam" />
-        <camunda:out source="Sensitivity" target="Sensitivity" />
-        <camunda:out source="QaOffline" target="QaOffline" />
-        <camunda:out source="G6G7ApprovalTeamMembers" target="G6G7ApprovalTeamMembers" />
-        <camunda:out source="DraftValidity" target="DraftValidity" />
-        <camunda:out source="ResponseType" target="ResponseType" />
-        <camunda:out sourceExpression="${&#34;DRAFT&#34;}" target="LastStage" />
-        <camunda:out source="ScsApprovalTeamMembers" target="ScsApprovalTeamMembers" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>case_accepted</bpmn:incoming>
-      <bpmn:incoming>draft</bpmn:incoming>
-      <bpmn:outgoing>Flow_1cx8ha2</bpmn:outgoing>
-    </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_1cx8ha2" sourceRef="FOI_DRAFT" targetRef="SHOULD_DISPATCH_AFTER_DRAFT" />
-    <bpmn:exclusiveGateway id="is_case_accepted_by_draft_team" name="has the case been accepted by the draft team?">
-      <bpmn:incoming>Flow_1w9v16k</bpmn:incoming>
-      <bpmn:outgoing>case_rejected_at_draft</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0de9oms</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="case_rejected_at_draft" name="no return to acceptance&#10;&#10;" sourceRef="is_case_accepted_by_draft_team" targetRef="ACCEPTANCE">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftAcceptCase=="N"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="FOI_APPROVAL" name="Approval" calledElement="STAGE">
       <bpmn:extensionElements>
@@ -135,7 +93,6 @@
         <camunda:out source="DraftAcceptCase" target="DraftAcceptCase" />
         <camunda:in source="AcceptanceTeam" target="AcceptanceTeam" />
         <camunda:out source="Sensitivity" target="Sensitivity" />
-        <camunda:in source="Sensitivity" target="Sensitivity" />
         <camunda:out source="G6orG7AcceptCase" target="G6orG7AcceptCase" />
         <camunda:out source="G6orG7AcceptSensitivityLevel" target="G6orG7AcceptSensitivityLevel" />
         <camunda:in source="DraftTeam" target="DraftTeam" />
@@ -145,11 +102,6 @@
       <bpmn:incoming>Flow_1k9m7ld</bpmn:incoming>
       <bpmn:outgoing>Flow_1fmi7pj</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:exclusiveGateway id="SHOULD_DISPATCH_AFTER_DRAFT" name="route to dispatch?" default="Flow_1w9v16k">
-      <bpmn:incoming>Flow_1cx8ha2</bpmn:incoming>
-      <bpmn:outgoing>Flow_027wfgl</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1w9v16k</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
     <bpmn:callActivity id="FOI_DISPATCH" name="Dispatch" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in businessKey="#{execution.processBusinessKey}" />
@@ -177,22 +129,18 @@
         <camunda:in source="LastStage" target="LastStage" />
         <camunda:out source="LastStage" target="LastStage" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_027wfgl</bpmn:incoming>
-      <bpmn:incoming>Flow_17lyviv</bpmn:incoming>
       <bpmn:incoming>Flow_1rrobq2</bpmn:incoming>
       <bpmn:outgoing>Flow_0yejozo</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_027wfgl" name="to dispatch&#10;&#10;" sourceRef="SHOULD_DISPATCH_AFTER_DRAFT" targetRef="FOI_DISPATCH">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ResponseType == "EXEMPTION"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1w9v16k" sourceRef="SHOULD_DISPATCH_AFTER_DRAFT" targetRef="is_case_accepted_by_draft_team" />
     <bpmn:sequenceFlow id="Flow_0yejozo" sourceRef="FOI_DISPATCH" targetRef="SHOULD_DISPATCH" />
-    <bpmn:exclusiveGateway id="SHOULD_DISPATCH" default="Flow_05by1ku">
+    <bpmn:exclusiveGateway id="SHOULD_DISPATCH">
       <bpmn:incoming>Flow_0yejozo</bpmn:incoming>
       <bpmn:outgoing>Flow_05by1ku</bpmn:outgoing>
       <bpmn:outgoing>Flow_0gv61qu</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_05by1ku" name="yes" sourceRef="SHOULD_DISPATCH" targetRef="StickyCasesForClose" />
+    <bpmn:sequenceFlow id="Flow_05by1ku" name="yes" sourceRef="SHOULD_DISPATCH" targetRef="StickyCasesForClose">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ShouldDispatch == "ShouldDispatch-Y"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0gv61qu" name="no" sourceRef="SHOULD_DISPATCH" targetRef="Gateway_04z0ecf">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ShouldDispatch == "ShouldDispatch-N"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -200,13 +148,10 @@
     <bpmn:sequenceFlow id="Flow_1fmi7pj" sourceRef="FOI_APPROVAL" targetRef="StickyCasesForDispatch" />
     <bpmn:exclusiveGateway id="Gateway_04z0ecf" name="return to consider and draft">
       <bpmn:incoming>Flow_0gv61qu</bpmn:incoming>
-      <bpmn:outgoing>draft</bpmn:outgoing>
       <bpmn:outgoing>Flow_1mxj26x</bpmn:outgoing>
       <bpmn:outgoing>Flow_0jcjuey</bpmn:outgoing>
+      <bpmn:outgoing>draft</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="draft" sourceRef="Gateway_04z0ecf" targetRef="FOI_DRAFT">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${LastStage == "DRAFT"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1mxj26x" name="return to po approval" sourceRef="Gateway_04z0ecf" targetRef="FOI_APPROVAL">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${LastStage == "PO_APPROVAL"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -236,6 +181,7 @@
         <camunda:out sourceExpression="${execution.hasVariable(&#34;ForceClose&#34;) ? execution.getVariable(&#34;ForceClose&#34;) : &#34;false&#34;}" target="ForceClose" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0982gcb</bpmn:incoming>
+      <bpmn:incoming>Flow_17lyviv</bpmn:incoming>
       <bpmn:outgoing>Flow_0518pxg</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:endEvent id="Event_1uaa2lv" name="End Case">
@@ -279,15 +225,16 @@
       <bpmn:outgoing>Flow_17lyviv</bpmn:outgoing>
       <bpmn:outgoing>Flow_0f8i3tz</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_17lyviv" name="To dispatch" sourceRef="SHOULD_DISPATCH_AFTER_DATA_INPUT" targetRef="FOI_DISPATCH">
+    <bpmn:sequenceFlow id="Flow_17lyviv" name="To Soft Close" sourceRef="SHOULD_DISPATCH_AFTER_DATA_INPUT" targetRef="FOI_SOFT_CLOSE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RequestValidity=="RequestValid-N"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0jcjuey" name="return to case creation" sourceRef="Gateway_04z0ecf" targetRef="CASE_CREATION">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${LastStage == "CASE_CREATION"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0f8i3tz" sourceRef="SHOULD_DISPATCH_AFTER_DATA_INPUT" targetRef="StickyCasesForAllocation" />
+    <bpmn:sequenceFlow id="Flow_0f8i3tz" sourceRef="SHOULD_DISPATCH_AFTER_DATA_INPUT" targetRef="StickyCasesForAllocation">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RequestValidity=="RequestValid-Y"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0oacrn4" sourceRef="Activity_0jtkbij" targetRef="Activity_16l1q7b" />
-    <bpmn:sequenceFlow id="Flow_0de9oms" sourceRef="is_case_accepted_by_draft_team" targetRef="StickyCasesForApproval" />
     <bpmn:serviceTask id="StickyCasesForAllocation" name="Sticky Cases for Allocation" camunda:expression="true" camunda:resultVariable="STICKY_CASES">
       <bpmn:extensionElements>
         <camunda:inputOutput>
@@ -304,7 +251,7 @@
           <camunda:outputParameter name="Output_0pa13a" />
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0de9oms</bpmn:incoming>
+      <bpmn:incoming>Flow_16ywbnx</bpmn:incoming>
       <bpmn:outgoing>Flow_1k9m7ld</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1k9m7ld" sourceRef="StickyCasesForApproval" targetRef="FOI_APPROVAL" />
@@ -328,6 +275,37 @@
       <bpmn:outgoing>Flow_0982gcb</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0982gcb" sourceRef="StickyCasesForClose" targetRef="FOI_SOFT_CLOSE" />
+    <bpmn:callActivity id="FOI_DRAFT" name="Consider and Draft" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in sourceExpression="FOI_DRAFT" target="StageWorkFlow" />
+        <camunda:in sourceExpression="FOI_DRAFT" target="StageType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:in source="FOI_DRAFT" target="EmailType" />
+        <camunda:in source="DraftAcceptanceStageUUID" target="StageUUID" />
+        <camunda:out source="StageUUID" target="DraftStageUUID" />
+        <camunda:in variables="all" />
+        <camunda:out source="DraftAcceptCase" target="DraftAcceptCase" />
+        <camunda:out source="AllocationTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in source="AllocationTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in source="DraftTeam" target="DraftTeam" />
+        <camunda:out source="DraftTeam" target="DraftTeam" />
+        <camunda:out source="DraftAcceptCase" target="DraftAcceptCase" />
+        <camunda:in source="AcceptanceTeam" target="AcceptanceTeam" />
+        <camunda:out source="DraftValidity" target="DraftValidity" />
+        <camunda:out sourceExpression="${&#34;DRAFT&#34;}" target="LastStage" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>draft</bpmn:incoming>
+      <bpmn:incoming>case_accepted</bpmn:incoming>
+      <bpmn:outgoing>Flow_16ywbnx</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_16ywbnx" sourceRef="FOI_DRAFT" targetRef="StickyCasesForApproval" />
+    <bpmn:sequenceFlow id="draft" sourceRef="Gateway_04z0ecf" targetRef="FOI_DRAFT">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${LastStage == "DRAFT"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="case_accepted" name="yes" sourceRef="is_case_accepted" targetRef="FOI_DRAFT">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${AcceptCase=="Y"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI">
@@ -347,10 +325,6 @@
         <di:waypoint x="590" y="340" />
         <di:waypoint x="660" y="340" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0de9oms_di" bpmnElement="Flow_0de9oms">
-        <di:waypoint x="1465" y="338" />
-        <di:waypoint x="1510" y="338" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0f8i3tz_di" bpmnElement="Flow_0f8i3tz">
         <di:waypoint x="455" y="340" />
         <di:waypoint x="490" y="340" />
@@ -364,13 +338,13 @@
           <dc:Bounds x="1918" y="68" width="68" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17lyviv_di" bpmnElement="Flow_17lyviv" bioc:stroke="rgb(142, 36, 170)" bioc:fill="rgb(225, 190, 231)">
+      <bpmndi:BPMNEdge id="Flow_17lyviv_di" bpmnElement="Flow_17lyviv" bioc:stroke="rgb(67, 160, 71)" bioc:fill="rgb(200, 230, 201)">
         <di:waypoint x="430" y="315" />
-        <di:waypoint x="430" y="250" />
-        <di:waypoint x="1986" y="250" />
-        <di:waypoint x="1986" y="298" />
+        <di:waypoint x="430" y="220" />
+        <di:waypoint x="2389" y="220" />
+        <di:waypoint x="2389" y="298" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="428" y="230" width="56" height="14" />
+          <dc:Bounds x="430" y="200" width="66" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1h0s2gy_di" bpmnElement="Flow_1h0s2gy">
@@ -399,13 +373,13 @@
         <di:waypoint x="1698" y="172" />
         <di:waypoint x="1698" y="298" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2075" y="188" width="57" height="27" />
+          <dc:Bounds x="2041" y="188" width="57" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1upetim_di" bpmnElement="draft" bioc:stroke="black" bioc:fill="white">
         <di:waypoint x="2091" y="172" />
-        <di:waypoint x="1180" y="172" />
-        <di:waypoint x="1180" y="298" />
+        <di:waypoint x="1250" y="172" />
+        <di:waypoint x="1250" y="298" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1fmi7pj_di" bpmnElement="Flow_1fmi7pj">
         <di:waypoint x="1748" y="338" />
@@ -433,32 +407,6 @@
         <di:waypoint x="2036" y="338" />
         <di:waypoint x="2091" y="338" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1w9v16k_di" bpmnElement="Flow_1w9v16k">
-        <di:waypoint x="1355" y="338" />
-        <di:waypoint x="1415" y="338" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_027wfgl_di" bpmnElement="Flow_027wfgl" bioc:stroke="rgb(142, 36, 170)" bioc:fill="rgb(225, 190, 231)">
-        <di:waypoint x="1330" y="313" />
-        <di:waypoint x="1330" y="250" />
-        <di:waypoint x="1986" y="250" />
-        <di:waypoint x="1986" y="298" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1321" y="230" width="54" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1swv1z2_di" bpmnElement="case_rejected_at_draft" bioc:stroke="black" bioc:fill="white">
-        <di:waypoint x="1440" y="363" />
-        <di:waypoint x="1440" y="480" />
-        <di:waypoint x="900" y="480" />
-        <di:waypoint x="900" y="378" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1381" y="503" width="57" height="53" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1cx8ha2_di" bpmnElement="Flow_1cx8ha2">
-        <di:waypoint x="1230" y="338" />
-        <di:waypoint x="1305" y="338" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1px1d3g_di" bpmnElement="case_rejected" bioc:stroke="black" bioc:fill="white">
         <di:waypoint x="1050" y="313" />
         <di:waypoint x="1050" y="190" />
@@ -470,9 +418,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_05z82bm_di" bpmnElement="case_accepted">
         <di:waypoint x="1075" y="338" />
-        <di:waypoint x="1130" y="338" />
+        <di:waypoint x="1200" y="338" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1089" y="321" width="18" height="14" />
+          <dc:Bounds x="1118" y="321" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1fbjy58_di" bpmnElement="Flow_1fbjy58">
@@ -489,6 +437,10 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1102.5" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16ywbnx_di" bpmnElement="Flow_16ywbnx">
+        <di:waypoint x="1300" y="338" />
+        <di:waypoint x="1510" y="338" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="FOI_START">
         <dc:Bounds x="162" y="322" width="36" height="36" />
@@ -508,23 +460,8 @@
           <dc:Bounds x="1011" y="373" width="79" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1jjagz8_di" bpmnElement="FOI_DRAFT">
-        <dc:Bounds x="1130" y="298" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1bm0eaz_di" bpmnElement="is_case_accepted_by_draft_team" isMarkerVisible="true" bioc:stroke="black" bioc:fill="white">
-        <dc:Bounds x="1415" y="313" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1395" y="263" width="90" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_14cxm1u_di" bpmnElement="FOI_APPROVAL">
         <dc:Bounds x="1648" y="298" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0qjywxn_di" bpmnElement="SHOULD_DISPATCH_AFTER_DRAFT" isMarkerVisible="true" bioc:stroke="black" bioc:fill="white">
-        <dc:Bounds x="1305" y="313" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1286" y="370" width="88" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_11w0swf_di" bpmnElement="FOI_DISPATCH" bioc:stroke="black" bioc:fill="white">
         <dc:Bounds x="1936" y="298" width="100" height="80" />
@@ -570,6 +507,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_19bwtvd_di" bpmnElement="StickyCasesForClose">
         <dc:Bounds x="2180" y="298" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jjagz8_di" bpmnElement="FOI_DRAFT">
+        <dc:Bounds x="1200" y="298" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
