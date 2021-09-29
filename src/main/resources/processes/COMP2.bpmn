@@ -72,7 +72,6 @@
       <bpmn:incoming>SequenceFlow_0rody0g</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1tn7n28</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1mrdijx</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_171d285</bpmn:incoming>
       <bpmn:incoming>Flow_0v4anwx</bpmn:incoming>
       <bpmn:incoming>Flow_0o139yy</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_000uqx9</bpmn:outgoing>
@@ -87,7 +86,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "Service"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_12bwajh" sourceRef="ExclusiveGateway_11h64pd" targetRef="CallActivity_COMP_OTHER" />
-    <bpmn:sequenceFlow id="SequenceFlow_1aq52w0" sourceRef="CallActivity_COMP_OTHER" targetRef="CallActivity_COMP_CLOSED" />
+    <bpmn:sequenceFlow id="SequenceFlow_1aq52w0" sourceRef="CallActivity_COMP_OTHER" targetRef="ServiceTask_CompleteCase" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_0j0zx2i" default="SequenceFlow_0rody0g">
       <bpmn:incoming>SequenceFlow_0qgx3mz</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0pmwzqz</bpmn:outgoing>
@@ -206,53 +205,22 @@
       <bpmn:incoming>SequenceFlow_0sc9qo8</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0zax5vg</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_0zax5vg" sourceRef="CallActivity_COMP_SERVICE_SEND" targetRef="ExclusiveGateway_1uuz5hd" />
     <bpmn:sequenceFlow id="SequenceFlow_0sc9qo8" sourceRef="ExclusiveGateway_16g4ube" targetRef="CallActivity_COMP_SERVICE_SEND">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctQaResult == "Accept"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:callActivity id="CallActivity_COMP_CLOSED" name="Closed" calledElement="STAGE">
-      <bpmn:extensionElements>
-        <camunda:in source="ClosedUUID" target="StageUUID" />
-        <camunda:in sourceExpression="COMP2_CLOSED" target="StageWorkFlow" />
-        <camunda:in businessKey="#{execution.processBusinessKey}" />
-        <camunda:in variables="all" />
-        <camunda:out source="StageUUID" target="ClosedUUID" />
-        <camunda:out source="DateReceived" target="DateReceived" />
-        <camunda:in sourceExpression="COMP2_CLOSED" target="StageType" />
-        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
-        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
-        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
-        <camunda:out source="ClosedCompType" target="CompType" />
-        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
-        <camunda:out source="Stage" target="Stage" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_1aq52w0</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1nh0j6q</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0lr2r3v</bpmn:incoming>
-      <bpmn:incoming>Flow_0fohvbh</bpmn:incoming>
-      <bpmn:incoming>Flow_0xdh0q2</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1four01</bpmn:outgoing>
-    </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_1four01" sourceRef="CallActivity_COMP_CLOSED" targetRef="ExclusiveGateway_1j1whvx" />
     <bpmn:serviceTask id="ServiceTask_CompleteCase" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
-      <bpmn:incoming>SequenceFlow_16ikg4v</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_09ub2ao</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0qhqchx</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1o1kt0i</bpmn:incoming>
       <bpmn:incoming>Flow_0cf6v84</bpmn:incoming>
       <bpmn:incoming>Flow_15g1iiw</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0zax5vg</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1nh0j6q</bpmn:incoming>
+      <bpmn:incoming>Flow_0fohvbh</bpmn:incoming>
+      <bpmn:incoming>Flow_0xdh0q2</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1aq52w0</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1y94fvq</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1y94fvq" sourceRef="ServiceTask_CompleteCase" targetRef="EndEvent_COMP" />
-    <bpmn:exclusiveGateway id="ExclusiveGateway_1j1whvx" default="SequenceFlow_171d285">
-      <bpmn:incoming>SequenceFlow_1four01</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_16ikg4v</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_171d285</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_16ikg4v" sourceRef="ExclusiveGateway_1j1whvx" targetRef="ServiceTask_CompleteCase">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "Complete"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_171d285" sourceRef="ExclusiveGateway_1j1whvx" targetRef="ExclusiveGateway_11h64pd" />
     <bpmn:callActivity id="CallActivity_COMP_MINOR_CHECK" name="Minor Check" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="MinorCheckUUID" target="StageUUID" />
@@ -300,7 +268,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_0htf303" sourceRef="ExclusiveGateway_0o61v4x" targetRef="CallActivity_COMP_MINOR_RESP">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MinorAccept == "Yes"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1nh0j6q" sourceRef="CallActivity_COMP_MINOR_RESP" targetRef="CallActivity_COMP_CLOSED" />
+    <bpmn:sequenceFlow id="SequenceFlow_1nh0j6q" sourceRef="CallActivity_COMP_MINOR_RESP" targetRef="ServiceTask_CompleteCase" />
     <bpmn:callActivity id="CallActivity_COMP_SERVICE_ESCALATE" name="Service Escalate" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="ServiceEscalateUUID" target="StageUUID" />
@@ -331,15 +299,6 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0qhqchx" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="ServiceTask_CompleteCase">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctTriageResult == "Complete"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_1uuz5hd" default="SequenceFlow_0lr2r3v">
-      <bpmn:incoming>SequenceFlow_0zax5vg</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0lr2r3v</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_1o1kt0i</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_0lr2r3v" sourceRef="ExclusiveGateway_1uuz5hd" targetRef="CallActivity_COMP_CLOSED" />
-    <bpmn:sequenceFlow id="SequenceFlow_1o1kt0i" sourceRef="ExclusiveGateway_1uuz5hd" targetRef="ServiceTask_CompleteCase">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Stage == "Stage2"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_1x9b5ch">
       <bpmn:incoming>SequenceFlow_007ooy7</bpmn:incoming>
@@ -432,7 +391,7 @@
       <bpmn:incoming>Flow_0potmsr</bpmn:incoming>
       <bpmn:outgoing>Flow_0fohvbh</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_0fohvbh" sourceRef="CallActivity_EX_GRATIA_SEND" targetRef="CallActivity_COMP_CLOSED" />
+    <bpmn:sequenceFlow id="Flow_0fohvbh" sourceRef="CallActivity_EX_GRATIA_SEND" targetRef="ServiceTask_CompleteCase" />
     <bpmn:callActivity id="CallActivity_EX_GRATIA_QA" name="Ex-Gratia Response QA" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="ServiceQaUUID" target="StageUUID" />
@@ -622,7 +581,7 @@
       <bpmn:incoming>Flow_1xj4ao2</bpmn:incoming>
       <bpmn:outgoing>Flow_0xdh0q2</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_0xdh0q2" sourceRef="CallActivity_MM_SEND" targetRef="CallActivity_COMP_CLOSED" />
+    <bpmn:sequenceFlow id="Flow_0xdh0q2" sourceRef="CallActivity_MM_SEND" targetRef="ServiceTask_CompleteCase" />
     <bpmn:exclusiveGateway id="Gateway_1wxva5s" default="Flow_0o139yy">
       <bpmn:incoming>Flow_0gxvdsy</bpmn:incoming>
       <bpmn:outgoing>Flow_0vea1fu</bpmn:outgoing>
@@ -676,15 +635,33 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctEscalateResult == "Draft"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0swvx1t" sourceRef="Gateway_0tz15vp" targetRef="CallActivity_MM_DRAFT" />
-    <bpmn:sequenceFlow id="Flow_0cf6v84" sourceRef="Gateway_1wrxr8i" targetRef="ServiceTask_CompleteCase">
+    <bpmn:sequenceFlow id="Flow_15g1iiw" sourceRef="Gateway_1wxva5s" targetRef="ServiceTask_CompleteCase">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctTriageResult == "Complete"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_15g1iiw" sourceRef="Gateway_1wxva5s" targetRef="ServiceTask_CompleteCase">
+    <bpmn:sequenceFlow id="SequenceFlow_0zax5vg" sourceRef="CallActivity_COMP_SERVICE_SEND" targetRef="ServiceTask_CompleteCase" />
+    <bpmn:sequenceFlow id="Flow_0cf6v84" sourceRef="Gateway_1wrxr8i" targetRef="ServiceTask_CompleteCase">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctTriageResult == "Complete"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP2">
+      <bpmndi:BPMNEdge id="Flow_0cf6v84_di" bpmnElement="Flow_0cf6v84">
+        <di:waypoint x="1061" y="1035" />
+        <di:waypoint x="1061" y="960" />
+        <di:waypoint x="2874" y="960" />
+        <di:waypoint x="2874" y="162" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0zax5vg_di" bpmnElement="SequenceFlow_0zax5vg">
+        <di:waypoint x="2370" y="323" />
+        <di:waypoint x="2840" y="323" />
+        <di:waypoint x="2840" y="162" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15g1iiw_di" bpmnElement="Flow_15g1iiw">
+        <di:waypoint x="1061" y="1455" />
+        <di:waypoint x="1061" y="1360" />
+        <di:waypoint x="2874" y="1360" />
+        <di:waypoint x="2874" y="162" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0swvx1t_di" bpmnElement="Flow_0swvx1t">
         <di:waypoint x="1805" y="1500" />
         <di:waypoint x="1635" y="1500" />
@@ -748,8 +725,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0xdh0q2_di" bpmnElement="Flow_0xdh0q2">
         <di:waypoint x="2370" y="1480" />
-        <di:waypoint x="2727" y="1480" />
-        <di:waypoint x="2727" y="363" />
+        <di:waypoint x="2874" y="1480" />
+        <di:waypoint x="2874" y="162" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_09paa2z_di" bpmnElement="Flow_09paa2z">
         <di:waypoint x="1635" y="1480" />
@@ -817,8 +794,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0fohvbh_di" bpmnElement="Flow_0fohvbh">
         <di:waypoint x="2370" y="1060" />
-        <di:waypoint x="2727" y="1060" />
-        <di:waypoint x="2727" y="363" />
+        <di:waypoint x="2874" y="1060" />
+        <di:waypoint x="2874" y="162" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ubnaw8_di" bpmnElement="Flow_0ubnaw8">
         <di:waypoint x="1635" y="1060" />
@@ -853,15 +830,6 @@
         <di:waypoint x="1559" y="585" />
         <di:waypoint x="1559" y="363" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1o1kt0i_di" bpmnElement="SequenceFlow_1o1kt0i">
-        <di:waypoint x="2522" y="298" />
-        <di:waypoint x="2522" y="122" />
-        <di:waypoint x="2824" y="122" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0lr2r3v_di" bpmnElement="SequenceFlow_0lr2r3v">
-        <di:waypoint x="2547" y="323" />
-        <di:waypoint x="2677" y="323" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0qhqchx_di" bpmnElement="SequenceFlow_0qhqchx">
         <di:waypoint x="1061" y="298" />
         <di:waypoint x="1061" y="140" />
@@ -889,8 +857,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1nh0j6q_di" bpmnElement="SequenceFlow_1nh0j6q">
         <di:waypoint x="1382" y="748" />
-        <di:waypoint x="2727" y="748" />
-        <di:waypoint x="2727" y="363" />
+        <di:waypoint x="2874" y="748" />
+        <di:waypoint x="2874" y="162" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0htf303_di" bpmnElement="SequenceFlow_0htf303">
         <di:waypoint x="1086" y="748" />
@@ -911,32 +879,14 @@
         <di:waypoint x="665" y="748" />
         <di:waypoint x="810" y="748" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_171d285_di" bpmnElement="SequenceFlow_171d285">
-        <di:waypoint x="2874" y="348" />
-        <di:waypoint x="2874" y="1980" />
-        <di:waypoint x="665" y="1980" />
-        <di:waypoint x="665" y="146" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_16ikg4v_di" bpmnElement="SequenceFlow_16ikg4v">
-        <di:waypoint x="2874" y="298" />
-        <di:waypoint x="2874" y="161" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1y94fvq_di" bpmnElement="SequenceFlow_1y94fvq">
         <di:waypoint x="2924" y="122" />
         <di:waypoint x="3120" y="122" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1four01_di" bpmnElement="SequenceFlow_1four01">
-        <di:waypoint x="2777" y="323" />
-        <di:waypoint x="2849" y="323" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0sc9qo8_di" bpmnElement="SequenceFlow_0sc9qo8">
         <di:waypoint x="2103" y="585" />
         <di:waypoint x="2320" y="585" />
         <di:waypoint x="2320" y="363" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0zax5vg_di" bpmnElement="SequenceFlow_0zax5vg">
-        <di:waypoint x="2370" y="323" />
-        <di:waypoint x="2497" y="323" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_028f9es_di" bpmnElement="SequenceFlow_028f9es">
         <di:waypoint x="2053" y="585" />
@@ -983,17 +933,17 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1aq52w0_di" bpmnElement="SequenceFlow_1aq52w0">
         <di:waypoint x="900" y="1830" />
-        <di:waypoint x="2727" y="1830" />
-        <di:waypoint x="2727" y="363" />
+        <di:waypoint x="2874" y="1830" />
+        <di:waypoint x="2874" y="162" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_12bwajh_di" bpmnElement="SequenceFlow_12bwajh">
-        <di:waypoint x="665" y="146" />
-        <di:waypoint x="665" y="1830" />
+        <di:waypoint x="680" y="131" />
+        <di:waypoint x="680" y="1830" />
         <di:waypoint x="800" y="1830" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_000uqx9_di" bpmnElement="SequenceFlow_000uqx9">
-        <di:waypoint x="665" y="146" />
-        <di:waypoint x="665" y="323" />
+        <di:waypoint x="680" y="131" />
+        <di:waypoint x="680" y="323" />
         <di:waypoint x="810" y="323" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0qgx3mz_di" bpmnElement="SequenceFlow_0qgx3mz">
@@ -1007,18 +957,6 @@
       <bpmndi:BPMNEdge id="SequenceFlow_1jkxh22_di" bpmnElement="SequenceFlow_1jkxh22">
         <di:waypoint x="215" y="121" />
         <di:waypoint x="442" y="121" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0cf6v84_di" bpmnElement="Flow_0cf6v84">
-        <di:waypoint x="1061" y="1035" />
-        <di:waypoint x="1061" y="960" />
-        <di:waypoint x="2910" y="960" />
-        <di:waypoint x="2910" y="162" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15g1iiw_di" bpmnElement="Flow_15g1iiw">
-        <di:waypoint x="1061" y="1455" />
-        <di:waypoint x="1061" y="1360" />
-        <di:waypoint x="2910" y="1360" />
-        <di:waypoint x="2910" y="162" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_COMP">
         <dc:Bounds x="179" y="103" width="36" height="36" />
@@ -1059,14 +997,8 @@
       <bpmndi:BPMNShape id="CallActivity_14wr0qn_di" bpmnElement="CallActivity_COMP_SERVICE_SEND">
         <dc:Bounds x="2270" y="283" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="CallActivity_03s7cuc_di" bpmnElement="CallActivity_COMP_CLOSED">
-        <dc:Bounds x="2677" y="283" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_16gueal_di" bpmnElement="ServiceTask_CompleteCase">
         <dc:Bounds x="2824" y="82" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ExclusiveGateway_1j1whvx_di" bpmnElement="ExclusiveGateway_1j1whvx" isMarkerVisible="true">
-        <dc:Bounds x="2849" y="298" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_0ifbpqm_di" bpmnElement="CallActivity_COMP_MINOR_CHECK">
         <dc:Bounds x="810" y="708" width="100" height="80" />
@@ -1079,9 +1011,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_0h6ptqy_di" bpmnElement="CallActivity_COMP_SERVICE_ESCALATE">
         <dc:Bounds x="1282" y="417" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ExclusiveGateway_1uuz5hd_di" bpmnElement="ExclusiveGateway_1uuz5hd" isMarkerVisible="true">
-        <dc:Bounds x="2497" y="298" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1x9b5ch_di" bpmnElement="ExclusiveGateway_1x9b5ch" isMarkerVisible="true">
         <dc:Bounds x="1307" y="560" width="50" height="50" />
