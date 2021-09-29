@@ -147,17 +147,6 @@ public class COMP_SERVICE_TRIAGE {
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Complete")));
 
-//        when(compServiceTriageProcess.waitsAtUserTask("Validate_CompleteReason"))
-//                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-//                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-//                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
-
-//        when(compServiceTriageProcess.waitsAtUserTask("Validate_CompleteConfirm"))
-//                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-//                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-//                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No")))
-//                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes", "CaseNote_CompleteReason", "Complete")));
-
         Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
 
         verify(compServiceTriageProcess).hasCompleted("Screen_Accept");
@@ -165,7 +154,6 @@ public class COMP_SERVICE_TRIAGE {
         verify(compServiceTriageProcess).hasCompleted("Screen_Details");
         verify(compServiceTriageProcess).hasCompleted("Screen_BusArea");
         verify(compServiceTriageProcess).hasCompleted("Screen_Input");
-
 
     }
 

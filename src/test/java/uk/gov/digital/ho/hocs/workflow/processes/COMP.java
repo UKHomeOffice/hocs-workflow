@@ -203,9 +203,6 @@ public class COMP {
         whenAtCallActivity("COMP_SERVICE_SEND")
                 .thenReturn("CctDraftResult", "Send","Stage", "Stage1")
                 .deploy(rule);
-//        whenAtCallActivity("COMP_CLOSED")
-//                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
-//                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("COMP")
@@ -217,7 +214,6 @@ public class COMP {
         verify(processScenario, times(2)).hasCompleted("CallActivity_COMP_SERVICE_DRAFT");
         verify(processScenario, times(2)).hasCompleted("CallActivity_COMP_SERVICE_QA");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_SEND");
-//        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -233,9 +229,6 @@ public class COMP {
                 .deploy(rule);
         whenAtCallActivity("COMP_MINOR_RESP")
                 .deploy(rule);
-//        whenAtCallActivity("COMP_CLOSED")
-//                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
-//                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("COMP")
@@ -245,7 +238,6 @@ public class COMP {
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_MINOR_CHECK");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_MINOR_RESP");
-//        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -271,9 +263,6 @@ public class COMP {
         whenAtCallActivity("COMP_EXGRATIA_SEND")
                 .thenReturn("CctDraftResult", "Send","Stage", "Stage1")
                 .deploy(rule);
-//        whenAtCallActivity("COMP_CLOSED")
-//                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
-//                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("COMP")
@@ -284,7 +273,6 @@ public class COMP {
         verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
         verify(processScenario, times(3)).hasCompleted("CallActivity_EX_GRATIA_RESPONSE_DRAFT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_SEND");
-//        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -310,9 +298,6 @@ public class COMP {
         whenAtCallActivity("COMP_EXGRATIA_SEND")
                 .thenReturn("CctDraftResult", "Send")
                 .deploy(rule);
-//        whenAtCallActivity("COMP_CLOSED")
-//                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
-//                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("COMP")
@@ -323,7 +308,6 @@ public class COMP {
         verify(processScenario, times(2)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
         verify(processScenario, times(2)).hasCompleted("CallActivity_EX_GRATIA_RESPONSE_DRAFT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_SEND");
-//        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -374,9 +358,6 @@ public class COMP {
         whenAtCallActivity("COMP_MINORMISCONDUCT_SEND")
                 .thenReturn("CctDraftResult", "Send","Stage", "Stage1")
                 .deploy(rule);
-//        whenAtCallActivity("COMP_CLOSED")
-//                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
-//                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("COMP")
@@ -387,7 +368,6 @@ public class COMP {
         verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
         verify(processScenario, times(3)).hasCompleted("CallActivity_MM_DRAFT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_MM_SEND");
-//        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -413,9 +393,6 @@ public class COMP {
         whenAtCallActivity("COMP_MINORMISCONDUCT_SEND")
                 .thenReturn("CctDraftResult", "Send")
                 .deploy(rule);
-//        whenAtCallActivity("COMP_CLOSED")
-//                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
-//                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("COMP")
@@ -426,7 +403,6 @@ public class COMP {
         verify(processScenario, times(2)).hasCompleted("CallActivity_MM_TRIAGE");
         verify(processScenario, times(2)).hasCompleted("CallActivity_MM_DRAFT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_MM_SEND");
-//        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
