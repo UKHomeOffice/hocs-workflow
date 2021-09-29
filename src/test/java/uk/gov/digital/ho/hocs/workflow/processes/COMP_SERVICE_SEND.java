@@ -23,12 +23,12 @@ import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/COMP_SERVICE_SEND.bpmn", "processes/COMP_CLOSE.bpmn"})
+@Deployment(resources = "processes/COMP_SERVICE_SEND.bpmn")
 public class COMP_SERVICE_SEND {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(0.55).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -46,10 +46,6 @@ public class COMP_SERVICE_SEND {
 
     @Test
     public void testDefaultRoute() {
-
-        whenAtCallActivity("COMP_CLOSE")
-                .thenReturn("CloseResult", "Yes")
-                .deploy(rule);
 
         when(processScenario.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
