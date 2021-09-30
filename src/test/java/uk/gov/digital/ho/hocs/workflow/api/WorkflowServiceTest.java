@@ -228,58 +228,6 @@ public class WorkflowServiceTest {
     }
 
     @Test
-    public void createCase_whenHasOrganisationCorrespondentDetails() {
-
-        String expectedReference = "REFERENCE";
-        String expectedCountry = "United Kingdom";
-        String expectedEmail = "test@test.com";
-        String expectedFullname = "John Doe";
-        String expectedOrganisation = "A Large Organisation";
-        String expectedAddress1 = "Building";
-        String expectedAddress2 = "Street";
-        String expectedAddress3 = "Town Or City";
-        String expectedPostcode = "TE5 7ER";
-        String expectedTelephone = "01234567890";
-
-        String caseDataType = "FOI";
-        LocalDate dateReceived = LocalDate.EPOCH;
-        List<DocumentSummary> documents =  new ArrayList<>();
-        UUID userUUID = UUID.randomUUID();
-        UUID caseUUID = UUID.randomUUID();
-        Map<String, String> receivedData = new HashMap<>();
-        receivedData.put("Fullname", expectedFullname);
-        receivedData.put("Organisation", expectedOrganisation);
-        receivedData.put("Address1", expectedAddress1);
-        receivedData.put("Address2", expectedAddress2);
-        receivedData.put("Address3", expectedAddress3);
-        receivedData.put("Postcode", expectedPostcode);
-        receivedData.put("Telephone", expectedTelephone);
-        receivedData.put("Email", expectedEmail);
-        receivedData.put("Country", expectedCountry);
-        receivedData.put("Reference", expectedReference);
-        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null);
-
-
-        when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
-
-        CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID, null, receivedData);
-        assertThat(output.getUuid()).isNotNull();
-        verify(camundaClient, times(1)).startCase(any(), any(), any());
-        verify(caseworkClient, times(1)).saveCorrespondent(any(), any(), argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getFullname()).isEqualTo(expectedFullname);
-        assertThat(argumentCaptor.getValue().getOrganisation()).isEqualTo(expectedOrganisation);
-        assertThat(argumentCaptor.getValue().getAddress1()).isEqualTo(expectedAddress1);
-        assertThat(argumentCaptor.getValue().getAddress2()).isEqualTo(expectedAddress2);
-        assertThat(argumentCaptor.getValue().getAddress3()).isEqualTo(expectedAddress3);
-        assertThat(argumentCaptor.getValue().getPostcode()).isEqualTo(expectedPostcode);
-        assertThat(argumentCaptor.getValue().getTelephone()).isEqualTo(expectedTelephone);
-        assertThat(argumentCaptor.getValue().getEmail()).isEqualTo(expectedEmail);
-        assertThat(argumentCaptor.getValue().getCountry()).isEqualTo(expectedCountry);
-        assertThat(argumentCaptor.getValue().getReference()).isEqualTo(expectedReference);
-        caseworkClient.getCorrespondentsForCase(caseUUID);
-    }
-
-    @Test
     public void getCreateCaseRequest_WhenEntitylistDocuments() {
 
         List<SchemaDto> schemaDtos = setupTestSchemas();
