@@ -23,9 +23,6 @@ public class CreateCaseworkCorrespondentRequest {
     @JsonProperty(value = "fullname", required = true)
     String fullname;
 
-    @JsonProperty(value = "organisation")
-    String organisation;
-
     @JsonProperty("postcode")
     String postcode;
 
