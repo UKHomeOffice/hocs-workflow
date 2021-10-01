@@ -1,15 +1,20 @@
 package uk.gov.digital.ho.hocs.workflow.client.infoclient;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
+
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 
@@ -67,6 +72,21 @@ public class InfoClient {
         return teams;
     }
 
+    @Cacheable(value = "InfoClientGetStageType", unless = "#result == null", key = "#stageTypeUUID")
+    public StageTypeDto getStageType(UUID stageTypeUUID) {
+        StageTypeDto response = restHelper.get(serviceBaseURL, String.format("/stageType/%s", stageTypeUUID), StageTypeDto.class);
+        log.info("Got Stage Type stageTypeUID {}", response.getShortCode(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
+        return response;
+    }
+
+    @Cacheable(value = "InfoClientGetAllStageTypes", unless = "#result.size() == 0")
+    public Set<StageTypeDto> getAllStageTypes() {
+        Set<StageTypeDto> response = restHelper.get(serviceBaseURL,"/stageType",
+                new ParameterizedTypeReference<Set<StageTypeDto>>(){ });
+        log.info("Got {} Stage Types", response.size(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
+        return response;
+    }
+
     @Cacheable(value = "InfoClientGetTeam", unless = "#result == null", key = "#teamUUID")
     public TeamDto getTeam(UUID teamUUID) {
         TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/%s", teamUUID), TeamDto.class);
@@ -110,5 +130,10 @@ public class InfoClient {
         return caseDetailsFieldDtos;
     }
 
+    public Date calculateDeadline(String caseType, LocalDate startDate, int workingDays) {
+      LocalDate deadLineDate = restHelper.get(serviceBaseURL, String.format("/caseType/%s/deadline?received=%s&days=%s", caseType, startDate, workingDays), LocalDate.class);
+      log.info("Calculate deadline {} ", value(EVENT, INFO_CLIENT_CALCULATE_DEADLINE));
+      return Date.from(deadLineDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
 
 }

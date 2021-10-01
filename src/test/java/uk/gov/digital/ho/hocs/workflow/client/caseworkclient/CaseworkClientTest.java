@@ -6,8 +6,11 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
@@ -229,6 +232,29 @@ public class CaseworkClientTest {
         Optional<StageDto> optionalStageDto = caseworkClient.getActiveStage(caseUUID);
         assertThat(optionalStageDto.isEmpty());
         verify(restHelper).get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void addTopicToCase_shouldBuildPojoAndCallCaseworkService1Time() {
+
+        // GIVEN
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID topicUUID = UUID.randomUUID();
+        String resourcePath = String.format("/case/%s/stage/%s/topic", caseUUID, stageUUID);
+        ResponseEntity<Void> voidResponseEntity = new ResponseEntity<>(null, HttpStatus.OK);
+
+        ArgumentCaptor<CreateTopicRequest> createTopicRequestArgumentCaptor = ArgumentCaptor.forClass(CreateTopicRequest.class);
+
+        when(restHelper.post(anyString(), anyString(), createTopicRequestArgumentCaptor.capture(), any())).thenReturn(voidResponseEntity);
+
+        // WHEN
+        caseworkClient.addTopicToCase(caseUUID, stageUUID, topicUUID);
+
+        // THEN
+        assertThat(createTopicRequestArgumentCaptor.getValue().getTopicUUID()).isEqualTo(topicUUID);
+        verify(restHelper, times(1)).post(eq(caseServiceUrl), eq(resourcePath), any(), any());
         verifyNoMoreInteractions(restHelper);
     }
 }

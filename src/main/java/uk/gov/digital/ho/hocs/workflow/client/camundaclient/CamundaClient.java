@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -57,6 +58,12 @@ public class CamundaClient {
         String taskId = getTaskIdByBusinessKey(key);
         taskService.setVariables(taskId, new HashMap<>(data));
         log.info("Updated task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
+    }
+
+    public void removeTaskVariables(UUID key, String... keys) {
+        String taskId = getTaskIdByBusinessKey(key);
+        taskService.removeVariables(taskId, List.of(keys));
+        log.info("Removed task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
     }
 
 
