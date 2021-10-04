@@ -93,8 +93,8 @@
         <camunda:in source="DraftTeam" target="DraftTeam" />
         <camunda:out sourceExpression="${&#34;FOI_APPROVAL&#34;}" target="LastStage" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1mxj26x</bpmn:incoming>
       <bpmn:incoming>Flow_1k9m7ld</bpmn:incoming>
+      <bpmn:incoming>Flow_0gv61qu</bpmn:incoming>
       <bpmn:outgoing>Flow_1fmi7pj</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="FOI_DISPATCH" name="Dispatch" calledElement="STAGE">
@@ -136,19 +136,11 @@
     <bpmn:sequenceFlow id="Flow_05by1ku" name="yes" sourceRef="should_dispatch" targetRef="StickyCasesForClose">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ShouldDispatch == "ShouldDispatch-Y"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0gv61qu" name="no" sourceRef="should_dispatch" targetRef="return_to_which_stage">
+    <bpmn:sequenceFlow id="Flow_0gv61qu" name="no" sourceRef="should_dispatch" targetRef="FOI_APPROVAL">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ShouldDispatch == "ShouldDispatch-N"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0518pxg" sourceRef="FOI_SOFT_CLOSE" targetRef="Gateway_0g5ob46" />
     <bpmn:sequenceFlow id="Flow_1fmi7pj" sourceRef="FOI_APPROVAL" targetRef="StickyCasesForDispatch" />
-    <bpmn:exclusiveGateway id="return_to_which_stage" name="Return to which stage?">
-      <bpmn:incoming>Flow_0gv61qu</bpmn:incoming>
-      <bpmn:outgoing>Flow_1mxj26x</bpmn:outgoing>
-      <bpmn:outgoing>draft</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1mxj26x" name="Return to Approval" sourceRef="return_to_which_stage" targetRef="FOI_APPROVAL">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${LastStage == "PO_APPROVAL"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:callActivity id="FOI_SOFT_CLOSE" name="Soft Close" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in businessKey="#{execution.processBusinessKey}" />
@@ -282,14 +274,10 @@
         <camunda:in source="AcceptanceTeam" target="AcceptanceTeam" />
         <camunda:out sourceExpression="${&#34;FOI_DRAFT&#34;}" target="LastStage" />
       </bpmn:extensionElements>
-      <bpmn:incoming>draft</bpmn:incoming>
       <bpmn:incoming>case_accepted</bpmn:incoming>
       <bpmn:outgoing>Flow_16ywbnx</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_16ywbnx" sourceRef="FOI_DRAFT" targetRef="StickyCasesForApproval" />
-    <bpmn:sequenceFlow id="draft" name="Return to Consider and Draft" sourceRef="return_to_which_stage" targetRef="FOI_DRAFT">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${LastStage == "DRAFT"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="case_accepted" name="yes" sourceRef="is_case_accepted" targetRef="FOI_DRAFT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${AcceptCase=="Y"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -311,14 +299,6 @@
         <di:waypoint x="1200" y="338" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1118" y="321" width="18" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1upetim_di" bpmnElement="draft" bioc:stroke="black" bioc:fill="white">
-        <di:waypoint x="2091" y="172" />
-        <di:waypoint x="1250" y="172" />
-        <di:waypoint x="1250" y="298" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1627" y="130" width="66" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_16ywbnx_di" bpmnElement="Flow_16ywbnx">
@@ -377,14 +357,6 @@
           <dc:Bounds x="2384" y="70" width="72" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1mxj26x_di" bpmnElement="Flow_1mxj26x">
-        <di:waypoint x="2091" y="172" />
-        <di:waypoint x="1698" y="172" />
-        <di:waypoint x="1698" y="298" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1907" y="188" width="46" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1fmi7pj_di" bpmnElement="Flow_1fmi7pj">
         <di:waypoint x="1748" y="338" />
         <di:waypoint x="1790" y="338" />
@@ -395,7 +367,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0gv61qu_di" bpmnElement="Flow_0gv61qu">
         <di:waypoint x="2116" y="313" />
-        <di:waypoint x="2116" y="197" />
+        <di:waypoint x="2116" y="172" />
+        <di:waypoint x="1698" y="172" />
+        <di:waypoint x="1698" y="298" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2125" y="255" width="13" height="14" />
         </bpmndi:BPMNLabel>
@@ -463,12 +437,6 @@
         <dc:Bounds x="2091" y="313" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2077" y="370" width="79" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_04z0ecf_di" bpmnElement="return_to_which_stage" isMarkerVisible="true" bioc:stroke="black" bioc:fill="white">
-        <dc:Bounds x="2091" y="147" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2131" y="136" width="77" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0s3wvir_di" bpmnElement="FOI_SOFT_CLOSE">

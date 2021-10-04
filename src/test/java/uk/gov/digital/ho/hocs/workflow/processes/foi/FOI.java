@@ -413,104 +413,17 @@ public class FOI {
     }
 
     @Test
-    @Ignore // todo: remove as in tickets HOCS-3838 & HOCS-3839, this possibility should no longer arise
-    public void caseRejectedAtDispatchReturnToDraft() {
-
-        whenAtCallActivity(CASE_CREATION_ACTIVITY)
-                .thenReturn("RequestValidity", "RequestValid-Y")
-                .deploy(rule);
-
-        whenAtCallActivity(ALLOCATION_ACTIVITY)
-                .deploy(rule);
-
-        whenAtCallActivity(ACCEPTANCE_ACTIVITY)
-                .thenReturn("AcceptCase", "N")
-                .thenReturn("AcceptCase", "Y")
-                .deploy(rule);
-
-        whenAtCallActivity(DRAFT_ACTIVITY)
-                .deploy(rule);
-
-        whenAtCallActivity(APPROVAL_ACTIVITY)
-                .deploy(rule);
-
-        whenAtCallActivity(DISPATCH_ACTIVITY)
-                .alwaysReturn("ShouldDispatch", "ShouldDispatch-Y")
-                .deploy(rule);
-
-        whenAtCallActivity(SOFT_CLOSE_ACTIVITY)
-                .thenReturn("ForceClose", "true")
-                .deploy(rule);
-
-        Scenario.run(FOIProcess)
-                .startByKey("FOI")
-                .execute();
-
-        verify(FOIProcess, times(1))
-                .hasCompleted("FOI_START");
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(CASE_CREATION_ACTIVITY);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(IS_CASE_VALID_GATE);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(STICKY_CASES_FOR_ALLOCATION);
-
-        verify(FOIProcess, times(2))
-                .hasCompleted(ALLOCATION_ACTIVITY);
-
-        verify(FOIProcess, times(2))
-                .hasCompleted(ACCEPTANCE_ACTIVITY);
-
-        verify(FOIProcess, times(2))
-                .hasCompleted(IS_CASE_ACCEPTED_GATE);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(DRAFT_ACTIVITY);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(STICKY_CASES_FOR_APPROVAL);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(APPROVAL_ACTIVITY);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(STICKY_CASES_FOR_DISPATCH);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(DISPATCH_ACTIVITY);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(SHOULD_DISPATCH_GATE);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(STICKY_CASES_FOR_CLOSE);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(STICKY_CASES_FOR_NON_VALID_CLOSE);
-
-        verify(FOIProcess, times(1))
-                .hasCompleted(SOFT_CLOSE_ACTIVITY);
-
-        verify(bpmnService).completeCase(any());
-    }
-
-    @Test
-    @Ignore // todo: remove as in tickets HOCS-3838 & HOCS-3839, this possibility should no longer arise
     public void caseRejectedAtDispatchReturnToApproval() {
 
         whenAtCallActivity(CASE_CREATION_ACTIVITY)
-                .thenReturn("RequestValidity", "RequestValid-Y")
+                .alwaysReturn("RequestValidity", "RequestValid-Y")
                 .deploy(rule);
 
         whenAtCallActivity(ALLOCATION_ACTIVITY)
                 .deploy(rule);
 
         whenAtCallActivity(ACCEPTANCE_ACTIVITY)
-                .thenReturn("AcceptCase", "N")
-                .thenReturn("AcceptCase", "Y")
+                .alwaysReturn("AcceptCase", "Y")
                 .deploy(rule);
 
         whenAtCallActivity(DRAFT_ACTIVITY)
@@ -520,11 +433,15 @@ public class FOI {
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH_ACTIVITY)
-                .alwaysReturn("ShouldDispatch", "ShouldDispatch-Y")
+                .thenReturn("ShouldDispatch", "ShouldDispatch-N")
+                .thenReturn("ShouldDispatch", "ShouldDispatch-Y")
                 .deploy(rule);
 
         whenAtCallActivity(SOFT_CLOSE_ACTIVITY)
                 .thenReturn("ForceClose", "true")
+                .deploy(rule);
+
+        whenAtCallActivity(COMPLETE_CASE)
                 .deploy(rule);
 
         Scenario.run(FOIProcess)
@@ -543,13 +460,13 @@ public class FOI {
         verify(FOIProcess, times(1))
                 .hasCompleted(STICKY_CASES_FOR_ALLOCATION);
 
-        verify(FOIProcess, times(2))
+        verify(FOIProcess, times(1))
                 .hasCompleted(ALLOCATION_ACTIVITY);
 
-        verify(FOIProcess, times(2))
+        verify(FOIProcess, times(1))
                 .hasCompleted(ACCEPTANCE_ACTIVITY);
 
-        verify(FOIProcess, times(2))
+        verify(FOIProcess, times(1))
                 .hasCompleted(IS_CASE_ACCEPTED_GATE);
 
         verify(FOIProcess, times(1))
@@ -558,26 +475,29 @@ public class FOI {
         verify(FOIProcess, times(1))
                 .hasCompleted(STICKY_CASES_FOR_APPROVAL);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(APPROVAL_ACTIVITY);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(STICKY_CASES_FOR_DISPATCH);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(DISPATCH_ACTIVITY);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(2))
                 .hasCompleted(SHOULD_DISPATCH_GATE);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(STICKY_CASES_FOR_CLOSE);
 
-        verify(FOIProcess, times(1))
+        verify(FOIProcess, times(0))
                 .hasCompleted(STICKY_CASES_FOR_NON_VALID_CLOSE);
 
         verify(FOIProcess, times(1))
                 .hasCompleted(SOFT_CLOSE_ACTIVITY);
+
+        verify(FOIProcess, times(1))
+                .hasCompleted(COMPLETE_CASE);
 
         verify(bpmnService).completeCase(any());
     }
