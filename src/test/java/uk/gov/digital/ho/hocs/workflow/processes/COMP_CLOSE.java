@@ -50,12 +50,10 @@ public class COMP_CLOSE {
     public void testDefaultRoute() {
 
         when(processScenario.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CompleteResult", "Yes", "CaseNote_CompleteReason","Complete")));
 
         Scenario.run(processScenario).startByKey("COMP_CLOSE").execute();
 
-        verify(processScenario, times(2)).hasCompleted("Activity_061cyps");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Complete"), eq("CLOSE"));
 
 
