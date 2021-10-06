@@ -30,7 +30,7 @@ public class COMP_CLOSE {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(0.55).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -50,7 +50,7 @@ public class COMP_CLOSE {
     public void testDefaultRoute() {
 
         when(processScenario.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CompleteResult", "Yes", "CaseNote_CompleteReason","Complete")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "CaseNote_CompleteReason","Complete")));
 
         Scenario.run(processScenario).startByKey("COMP_CLOSE").execute();
 

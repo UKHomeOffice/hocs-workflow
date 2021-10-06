@@ -164,9 +164,6 @@ public class COMP {
         whenAtCallActivity("COMP_SERVICE_SEND")
                 .thenReturn("CctDraftResult", "Send","Stage", "Stage1")
                 .deploy(rule);
-//        whenAtCallActivity("COMP_CLOSED")
-//                .thenReturn("ClosedCompType", "Complete","Stage", "Stage1")
-//                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("COMP")
@@ -178,7 +175,6 @@ public class COMP {
         verify(processScenario, times(2)).hasCompleted("CallActivity_COMP_SERVICE_DRAFT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_ESCALATE");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_SEND");
-//        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CLOSED");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
