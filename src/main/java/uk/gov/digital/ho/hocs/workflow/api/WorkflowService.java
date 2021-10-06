@@ -77,6 +77,7 @@ public class WorkflowService {
             correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
                     .type("FOI Requester")
                     .fullname(data.get("Fullname"))
+                    .organisation(data.get("Organisation"))
                     .postcode(data.get("Postcode"))
                     .address1(data.get("Address1"))
                     .address2(data.get("Address2"))
@@ -88,6 +89,7 @@ public class WorkflowService {
                     .build();
 
             data.remove("Fullname");
+            data.remove("Organisation");
             data.remove("Postcode");
             data.remove("Address1");
             data.remove("Address2");
