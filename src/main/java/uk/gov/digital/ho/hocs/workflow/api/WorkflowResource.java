@@ -37,7 +37,7 @@ class WorkflowResource {
     @Authorised(accessLevel = AccessLevel.OWNER)
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
-        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments(), userUUID, request.getFromCaseUUID());
+        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments(), userUUID, request.getFromCaseUUID(), request.getData());
         return ResponseEntity.ok(response);
     }
 
@@ -45,7 +45,7 @@ class WorkflowResource {
     @PostMapping(value = "/case/bulk", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
         List<DocumentSummary> list = request.getDocuments();
-        list.forEach( (documentSummary) -> workflowService.createCase(request.getType(), request.getDateReceived(), Collections.singletonList(documentSummary), userUUID, null));
+        list.forEach( (documentSummary) -> workflowService.createCase(request.getType(), request.getDateReceived(), Collections.singletonList(documentSummary), userUUID, null, request.getData()));
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }
 

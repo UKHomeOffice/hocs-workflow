@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +20,9 @@ public class CreateCaseRequest implements CreateCaseRequestInterface {
 
     @JsonProperty("dateReceived")
     private LocalDate dateReceived;
+
+    @JsonProperty("data")
+    private Map<String, String> data;
 
     @JsonProperty("documents")
     private List<DocumentSummary> documents;

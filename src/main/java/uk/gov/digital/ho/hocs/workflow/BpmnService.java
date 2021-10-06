@@ -1,5 +1,10 @@
 package uk.gov.digital.ho.hocs.workflow;
 
+import java.text.SimpleDateFormat;
+import java.time.Clock;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,14 +16,18 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCase
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
+import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.time.LocalTime.now;
 
 @Service
 @Slf4j
@@ -27,14 +36,18 @@ public class BpmnService {
     private final CaseworkClient caseworkClient;
     private final CamundaClient camundaClient;
     private final InfoClient infoClient;
+    private final Clock clock;
+
 
     @Autowired
     public BpmnService(CaseworkClient caseworkClient,
                        CamundaClient camundaClient,
-                       InfoClient infoClient) {
+                       InfoClient infoClient,
+                       Clock clock) {
         this.caseworkClient = caseworkClient;
         this.camundaClient = camundaClient;
         this.infoClient = infoClient;
+        this.clock = clock;
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String allocationType, String allocationTeamString) {
@@ -165,6 +178,14 @@ public class BpmnService {
 
         log.info("Case {} has primary correspondent type {} : {}", caseUUIDString, type, validPrimaryCorrespondent);
         return validPrimaryCorrespondent;
+    }
+
+    public void addTopicToCase(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID topicUUID = UUID.fromString(topicUUIDString);
+
+        caseworkClient.addTopicToCase(caseUUID, stageUUID, topicUUID);
     }
 
     public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
@@ -302,6 +323,13 @@ public class BpmnService {
         }
     }
 
+    public void saveTodaysDateToCaseVariable(String caseUUIDString, String stageUUIDString, String destination) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String todaysDateFormatted = simpleDateFormat.format(Date.from(clock.instant()));
+
+        updateCaseValue(caseUUIDString, stageUUIDString, destination, todaysDateFormatted);
+    }
+
     public void updateCaseValue(String caseUUIDString, String stageUUIDString, String... argPairs) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
@@ -311,7 +339,6 @@ public class BpmnService {
         if (!CollectionUtils.isEmpty(data)) {
             caseworkClient.updateCase(caseUUID, stageUUID, data);
         }
-
     }
 
     private Map<String, String> parseArgPairs(String... argPairs) {
@@ -347,6 +374,60 @@ public class BpmnService {
         log.debug("######## Save Allocation Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
         log.info("Adding Casenote to Case: {}", caseUUIDString);
+    }
+
+    /**
+     *
+     * @param caseUUIDString The UUID string for the case that is being updated
+     * @param stageUUIDString
+     * @param allocationNote the content of the allocation note
+     * @param allocationNoteType The type of allocation note, usually REJECT or ALLOCATE
+     * @param newTeamUUID The destination of the allocation
+     * @param allocationStageUUID The stage at which the allocation request was made
+     */
+    public void updateAllocationNoteWithDetails(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType,
+                                                String newTeamUUID, String allocationStageUUID ) {
+
+        NoteDetails noteDetails = fetchNoteDetails(caseUUIDString, allocationStageUUID);
+
+        if (allocationNoteType.equals("ALLOCATE")){
+            String newTeamName = infoClient.getTeam(UUID.fromString(newTeamUUID)).getDisplayName();
+            allocationNote = noteDetails.getOldTeamName() + " allocated case to " + newTeamName + " at " +
+                    noteDetails.getStageTypeDto().getDisplayName() + " stage: " + allocationNote;
+        } else {
+            allocationNote = noteDetails.getOldTeamName() + " rejected case at " +
+                    noteDetails.getStageTypeDto().getDisplayName() + " stage: " + allocationNote;
+        }
+
+        log.debug("######## Save Allocation Note ########");
+        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
+        log.info("Adding Casenote to Case: {}", caseUUIDString);
+    }
+
+    public void createAllocationDetailsNote(String caseUUIDString, String newTeamUUID, String allocationStageUUID) {
+
+        log.debug("Request received to add Allocation details note to Case: {}", caseUUIDString);
+
+        NoteDetails noteDetails = fetchNoteDetails(caseUUIDString, allocationStageUUID);
+        String newTeamName = infoClient.getTeam(UUID.fromString(newTeamUUID)).getDisplayName();
+
+        String allocationDetailsNote = noteDetails.getOldTeamName() +
+                " allocated case to " + newTeamName + " at " + noteDetails.getStageTypeDto().getDisplayName() + " stage.";
+
+        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), NoteType.ALLOCATE.toString(), allocationDetailsNote);
+        log.info("Added Allocation Details case note to Case: {}", caseUUIDString);
+    }
+
+    /**
+     * Sets the specified variables to empty strings in Casework and removes them from Workflow
+     * @param caseUUIDString the case UUID as a String
+     * @param stageUUIDString the stage UUID as a String
+     * @param variables the variables to wipe
+     */
+    public void wipeVariables(String caseUUIDString, String stageUUIDString, String... variables) {
+        log.debug("######## Reject/Deallocate Case ########");
+        blankCaseValues(caseUUIDString,stageUUIDString, variables);
+        camundaClient.removeTaskVariables(UUID.fromString(stageUUIDString), variables);
     }
 
     public void createCaseNote(String caseUUIDString, String caseNote, String caseNoteType) {
@@ -435,4 +516,38 @@ public class BpmnService {
         caseworkClient.updateStageUser(caseUUID, stageUUID, null);
     }
 
+    public void allocateUserToStage(String caseUUIDString, String stageUUIDString, String userUUIDString) {
+        
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID userUUID = UUID.fromString(userUUIDString);
+
+        log.debug("Allocating user {}, to stage {} for case {}", userUUID, stageUUID, caseUUID);
+
+        caseworkClient.updateStageUser(caseUUID, stageUUID, userUUID);
+    }
+
+    public Date calculateDeadline(String caseType, int workingDays) {
+        LocalDate startDate = LocalDate.now(clock);
+        return infoClient.calculateDeadline(caseType, startDate, workingDays);
+    }
+
+    private NoteDetails fetchNoteDetails(String caseUUIDString, String allocationStageUUID) {
+        String oldTeamName = infoClient.getTeam(caseworkClient.getStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID))).getDisplayName();
+        String caseworkStageType = caseworkClient.getStageType(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID));
+        StageTypeDto stageTypeDto = infoClient.getAllStageTypes()
+                .stream()
+                .filter(st -> st.getType().equals(caseworkStageType))
+                .findFirst()
+                .get();
+
+        return new NoteDetails(oldTeamName, stageTypeDto);
+    }
+
+    @AllArgsConstructor
+    @Getter
+    private static class NoteDetails {
+        private final String oldTeamName;
+        private final StageTypeDto stageTypeDto;
+    }
 }

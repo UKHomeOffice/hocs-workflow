@@ -1,20 +1,29 @@
 package uk.gov.digital.ho.hocs.workflow;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateTopicRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
+import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -36,6 +45,9 @@ public class BpmnServiceTest {
     @Mock
     private InfoClient infoClient;
 
+    @Mock
+    private Clock clock;
+
     private BpmnService bpmnService;
 
     private final String caseUUID = UUID.randomUUID().toString();
@@ -46,7 +58,7 @@ public class BpmnServiceTest {
 
     @Before
     public void setup() {
-        bpmnService = new BpmnService(caseworkClient, camundaClient, infoClient);
+        bpmnService = new BpmnService(caseworkClient, camundaClient, infoClient, clock);
     }
 
     @Test
@@ -598,6 +610,25 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void should_wipeVariables() {
+        UUID caseUuid = UUID.randomUUID();
+        UUID stageUuid = UUID.randomUUID();
+
+        bpmnService.wipeVariables(caseUuid.toString(), stageUuid.toString(), "key1", "key2", "key3");
+
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        verify(caseworkClient).updateCase(eq(caseUuid), eq(stageUuid), valueCapture.capture());
+        verify(camundaClient).removeTaskVariables(eq(stageUuid),  eq("key1"), eq("key2"), eq("key3"));
+
+        assertThat(valueCapture.getValue().size()).isEqualTo(3);
+        assertThat(valueCapture.getValue().keySet()).containsOnly("key1", "key2", "key3");
+        assertThat(valueCapture.getValue().values()).containsOnly("");
+
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
+
+    @Test
     public void updateCount_zeroValue() {
         String variableName = "testVariableName";
         int additive = 1;
@@ -672,4 +703,114 @@ public class BpmnServiceTest {
         assertThat(valueCapture.getValue()).isEqualTo(testCaseNote);
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
+
+    @Test
+    public void shouldCalculateDeadline() {
+
+        //given
+        String caseType = "FOI";
+        int workingDays = 2;
+        LocalDate localDate = LocalDate.of(1989, 01, 13);
+        Clock fixedClock = Clock.fixed(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+        doReturn(fixedClock.instant()).when(clock).instant();
+        doReturn(fixedClock.getZone()).when(clock).getZone();
+        Date dateReturnedByInfo = mock(Date.class);
+        when(infoClient.calculateDeadline(caseType, localDate, workingDays)).thenReturn(dateReturnedByInfo);
+
+        //when
+        Date date = bpmnService.calculateDeadline(caseType, workingDays);
+
+        //then
+        assertThat(date).isEqualTo(dateReturnedByInfo);
+    }
+
+    @Test
+    public void shouldAllocateUserToStage() {
+
+        UUID caseUUID  = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID userUUID = UUID.randomUUID();
+
+        bpmnService.allocateUserToStage(caseUUID.toString(), stageUUID.toString(), userUUID.toString());
+
+        verify(caseworkClient, times(1)).updateStageUser(caseUUID, stageUUID, userUUID);
+        verify(caseworkClient).updateStageUser(eq(caseUUID), eq(stageUUID), eq(userUUID));
+
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
+
+    @Test
+    public void shouldSetTodaysDate() {
+        LocalDate localDate = LocalDate.of(1989, 01, 13);
+        Clock fixedClock = Clock.fixed(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
+        doReturn(fixedClock.instant()).when(clock).instant();
+
+        UUID caseUUID  = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+
+        ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
+
+        bpmnService.saveTodaysDateToCaseVariable(caseUUID.toString(), stageUUID.toString(), "destination");
+
+        verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), valueCapture.capture());
+        assertThat(valueCapture.getValue().size()).isEqualTo(1);
+        assertThat(valueCapture.getValue().keySet()).contains("destination");
+        assertThat(valueCapture.getValue().values()).contains("1989-01-13");
+        verifyZeroInteractions(caseworkClient);
+        verifyZeroInteractions(camundaClient);
+        verifyZeroInteractions(infoClient);
+    }
+
+    @Test
+    public void shouldAddCaseNoteOfAllocationDetails() {
+        // GIVEN
+        String testAllocationStageUUID = "1b61dc8b-6843-4d5d-9828-7a82be5f475b";
+        String testNewTeamUUID = "833de531-446e-47c3-b021-691711f093ee";
+        String testCaseUUID = "470852ed-654e-4974-b4e4-f255f470beb0";
+        UUID mockCaseworkClientTeamResponse = UUID.randomUUID();
+        String mockExistingTeamNameResponse = "MOCK EXISTING TEAM";
+        String mockNewTeamNameResponse = "MOCK NEW TEAM NAME";
+        TeamDto mockInfoClientExistingTeamResponse = new TeamDto(mockExistingTeamNameResponse, null, true, null);
+        TeamDto mockInfoClientNewTeamResponse = new TeamDto(mockNewTeamNameResponse, null, true, null);
+
+        String mockCaseWorkType = "test_type";
+        StageTypeDto mockStageDtoResponse = new StageTypeDto(null, null, "MOCK STAGE NAME", mockCaseWorkType, null);
+
+        when(caseworkClient.getStageTeam(UUID.fromString(testCaseUUID), UUID.fromString(testAllocationStageUUID))).thenReturn(mockCaseworkClientTeamResponse);
+        when(infoClient.getTeam(mockCaseworkClientTeamResponse)).thenReturn(mockInfoClientExistingTeamResponse);
+        when(caseworkClient.getStageType(UUID.fromString(testCaseUUID), UUID.fromString(testAllocationStageUUID))).thenReturn(mockCaseWorkType);
+        when(infoClient.getAllStageTypes()).thenReturn(Set.of(mockStageDtoResponse));
+        when(infoClient.getTeam(UUID.fromString(testNewTeamUUID))).thenReturn(mockInfoClientNewTeamResponse);
+
+        String expectedCaseNote = mockExistingTeamNameResponse +
+                " allocated case to " + mockNewTeamNameResponse + " at " + mockStageDtoResponse.getDisplayName() + " stage.";
+
+        // WHEN
+        bpmnService.createAllocationDetailsNote(testCaseUUID, testNewTeamUUID, testAllocationStageUUID);
+
+        // THEN
+        verify(caseworkClient, times(1)).createCaseNote(UUID.fromString(testCaseUUID), NoteType.ALLOCATE.toString(), expectedCaseNote);
+    }
+
+    @Test
+    public void shouldCallCaseworkToAddTopicToCase() {
+
+        //GIVEN
+        UUID expectedCaseUUID = UUID.randomUUID();
+        UUID expectedStageUUID = UUID.randomUUID();
+        UUID expectedTopicUUID = UUID.randomUUID();
+        String caseUUID = expectedCaseUUID.toString();
+        String stageUUID = expectedStageUUID.toString();
+        String topicUUID = expectedTopicUUID.toString();
+
+        // WHEN
+        bpmnService.addTopicToCase(caseUUID, stageUUID, topicUUID);
+
+        // THEN
+        verify(caseworkClient, times(1)).addTopicToCase(eq(expectedCaseUUID), eq(expectedStageUUID), eq(expectedTopicUUID));
+        verifyNoMoreInteractions(caseworkClient);
+        verifyZeroInteractions(infoClient);
+        verifyZeroInteractions(camundaClient);
+    }
+
 }
