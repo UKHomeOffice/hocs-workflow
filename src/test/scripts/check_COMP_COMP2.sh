@@ -7,6 +7,10 @@ do
   # Get a COMP2 equivalent
   comp2file=`echo $f | sed 's/COMP_/COMP2_/g'`
 
+  if [ "$comp2file" == "$1" ]; then
+    comp2file=`echo $1 | sed 's/COMP/COMP2/g'`
+  fi
+
   # Build the diff output filename
   diffImage=`echo "$(basename $f)-$(basename $comp2file).diff" | sed 's/\.bpmn//g'`
   rm -f diff.tmp
