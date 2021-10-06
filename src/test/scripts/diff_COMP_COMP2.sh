@@ -36,5 +36,5 @@ fi
 
 diffImage=`echo "$(basename $1)-$(basename $comp2file).diff" | sed 's/\.bpmn//g'`
 
-diff $1 $comp2file > $2/$diffImage
+diff --strip-trailing-cr $1 $comp2file > $2/$diffImage
 echo "Created $2/$diffImage"

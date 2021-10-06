@@ -15,7 +15,7 @@ do
   diffImage=`echo "$(basename $f)-$(basename $comp2file).diff" | sed 's/\.bpmn//g'`
   rm -f diff.tmp
   echo "Checking $f $comp2file...\c"
-  diff $f $comp2file > diff.tmp
+  diff --strip-trailing-cr $f $comp2file > diff.tmp
   diff -b diff.tmp $2/$diffImage
   exitCode=$?
   rm -f diff.tmp
