@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.processes;
+package uk.gov.digital.ho.hocs.workflow.processes.foi;
 
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;

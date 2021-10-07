@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.processes;
+package uk.gov.digital.ho.hocs.workflow.processes.foi;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.eq;
