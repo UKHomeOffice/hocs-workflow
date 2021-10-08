@@ -31,11 +31,11 @@
     <bpmn:boundaryEvent id="Event_0flqj0g" attachedToRef="ACCEPT_OR_REJECT">
       <bpmn:outgoing>Flow_1bprjjp</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0nleprb">
-        <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${ACCEPTANCE_DEADLINE}</bpmn:timeDate>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${ACCEPTANCE_DEADLINE}</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="Flow_1bprjjp" sourceRef="Event_0flqj0g" targetRef="DEADLINE_PASSED" />
-    <bpmn:sequenceFlow id="Flow_06i32v8" sourceRef="DEADLINE_PASSED" targetRef="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED" />
+    <bpmn:sequenceFlow id="Flow_06i32v8" sourceRef="DEADLINE_PASSED" targetRef="SET_ACCEPTED" />
     <bpmn:serviceTask id="CALCULATE_ACCEPTANCE_DEADLINE" name="Calculate Acceptance Deadline" camunda:expression="${bpmnService.calculateDeadline(&#39;FOI&#39;, 2)}" camunda:resultVariable="ACCEPTANCE_DEADLINE">
       <bpmn:incoming>Flow_1w23xmd</bpmn:incoming>
       <bpmn:outgoing>Flow_12m1o51</bpmn:outgoing>
@@ -68,7 +68,7 @@
       <bpmn:outgoing>Flow_1w23xmd</bpmn:outgoing>
       <bpmn:outgoing>Flow_0tfq7wl</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1w23xmd" name="yes" sourceRef="has_case_returned_from_draft_acceptance" targetRef="CALCULATE_ACCEPTANCE_DEADLINE">
+    <bpmn:sequenceFlow id="Flow_1w23xmd" sourceRef="has_case_returned_from_draft_acceptance" targetRef="CALCULATE_ACCEPTANCE_DEADLINE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.getVariable('AcceptanceDate') == null}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0tfq7wl" name="no" sourceRef="has_case_returned_from_draft_acceptance" targetRef="CHOOSE_DRAFT_TEAM_NO_BACK">
@@ -105,7 +105,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED" name="Set Acceptance Date" camunda:expression="${now()}" camunda:resultVariable="AcceptanceDate">
-      <bpmn:incoming>Flow_06i32v8</bpmn:incoming>
+      <bpmn:incoming>Flow_0vf1kiz</bpmn:incoming>
       <bpmn:outgoing>Flow_02cqwfu</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="CHOOSE_DRAFT_TEAM_NO_BACK" name="Choose Drafting Team No Back Button" camunda:formKey="FOI_ACCEPTANCE_DRAFT_TEAM_SELECTION_NO_BACK">
@@ -115,6 +115,11 @@
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_014l0wj" sourceRef="CHOOSE_DRAFT_TEAM_NO_BACK" targetRef="ALLOCATE_TO_DRAFT_TEAM" />
     <bpmn:sequenceFlow id="Flow_02cqwfu" sourceRef="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED" targetRef="CHOOSE_DRAFT_TEAM_NO_BACK" />
+    <bpmn:serviceTask id="SET_ACCEPTED" name="Set Accepted" camunda:expression="Y" camunda:resultVariable="AcceptCase">
+      <bpmn:incoming>Flow_06i32v8</bpmn:incoming>
+      <bpmn:outgoing>Flow_0vf1kiz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0vf1kiz" sourceRef="SET_ACCEPTED" targetRef="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_ACCEPTANCE">
@@ -137,11 +142,11 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tfq7wl_di" bpmnElement="Flow_0tfq7wl">
         <di:waypoint x="290" y="305" />
-        <di:waypoint x="290" y="530" />
-        <di:waypoint x="1000" y="530" />
-        <di:waypoint x="1000" y="480" />
+        <di:waypoint x="290" y="520" />
+        <di:waypoint x="1070" y="520" />
+        <di:waypoint x="1070" y="470" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="639" y="512" width="13" height="14" />
+          <dc:Bounds x="674" y="502" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1w23xmd_di" bpmnElement="Flow_1w23xmd">
@@ -183,12 +188,12 @@
         <di:waypoint x="265" y="280" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_06i32v8_di" bpmnElement="Flow_06i32v8">
-        <di:waypoint x="653" y="440" />
-        <di:waypoint x="810" y="440" />
+        <di:waypoint x="653" y="430" />
+        <di:waypoint x="720" y="430" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1bprjjp_di" bpmnElement="Flow_1bprjjp">
         <di:waypoint x="603" y="338" />
-        <di:waypoint x="603" y="400" />
+        <di:waypoint x="603" y="390" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ax0fmd_di" bpmnElement="Flow_0ax0fmd">
         <di:waypoint x="1050" y="280" />
@@ -209,13 +214,17 @@
         <di:waypoint x="603" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_014l0wj_di" bpmnElement="Flow_014l0wj">
-        <di:waypoint x="1050" y="440" />
-        <di:waypoint x="1250" y="440" />
-        <di:waypoint x="1250" y="320" />
+        <di:waypoint x="1120" y="430" />
+        <di:waypoint x="1230" y="430" />
+        <di:waypoint x="1230" y="320" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_02cqwfu_di" bpmnElement="Flow_02cqwfu">
-        <di:waypoint x="910" y="440" />
-        <di:waypoint x="950" y="440" />
+        <di:waypoint x="990" y="430" />
+        <di:waypoint x="1020" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vf1kiz_di" bpmnElement="Flow_0vf1kiz">
+        <di:waypoint x="820" y="430" />
+        <di:waypoint x="890" y="430" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="START_FOI_ACCEPTANCE">
         <dc:Bounds x="172" y="262" width="36" height="36" />
@@ -228,9 +237,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0li7pgk_di" bpmnElement="CHOOSE_DRAFT_TEAM">
         <dc:Bounds x="950" y="240" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1bfgolq_di" bpmnElement="DEADLINE_PASSED">
-        <dc:Bounds x="553" y="400" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ic873f_di" bpmnElement="CALCULATE_ACCEPTANCE_DEADLINE">
         <dc:Bounds x="396" y="240" width="100" height="80" />
@@ -274,11 +280,17 @@
       <bpmndi:BPMNShape id="Activity_1h6qqi4_di" bpmnElement="CLEAR_REJECTED">
         <dc:Bounds x="1330" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0zcpctt_di" bpmnElement="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED">
-        <dc:Bounds x="810" y="400" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_1bfgolq_di" bpmnElement="DEADLINE_PASSED">
+        <dc:Bounds x="553" y="390" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1vr5rlz_di" bpmnElement="CHOOSE_DRAFT_TEAM_NO_BACK">
-        <dc:Bounds x="950" y="400" width="100" height="80" />
+        <dc:Bounds x="1020" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zcpctt_di" bpmnElement="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED">
+        <dc:Bounds x="890" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0scg81e_di" bpmnElement="SET_ACCEPTED">
+        <dc:Bounds x="720" y="390" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0bge9re_di" bpmnElement="Event_0flqj0g">
         <dc:Bounds x="585" y="302" width="36" height="36" />
