@@ -5,11 +5,15 @@ import java.time.Clock;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
@@ -23,6 +27,7 @@ import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,17 +42,19 @@ public class BpmnService {
     private final CamundaClient camundaClient;
     private final InfoClient infoClient;
     private final Clock clock;
-
+    private final WorkflowService workflowService;
 
     @Autowired
     public BpmnService(CaseworkClient caseworkClient,
                        CamundaClient camundaClient,
                        InfoClient infoClient,
-                       Clock clock) {
+                       Clock clock,
+                       WorkflowService workflowService) {
+        this.clock = clock;
         this.caseworkClient = caseworkClient;
         this.camundaClient = camundaClient;
         this.infoClient = infoClient;
-        this.clock = clock;
+        this.workflowService = workflowService;
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String allocationType, String allocationTeamString) {
@@ -80,6 +87,20 @@ public class BpmnService {
         }
 
         return resultStageUUID;
+    }
+
+    public void createCase(@NotNull String caseType, @NotNull String dateReceived, @NotNull String fromCaseUUID) {
+        UUID caseUuid = UUID.fromString(fromCaseUUID);
+        GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUuid);
+        Map<String, String> data = caseData.getData();
+        String userUUID = data.get("LastUpdatedByUserUUID");
+        CreateCaseResponse response = workflowService.createCase(caseType, LocalDate.parse(dateReceived), null, UUID.fromString(userUUID), caseUuid, data);
+
+        if (response.getUuid() != null) {
+            log.info("Creating case for caseType {} from caseUUID {}", caseType, fromCaseUUID);
+        } else {
+            log.error("Failed creating case for caseType {} from caseUUID {}", caseType, fromCaseUUID);
+        }
     }
 
     public void completeStage(String caseUUIDString, String stageUUIDString) {

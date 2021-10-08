@@ -2,10 +2,10 @@ package uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @AllArgsConstructor()
 @NoArgsConstructor
+@Data
 @Getter
 public class GetCaseworkCaseDataResponse {
 
