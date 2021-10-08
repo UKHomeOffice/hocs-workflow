@@ -88,7 +88,7 @@ public class FOI_ALLOCATION {
                 .thenReturn(task -> task.complete(withVariables(
                         "DIRECTION", "BACKWARD")
                 )).thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARDS")
+                        "DIRECTION", "FORWARD")
                 ));
         when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN))
                 .thenReturn(task -> task.complete());
