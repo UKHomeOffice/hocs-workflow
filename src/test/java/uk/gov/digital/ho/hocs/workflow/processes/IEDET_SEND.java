@@ -18,11 +18,10 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.Mockito.*;
-import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/COMP_EXGRATIA_SEND.bpmn")
-public class COMP_EXGRATIA_SEND {
+@Deployment(resources = "processes/IEDET_SEND.bpmn")
+public class IEDET_SEND {
 
     @Rule
     @ClassRule
@@ -35,7 +34,7 @@ public class COMP_EXGRATIA_SEND {
     private BpmnService bpmnService;
 
     @Mock
-    private ProcessScenario exGratiaProcess;
+    private ProcessScenario processScenario;
 
     @Before
     public void setup() {
@@ -44,13 +43,12 @@ public class COMP_EXGRATIA_SEND {
 
     @Test
     public void testDefaultRoute(){
-
-        when(exGratiaProcess.waitsAtUserTask("Validate_Input"))
+        when(processScenario.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true)));
 
-        Scenario.run(exGratiaProcess).startByKey("COMP_EXGRATIA_SEND").execute();
+        Scenario.run(processScenario).startByKey("IEDET_SEND").execute();
 
-        verify(exGratiaProcess, times(2)).hasCompleted("Screen_Input");
+        verify(processScenario, times(2)).hasCompleted("Screen_Input");
     }
 }

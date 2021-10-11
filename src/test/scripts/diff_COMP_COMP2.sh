@@ -25,6 +25,10 @@ fi
 # Build the diff output filename
 comp2file=`echo $1 | sed 's/COMP_/COMP2_/g'`
 
+if [ "$comp2file" == "$1" ]; then
+  comp2file=`echo $1 | sed 's/COMP/COMP2/g'`
+fi
+
 if [ ! -f $comp2file ]; then
 	echo "$comp2file - doesn't exist!"
 	exit 1;
@@ -32,5 +36,5 @@ fi
 
 diffImage=`echo "$(basename $1)-$(basename $comp2file).diff" | sed 's/\.bpmn//g'`
 
-diff $1 $comp2file > $2/$diffImage
+diff --strip-trailing-cr $1 $comp2file > $2/$diffImage
 echo "Created $2/$diffImage"

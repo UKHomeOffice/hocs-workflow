@@ -20,49 +20,35 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/FOI_SOFT_CLOSE.bpmn"})
-public class FOI_SOFT_CLOSE {
-
-    public static final String SOFT_CLOSE = "SOFT_CLOSE";
-    public static final String DEALLOCATE_TEAM = "DEALLOCATE_TEAM";
-    public static final String END_EVENT = "END_EVENT";
+@Deployment(resources = "processes/IEDET_DRAFT.bpmn")
+public class IEDET_DRAFT {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(1)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
-    BpmnService bpmnService;
+    private BpmnService bpmnService;
+
     @Mock
-    private ProcessScenario FOIDataInputProcess;
+    private ProcessScenario compServiceDraftProcess;
 
     @Before
-    public void setUp() {
+    public void setup() {
         Mocks.register("bpmnService", bpmnService);
     }
 
     @Test
-    public void happyPath() {
-        when(FOIDataInputProcess.waitsAtUserTask(SOFT_CLOSE))
-                .thenReturn(task -> task.complete());
+    public void testDefaultPassThrough(){
+        when(compServiceDraftProcess.waitsAtUserTask("Validate_Input"))
+                .thenReturn(task -> task.complete(withVariables("valid", false )))
+                .thenReturn(task -> task.complete(withVariables("valid", true)));
 
-        Scenario.run(FOIDataInputProcess)
-                .startByKey("FOI_SOFT_CLOSE")
-                .execute();
+        Scenario.run(compServiceDraftProcess).startByKey("IEDET_DRAFT").execute();
 
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SOFT_CLOSE);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(DEALLOCATE_TEAM);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(END_EVENT);
-
+        verify(compServiceDraftProcess, times(2)).hasCompleted("Screen_Input");
     }
 }
