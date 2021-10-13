@@ -142,6 +142,51 @@ public class FOI_DISPATCH {
     }
 
     @Test
+    public void doDispatchFoiAfterBack() {
+        when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
+                .thenReturn(task -> task.complete(withVariables("CaseType", "FOI",
+                        "TransferOutcome", "RELEASED_IN_PART",
+                        "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(ADD_EXEMPTIONS))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(CHECK_ANSWERS))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD","ShouldDispatch", "ShouldDispatch-Y")));
+
+        Scenario.run(FOIDataInputProcess)
+                .startByKey("FOI_DISPATCH")
+                .execute();
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(CASE_OUTCOME);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(ADD_EXEMPTIONS);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(SET_DISPATCH_DATE);
+
+        verify(FOIDataInputProcess, times(2))
+                .hasCompleted(DISPATCH_CONFIRMATION);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(CLEAR_REJECTED);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(END_EVENT);
+
+    }
+
+    @Test
     public void doDispatchFOIWithBack() {
 
         when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
