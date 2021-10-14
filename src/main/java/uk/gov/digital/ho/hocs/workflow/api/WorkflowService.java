@@ -71,13 +71,19 @@ public class WorkflowService {
         // Create a case in the casework service in order to get a reference back to display to the user.
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
-        Map<String, String> caseData = addDefaultCaseData(dateReceived, userUUID);
+        Map<String, String> caseData = new HashMap<>();
+        caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+        caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+
         if (receivedData != null && Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)) {
             // If we have a name we have correspondent details attached to the case creation request
             if(receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
                 correspondentRequest = buildCorrespondentRequest(receivedData);
 
                 caseData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
+                caseData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
+                caseData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
+                caseData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
             }
         }
 
@@ -132,13 +138,6 @@ public class WorkflowService {
                 .reference(data.get(WorkflowConstants.REFERENCE))
                 .build();
         return correspondentRequest;
-    }
-
-    private Map<String, String> addDefaultCaseData(LocalDate dateReceived, UUID userUUID) {
-        Map<String, String> caseData = new HashMap<>();
-        caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
-        caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
-        return caseData;
     }
 
     private void createCorrespondent(CreateCaseworkCorrespondentRequest correspondentRequest, UUID caseUUID) {
