@@ -113,7 +113,8 @@ public class WorkflowService {
             camundaClient.startCase(caseUUID, caseDataType, seedData);
             //Create correspondent
             if (correspondentRequest != null) {
-                createCorrespondent(correspondentRequest, caseUUID);
+                UUID stageUUID = caseworkClient.getStageUUID(caseUUID);
+                caseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
             }
 
         } else {
@@ -129,6 +130,7 @@ public class WorkflowService {
                 .type(WorkflowConstants.TYPE_FOI_REQUESTER)
                 .fullname(data.get(WorkflowConstants.FULL_NAME))
                 .postcode(data.get(WorkflowConstants.POSTCODE))
+                .organisation(data.get(WorkflowConstants.ORGANISATION))
                 .address1(data.get(WorkflowConstants.ADDRESS1))
                 .address2(data.get(WorkflowConstants.ADDRESS2))
                 .address3(data.get(WorkflowConstants.ADDRESS3))
@@ -138,11 +140,6 @@ public class WorkflowService {
                 .reference(data.get(WorkflowConstants.REFERENCE))
                 .build();
         return correspondentRequest;
-    }
-
-    private void createCorrespondent(CreateCaseworkCorrespondentRequest correspondentRequest, UUID caseUUID) {
-        UUID stageUUID = caseworkClient.getStageUUID(caseUUID);
-        caseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
     }
 
     public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
