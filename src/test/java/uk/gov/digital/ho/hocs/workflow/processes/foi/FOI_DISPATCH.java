@@ -26,6 +26,7 @@ public class FOI_DISPATCH {
 
     public static final String DISPATCH_CONFIRMATION = "DISPATCH_CONFIRMATION";
     public static final String DEALLOCATE_TEAM = "DEALLOCATE_TEAM";
+    public static final String FOI_UPLOAD_FINAL_DOCUMENTS = "FOI_UPLOAD_FINAL_DOCUMENTS";
     public static final String SET_DISPATCH_DATE = "SET_DISPATCH_DATE";
     public static final String CLEAR_REJECTED = "CLEAR_REJECTED";
     public static final String SET_TO_REJECTED_BY_DISPATCH = "SET_TO_REJECTED_BY_DISPATCH";
@@ -114,6 +115,9 @@ public class FOI_DISPATCH {
         when(FOIDataInputProcess.waitsAtUserTask(CHECK_ANSWERS))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
@@ -126,6 +130,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
@@ -157,9 +164,11 @@ public class FOI_DISPATCH {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-
         when(FOIDataInputProcess.waitsAtUserTask(CHECK_ANSWERS))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
 
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
@@ -173,6 +182,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
@@ -203,14 +215,15 @@ public class FOI_DISPATCH {
                 .thenReturn(task -> task.complete(withVariables(
                         "ShouldDispatch", "ShouldDispatch-Y")));
 
-
         when(FOIDataInputProcess.waitsAtUserTask(CHECK_ANSWERS))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
 
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
-
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(CASE_OUTCOME);
@@ -220,6 +233,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
@@ -254,6 +270,9 @@ public class FOI_DISPATCH {
         when(FOIDataInputProcess.waitsAtUserTask(CHECK_ANSWERS))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
@@ -266,6 +285,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
@@ -303,6 +325,9 @@ public class FOI_DISPATCH {
         when(FOIDataInputProcess.waitsAtUserTask(ADD_EXEMPTIONS))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
@@ -315,6 +340,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(2))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
@@ -352,6 +380,9 @@ public class FOI_DISPATCH {
         when(FOIDataInputProcess.waitsAtUserTask(ADD_EXCEPTIONS))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
@@ -364,6 +395,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(2))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
@@ -402,6 +436,9 @@ public class FOI_DISPATCH {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "CHANGE_OUTCOME")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
@@ -414,6 +451,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(2))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
@@ -441,9 +481,11 @@ public class FOI_DISPATCH {
                 .thenReturn(task -> task.complete(withVariables(
                         "ShouldDispatch", "ShouldDispatch-Y")));
 
-
         when(FOIDataInputProcess.waitsAtUserTask(CHECK_ANSWERS))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
 
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
@@ -454,6 +496,9 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
@@ -484,6 +529,9 @@ public class FOI_DISPATCH {
         when(FOIDataInputProcess.waitsAtUserTask(CHECK_ANSWERS))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
@@ -492,6 +540,9 @@ public class FOI_DISPATCH {
                 .hasCompleted(CASE_OUTCOME);
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(SET_DISPATCH_DATE);
