@@ -90,6 +90,14 @@ public class WorkflowService {
             createDocument(caseUUID, documents);
 
             // Start a new camunda workflow (caseUUID is the business key).
+            SeedDataDto seedDataDto;
+            if (Objects.equals(caseDataType, "FOI")) {
+                seedDataDto = SeedDataDto.builder()
+                        .caseReference(caseResponse.getReference())
+                        .dateReceived(dateReceived.toString())
+                        .lastUpdatedByUserUUID(userUUID.toString())
+                        .kimuDateReceived(receivedData.get(WorkflowConstants.))
+            }
             Map<String, String> seedData = new HashMap<>();
             seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
             seedData.putAll(caseData);
