@@ -1,7 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -70,7 +69,6 @@ public class WorkflowService {
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
-        Map<String, String> data = new HashMap<>();
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
         if (receivedData != null) {
@@ -85,24 +83,26 @@ public class WorkflowService {
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
-
             // Add Documents to the case
             createDocument(caseUUID, documents);
 
             // Start a new camunda workflow (caseUUID is the business key).
-            SeedDataDto seedDataDto;
-            if (Objects.equals(caseDataType, "FOI")) {
-                seedDataDto = SeedDataDto.builder()
-                        .caseReference(caseResponse.getReference())
-                        .dateReceived(dateReceived.toString())
-                        .lastUpdatedByUserUUID(userUUID.toString())
-                        .kimuDateReceived(receivedData.get(WorkflowConstants.))
-            }
             Map<String, String> seedData = new HashMap<>();
-            seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
-            seedData.putAll(caseData);
-            camundaClient.startCase(caseUUID, caseDataType, seedData);
+            if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI) && receivedData != null) {
+                seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
+                seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+                seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+                seedData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
+                seedData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
+                seedData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
+                seedData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
+            } else {
+                seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
+                seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+                seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+            }
 
+            camundaClient.startCase(caseUUID, caseDataType, seedData);
             //Create correspondent
             if (correspondentRequest != null) {
                 createCorrespondent(correspondentRequest, caseUUID);

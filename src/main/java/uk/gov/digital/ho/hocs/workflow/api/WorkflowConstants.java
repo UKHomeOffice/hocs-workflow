@@ -18,4 +18,9 @@ public interface WorkflowConstants {
     String EMAIL = "Email";
     String REFERENCE = "Reference";
     String TYPE_FOI_REQUESTER = "FOI Requester";
+    String KIMU_DATE_RECEIVED = "KimuDateReceived";
+    String ORIGINAL_CHANNEL = "OriginalChannel";
+    String REQUEST_QUESTION = "RequestQuestion";
+    String TOPICS = "Topics";
+    String CASE_DATA_TYPE_FOI = "FOI";
 }
