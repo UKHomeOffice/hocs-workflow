@@ -1,6 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -69,40 +70,18 @@ public class WorkflowService {
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
-        Map<String, String> data = new HashMap<>(receivedData);
+        Map<String, String> data = new HashMap<>();
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
-        //If we have a name we have correspondent details attached to the case creation request
-        if(data.containsKey("Fullname")) {
-            correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
-                    .type("FOI Requester")
-                    .fullname(data.get("Fullname"))
-                    .organisation(data.get("Organisation"))
-                    .postcode(data.get("Postcode"))
-                    .address1(data.get("Address1"))
-                    .address2(data.get("Address2"))
-                    .address3(data.get("Address3"))
-                    .country(data.get("Country"))
-                    .telephone(data.get("Telephone"))
-                    .email(data.get("Email"))
-                    .reference(data.get("Reference"))
-                    .build();
-
-            data.remove("Fullname");
-            data.remove("Organisation");
-            data.remove("Postcode");
-            data.remove("Address1");
-            data.remove("Address2");
-            data.remove("Address3");
-            data.remove("Country");
-            data.remove("Telephone");
-            data.remove("Email");
-            data.remove("Reference");
+        if (receivedData != null) {
+            // If we have a name we have correspondent details attached to the case creation request
+            if(receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
+                correspondentRequest = buildCorrespondentRequest(receivedData);
+            }
         }
 
-        data.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
-        data.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived, fromCaseUUID);
+        Map<String, String> caseData = buildCaseData(dateReceived, userUUID);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
@@ -113,13 +92,12 @@ public class WorkflowService {
             // Start a new camunda workflow (caseUUID is the business key).
             Map<String, String> seedData = new HashMap<>();
             seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
-            seedData.putAll(data);
+            seedData.putAll(caseData);
             camundaClient.startCase(caseUUID, caseDataType, seedData);
 
             //Create correspondent
             if (correspondentRequest != null) {
-                UUID stageUUID = caseworkClient.getStageUUID(caseUUID);
-                caseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
+                createCorrespondent(correspondentRequest, caseUUID);
             }
 
         } else {
@@ -127,6 +105,36 @@ public class WorkflowService {
             throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
+    }
+
+    private CreateCaseworkCorrespondentRequest buildCorrespondentRequest(Map<String, String> data) {
+        CreateCaseworkCorrespondentRequest correspondentRequest;
+        correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
+                .type(WorkflowConstants.TYPE_FOI_REQUESTER)
+                .fullname(data.get(WorkflowConstants.FULL_NAME))
+                .organisation(data.get(WorkflowConstants.ORGANISATION))
+                .postcode(data.get(WorkflowConstants.POSTCODE))
+                .address1(data.get(WorkflowConstants.ADDRESS1))
+                .address2(data.get(WorkflowConstants.ADDRESS2))
+                .address3(data.get(WorkflowConstants.ADDRESS3))
+                .country(data.get(WorkflowConstants.COUNTRY))
+                .telephone(data.get(WorkflowConstants.TELEPHONE))
+                .email(data.get(WorkflowConstants.EMAIL))
+                .reference(data.get(WorkflowConstants.REFERENCE))
+                .build();
+        return correspondentRequest;
+    }
+
+    private Map<String, String> buildCaseData(LocalDate dateReceived, UUID userUUID) {
+        Map<String, String> caseData = new HashMap<>();
+        caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+        caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+        return caseData;
+    }
+
+    private void createCorrespondent(CreateCaseworkCorrespondentRequest correspondentRequest, UUID caseUUID) {
+        UUID stageUUID = caseworkClient.getStageUUID(caseUUID);
+        caseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
     }
 
     public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
