@@ -71,14 +71,16 @@ public class WorkflowService {
         // Create a case in the casework service in order to get a reference back to display to the user.
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
-        if (receivedData != null) {
+        Map<String, String> caseData = addDefaultCaseData(dateReceived, userUUID);
+        if (receivedData != null && Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)) {
             // If we have a name we have correspondent details attached to the case creation request
             if(receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
                 correspondentRequest = buildCorrespondentRequest(receivedData);
+
+                caseData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
             }
         }
 
-        Map<String, String> caseData = buildCaseData(dateReceived, userUUID);
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
         UUID caseUUID = caseResponse.getUuid();
 
@@ -120,7 +122,6 @@ public class WorkflowService {
         correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
                 .type(WorkflowConstants.TYPE_FOI_REQUESTER)
                 .fullname(data.get(WorkflowConstants.FULL_NAME))
-                .organisation(data.get(WorkflowConstants.ORGANISATION))
                 .postcode(data.get(WorkflowConstants.POSTCODE))
                 .address1(data.get(WorkflowConstants.ADDRESS1))
                 .address2(data.get(WorkflowConstants.ADDRESS2))
@@ -133,7 +134,7 @@ public class WorkflowService {
         return correspondentRequest;
     }
 
-    private Map<String, String> buildCaseData(LocalDate dateReceived, UUID userUUID) {
+    private Map<String, String> addDefaultCaseData(LocalDate dateReceived, UUID userUUID) {
         Map<String, String> caseData = new HashMap<>();
         caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
