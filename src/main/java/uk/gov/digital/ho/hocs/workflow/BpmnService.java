@@ -322,7 +322,6 @@ public class BpmnService {
 
         log.debug("######## Updated Team Selection ########");
     }
-
     public void updatePOTeamSelection(String caseUUIDString, String stageUUIDString, String privateOfficeUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
@@ -337,7 +336,7 @@ public class BpmnService {
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
             teamsForTopic.put("PrivateOfficeOverridePOTeamUUID", pOTeam.getUuid().toString());
             teamsForTopic.put("PrivateOfficeOverridePOTeamName", pOTeam.getDisplayName());
-            teamsForTopic.put("PrivateOfficeOverridePOTeamUnitHistoricName", pOTeam.getDisplayName());
+            teamsForTopic.put("PrivateOfficeOverridePOTeamUnitHistoricName", unitForTeam.getDisplayName());
         }
 
         if (!teamsForTopic.isEmpty()) {
