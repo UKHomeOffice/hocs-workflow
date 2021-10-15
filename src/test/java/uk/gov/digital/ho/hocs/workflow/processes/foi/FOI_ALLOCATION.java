@@ -79,4 +79,30 @@ public class FOI_ALLOCATION {
         verify(bpmnService).createAllocationDetailsNote(eq(CASE_UUID), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
         verify(processScenario, times(1)).hasCompleted(CONFIRMATION_SCREEN);
     }
+
+    @Test
+    public void backPath() {
+
+        //given
+        when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")
+                )).thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "FORWARD")
+                ));
+        when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN))
+                .thenReturn(task -> task.complete());
+
+        //when
+        Scenario.run(processScenario).startBy(() -> {
+            return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
+                    Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
+                            "StageUUID", STAGE_UUID));
+        }).execute();
+
+        //then
+        verify(processScenario, times(2)).hasCompleted(CHOOSE_FOI_HUB);
+        verify(bpmnService).createAllocationDetailsNote(eq(CASE_UUID), eq(ACCEPTANCE_TEAM_UUID), eq(STAGE_UUID));
+        verify(processScenario, times(2)).hasCompleted(CONFIRMATION_SCREEN);
+    }
 }

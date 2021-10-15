@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
@@ -48,6 +49,9 @@ public class BpmnServiceTest {
     @Mock
     private Clock clock;
 
+    @Mock
+    private WorkflowService workflowService;
+
     private BpmnService bpmnService;
 
     private final String caseUUID = UUID.randomUUID().toString();
@@ -58,7 +62,7 @@ public class BpmnServiceTest {
 
     @Before
     public void setup() {
-        bpmnService = new BpmnService(caseworkClient, camundaClient, infoClient, clock);
+        bpmnService = new BpmnService(caseworkClient, camundaClient, infoClient, clock, workflowService);
     }
 
     @Test

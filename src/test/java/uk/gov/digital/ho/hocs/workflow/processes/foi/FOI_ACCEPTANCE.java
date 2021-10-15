@@ -35,6 +35,7 @@ public class FOI_ACCEPTANCE {
     public static final String ACCEPT_OR_REJECT = "ACCEPT_OR_REJECT";
     public static final String DEADLINE_PASSED = "DEADLINE_PASSED";
     public static final String CHOOSE_DRAFT_TEAM = "CHOOSE_DRAFT_TEAM";
+    public static final String CHOOSE_DRAFT_TEAM_NO_BACK = "CHOOSE_DRAFT_TEAM_NO_BACK";
     public static final String REJECT_CASE = "REJECT_CASE";
     public static final String PROCESS_KEY = "FOI_ACCEPTANCE";
     public static final String SAVE_ALLOCATION_NOTE = "SAVE_ALLOCATION_NOTE";
@@ -46,6 +47,8 @@ public class FOI_ACCEPTANCE {
     public static final String CLEAR_REJECTED = "CLEAR_REJECTED";
     public static final String SET_TO_REJECTED_BY_ACCEPTANCE = "SET_TO_REJECTED_BY_ACCEPTANCE";
     public static final String SET_ACCEPTANCE_DATE = "SET_ACCEPTANCE_DATE";
+    public static final String SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED = "SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED";
+    public static final String SET_ACCEPTED= "SET_ACCEPTED";
     public static final String N_TEXT = "NoteText";
     public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
 
@@ -81,7 +84,8 @@ public class FOI_ACCEPTANCE {
 
         when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM))
                 .thenReturn(task -> task.complete(withVariables(
-                        "DraftTeam", DRAFT_TEAM)));
+                        "DraftTeam", DRAFT_TEAM,
+                        "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario).startBy(
                 () -> rule.getRuntimeService().startProcessInstanceByKey(
@@ -97,6 +101,36 @@ public class FOI_ACCEPTANCE {
     }
 
     @Test
+    public void acceptedAfterClickingBackPath() {
+
+        Date futureDeadline = new GregorianCalendar(3000, Calendar.JANUARY, 1, 0, 0, 0).getTime();
+        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(2))).thenReturn(futureDeadline);
+
+        when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
+                .thenReturn(task -> task.complete(withVariables(
+                        "AcceptCase", "Y")));
+
+        when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables(
+                        "DraftTeam", DRAFT_TEAM,
+                        "DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario).startBy(
+                () -> rule.getRuntimeService().startProcessInstanceByKey(
+                        PROCESS_KEY, STAGE_UUID,
+                        Map.of("CaseUUID", CASE_UUID)
+                )).execute();
+
+        verify(processScenario, times(2)).hasCompleted(ACCEPT_OR_REJECT);
+        verify(processScenario, times(2)).hasCompleted(SET_ACCEPTANCE_DATE);
+        verify(processScenario, times(2)).hasCompleted(CHOOSE_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
+        verify(processScenario, times( 1)).hasCompleted(CLEAR_REJECTED);
+    }
+
+    @Test
     public void deadlinePassed() {
 
         Date pastDeadline = new GregorianCalendar(2000, Calendar.JANUARY, 1, 0, 0, 0).getTime();
@@ -105,7 +139,7 @@ public class FOI_ACCEPTANCE {
         when(processScenario.waitsAtUserTask(DEADLINE_PASSED))
             .thenReturn(TaskDelegate::complete);
 
-        when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM))
+        when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM_NO_BACK))
                 .thenReturn(task -> task.complete(withVariables(
                         "DraftTeam", DRAFT_TEAM)));
 
@@ -117,8 +151,9 @@ public class FOI_ACCEPTANCE {
 
         verify(processScenario, times(1)).hasCanceled(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(DEADLINE_PASSED);
-        verify(processScenario, times(1)).hasCompleted(SET_ACCEPTANCE_DATE);
-        verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM_NO_BACK);
+        verify(processScenario, times(1)).hasCompleted(SET_ACCEPTED);
+        verify(processScenario, times(1)).hasCompleted(SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times( 1)).hasCompleted(CLEAR_REJECTED);
     }
@@ -126,7 +161,7 @@ public class FOI_ACCEPTANCE {
     @Test
     public void caseHasBeenReturnedFromDraftAcceptance() {
 
-        when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM))
+        when(processScenario.waitsAtUserTask(CHOOSE_DRAFT_TEAM_NO_BACK))
                 .thenReturn(task -> task.complete(withVariables(
                         "DraftTeam", DRAFT_TEAM)));
 
@@ -136,7 +171,7 @@ public class FOI_ACCEPTANCE {
                         Map.of("CaseUUID", CASE_UUID, "AcceptanceDate", "1619779067602")
                 )).execute();
 
-        verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
+        verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM_NO_BACK);
         verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times(0)).hasCompleted(SET_ACCEPTANCE_DATE);
     }
