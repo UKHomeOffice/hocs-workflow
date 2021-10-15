@@ -135,9 +135,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
@@ -185,9 +182,6 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
@@ -238,9 +232,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
@@ -288,9 +279,6 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
@@ -345,9 +333,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
@@ -398,9 +383,6 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
@@ -456,9 +438,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
@@ -501,9 +480,6 @@ public class FOI_DISPATCH {
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
-
-        verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
 
         verify(FOIDataInputProcess, times(1))
@@ -543,9 +519,6 @@ public class FOI_DISPATCH {
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
-
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
 
         verify(FOIDataInputProcess, times(1))
                 .hasCompleted(DISPATCH_CONFIRMATION);
