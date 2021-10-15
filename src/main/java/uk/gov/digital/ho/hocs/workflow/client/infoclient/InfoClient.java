@@ -56,7 +56,7 @@ public class InfoClient {
 
     @Cacheable(value = "InfoClientGetSchema", unless = "#result == null", key = "#type")
     public SchemaDto getSchema(String type) {
-        SchemaDto response = restHelper.get(serviceBaseURL, String.format("/schema/%s", type), SchemaDto.class);
+        SchemaDto response = restHelper.get("http://localhost:8095", String.format("/schema/%s", type), SchemaDto.class);
         log.info("Got Form {}", type, value(EVENT, INFO_CLIENT_GET_FORM_SUCCESS));
         return response;
     }
