@@ -28,7 +28,8 @@ public class DCU_MIN_DTEN_Markup_Common {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD",
                         "POTeamUUID", "",
                         "OverrideDraftingTeamUUID", "",
-                        "OverridePOTeamUUID", ""
+                        "OverridePOTeamUUID", "",
+                        "OverridePOTeamUnitHistoricName", ""
                 )));
 
         Scenario.run(dcuMinSignOffProcess)
@@ -49,7 +50,8 @@ public class DCU_MIN_DTEN_Markup_Common {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD",
                         "POTeamUUID", "",
                         "OverrideDraftingTeamUUID", DCU_DRAFT_TEAM_UUID,
-                        "OverridePOTeamUUID", ""
+                        "OverridePOTeamUUID", "",
+                        "POTeamNameUnitHistoricName", ""
                 )));
 
         Scenario.run(dcuMinSignOffProcess)
@@ -68,7 +70,8 @@ public class DCU_MIN_DTEN_Markup_Common {
         when(dcuMinSignOffProcess.waitsAtUserTask("VALIDATE_DCU_ANSWERING_FAQ"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD",
                         "POTeamUUID", "",
-                        "OverridePOTeamUUID", ""
+                        "OverridePOTeamUUID", "",
+                        "OverridePOTeamUnitHistoricName", ""
                 )));
 
         Scenario.run(dcuMinSignOffProcess)
@@ -87,7 +90,8 @@ public class DCU_MIN_DTEN_Markup_Common {
         when(dcuMinSignOffProcess.waitsAtUserTask("VALIDATE_DCU_ANSWERING_FAQ"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD",
                         "POTeamUUID", "",
-                        "OverridePOTeamUUID", ANOTHER_TOPIC_TEAM_UUID
+                        "OverridePOTeamUUID", ANOTHER_TOPIC_TEAM_UUID,
+                        "OverridePOTeamUnitHistoricName", ""
                 )));
 
         Scenario.run(dcuMinSignOffProcess)
@@ -115,20 +119,20 @@ public class DCU_MIN_DTEN_Markup_Common {
     void verifyCommonPRFlow(BpmnService bpmnService, String stagePrefix) {
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"), eq("DefaultPolicyTeamUnitHistoricName"));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"), eq("DraftingTeamUnitHistoricName"));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_PRIVATE_OFFICE"), eq("POTeamUUID"), eq("POTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_PRIVATE_OFFICE"), eq("POTeamUUID"), eq("POTeamName"), eq("POTeamUnitHistoricName"));
     }
 
     void verifyCommonFAQFlow(BpmnService bpmnService, String stagePrefix) {
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"), eq("DefaultPolicyTeamUnitHistoricName"));
 
         verify(bpmnService).setDraftingTeam(any(), any(), eq(DCU_DRAFT_TEAM_UUID));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_PRIVATE_OFFICE"), eq("POTeamUUID"), eq("POTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq(stagePrefix + "_PRIVATE_OFFICE"), eq("POTeamUUID"), eq("POTeamName"), eq("POTeamUnitHistoricName"));
     }
 }

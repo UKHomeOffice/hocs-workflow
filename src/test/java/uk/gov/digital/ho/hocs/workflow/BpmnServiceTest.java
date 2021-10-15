@@ -22,6 +22,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorresponden
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UnitDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.util.NoteType;
@@ -128,18 +129,25 @@ public class BpmnServiceTest {
         UUID draftingString = UUID.randomUUID();
 
         String teamName = "Team1";
+        String unitName = "Unit1";
         TeamDto team = new TeamDto(teamName, draftingString, true, new HashSet<>());
+        UnitDto unit = new UnitDto(unitName, "TEST");
+
         Map<String, String> teamsForTopic = new HashMap<>();
         teamsForTopic.put("OverrideDraftingTeamUUID", "");
         teamsForTopic.put("OverrideDraftingTeamName", "");
+        teamsForTopic.put("OverrideDraftingTeamUnitHistoricName", "");
         teamsForTopic.put("DraftingTeamUUID", draftingString.toString());
         teamsForTopic.put("DraftingTeamName", teamName);
+        teamsForTopic.put("DraftingTeamUnitHistoricName", unitName);
 
         when(infoClient.getTeam(draftingString)).thenReturn(team);
+        when(infoClient.getUnitForTeam(draftingString)).thenReturn(unit);
 
         bpmnService.setDraftingTeam(caseUUID, stageUUID, draftingString.toString());
 
         verify(infoClient, times(1)).getTeam(draftingString);
+        verify(infoClient, times(1)).getUnitForTeam(draftingString);
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
@@ -173,16 +181,22 @@ public class BpmnServiceTest {
         UUID draftingString = UUID.randomUUID();
 
         String teamName = "Team1";
+        String unitName = "Unit1";
+
         TeamDto team = new TeamDto(teamName, draftingString, true, new HashSet<>());
+        UnitDto unit = new UnitDto(unitName, "T");
         Map<String, String> teamsForTopic = new HashMap<>();
         teamsForTopic.put("OverrideDraftingTeamUUID", draftingString.toString());
         teamsForTopic.put("OverrideDraftingTeamName", teamName);
+        teamsForTopic.put("OverrideDraftingTeamUnitHistoricName", unitName);
 
         when(infoClient.getTeam(draftingString)).thenReturn(team);
+        when(infoClient.getUnitForTeam(draftingString)).thenReturn(unit);
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), null);
 
         verify(infoClient, times(1)).getTeam(draftingString);
+        verify(infoClient, times(1)).getUnitForTeam(draftingString);
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
@@ -197,16 +211,21 @@ public class BpmnServiceTest {
         UUID draftingString = UUID.randomUUID();
 
         String teamName = "Team1";
+        String unitName = "Unit1";
         TeamDto team = new TeamDto(teamName, draftingString, false, new HashSet<>());
+        UnitDto unit = new UnitDto(unitName, "TEST");
         Map<String, String> teamsForTopic = new HashMap<>();
         teamsForTopic.put("OverrideDraftingTeamUUID", "");
         teamsForTopic.put("OverrideDraftingTeamName", "");
+        teamsForTopic.put("OverrideDraftingTeamUnitHistoricName", "");
 
         when(infoClient.getTeam(draftingString)).thenReturn(team);
+        when(infoClient.getUnitForTeam(draftingString)).thenReturn(unit);
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), null);
 
         verify(infoClient, times(1)).getTeam(draftingString);
+        verify(infoClient, times(1)).getUnitForTeam(draftingString);
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
@@ -221,16 +240,21 @@ public class BpmnServiceTest {
         UUID privateOfficeString = UUID.randomUUID();
 
         String teamName = "Team1";
+        String unitName = "Unit1";
         TeamDto team = new TeamDto(teamName, privateOfficeString, true, new HashSet<>());
+        UnitDto unit = new UnitDto(unitName, "TEST");
         Map<String, String> teamsForTopic = new HashMap<>();
         teamsForTopic.put("OverridePOTeamUUID", privateOfficeString.toString());
         teamsForTopic.put("OverridePOTeamName", teamName);
+        teamsForTopic.put("OverridePOTeamUnitHistoricName", unitName);
 
         when(infoClient.getTeam(privateOfficeString)).thenReturn(team);
+        when(infoClient.getUnitForTeam(privateOfficeString)).thenReturn(unit);
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, null, privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(privateOfficeString);
+        verify(infoClient, times(1)).getUnitForTeam(privateOfficeString);
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
@@ -249,12 +273,14 @@ public class BpmnServiceTest {
         Map<String, String> teamsForTopic = new HashMap<>();
         teamsForTopic.put("OverridePOTeamUUID", "");
         teamsForTopic.put("OverridePOTeamName", "");
+        teamsForTopic.put("OverridePOTeamUnitHistoricName", "");
 
         when(infoClient.getTeam(privateOfficeString)).thenReturn(team);
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, null, privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(privateOfficeString);
+        verify(infoClient, times(1)).getUnitForTeam(privateOfficeString);
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
@@ -326,7 +352,7 @@ public class BpmnServiceTest {
         doNothing().when(camundaClient).updateTask(eq(stageUUID), any());
         doNothing().when(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), any());
 
-        bpmnService.updateTeamsForPrimaryTopic(caseUUID.toString(), stageUUID.toString(), topicUUID.toString(), stageName, teamName, teamUUID.toString());
+        bpmnService.updateTeamsForPrimaryTopic(caseUUID.toString(), stageUUID.toString(), topicUUID.toString(), stageName, teamName, teamUUID.toString(), "unitNameKey");
 
         verify(camundaClient, times(1)).updateTask(eq(stageUUID), eq(new HashMap<>()));
         verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
@@ -344,18 +370,20 @@ public class BpmnServiceTest {
         UUID topicUUID = UUID.randomUUID();
         String stageName = "MOCK_STAGE_TYPE";
         String teamName = "Team Name";
+        String unitName = "Unit Name";
         UUID teamUUID = UUID.randomUUID();
 
         when(infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, stageName)).thenReturn(new TeamDto(teamName, teamUUID, true, new HashSet<>()));
+        when(infoClient.getUnitForTeam(teamUUID)).thenReturn(new UnitDto(unitName, "TEST"));
         doNothing().when(camundaClient).updateTask(eq(stageUUID), any());
         doNothing().when(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), any());
 
-        bpmnService.updateTeamsForPrimaryTopic(caseUUID.toString(), stageUUID.toString(), topicUUID.toString(), stageName, teamName, teamUUID.toString());
+        bpmnService.updateTeamsForPrimaryTopic(caseUUID.toString(), stageUUID.toString(), topicUUID.toString(), stageName, teamName, teamUUID.toString(), "unitNameKey");
 
         verify(camundaClient, times(1)).updateTask(eq(stageUUID), valueCapture.capture());
         verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
 
-        assertThat(valueCapture.getValue().size()).isEqualTo(2);
+        assertThat(valueCapture.getValue().size()).isEqualTo(3);
 
         verifyZeroInteractions(caseworkClient);
         verifyZeroInteractions(camundaClient);
@@ -368,14 +396,18 @@ public class BpmnServiceTest {
         UUID privateOfficeString = UUID.randomUUID();
 
         when(infoClient.getTeam(privateOfficeString)).thenReturn(new TeamDto("Team1", privateOfficeString, true, new HashSet<>()));
+        when(infoClient.getUnitForTeam(privateOfficeString)).thenReturn(new UnitDto("Unit1", "Unit1"));
         when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", privateOfficeString, true, new HashSet<>()));
+        when(infoClient.getUnitForTeam(draftingString)).thenReturn(new UnitDto("Unit1", "Unit1"));
         doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)), any());
         doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
 
         bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(draftingString);
+        verify(infoClient, times(1)).getUnitForTeam(draftingString);
         verify(infoClient, times(1)).getTeam(privateOfficeString);
+        verify(infoClient, times(1)).getUnitForTeam(privateOfficeString);
         verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
         verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
 
