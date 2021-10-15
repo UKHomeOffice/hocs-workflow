@@ -163,6 +163,9 @@ public class FOI_DISPATCH {
                 .thenReturn(task -> task.complete(withVariables(
                         "DIRECTION", "FORWARD","ShouldDispatch", "ShouldDispatch-Y")));
 
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete());
+
         Scenario.run(FOIDataInputProcess)
                 .startByKey("FOI_DISPATCH")
                 .execute();
@@ -177,7 +180,7 @@ public class FOI_DISPATCH {
                 .hasCompleted(DEALLOCATE_TEAM);
 
         verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SET_DISPATCH_DATE);
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
 
         verify(FOIDataInputProcess, times(2))
                 .hasCompleted(DISPATCH_CONFIRMATION);
