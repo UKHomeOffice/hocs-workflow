@@ -50,12 +50,13 @@
         <camunda:out source="CompType" target="CompType" />
         <camunda:out source="Stage" target="Stage" />
         <camunda:out source="ScmTriageResult" target="ScmTriageResult" />
+        <camunda:out source="CctTriageAccept" target="CctTriageAccept" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_08fga3p</bpmn:incoming>
       <bpmn:outgoing>Flow_115y0ny</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_115y0ny" sourceRef="CallActivity_SMC_TRIAGE" targetRef="Gateway_1jw1ec3" />
-    <bpmn:callActivity id="CallActivity_SMC_SEND" name="Send" calledElement="STAGE">
+    <bpmn:callActivity id="CallActivity_SMC_SEND" name="SEND" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="SendUUID" target="StageUUID" />
         <camunda:in sourceExpression="SMC_SEND" target="StageWorkFlow" />
@@ -71,7 +72,7 @@
         <camunda:out source="CompType" target="CompType" />
         <camunda:out source="Stage" target="Stage" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0kxejpo</bpmn:incoming>
+      <bpmn:incoming>Flow_1e0lle4</bpmn:incoming>
       <bpmn:outgoing>Flow_1i9x1ld</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1i9x1ld" sourceRef="CallActivity_SMC_SEND" targetRef="ServiceTask_CompleteCase" />
@@ -82,7 +83,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1mtexdl" sourceRef="Gateway_1jw1ec3" targetRef="CallActivity_SMC_DRAFT" />
     <bpmn:sequenceFlow id="Flow_11adx4a" sourceRef="Gateway_1jw1ec3" targetRef="ServiceTask_CompleteCase">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ScmTriageResult == "NoResponse" || ScmTriageResult == "Complete" }</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ScmTriageResult == "NoResponse" || ScmTriageResult == "Complete"  || CctTriageAccept == "No" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_SMC_DRAFT" name="Draft" calledElement="STAGE">
       <bpmn:extensionElements>
@@ -101,21 +102,21 @@
         <camunda:out source="Stage" target="Stage" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1mtexdl</bpmn:incoming>
-      <bpmn:outgoing>Flow_0kxejpo</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1e0lle4</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_0kxejpo" sourceRef="CallActivity_SMC_DRAFT" targetRef="CallActivity_SMC_SEND" />
+    <bpmn:sequenceFlow id="Flow_1e0lle4" sourceRef="CallActivity_SMC_DRAFT" targetRef="CallActivity_SMC_SEND" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="SMC">
       <bpmndi:BPMNEdge id="Flow_11adx4a_di" bpmnElement="Flow_11adx4a">
         <di:waypoint x="710" y="146" />
         <di:waypoint x="710" y="260" />
-        <di:waypoint x="1250" y="260" />
-        <di:waypoint x="1250" y="161" />
+        <di:waypoint x="1210" y="260" />
+        <di:waypoint x="1210" y="161" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mtexdl_di" bpmnElement="Flow_1mtexdl">
         <di:waypoint x="735" y="121" />
-        <di:waypoint x="820" y="121" />
+        <di:waypoint x="800" y="121" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_115y0ny_di" bpmnElement="Flow_115y0ny">
         <di:waypoint x="630" y="121" />
@@ -130,16 +131,16 @@
         <di:waypoint x="340" y="121" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1y94fvq_di" bpmnElement="SequenceFlow_1y94fvq">
-        <di:waypoint x="1300" y="121" />
-        <di:waypoint x="1372" y="121" />
+        <di:waypoint x="1260" y="121" />
+        <di:waypoint x="1332" y="121" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i9x1ld_di" bpmnElement="Flow_1i9x1ld">
-        <di:waypoint x="1120" y="121" />
-        <di:waypoint x="1200" y="121" />
+        <di:waypoint x="1080" y="121" />
+        <di:waypoint x="1160" y="121" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0kxejpo_di" bpmnElement="Flow_0kxejpo">
-        <di:waypoint x="920" y="121" />
-        <di:waypoint x="1020" y="121" />
+      <bpmndi:BPMNEdge id="Flow_1e0lle4_di" bpmnElement="Flow_1e0lle4">
+        <di:waypoint x="900" y="121" />
+        <di:waypoint x="980" y="121" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_SMC">
         <dc:Bounds x="182" y="103" width="36" height="36" />
@@ -154,16 +155,16 @@
         <dc:Bounds x="685" y="96" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1afztus_di" bpmnElement="EndEvent_SMC">
-        <dc:Bounds x="1372" y="103" width="36" height="36" />
+        <dc:Bounds x="1332" y="103" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_16gueal_di" bpmnElement="ServiceTask_CompleteCase">
-        <dc:Bounds x="1200" y="81" width="100" height="80" />
+        <dc:Bounds x="1160" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1r6hsvl_di" bpmnElement="CallActivity_SMC_SEND">
-        <dc:Bounds x="1020" y="81" width="100" height="80" />
+        <dc:Bounds x="980" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1q8rtg1_di" bpmnElement="CallActivity_SMC_DRAFT">
-        <dc:Bounds x="820" y="81" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_17xikz2_di" bpmnElement="CallActivity_SMC_DRAFT">
+        <dc:Bounds x="800" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

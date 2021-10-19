@@ -48,7 +48,12 @@ public class SMC_TRIAGE {
     public void testHappyPath(){
         when(process.waitsAtUserTask("Validate_Case"))
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(process.waitsAtUserTask("Validate_PSU"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(process.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
@@ -78,7 +83,10 @@ public class SMC_TRIAGE {
     @Test
     public void testCloseAtTriage(){
         when(process.waitsAtUserTask("Validate_Case"))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(process.waitsAtUserTask("Validate_PSU"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(process.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
@@ -112,7 +120,10 @@ public class SMC_TRIAGE {
     @Test
     public void testReferAtTriage(){
         when(process.waitsAtUserTask("Validate_Case"))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(process.waitsAtUserTask("Validate_PSU"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(process.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
@@ -141,6 +152,36 @@ public class SMC_TRIAGE {
 
         verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REFER"));
         verify(process).hasCompleted("EndEvent_SCM_TRIAGE");
+    }
+
+    @Test
+    public void testTransferCaseToCCH(){
+        when(process.waitsAtUserTask("Validate_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
+
+        when(process.waitsAtUserTask("Transfer_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "TransferType", "CCH")));
+
+        Scenario.run(process).startByKey("SMC_TRIAGE").execute();
+
+        verify(process).hasCompleted("Activity_0wzbpdx");
+    }
+
+    @Test
+    public void testTransferCaseToIEDET(){
+        when(process.waitsAtUserTask("Validate_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
+
+        when(process.waitsAtUserTask("Transfer_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "TransferType", "IEDET")));
+
+        Scenario.run(process).startByKey("SMC_TRIAGE").execute();
+
+        verify(process).hasCompleted("Activity_0vcth0f");
     }
 
 }
