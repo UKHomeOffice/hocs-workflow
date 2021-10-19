@@ -55,6 +55,10 @@ public class SMC {
                 .thenReturn("valid", "true")
                 .deploy(rule);
 
+        whenAtCallActivity("SMC_DRAFT")
+                .thenReturn("valid", "true")
+                .deploy(rule);
+
         whenAtCallActivity("SMC_SEND")
                 .thenReturn("valid", "true")
                 .deploy(rule);
@@ -66,6 +70,7 @@ public class SMC {
         verify(processScenario).hasCompleted("StartEvent_SMC");
         verify(processScenario).hasCompleted("CallActivity_SMC_REGISTRATION");
         verify(processScenario).hasCompleted("CallActivity_SMC_TRIAGE");
+        verify(processScenario).hasCompleted("CallActivity_SMC_DRAFT");
         verify(processScenario).hasCompleted("CallActivity_SMC_SEND");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_SMC");
