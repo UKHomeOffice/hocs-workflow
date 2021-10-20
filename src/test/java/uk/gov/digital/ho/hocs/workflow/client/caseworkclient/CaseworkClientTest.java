@@ -257,4 +257,44 @@ public class CaseworkClientTest {
         verify(restHelper, times(1)).post(eq(caseServiceUrl), eq(resourcePath), any(), any());
         verifyNoMoreInteractions(restHelper);
     }
+
+    @Test
+    public void updatePrimaryTopicForCaseWithTextUUID(){
+        // GIVEN
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID topicUUID = UUID.randomUUID();
+        String resourcePath = String.format("/case/%s/stage/%s/topic/textUUID", caseUUID, stageUUID);
+
+        ResponseEntity<Void> voidResponseEntity = new ResponseEntity<>(null, HttpStatus.OK);
+
+        when(restHelper.put(anyString(), anyString(), anyString(), any())).thenReturn(voidResponseEntity);
+
+        // WHEN
+        caseworkClient.updatePrimaryTopicWithTextUUID(caseUUID, stageUUID, topicUUID);
+
+        // THEN
+        verify(restHelper, times(1)).put(eq(caseServiceUrl), eq(resourcePath), any(), any());
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void updatePrimaryTopicForCase(){
+        // GIVEN
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        UUID topicUUID = UUID.randomUUID();
+        String resourcePath = String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID);
+
+        ResponseEntity<Void> voidResponseEntity = new ResponseEntity<>(null, HttpStatus.OK);
+
+        when(restHelper.put(anyString(), anyString(), anyString(), any())).thenReturn(voidResponseEntity);
+
+        // WHEN
+        caseworkClient.updatePrimaryTopic(caseUUID, stageUUID, topicUUID);
+
+        // THEN
+        verify(restHelper, times(1)).put(eq(caseServiceUrl), eq(resourcePath), any(), any());
+        verifyNoMoreInteractions(restHelper);
+    }
 }
