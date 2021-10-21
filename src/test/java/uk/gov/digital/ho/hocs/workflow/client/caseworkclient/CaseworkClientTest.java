@@ -266,10 +266,6 @@ public class CaseworkClientTest {
         UUID topicUUID = UUID.randomUUID();
         String resourcePath = String.format("/case/%s/stage/%s/topic/textUUID", caseUUID, stageUUID);
 
-        ResponseEntity<Void> voidResponseEntity = new ResponseEntity<>(null, HttpStatus.OK);
-
-        when(restHelper.put(anyString(), anyString(), anyString(), any())).thenReturn(voidResponseEntity);
-
         // WHEN
         caseworkClient.updatePrimaryTopicWithTextUUID(caseUUID, stageUUID, topicUUID);
 
@@ -285,10 +281,6 @@ public class CaseworkClientTest {
         UUID stageUUID = UUID.randomUUID();
         UUID topicUUID = UUID.randomUUID();
         String resourcePath = String.format("/case/%s/stage/%s/primaryTopic", caseUUID, stageUUID);
-
-        ResponseEntity<Void> voidResponseEntity = new ResponseEntity<>(null, HttpStatus.OK);
-
-        when(restHelper.put(anyString(), anyString(), anyString(), any())).thenReturn(voidResponseEntity);
 
         // WHEN
         caseworkClient.updatePrimaryTopic(caseUUID, stageUUID, topicUUID);
