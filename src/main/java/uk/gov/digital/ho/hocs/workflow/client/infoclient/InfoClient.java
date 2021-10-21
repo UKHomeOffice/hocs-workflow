@@ -13,10 +13,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.*;
 
 import java.util.List;
 import java.util.Set;
@@ -120,6 +117,13 @@ public class InfoClient {
         UserDto userDto = restHelper.get(serviceBaseURL, String.format("/teams/%s/member/%s", teamUUID, userUUID), UserDto.class);
         log.info("Got User for Team {} for User {}", teamUUID, userUUID, value(EVENT, INFO_CLIENT_GET_USER_SUCESS));
         return userDto;
+    }
+
+    @Cacheable(value = "InfoClientGetUnitForTeam", unless = "#result == null", key = "{ #teamUUID }")
+    public UnitDto getUnitForTeam(UUID teamUUID) {
+        UnitDto unitDto = restHelper.get(serviceBaseURL, String.format("/unit/team/%s", teamUUID), UnitDto.class);
+        log.info("Got Unit {} for Team {}", teamUUID, value(EVENT, INFO_CLIENT_GET_UNIT_FOR_TEAM_SUCESS));
+        return unitDto;
     }
 
     @Cacheable(value = "InfoClientGetCaseDetailsFieldDtos", unless = "#result == null", key = "{ #caseType}")

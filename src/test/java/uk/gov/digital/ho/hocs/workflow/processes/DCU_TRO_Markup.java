@@ -60,9 +60,9 @@ public class DCU_TRO_Markup extends DCU_MIN_DTEN_Markup_Common {
 
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"), eq("DefaultPolicyTeamUnitHistoricName"));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"), eq("DraftingTeamUnitHistoricName"));
 
         verify(bpmnService).updateTeamSelection(any(), any(), eq(""), eq(""));
     }
@@ -84,9 +84,9 @@ public class DCU_TRO_Markup extends DCU_MIN_DTEN_Markup_Common {
 
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"), eq("DefaultPolicyTeamUnitHistoricName"));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"), eq("DraftingTeamUnitHistoricName"));
 
         verify(bpmnService).updateTeamSelection(any(), any(), eq(DCU_DRAFT_TEAM_UUID), eq(""));
     }
@@ -101,7 +101,7 @@ public class DCU_TRO_Markup extends DCU_MIN_DTEN_Markup_Common {
 
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"), eq("DefaultPolicyTeamUnitHistoricName"));
 
         verify(bpmnService).setDraftingTeam(any(), any(), eq(DCU_DRAFT_TEAM_UUID));
 

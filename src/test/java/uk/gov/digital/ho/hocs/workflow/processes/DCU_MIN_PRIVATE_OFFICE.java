@@ -278,6 +278,7 @@ public class DCU_MIN_PRIVATE_OFFICE {
                         "OverridePOTeamUUID", overridePOTeamUUID.toString(),
                         "PrivateOfficeOverridePOTeamName", "Minister of State for Crime and Policing",
                         "PrivateOfficeOverridePOTeamUUID", "5d335594-2f88-4b06-ab08-ad1e6d6e39aa",
+                        "PrivateOfficeOverridePOTeamUnitHistoricName", "",
                         "CaseNote_PrivateOfficeTopic", "Change topic",
                         "Topics", topicUUID.toString())));
 
@@ -292,7 +293,7 @@ public class DCU_MIN_PRIVATE_OFFICE {
         verify(processScenario).hasCompleted("Service_SavePrimaryTopic");
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(topicUUID.toString()));
         verify(processScenario).hasCompleted("Service_UpdateTeamsForTopic");
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(topicUUID.toString()), eq("DCU_MIN_PRIVATE_OFFICE"), eq("PrivateOfficeOverridePOTeamUUID"), eq("PrivateOfficeOverridePOTeamName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(topicUUID.toString()), eq("DCU_MIN_PRIVATE_OFFICE"), eq("PrivateOfficeOverridePOTeamUUID"), eq("PrivateOfficeOverridePOTeamName"), eq("PrivateOfficeOverridePOTeamUnitHistoricName"));
         verify(processScenario).hasCompleted("UPDATE_MINISTER_OR_DIRECTOR_DEADLINE");
         verify(processScenario).hasCompleted("UPDATE_STAGE_DEADLINES_FOR_MINISTER_OR_DIRECTOR_TEAMS");
         verify(processScenario).hasFinished("DCU_MIN_PRIVATE_OFFICE_END");

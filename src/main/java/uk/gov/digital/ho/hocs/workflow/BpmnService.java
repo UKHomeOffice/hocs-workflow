@@ -22,6 +22,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorresponden
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UnitDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.util.NoteType;
@@ -225,16 +226,27 @@ public class BpmnService {
         caseworkClient.updatePrimaryTopicWithTextUUID(caseUUID, stageUUID, topicUUID);
     }
 
-    public void updateTeamsForPrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString, String stageType, String teamNameKey, String teamUUIDKey) {
+    public void updateTeamsForPrimaryTopic(String caseUUIDString,
+                                           String stageUUIDString,
+                                           String topicUUIDString,
+                                           String stageType,
+                                           String teamNameKey,
+                                           String teamUUIDKey,
+                                           String unitNameKey) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
         UUID topicUUID = UUID.fromString(topicUUIDString);
 
+
         Map<String, String> teamsForTopic = new HashMap<>();
         TeamDto teamDto = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, stageType);
+
+        UnitDto unit = infoClient.getUnitForTeam(teamDto.getUuid());
+
         if (teamDto.isActive()) {
             teamsForTopic.put(teamNameKey, teamDto.getUuid().toString());
             teamsForTopic.put(teamUUIDKey, teamDto.getDisplayName());
+            teamsForTopic.put(unitNameKey, unit.getDisplayName());
         } else {
             log.warn("Avoiding assigning orphaned team {}", teamDto.getDisplayName());
         }
@@ -249,14 +261,18 @@ public class BpmnService {
         UUID stageUUID = UUID.fromString(stageUUIDString);
         Map<String, String> teamsForTopic = new HashMap<>();
 
+        final UnitDto unitForTeam = infoClient.getUnitForTeam(UUID.fromString(draftingUUIDString));
+
         log.info("Writing draft team with {}", draftingUUIDString);
         TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
 
         teamsForTopic.put("OverrideDraftingTeamUUID", "");
         teamsForTopic.put("OverrideDraftingTeamName", "");
+        teamsForTopic.put("OverrideDraftingTeamUnitHistoricName", "");
 
         teamsForTopic.put("DraftingTeamUUID", draftingTeam.getUuid().toString());
         teamsForTopic.put("DraftingTeamName", draftingTeam.getDisplayName());
+        teamsForTopic.put("DraftingTeamUnitHistoricName", unitForTeam.getDisplayName());
 
         camundaClient.updateTask(stageUUID, teamsForTopic);
         caseworkClient.updateCase(caseUUID, stageUUID, teamsForTopic);
@@ -270,15 +286,18 @@ public class BpmnService {
 
         if (StringUtils.hasText(draftingUUIDString)) {
             TeamDto draftingTeam = infoClient.getTeam(UUID.fromString(draftingUUIDString));
+            final UnitDto unitForTeam = infoClient.getUnitForTeam(UUID.fromString(draftingUUIDString));
 
             if (draftingTeam.isActive()){
                 teamsForTopic.put("OverrideDraftingTeamUUID", draftingTeam.getUuid().toString());
                 teamsForTopic.put("OverrideDraftingTeamName", draftingTeam.getDisplayName());
+                teamsForTopic.put("OverrideDraftingTeamUnitHistoricName", unitForTeam.getDisplayName());
                 log.info("Overwriting draft team with {}", draftingUUIDString);
             }
             else {
                 teamsForTopic.put("OverrideDraftingTeamUUID", "");
                 teamsForTopic.put("OverrideDraftingTeamName", "");
+                teamsForTopic.put("OverrideDraftingTeamUnitHistoricName", "");
                 log.info("Removing Override Drafting Team as selected team was inactive.");
             }
 
@@ -287,14 +306,18 @@ public class BpmnService {
 
         if (StringUtils.hasText(privateOfficeUUIDString)) {
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
+            final UnitDto unitForTeam = infoClient.getUnitForTeam(UUID.fromString(privateOfficeUUIDString));
+
             if (pOTeam.isActive()){
                 teamsForTopic.put("OverridePOTeamUUID", pOTeam.getUuid().toString());
                 teamsForTopic.put("OverridePOTeamName", pOTeam.getDisplayName());
+                teamsForTopic.put("OverridePOTeamUnitHistoricName", unitForTeam.getDisplayName());
                 log.info("Overwriting po team with {}", privateOfficeUUIDString);
             }
             else{
                 teamsForTopic.put("OverridePOTeamUUID", "");
                 teamsForTopic.put("OverridePOTeamName", "");
+                teamsForTopic.put("OverridePOTeamUnitHistoricName", "");
                 log.info("Removing Override PO Team as selected team was inactive.");
             }
 
@@ -307,7 +330,6 @@ public class BpmnService {
 
         log.debug("######## Updated Team Selection ########");
     }
-
     public void updatePOTeamSelection(String caseUUIDString, String stageUUIDString, String privateOfficeUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
@@ -315,10 +337,14 @@ public class BpmnService {
         Map<String, String> teamsForTopic = new HashMap<>();
 
         if (StringUtils.hasText(privateOfficeUUIDString)) {
+            final UnitDto unitForTeam = infoClient.getUnitForTeam(UUID.fromString(privateOfficeUUIDString));
+
+
             log.info("Overwriting po team with {}", privateOfficeUUIDString);
             TeamDto pOTeam = infoClient.getTeam(UUID.fromString(privateOfficeUUIDString));
             teamsForTopic.put("PrivateOfficeOverridePOTeamUUID", pOTeam.getUuid().toString());
             teamsForTopic.put("PrivateOfficeOverridePOTeamName", pOTeam.getDisplayName());
+            teamsForTopic.put("PrivateOfficeOverridePOTeamUnitHistoricName", unitForTeam.getDisplayName());
         }
 
         if (!teamsForTopic.isEmpty()) {
