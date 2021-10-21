@@ -49,6 +49,11 @@ public class SMC_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true)));
 
+        when(process.waitsAtUserTask("Validate_Complainant"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
         when(process.waitsAtUserTask("Validate_Complaint_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))

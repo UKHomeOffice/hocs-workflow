@@ -93,6 +93,11 @@ public class CaseworkClient {
         log.info("Set Primary Topic for Case {}", caseUUID);
     }
 
+    public void updatePrimaryTopicWithTextUUID(UUID caseUUID, UUID stageUUID, UUID primaryTopic) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/topic/textUUID", caseUUID, stageUUID), primaryTopic, Void.class);
+        log.info("Set Primary Topic for Case {}", caseUUID);
+    }
+
     public GetCaseworkCaseDataResponse getCase(UUID caseUUID) {
         GetCaseworkCaseDataResponse response = restHelper.get(serviceBaseURL, String.format("/case/%s", caseUUID), GetCaseworkCaseDataResponse.class);
         log.info("Got Case: {}", caseUUID);

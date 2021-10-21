@@ -50,6 +50,11 @@ public class SMC_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
+        when(process.waitsAtUserTask("Validate_PSU"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
         when(process.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
@@ -79,6 +84,9 @@ public class SMC_TRIAGE {
     public void testCloseAtTriage(){
         when(process.waitsAtUserTask("Validate_Case"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(process.waitsAtUserTask("Validate_PSU"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(process.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
@@ -113,6 +121,9 @@ public class SMC_TRIAGE {
     public void testReferAtTriage(){
         when(process.waitsAtUserTask("Validate_Case"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(process.waitsAtUserTask("Validate_PSU"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(process.waitsAtUserTask("Validate_Category"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));

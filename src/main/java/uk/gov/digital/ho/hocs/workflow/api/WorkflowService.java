@@ -69,53 +69,48 @@ public class WorkflowService {
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
-        Map<String, String> data = new HashMap<>(receivedData);
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
-        //If we have a name we have correspondent details attached to the case creation request
-        if(data.containsKey("Fullname")) {
-            correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
-                    .type("FOI Requester")
-                    .fullname(data.get("Fullname"))
-                    .organisation(data.get("Organisation"))
-                    .postcode(data.get("Postcode"))
-                    .address1(data.get("Address1"))
-                    .address2(data.get("Address2"))
-                    .address3(data.get("Address3"))
-                    .country(data.get("Country"))
-                    .telephone(data.get("Telephone"))
-                    .email(data.get("Email"))
-                    .reference(data.get("Reference"))
-                    .build();
+        Map<String, String> caseData = new HashMap<>();
+        caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+        caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
-            data.remove("Fullname");
-            data.remove("Organisation");
-            data.remove("Postcode");
-            data.remove("Address1");
-            data.remove("Address2");
-            data.remove("Address3");
-            data.remove("Country");
-            data.remove("Telephone");
-            data.remove("Email");
-            data.remove("Reference");
+        if (receivedData != null && Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)) {
+            // If we have a name we have correspondent details attached to the case creation request
+            if(receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
+                correspondentRequest = buildCorrespondentRequest(receivedData);
+
+                caseData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
+                caseData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
+                caseData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
+                caseData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
+            }
         }
 
-        data.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
-        data.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, data, dateReceived, fromCaseUUID);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
-
             // Add Documents to the case
             createDocument(caseUUID, documents);
 
             // Start a new camunda workflow (caseUUID is the business key).
             Map<String, String> seedData = new HashMap<>();
-            seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
-            seedData.putAll(data);
-            camundaClient.startCase(caseUUID, caseDataType, seedData);
+            if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI) && receivedData != null) {
+                seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
+                seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+                seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+                seedData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
+                seedData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
+                seedData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
+                seedData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
+            } else {
+                seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
+                seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+                seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+            }
 
+            camundaClient.startCase(caseUUID, caseDataType, seedData);
             //Create correspondent
             if (correspondentRequest != null) {
                 UUID stageUUID = caseworkClient.getStageUUID(caseUUID);
@@ -127,6 +122,24 @@ public class WorkflowService {
             throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
+    }
+
+    private CreateCaseworkCorrespondentRequest buildCorrespondentRequest(Map<String, String> data) {
+        CreateCaseworkCorrespondentRequest correspondentRequest;
+        correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
+                .type(WorkflowConstants.TYPE_FOI_REQUESTER)
+                .fullname(data.get(WorkflowConstants.FULL_NAME))
+                .postcode(data.get(WorkflowConstants.POSTCODE))
+                .organisation(data.get(WorkflowConstants.ORGANISATION))
+                .address1(data.get(WorkflowConstants.ADDRESS1))
+                .address2(data.get(WorkflowConstants.ADDRESS2))
+                .address3(data.get(WorkflowConstants.ADDRESS3))
+                .country(data.get(WorkflowConstants.COUNTRY))
+                .telephone(data.get(WorkflowConstants.TELEPHONE))
+                .email(data.get(WorkflowConstants.EMAIL))
+                .reference(data.get(WorkflowConstants.REFERENCE))
+                .build();
+        return correspondentRequest;
     }
 
     public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
