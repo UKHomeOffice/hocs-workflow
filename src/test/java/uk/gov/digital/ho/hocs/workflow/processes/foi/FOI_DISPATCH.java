@@ -578,4 +578,55 @@ public class FOI_DISPATCH {
                 .hasCompleted(END_EVENT);
 
     }
+
+    @Test
+    public void doUploadFinalDocumentsWithBack() {
+
+        when(FOIDataInputProcess.waitsAtUserTask(DISPATCH_CONFIRMATION))
+                .thenReturn(task -> task.complete(withVariables(
+                        "ShouldDispatch", "ShouldDispatch-Y")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(CASE_OUTCOME))
+                .thenReturn(task -> task.complete(withVariables("CaseType", "FOI",
+                        "TransferOutcome", "RELEASED_IN_PART",
+                        "DIRECTION", "FOI_CASE_TYPE_DISPATCH")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(ADD_EXEMPTIONS))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(CHECK_ANSWERS))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(FOIDataInputProcess.waitsAtUserTask(FOI_UPLOAD_FINAL_DOCUMENTS))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(FOIDataInputProcess)
+                .startByKey("FOI_DISPATCH")
+                .execute();
+
+        verify(FOIDataInputProcess, times(2))
+                .hasCompleted(CASE_OUTCOME);
+
+        verify(FOIDataInputProcess, times(2))
+                .hasCompleted(ADD_EXEMPTIONS);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(DEALLOCATE_TEAM);
+
+        verify(FOIDataInputProcess, times(2))
+                .hasCompleted(FOI_UPLOAD_FINAL_DOCUMENTS);
+
+        verify(FOIDataInputProcess, times(3))
+                .hasCompleted(DISPATCH_CONFIRMATION);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(CLEAR_REJECTED);
+
+        verify(FOIDataInputProcess, times(1))
+                .hasCompleted(END_EVENT);
+
+    }
+
 }
