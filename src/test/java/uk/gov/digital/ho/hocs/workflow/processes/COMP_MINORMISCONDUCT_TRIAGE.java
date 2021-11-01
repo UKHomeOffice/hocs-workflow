@@ -70,6 +70,11 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Category"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
@@ -95,6 +100,9 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
     public void testTriageResultEscalate() {
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Category"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
@@ -126,6 +134,9 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
 
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Category"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Details"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));

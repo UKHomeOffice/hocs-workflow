@@ -218,6 +218,14 @@ public class BpmnService {
         caseworkClient.updatePrimaryTopic(caseUUID, stageUUID, topicUUID);
     }
 
+    public void updatePrimaryTopicWithTextUUID(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        UUID stageUUID = UUID.fromString(stageUUIDString);
+        UUID topicUUID = UUID.fromString(topicUUIDString);
+
+        caseworkClient.updatePrimaryTopicWithTextUUID(caseUUID, stageUUID, topicUUID);
+    }
+
     public void updateTeamsForPrimaryTopic(String caseUUIDString,
                                            String stageUUIDString,
                                            String topicUUIDString,
