@@ -155,6 +155,34 @@ public class SMC_TRIAGE {
     }
 
     @Test
+    public void testSaveAtTriage() {
+        when(process.waitsAtUserTask("Validate_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(process.waitsAtUserTask("Validate_PSU"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(process.waitsAtUserTask("Validate_Category"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(process.waitsAtUserTask("Validate_Details"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(process.waitsAtUserTask("Validate_Reasons"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(process.waitsAtUserTask("Validate_Input"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "ScmTriageResult", "Pending")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "ScmTriageResult", "NotPending")));
+
+        Scenario.run(process).startByKey("SMC_TRIAGE").execute();
+
+        verify(process).hasCompleted("EndEvent_SCM_TRIAGE");
+    }
+
+    @Test
     public void testTransferCaseToCCH(){
         when(process.waitsAtUserTask("Validate_Case"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
