@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
         "processes/FOI_CASE_CREATION.bpmn"})
 public class FOI_CASE_CREATION {
 
-    public static final String ADD_TOPIC_TO_CASE = "ADD_TOPIC_TO_CASE";
     public static final String ALLOCATE_TO_CASE_CREATOR = "ALLOCATE_TO_CASE_CREATOR";
     public static final String CHECK_ANSWERS = "CHECK_ANSWERS";
     public static final String CHANGE_ANSWERS = "CHANGE_ANSWERS";
@@ -33,10 +32,6 @@ public class FOI_CASE_CREATION {
     public static final String VALID_TEMPLATES = "VALID_TEMPLATES";
     public static final String NON_VALID_TEMPLATES = "NON_VALID_TEMPLATES";
     public static final String END_EVENT = "END_EVENT";
-    public static final String SAVE_PRIMARY_TOPIC_PRE_CHANGE = "Activity_1xbxkjm";
-    public static final String SAVE_PRIMARY_TOPIC_POST_CHANGE = "Activity_0krulfl";
-
-
 
     @Rule
     @ClassRule
@@ -82,12 +77,6 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(ADD_TOPIC_TO_CASE);
-
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
-
         verify(FOICaseCreationProcess, times(2))
                 .hasCompleted(CHECK_ANSWERS);
 
@@ -102,9 +91,6 @@ public class FOI_CASE_CREATION {
 
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(VALID_TEMPLATES);
-
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(SAVE_PRIMARY_TOPIC_POST_CHANGE);
 
         verify(FOICaseCreationProcess).hasFinished(END_EVENT);
 
@@ -132,12 +118,6 @@ public class FOI_CASE_CREATION {
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
         verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(ADD_TOPIC_TO_CASE);
-
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
-
-        verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(CHECK_ANSWERS);
 
         verify(FOICaseCreationProcess, times(1))
@@ -146,16 +126,10 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(NON_VALID_TEMPLATES);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
-
         // NOT INVOKED
 
         verify(FOICaseCreationProcess, times(0))
                 .hasCompleted(CHANGE_ANSWERS);
-
-        verify(FOICaseCreationProcess, times(0))
-                .hasCompleted(SAVE_PRIMARY_TOPIC_POST_CHANGE);
 
         verify(FOICaseCreationProcess, times(0))
                 .hasCompleted(UPDATE_DEADLINES);
@@ -191,12 +165,6 @@ public class FOI_CASE_CREATION {
         verify(FOICaseCreationProcess, times(1))
                 .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(ADD_TOPIC_TO_CASE);
-
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(SAVE_PRIMARY_TOPIC_PRE_CHANGE);
-
         verify(FOICaseCreationProcess, times(2))
                 .hasCompleted(CHECK_ANSWERS);
 
@@ -210,9 +178,6 @@ public class FOI_CASE_CREATION {
 
         verify(FOICaseCreationProcess, times(0))
                 .hasCompleted(CHANGE_ANSWERS);
-
-        verify(FOICaseCreationProcess, times(0))
-                .hasCompleted(SAVE_PRIMARY_TOPIC_POST_CHANGE);
 
         verify(FOICaseCreationProcess, times(0))
                 .hasCompleted(UPDATE_DEADLINES);
