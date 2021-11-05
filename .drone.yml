@@ -119,8 +119,6 @@ steps:
         - main
       event:
         - push
-    depends_on:
-      - clone kube repo
 
   - name: deploy to wcs-dev
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
@@ -138,8 +136,6 @@ steps:
         - main
       event:
         - push
-    depends_on:
-      - clone kube repo
 
   - name: wait for docker
     image: docker
@@ -187,7 +183,7 @@ steps:
     commands:
       - source version.txt
       - echo $VERSION
-      - cd kube-hocs-workflow
+      - cd kube
       - ./deploy.sh
     environment:
       ENVIRONMENT: cs-qa
@@ -200,7 +196,6 @@ steps:
       target:
         - release
     depends_on:
-      - clone kube repo
       - generate & tag build
 
   - name: deploy to wcs-qa
@@ -208,7 +203,7 @@ steps:
     commands:
       - source version.txt
       - echo $VERSION
-      - cd kube-hocs-workflow
+      - cd kube
       - ./deploy.sh
     environment:
       ENVIRONMENT: wcs-qa
@@ -221,13 +216,12 @@ steps:
       target:
         - release
     depends_on:
-      - clone kube repo
       - generate & tag build
 
   - name: deploy to not prod
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
     commands:
-      - cd kube-hocs-workflow
+      - cd kube
       - ./deploy.sh
     environment:
       ENVIRONMENT: ${DRONE_DEPLOY_TO}
@@ -241,13 +235,11 @@ steps:
         exclude:
           - release
           - "*-prod"
-    depends_on:
-      - clone kube repo
 
   - name: deploy to prod
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
     commands:
-      - cd kube-hocs-workflow
+      - cd kube
       - ./deploy.sh
     environment:
       ENVIRONMENT: ${DRONE_DEPLOY_TO}
@@ -260,5 +252,3 @@ steps:
       target:
         include:
           - "*-prod"
-    depends_on:
-      - clone kube repo
