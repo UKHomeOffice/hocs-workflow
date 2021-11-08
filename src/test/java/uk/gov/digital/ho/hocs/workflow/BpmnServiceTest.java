@@ -827,26 +827,4 @@ public class BpmnServiceTest {
         // THEN
         verify(caseworkClient, times(1)).createCaseNote(UUID.fromString(testCaseUUID), NoteType.ALLOCATE.toString(), expectedCaseNote);
     }
-
-    @Test
-    public void shouldCallCaseworkToAddTopicToCase() {
-
-        //GIVEN
-        UUID expectedCaseUUID = UUID.randomUUID();
-        UUID expectedStageUUID = UUID.randomUUID();
-        UUID expectedTopicUUID = UUID.randomUUID();
-        String caseUUID = expectedCaseUUID.toString();
-        String stageUUID = expectedStageUUID.toString();
-        String topicUUID = expectedTopicUUID.toString();
-
-        // WHEN
-        bpmnService.addTopicToCase(caseUUID, stageUUID, topicUUID);
-
-        // THEN
-        verify(caseworkClient, times(1)).addTopicToCase(eq(expectedCaseUUID), eq(expectedStageUUID), eq(expectedTopicUUID));
-        verifyNoMoreInteractions(caseworkClient);
-        verifyZeroInteractions(infoClient);
-        verifyZeroInteractions(camundaClient);
-    }
-
 }
