@@ -202,14 +202,6 @@ public class BpmnService {
         return validPrimaryCorrespondent;
     }
 
-    public void addTopicToCase(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID = UUID.fromString(stageUUIDString);
-        UUID topicUUID = UUID.fromString(topicUUIDString);
-
-        caseworkClient.addTopicToCase(caseUUID, stageUUID, topicUUID);
-    }
-
     public void updatePrimaryTopic(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
@@ -218,12 +210,13 @@ public class BpmnService {
         caseworkClient.updatePrimaryTopic(caseUUID, stageUUID, topicUUID);
     }
 
-    public void updatePrimaryTopicWithTextUUID(String caseUUIDString, String stageUUIDString, String topicUUIDString) {
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID = UUID.fromString(stageUUIDString);
-        UUID topicUUID = UUID.fromString(topicUUIDString);
-
-        caseworkClient.updatePrimaryTopicWithTextUUID(caseUUID, stageUUID, topicUUID);
+    public void updateTeamsForPrimaryTopic(String caseUUIDString,
+                                           String stageUUIDString,
+                                           String topicUUIDString,
+                                           String stageType,
+                                           String teamNameKey,
+                                           String teamUUIDKey) {
+        updateTeamsForPrimaryTopic(caseUUIDString, stageUUIDString, topicUUIDString, stageType, teamNameKey, teamUUIDKey, null);
     }
 
     public void updateTeamsForPrimaryTopic(String caseUUIDString,
@@ -237,16 +230,16 @@ public class BpmnService {
         UUID stageUUID = UUID.fromString(stageUUIDString);
         UUID topicUUID = UUID.fromString(topicUUIDString);
 
-
         Map<String, String> teamsForTopic = new HashMap<>();
         TeamDto teamDto = infoClient.getTeamForTopicAndStage(caseUUID, topicUUID, stageType);
 
-        UnitDto unit = infoClient.getUnitForTeam(teamDto.getUuid());
-
         if (teamDto.isActive()) {
+            if (unitNameKey != null) {
+                UnitDto unit = infoClient.getUnitForTeam(teamDto.getUuid());
+                teamsForTopic.put(unitNameKey, unit.getDisplayName());
+            }
             teamsForTopic.put(teamNameKey, teamDto.getUuid().toString());
             teamsForTopic.put(teamUUIDKey, teamDto.getDisplayName());
-            teamsForTopic.put(unitNameKey, unit.getDisplayName());
         } else {
             log.warn("Avoiding assigning orphaned team {}", teamDto.getDisplayName());
         }
