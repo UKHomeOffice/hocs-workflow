@@ -19,4 +19,7 @@ public class CreateCaseworkDocumentRequest {
 
     @JsonProperty("externalReferenceUUID")
     private UUID externalReferenceUUID;
+
+    @JsonProperty("actionDataItemUuid")
+    private UUID actionDataItemUuid;
 }
