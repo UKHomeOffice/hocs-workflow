@@ -147,6 +147,25 @@ public class WorkflowServiceTest {
     }
 
     @Test
+    public void createDocument() {
+        // given
+        UUID caseUuid = UUID.randomUUID();
+        UUID actionDataItemUuid = UUID.randomUUID();
+
+        final List<DocumentSummary> documentSummaries = List.of(
+                new DocumentSummary("displayName1", "type1", "url1"),
+                new DocumentSummary("displayName2", "type2", "url2")
+        );
+
+        // when
+        workflowService.createDocument(caseUuid, actionDataItemUuid, documentSummaries);
+
+        // then
+        verify(documentClient, times(1)).createDocument(caseUuid, actionDataItemUuid, "displayName1", "url1", "type1");
+        verify(documentClient, times(1)).createDocument(caseUuid, actionDataItemUuid, "displayName2", "url2", "type2");
+    }
+
+    @Test
     public void createCase_whenHasInitialEmailCorrespondentDetails() {
 
         String expectedReference = "REFERENCE";

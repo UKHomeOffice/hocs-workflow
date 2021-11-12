@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
@@ -247,5 +248,24 @@ public class WorkflowResourceTest {
         verifyNoMoreInteractions(bpmnService);
     }
 
+    @Test
+    public void createDocument_withActionUuid() {
+        // given
+        UUID caseUUID = UUID.randomUUID();
+        UUID actionDataItemUuid = UUID.randomUUID();
 
+        final List<DocumentSummary> documentSummaries = List.of(
+                new DocumentSummary("displayName1", "type1", "url1"),
+                new DocumentSummary("displayName2", "type2", "url2")
+        );
+
+        CreateDocumentRequest createDocumentRequest = new CreateDocumentRequest(documentSummaries, actionDataItemUuid);
+
+        // when
+        ResponseEntity result = workflowResource.createDocument(caseUUID, actionDataItemUuid, createDocumentRequest);
+
+        // then
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(workflowService).createDocument(eq(caseUUID), eq(actionDataItemUuid), eq(documentSummaries));
+    }
 }

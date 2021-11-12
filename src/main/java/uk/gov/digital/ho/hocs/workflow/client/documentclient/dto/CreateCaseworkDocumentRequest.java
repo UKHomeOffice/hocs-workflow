@@ -2,10 +2,12 @@ package uk.gov.digital.ho.hocs.workflow.client.documentclient.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.UUID;
 
 @AllArgsConstructor
+@Getter
 public class CreateCaseworkDocumentRequest {
 
     @JsonProperty("name")
