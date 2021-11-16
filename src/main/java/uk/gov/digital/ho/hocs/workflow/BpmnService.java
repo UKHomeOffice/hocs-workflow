@@ -420,6 +420,10 @@ public class BpmnService {
 
     public void updateAllocationNote(String caseUUIDString, String stageUUIDString, String allocationNote, String allocationNoteType) {
         log.debug("######## Save Allocation Note ########");
+        if (allocationNote == null) {
+            log.error("updateAllocationNote was passed a null allocation note parameter, this has been set to an empty string.");
+            allocationNote = "";
+        }
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), allocationNoteType, allocationNote);
         log.info("Adding Casenote to Case: {}", caseUUIDString);
     }
