@@ -19,9 +19,7 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -48,14 +46,26 @@ public class COMP_CLOSE {
 
     @Test
     public void testDefaultRoute() {
-
         when(processScenario.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CaseNote_CompleteReason","Complete")));
+                .thenReturn(task -> task.complete(withVariables("valid", true,
+                                                  "CaseNote_CompleteReason","Complete",
+                                                                     "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario).startByKey("COMP_CLOSE").execute();
 
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Complete"), eq("CLOSE"));
-
-
     }
+
+    @Test
+    public void testBackwards() {
+        when(processScenario.waitsAtUserTask("Validate_CompleteReason"))
+                .thenReturn(task -> task.complete(withVariables("valid", true,
+                                                  "CaseNote_CompleteReason","Complete",
+                                                                     "DIRECTION", "BACKWARD")));
+
+        Scenario.run(processScenario).startByKey("COMP_CLOSE").execute();
+
+        verify(bpmnService, never()).updateAllocationNote(any(), any(), eq("Complete"), eq("CLOSE"));
+    }
+
 }

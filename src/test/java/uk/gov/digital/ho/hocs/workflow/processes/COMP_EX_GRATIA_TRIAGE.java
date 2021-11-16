@@ -129,7 +129,8 @@ public class COMP_EX_GRATIA_TRIAGE {
     public void testTriageResultComplete() {
 
         whenAtCallActivity("COMP_CLOSE")
-                .thenReturn("CloseResult", "Yes", "varx", "vary")
+                .thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "BACKWARD")
+                .thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "FORWARD")
                 .deploy(rule);
 
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept"))
@@ -153,7 +154,7 @@ public class COMP_EX_GRATIA_TRIAGE {
         verify(exGratiaTriageProcess, times(1)).hasCompleted("Activity_1d48rcf");
         verify(exGratiaTriageProcess, times(1)).hasCompleted("Screen_Details");
         verify(exGratiaTriageProcess, times(1)).hasCompleted("Screen_BusArea");
-        verify(exGratiaTriageProcess, times(1)).hasCompleted("Screen_Input");
+        verify(exGratiaTriageProcess, times(2)).hasCompleted("Screen_Input");
 
     }
 }

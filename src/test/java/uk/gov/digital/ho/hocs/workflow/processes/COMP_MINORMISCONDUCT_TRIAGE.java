@@ -129,7 +129,8 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
     public void testTriageResultComplete() {
 
         whenAtCallActivity("COMP_CLOSE")
-                .thenReturn("CloseResult", "Yes", "varx", "vary")
+                .thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "BACKWARD")
+                .thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "FORWARD")
                 .deploy(rule);
 
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept"))
@@ -150,7 +151,7 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
 
         Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
 
-        verify(minorMisconductTriageProcess, times(1)).hasCompleted("Screen_Input");
+        verify(minorMisconductTriageProcess, times(2)).hasCompleted("Screen_Input");
 
     }
 }
