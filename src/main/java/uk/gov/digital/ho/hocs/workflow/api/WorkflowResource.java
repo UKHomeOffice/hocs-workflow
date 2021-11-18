@@ -74,7 +74,7 @@ class WorkflowResource {
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
-        workflowService.createDocument(caseUUID, null, request.getDocuments());
+        workflowService.createDocument(caseUUID, request.getDocuments());
         return ResponseEntity.ok().build();
     }
 
