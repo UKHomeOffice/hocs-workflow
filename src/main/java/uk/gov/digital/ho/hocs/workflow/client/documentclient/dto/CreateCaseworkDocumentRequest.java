@@ -13,6 +13,13 @@ public class CreateCaseworkDocumentRequest {
     @JsonProperty("name")
     private String name;
 
+    public CreateCaseworkDocumentRequest(String name, String type, String fileLink, UUID externalReferenceUUID) {
+        this.name = name;
+        this.type = type;
+        this.fileLink = fileLink;
+        this.externalReferenceUUID = externalReferenceUUID;
+    }
+
     @JsonProperty("type")
     private String type;
 

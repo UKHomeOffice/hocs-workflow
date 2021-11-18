@@ -38,17 +38,35 @@ public class DocumentClientTest {
     public void createDocument() {
         // given
         UUID caseUuid = UUID.randomUUID();
-        UUID actionDataItemUuid = UUID.randomUUID();
         String expectedUrl = String.format("/document");
 
-        CreateCaseworkDocumentRequest expectedRequest =
-                new CreateCaseworkDocumentRequest(
-                        "displayName",
-                        "type",
-                        "fileLocation",
-                        caseUuid,
-                        actionDataItemUuid
-                );
+        // when
+        documentClient.createDocument(
+                caseUuid,
+                "displayName",
+                "fileLocation",
+                "type"
+        );
+
+        // then
+        ArgumentCaptor<CreateCaseworkDocumentRequest> argumentCaptor =
+                ArgumentCaptor.forClass(CreateCaseworkDocumentRequest.class);
+
+        verify(restHelper).post(eq(documentServiceUrl), eq(expectedUrl), argumentCaptor.capture(), eq(UUID.class));
+
+        final CreateCaseworkDocumentRequest result = argumentCaptor.getValue();
+
+        assertThat(result.getExternalReferenceUUID()).isEqualTo(caseUuid);
+
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void createDocumentForAction() {
+        // given
+        UUID caseUuid = UUID.randomUUID();
+        UUID actionDataItemUuid = UUID.randomUUID();
+        String expectedUrl = String.format("/document");
 
         // when
         documentClient.createDocument(

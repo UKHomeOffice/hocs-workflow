@@ -155,6 +155,20 @@ public class WorkflowService {
                 );
             }
         }
+
+    }
+    public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
+        if (documents != null) {
+            // Add any Documents to the case
+            for (DocumentSummary document : documents) {
+                documentClient.createDocument(
+                        caseUUID,
+                        document.getDisplayName(),
+                        document.getS3UntrustedUrl(),
+                        document.getType()
+                );
+            }
+        }
     }
 
     public GetStageResponse getStage(UUID caseUUID, UUID stageUUID) {
