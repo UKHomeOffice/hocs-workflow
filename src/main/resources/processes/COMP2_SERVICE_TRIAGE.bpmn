@@ -9,6 +9,7 @@
       <bpmn:incoming>SequenceFlow_0065hi4</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0fdheb9</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_12rwo2p</bpmn:incoming>
+      <bpmn:incoming>Flow_1cy3k9m</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_155xcyu</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="Validate_Input" name="Validate Input">
@@ -24,7 +25,7 @@
       <bpmn:incoming>SequenceFlow_0agn1uv</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1qmzx72</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1uzatlc</bpmn:incoming>
-      <bpmn:incoming>Flow_0ye972a</bpmn:incoming>
+      <bpmn:incoming>Flow_1d0ekym</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0fad1ra" name="false" sourceRef="ExclusiveGateway_137o870" targetRef="Screen_Input">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
@@ -299,18 +300,29 @@
       <bpmn:extensionElements>
         <camunda:in source="CaseUUID" target="CaseUUID" />
         <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:out source="DIRECTION" target="DIRECTION" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1481m2f</bpmn:incoming>
       <bpmn:outgoing>Flow_0ye972a</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_0ye972a" sourceRef="Activity_0ltb75r" targetRef="EndEvent_COMP_SERVICE_TRIAGE" />
+    <bpmn:sequenceFlow id="Flow_0ye972a" sourceRef="Activity_0ltb75r" targetRef="Gateway_1ctudo2" />
+    <bpmn:exclusiveGateway id="Gateway_1ctudo2">
+      <bpmn:incoming>Flow_0ye972a</bpmn:incoming>
+      <bpmn:outgoing>Flow_1d0ekym</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1cy3k9m</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1d0ekym" sourceRef="Gateway_1ctudo2" targetRef="EndEvent_COMP_SERVICE_TRIAGE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1cy3k9m" sourceRef="Gateway_1ctudo2" targetRef="Screen_Input">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP2_SERVICE_TRIAGE">
       <bpmndi:BPMNEdge id="Flow_0ye972a_di" bpmnElement="Flow_0ye972a">
         <di:waypoint x="2633" y="800" />
-        <di:waypoint x="4173" y="800" />
-        <di:waypoint x="4173" y="213" />
+        <di:waypoint x="2735" y="800" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0vhq73z_di" bpmnElement="Flow_0vhq73z">
         <di:waypoint x="880" y="383" />
@@ -563,6 +575,17 @@
           <dc:Bounds x="2246" y="175" width="24" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1d0ekym_di" bpmnElement="Flow_1d0ekym">
+        <di:waypoint x="2785" y="800" />
+        <di:waypoint x="4173" y="800" />
+        <di:waypoint x="4173" y="213" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1cy3k9m_di" bpmnElement="Flow_1cy3k9m">
+        <di:waypoint x="2760" y="775" />
+        <di:waypoint x="2760" y="110" />
+        <di:waypoint x="2150" y="110" />
+        <di:waypoint x="2150" y="156" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_COMP_SERVICE_TRIAGE">
         <dc:Bounds x="152" y="177" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -694,6 +717,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1e15l4v_di" bpmnElement="Activity_0ltb75r">
         <dc:Bounds x="2533" y="760" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1ctudo2_di" bpmnElement="Gateway_1ctudo2" isMarkerVisible="true">
+        <dc:Bounds x="2735" y="775" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
