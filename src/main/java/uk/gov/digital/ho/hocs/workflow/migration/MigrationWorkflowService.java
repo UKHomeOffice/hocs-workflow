@@ -231,7 +231,7 @@ public class MigrationWorkflowService {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                documentClient.createDocument(caseUUID, null, document.getDisplayName(), document.getS3UntrustedUrl(), document.getType());
+                documentClient.createDocument(caseUUID, document.getDisplayName(), document.getS3UntrustedUrl(), document.getType());
             }
         }
     }

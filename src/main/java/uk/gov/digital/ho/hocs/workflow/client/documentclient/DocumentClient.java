@@ -45,10 +45,7 @@ public class DocumentClient {
             String fileLocation,
             String type
     ) {
-        CreateCaseworkDocumentRequest request =
-                new CreateCaseworkDocumentRequest(displayName, type, fileLocation, caseUUID);
-        UUID response = restHelper.post(serviceBaseURL, "/document", request, UUID.class);
-        log.info("Created Document {}, Case {}", response, caseUUID, value(EVENT, DOCUMENT_CLIENT_CREATE_SUCCESS));
+        createDocument(caseUUID, null, displayName, fileLocation, type);
     }
 
     public String getDocumentName(UUID documentUUID) {
