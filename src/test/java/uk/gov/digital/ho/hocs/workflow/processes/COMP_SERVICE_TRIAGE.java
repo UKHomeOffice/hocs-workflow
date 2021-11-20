@@ -129,7 +129,8 @@ public class COMP_SERVICE_TRIAGE {
     public void testTriageResultComplete() {
 
         whenAtCallActivity("COMP_CLOSE")
-                .thenReturn("CloseResult", "Yes", "varx", "vary")
+                .thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "BACKWARD")
+                .thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "FORWARD")
                 .deploy(rule);
 
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
@@ -153,7 +154,7 @@ public class COMP_SERVICE_TRIAGE {
         verify(compServiceTriageProcess).hasCompleted("Activity_0i77rwy");
         verify(compServiceTriageProcess).hasCompleted("Screen_Details");
         verify(compServiceTriageProcess).hasCompleted("Screen_BusArea");
-        verify(compServiceTriageProcess).hasCompleted("Screen_Input");
+        verify(compServiceTriageProcess, times(2)).hasCompleted("Screen_Input");
 
     }
 

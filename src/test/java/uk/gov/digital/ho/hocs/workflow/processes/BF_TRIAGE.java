@@ -21,10 +21,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/COMP_CLOSE.bpmn")
-public class COMP_CLOSE {
+@Deployment(resources = "processes/BF_TRIAGE.bpmn")
+public class BF_TRIAGE {
 
     @Rule
     @ClassRule
@@ -37,7 +36,7 @@ public class COMP_CLOSE {
     private BpmnService bpmnService;
 
     @Mock
-    private ProcessScenario processScenario;
+    private ProcessScenario process;
 
     @Before
     public void setup() {
@@ -45,27 +44,8 @@ public class COMP_CLOSE {
     }
 
     @Test
-    public void testDefaultRoute() {
-        when(processScenario.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true,
-                                                  "CaseNote_CompleteReason","Complete",
-                                                                     "DIRECTION", "FORWARD")));
-
-        Scenario.run(processScenario).startByKey("COMP_CLOSE").execute();
-
-        verify(bpmnService).updateAllocationNote(any(), any(), eq("Complete"), eq("CLOSE"));
+    public void testHappyPath(){
+        Scenario.run(process).startByKey("BF_TRIAGE").execute();
+        verify(process).hasCompleted("EndEvent_BF_TRIAGE");
     }
-
-    @Test
-    public void testBackwards() {
-        when(processScenario.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true,
-                                                  "CaseNote_CompleteReason","Complete",
-                                                                     "DIRECTION", "BACKWARD")));
-
-        Scenario.run(processScenario).startByKey("COMP_CLOSE").execute();
-
-        verify(bpmnService, never()).updateAllocationNote(any(), any(), eq("Complete"), eq("CLOSE"));
-    }
-
 }
