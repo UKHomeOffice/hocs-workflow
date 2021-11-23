@@ -1,0 +1,330 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hocs-workflow
+  labels:
+    version: {{.VERSION}}
+  annotations:
+    downscaler/uptime: {{.UPTIME_PERIOD}}
+spec:
+  replicas: {{.MIN_REPLICAS}}
+  selector:
+    matchLabels:
+      name: hocs-workflow
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 50%
+      maxSurge: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: hocs-workflow
+        role: hocs-backend
+        version: {{.VERSION}}
+    spec:
+      imagePullSecrets:
+        - name: registry-credentials
+      initContainers:
+        - name: truststore
+          image: quay.digital.homeoffice.gov.uk/ukhomeofficedigital/cfssl-sidekick-jks:v0.0.9
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          args:
+            - --certs=/certs
+            - --command=/usr/bin/create-keystore.sh /certs/tls.pem /certs/tls-key.pem /etc/ssl/certs/acp-root.crt
+            - --domain=hocs-workflow.${KUBE_NAMESPACE}.svc.cluster.local
+            - --domain=localhost
+            - --onetime=true
+          env:
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+            - name: keystore
+              mountPath: /etc/keystore
+            - name: bundle
+              mountPath: /etc/ssl/certs
+              readOnly: true
+          resources:
+            limits:
+              memory: 96Mi
+              cpu: 900m
+            requests:
+              memory: 96Mi
+              cpu: 300m
+
+        - name: db-initialise
+          image: docker.digital.homeoffice.gov.uk/hocs-db-provision:latest
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          env:
+            - name: DB_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: endpoint
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: db_name
+            - name: ROOT_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: password
+            - name: DB_SCHEMA_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_schema
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_password
+            - name: DB_READONLY_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-db-readonly
+                  key: rds_user
+            - name: DB_READONLY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-db-readonly
+                  key: rds_password     
+          resources:
+            limits:
+              cpu: 600m
+              memory: 96Mi
+            requests:
+              cpu: 200m
+              memory: 96Mi
+
+      containers:
+        - name: certs
+          image: quay.digital.homeoffice.gov.uk/ukhomeofficedigital/cfssl-sidekick:v0.0.9
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          args:
+            - --certs=/certs
+            - --domain=hocs-workflow.${KUBE_NAMESPACE}.svc.cluster.local
+            - --expiry=8760h
+            - --command=/usr/local/scripts/trigger_nginx_reload.sh
+          env:
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+            - name: bundle
+              mountPath: /etc/ssl/certs
+              readOnly: true
+          resources:
+            limits:
+              memory: 96Mi
+              cpu: 400m
+            requests:
+              memory: 96Mi
+              cpu: 100m
+
+        - name: proxy
+          image: quay.digital.homeoffice.gov.uk/ukhomeofficedigital/nginx-proxy:v4.2.0
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          env:
+            - name: HTTP2
+              value: 'TRUE'
+            - name: PROXY_SERVICE_HOST
+              value: '127.0.0.1'
+            - name: PROXY_SERVICE_PORT
+              value: '8080'
+            - name: NAXSI_USE_DEFAULT_RULES
+              value: 'FALSE'
+            - name: ENABLE_UUID_PARAM
+              value: 'FALSE'
+            - name: HTTPS_REDIRECT
+              value: 'FALSE'
+            - name: BASIC_AUTH
+              value: /etc/nginx/authsecrets/htpasswd
+            - name: SERVER_CERT
+              value: /certs/tls.pem
+            - name: SERVER_KEY
+              value: /certs/tls-key.pem
+            - name: ADD_NGINX_SERVER_CFG
+              value: 'location = /reload { allow 127.0.0.1; deny all; content_by_lua_block { os.execute("touch /tmp/nginx-reload-triggered; /usr/local/openresty/nginx/sbin/nginx -s reload; touch /tmp/nginx-reload-complete;") } }'
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+            - name: secrets
+              mountPath: /etc/nginx/secrets
+              readOnly: true
+            - name: auth-secrets
+              mountPath: /etc/nginx/authsecrets
+              readOnly: true
+          ports:
+            - name: https
+              containerPort: 10443
+          resources:
+            limits:
+              memory: 96Mi
+              cpu: 400m
+            requests:
+              memory: 96Mi
+              cpu: 100m
+
+        - name: hocs-workflow
+          image: quay.digital.homeoffice.gov.uk/ukhomeofficedigital/hocs-workflow:{{.VERSION}}
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          envFrom:
+            - configMapRef:
+                name: hocs-queue-config
+          env:
+            - name: JAVA_OPTS
+              value: '-Xms640m -Xmx768m -Djavax.net.ssl.trustStore=/etc/keystore/truststore.jks -Dhttps.proxyHost=hocs-outbound-proxy.{{.KUBE_NAMESPACE}}.svc.cluster.local -Dhttps.proxyPort=31290 -Dhttp.nonProxyHosts=*.{{.KUBE_NAMESPACE}}.svc.cluster.local'
+            - name: JDK_TRUST_FILE
+              value: '/etc/keystore/truststore.jks'
+            - name: SERVER_PORT
+              value: '8080'
+            - name: SPRING_PROFILES_ACTIVE
+              value: ''
+            - name: HOCS_CASE_SERVICE
+              value: 'https://hocs-casework.{{.KUBE_NAMESPACE}}.svc.cluster.local'
+            - name: HOCS_INFO_SERVICE
+              value: 'https://hocs-info-service.{{.KUBE_NAMESPACE}}.svc.cluster.local'
+            - name: HOCS_DOCUMENT_SERVICE
+              value: 'https://hocs-docs.{{.KUBE_NAMESPACE}}.svc.cluster.local' 
+            - name: HOCS_BASICAUTH
+              valueFrom:
+                secretKeyRef:
+                  name: ui-casework-creds
+                  key: plaintext
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: endpoint
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: db_name
+            - name: DB_SCHEMA_NAME		
+              valueFrom:		
+                secretKeyRef:		
+                  name: hocs-workflow	
+                  key: rds_schema      
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_password
+            - name: NOTIFY_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  name: cs-notify
+                  key: api_key
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 1024Mi
+            requests:
+              cpu: 350m
+              memory: 1024Mi
+          ports:
+            - name: http
+              containerPort: 8080
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+              httpHeaders:
+                - name: X-probe
+                  value: kubelet
+            initialDelaySeconds: 6
+            periodSeconds: 2
+            failureThreshold: 22
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+              httpHeaders:
+                - name: X-probe
+                  value: kubelet
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+              httpHeaders:
+                - name: X-probe
+                  value: kubelet
+            periodSeconds: 2
+          volumeMounts:
+            - mountPath: /etc/keystore
+              name: keystore
+              readOnly: true
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "sleep 20" ]
+      volumes:
+        - name: keystore
+          emptyDir:
+            medium: "Memory"
+        - name: certs
+          emptyDir:
+            medium: "Memory"
+        - name: bundle
+          configMap:
+            name: bundle
+        - name: secrets
+          emptyDir:
+            medium: "Memory"
+        - name: auth-secrets
+          secret:
+            secretName: ui-casework-creds
