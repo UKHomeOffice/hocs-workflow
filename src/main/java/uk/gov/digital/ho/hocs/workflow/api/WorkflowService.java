@@ -1,8 +1,12 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
@@ -337,4 +341,45 @@ public class WorkflowService {
 
         camundaClient.completeTask(stageUUID, values);
     }
+
+    public ResponseEntity closeCase(UUID caseUUID) throws JsonProcessingException {
+        GetCaseworkCaseDataResponse caseDetails = caseworkClient.getCase(caseUUID);
+
+        //Get stage uuid from casework
+        String stage = caseworkClient.getActiveStage(caseDetails.getReference().replace("/", "%2F"));
+        UUID stageUUID = UUID.fromString(getStageUUID(stage));
+
+        //Mark case as complete
+        caseworkClient.completeCase(caseUUID, true);
+
+        //Update the stage team to null
+        UUID oldTeam = caseworkClient.getStageTeam(caseUUID, stageUUID); //To allow reversion if required
+        try {
+            caseworkClient.updateStageTeam(caseUUID, stageUUID, null, null);
+        } catch(Exception e) { //Revert marking as complete and return error
+            caseworkClient.completeCase(caseUUID, caseDetails.getCompleted()); //Audit event may already have been created for closed case
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update stage team for " + caseUUID + " Error : " + e);
+        }
+
+        //Delete Camunda process
+        try{
+            deleteProcess(stageUUID);
+        } catch(Exception e) { //Revert team change and case complete and return error
+            caseworkClient.updateStageTeam(caseUUID, stageUUID, oldTeam, null);
+            caseworkClient.completeCase(caseUUID, caseDetails.getCompleted()); //Audit event may already have been created for closed case
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete process for " + caseUUID + " Error : " + e);
+        }
+        return ResponseEntity.ok("Closed case " + caseUUID);
+    }
+
+    private String getStageUUID(String stage) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree(stage).get("stages").get(0).get("uuid");
+        return node.toString().substring(1, node.toString().length() -1);
+    }
+
+    public void deleteProcess(UUID stageUuid){
+        camundaClient.removeProcess(stageUuid);
+    }
+
 }

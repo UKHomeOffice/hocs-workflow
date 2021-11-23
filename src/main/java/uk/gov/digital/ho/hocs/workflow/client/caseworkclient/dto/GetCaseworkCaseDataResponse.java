@@ -52,6 +52,9 @@ public class GetCaseworkCaseDataResponse {
     @JsonProperty("primaryCorrespondent")
     private GetCorrespondentResponse primaryCorrespondent;
 
+    @JsonProperty("completed")
+    private Boolean completed;
+
 }
 
 

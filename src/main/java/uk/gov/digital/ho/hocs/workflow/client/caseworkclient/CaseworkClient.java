@@ -204,5 +204,9 @@ public class CaseworkClient {
         restHelper.put(serviceBaseURL, String.format("/case/%s/data/%s", caseUUID, variableName), value, Void.class);
         log.info("Updated {} value: {} for Case: {}", variableName, value, caseUUID);
     }
+
+    public String getActiveStage(String caseReference){
+        return restHelper.get(serviceBaseURL, String.format("/case/%s/stage", caseReference), String.class);
+    }
 }
 

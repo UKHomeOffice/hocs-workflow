@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -247,5 +248,12 @@ public class WorkflowResourceTest {
         verifyNoMoreInteractions(bpmnService);
     }
 
+    @Test
+    public void closeCase_shouldCallWorkflowService() throws JsonProcessingException {
+        UUID caseUUID = UUID.fromString("8ecc4f69-b64a-4825-afbf-31f5af95d292");
+        workflowResource.closeCase(caseUUID);
+        verify(workflowService).closeCase(caseUUID);
+        verifyNoMoreInteractions(workflowService);
+    }
 
 }

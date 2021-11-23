@@ -14,14 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
@@ -34,9 +35,6 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -61,6 +59,10 @@ public class WorkflowServiceTest {
     @Captor
     ArgumentCaptor<CreateCaseworkCorrespondentRequest> argumentCaptor;
 
+    @Spy
+    @InjectMocks
+    private WorkflowService workflowServiceSpy;
+
     private WorkflowService workflowService;
 
     private final String testFieldName = "field_name";
@@ -81,6 +83,9 @@ public class WorkflowServiceTest {
     private final Object schemaDtoValidation = new Object();
     private final Object schemaDtoProps = new Object();
     private FieldDto childField = new FieldDto(UUID.randomUUID(),"test", "test", "test", fieldValidation, new HashMap<>(), false, false, null);
+    private final UUID oldTeam = UUID.fromString("141a19e7-4cee-40d7-b078-50fc43846ca3");
+    private final UUID caseUUID = UUID.fromString("8ecc4f69-b64a-4825-afbf-31f5af95d292");
+    private final String stageUUID = "5b1c9476-2c0d-40d7-a814-f83e1d5ab8df";
 
     @Before
     public void beforeTest() {
@@ -545,7 +550,7 @@ public class WorkflowServiceTest {
         UUID stageUUID = UUID.randomUUID();
         String screenName = "DATA_INPUT";
         when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
-        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null, caseRef, caseResponseData, null, null, null, null, null, null);
+        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null, caseRef, caseResponseData, null, null, null, null, null, null, null);
         when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
         SchemaDto schemaDto = exampleSchemaDto();
         when(infoClient.getSchema(screenName)).thenReturn(schemaDto);
@@ -656,7 +661,7 @@ public class WorkflowServiceTest {
         when(userPermissionsService.getUserId()).thenReturn(userUUID);
         when(camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), "STICKY_CASES", "true")).thenReturn(true);
         when(infoClient.getSchema(nextStageScreenName)).thenReturn(exampleSchemaDto());
-        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null, caseRef, caseResponseData, null, null, null, null, null, null);
+        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null, caseRef, caseResponseData, null, null, null, null, null, null, null);
         when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
 
         //when
@@ -686,5 +691,49 @@ public class WorkflowServiceTest {
         List<FieldDto> fieldDtos = List.of(new FieldDto(null, testFieldName, null, "entity-list", null, props, true, true, null));
         SchemaDto schemaDto = new SchemaDto(UUID.randomUUID(), null, null, null, null, true, fieldDtos, null, null, null);
         return List.of(schemaDto);
+    }
+
+    @Test
+    public void closeCase() throws JsonProcessingException {
+        setupCloseCase();
+
+        ResponseEntity response = workflowService.closeCase(caseUUID);
+        assertThat(response.getStatusCode() == HttpStatus.OK);
+    }
+
+    @Test
+    public void closeCaseBreakAtUpdateTeam() throws JsonProcessingException {
+        setupCloseCase();
+        doThrow(new RuntimeException()).when(caseworkClient).updateStageTeam(any(), any(), any(), any());
+
+        ResponseEntity response = workflowServiceSpy.closeCase(caseUUID);
+
+        assertThat(response.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR);
+        Mockito.verify(caseworkClient).completeCase(caseUUID, false);
+        Mockito.verify(workflowServiceSpy, never()).deleteProcess(any());
+    }
+
+    @Test
+    public void closeCaseBreakAtProcessStop() throws JsonProcessingException {
+        setupCloseCase();
+        doThrow(new RuntimeException()).when(workflowServiceSpy).deleteProcess(any());
+
+        ResponseEntity response = workflowServiceSpy.closeCase(caseUUID);
+
+        assertThat(response.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR);
+        Mockito.verify(caseworkClient).completeCase(caseUUID, false);
+        Mockito.verify(caseworkClient).updateStageTeam(caseUUID, UUID.fromString(stageUUID), oldTeam, null);
+    }
+
+    private void setupCloseCase() throws JsonProcessingException {
+        GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse();
+        getCaseworkCaseDataResponse.setReference("caseref");
+        getCaseworkCaseDataResponse.setCompleted(false);
+        Mockito.doReturn(getCaseworkCaseDataResponse).when(caseworkClient).getCase(any());
+        Mockito.doReturn("{\"stages\" : [ { \"uuid\" : \"" + stageUUID + "\" } ]}").when(caseworkClient).getActiveStage(anyString());
+        Mockito.doReturn(oldTeam).when(caseworkClient).getStageTeam(any(), any());
+        Mockito.doReturn(null).when(caseworkClient).updateStageTeam(any(), any(), any(), any());
+        Mockito.doNothing().when(caseworkClient).completeCase(any(), anyBoolean());
+        when(workflowService.closeCase(any())).thenCallRealMethod();
     }
 }
