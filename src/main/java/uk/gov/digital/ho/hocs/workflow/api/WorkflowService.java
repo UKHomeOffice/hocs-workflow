@@ -96,7 +96,7 @@ public class WorkflowService {
 
         if (caseUUID != null) {
             // Add Documents to the case
-            createDocument(caseUUID, documents);
+            createDocument(caseUUID, null, documents);
 
             // Start a new camunda workflow (caseUUID is the business key).
             Map<String, String> seedData = new HashMap<>();
@@ -146,11 +146,31 @@ public class WorkflowService {
         return correspondentRequest;
     }
 
+    public void createDocument(UUID caseUUID, UUID actionDataItemUuid, List<DocumentSummary> documents) {
+        if (documents != null) {
+            // Add any Documents to the case
+            for (DocumentSummary document : documents) {
+                documentClient.createDocument(
+                        caseUUID,
+                        actionDataItemUuid,
+                        document.getDisplayName(),
+                        document.getS3UntrustedUrl(),
+                        document.getType()
+                );
+            }
+        }
+
+    }
     public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                documentClient.createDocument(caseUUID, document.getDisplayName(), document.getS3UntrustedUrl(), document.getType());
+                documentClient.createDocument(
+                        caseUUID,
+                        document.getDisplayName(),
+                        document.getS3UntrustedUrl(),
+                        document.getType()
+                );
             }
         }
     }

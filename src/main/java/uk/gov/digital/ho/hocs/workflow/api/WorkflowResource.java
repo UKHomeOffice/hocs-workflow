@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @Slf4j
@@ -75,6 +76,17 @@ class WorkflowResource {
     @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
         workflowService.createDocument(caseUUID, request.getDocuments());
+        return ResponseEntity.ok().build();
+    }
+
+    @Authorised(accessLevel = AccessLevel.WRITE)
+    @PostMapping(value = "/case/{caseUUID}/action/{actionDataItemUuid}/document", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity createDocument(
+            @PathVariable UUID caseUUID,
+            @PathVariable UUID actionDataItemUuid,
+            @RequestBody CreateDocumentRequest request
+    ) {
+        workflowService.createDocument(caseUUID, actionDataItemUuid, request.getDocuments());
         return ResponseEntity.ok().build();
     }
 
