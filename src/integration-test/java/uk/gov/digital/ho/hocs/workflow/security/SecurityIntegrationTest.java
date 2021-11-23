@@ -179,7 +179,7 @@ public class SecurityIntegrationTest {
 
         GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
                 caseUUID, ZonedDateTime.now(), caseType, "REF", new HashMap<>(), localDate, localDate,
-                UUID.randomUUID(), new GetTopicResponse(), UUID.randomUUID(), new GetCorrespondentResponse()
+                UUID.randomUUID(), new GetTopicResponse(), UUID.randomUUID(), new GetCorrespondentResponse(), false
         );
 
         when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
