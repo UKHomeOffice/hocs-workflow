@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_0yfhzfq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
+  <bpmn:process id="FOI_ACCEPTANCE" isExecutable="true">
+    <bpmn:startEvent id="START_FOI_ACCEPTANCE" name="Stage Stage">
+      <bpmn:outgoing>Flow_0y329xm</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="ACCEPT_OR_REJECT" name="Accept or reject case" camunda:formKey="FOI_ACCEPT_OR_REJECT">
+      <bpmn:incoming>Flow_12m1o51</bpmn:incoming>
+      <bpmn:incoming>Flow_1qyq8b4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0eg5k1f</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="END_FOI_ACCEPTANCE" name="End Stage">
+      <bpmn:incoming>Flow_0gorye6</bpmn:incoming>
+      <bpmn:incoming>Flow_0qt4rdd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0eg5k1f" sourceRef="ACCEPT_OR_REJECT" targetRef="case_acceptance_status" />
+    <bpmn:sequenceFlow id="Flow_0ax0fmd" sourceRef="CHOOSE_DRAFT_TEAM" targetRef="DIRECTION_CHECK" />
+    <bpmn:userTask id="CHOOSE_DRAFT_TEAM" name="Choose Drafting Team" camunda:formKey="FOI_ACCEPTANCE_DRAFT_TEAM_SELECTION">
+      <bpmn:incoming>Flow_1r680pp</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ax0fmd</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="DEADLINE_PASSED" name="Deadline Passed" camunda:formKey="FOI_DEADLINE_PASSED">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="Output_25379oo" />
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1bprjjp</bpmn:incoming>
+      <bpmn:outgoing>Flow_06i32v8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="Event_0flqj0g" attachedToRef="ACCEPT_OR_REJECT">
+      <bpmn:outgoing>Flow_1bprjjp</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0nleprb">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${ACCEPTANCE_DEADLINE}</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1bprjjp" sourceRef="Event_0flqj0g" targetRef="DEADLINE_PASSED" />
+    <bpmn:sequenceFlow id="Flow_06i32v8" sourceRef="DEADLINE_PASSED" targetRef="SET_ACCEPTED" />
+    <bpmn:serviceTask id="CALCULATE_ACCEPTANCE_DEADLINE" name="Calculate Acceptance Deadline" camunda:expression="${bpmnService.calculateDeadline(&#39;FOI&#39;, 2)}" camunda:resultVariable="ACCEPTANCE_DEADLINE">
+      <bpmn:incoming>Flow_1w23xmd</bpmn:incoming>
+      <bpmn:outgoing>Flow_12m1o51</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0y329xm" sourceRef="START_FOI_ACCEPTANCE" targetRef="has_case_returned_from_draft_acceptance" />
+    <bpmn:sequenceFlow id="Flow_12m1o51" sourceRef="CALCULATE_ACCEPTANCE_DEADLINE" targetRef="ACCEPT_OR_REJECT" />
+    <bpmn:serviceTask id="REJECT_CASE" name="Reject Case" camunda:expression="${bpmnService.wipeVariables(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;AcceptanceTeam&#34;,&#34;Directorate&#34;)}">
+      <bpmn:incoming>case_rejected</bpmn:incoming>
+      <bpmn:outgoing>Flow_19r0f4t</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="SAVE_ALLOCATION_NOTE" name="Save Allocation Note" camunda:expression="${bpmnService.updateAllocationNoteWithDetails(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;NText&#34;), &#34;REJECT&#34;, execution.getVariable(&#34;AcceptanceTeam&#34;), execution.getVariable(&#34;StageUUID&#34;))}">
+      <bpmn:incoming>Flow_19r0f4t</bpmn:incoming>
+      <bpmn:outgoing>Flow_1unjlmz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_19r0f4t" sourceRef="REJECT_CASE" targetRef="SAVE_ALLOCATION_NOTE" />
+    <bpmn:exclusiveGateway id="case_acceptance_status" name="has case been accepted?">
+      <bpmn:incoming>Flow_0eg5k1f</bpmn:incoming>
+      <bpmn:outgoing>case_accepted</bpmn:outgoing>
+      <bpmn:outgoing>case_rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="case_accepted" name="yes" sourceRef="case_acceptance_status" targetRef="SET_ACCEPTANCE_DATE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${AcceptCase=="Y"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="case_rejected" name="no&#10;&#10;" sourceRef="case_acceptance_status" targetRef="REJECT_CASE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${AcceptCase=="N"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1unjlmz" sourceRef="SAVE_ALLOCATION_NOTE" targetRef="SET_TO_REJECTED_BY_ACCEPTANCE" />
+    <bpmn:exclusiveGateway id="has_case_returned_from_draft_acceptance" name="has this case been returned from the draft team acceptance stage?&#10;&#10;">
+      <bpmn:incoming>Flow_0y329xm</bpmn:incoming>
+      <bpmn:outgoing>Flow_1w23xmd</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0tfq7wl</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1w23xmd" sourceRef="has_case_returned_from_draft_acceptance" targetRef="CALCULATE_ACCEPTANCE_DEADLINE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.getVariable('AcceptanceDate') == null}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0tfq7wl" name="no" sourceRef="has_case_returned_from_draft_acceptance" targetRef="CHOOSE_DRAFT_TEAM_NO_BACK">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.getVariable('AcceptanceDate') != null}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1es0j8i" sourceRef="ALLOCATE_TO_DRAFT_TEAM" targetRef="CLEAR_REJECTED" />
+    <bpmn:serviceTask id="ALLOCATE_TO_DRAFT_TEAM" name="Allocate to draft team" camunda:expression="${DraftTeam}" camunda:resultVariable="AllocationTeamUUID">
+      <bpmn:incoming>Flow_0n3pmu4</bpmn:incoming>
+      <bpmn:incoming>Flow_014l0wj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1es0j8i</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1r680pp" sourceRef="SET_ACCEPTANCE_DATE" targetRef="CHOOSE_DRAFT_TEAM" />
+    <bpmn:serviceTask id="SET_ACCEPTANCE_DATE" name="Set Acceptance Date" camunda:expression="${now()}" camunda:resultVariable="AcceptanceDate">
+      <bpmn:incoming>case_accepted</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r680pp</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="SET_TO_REJECTED_BY_ACCEPTANCE" name="Set to Rejected by Acceptance" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;Rejected&#34;, &#34;By Acceptance&#34;)}">
+      <bpmn:incoming>Flow_1unjlmz</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gorye6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0gorye6" sourceRef="SET_TO_REJECTED_BY_ACCEPTANCE" targetRef="END_FOI_ACCEPTANCE" />
+    <bpmn:serviceTask id="CLEAR_REJECTED" name="Clear Rejected" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;Rejected&#34;)}">
+      <bpmn:incoming>Flow_1es0j8i</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qt4rdd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0qt4rdd" sourceRef="CLEAR_REJECTED" targetRef="END_FOI_ACCEPTANCE" />
+    <bpmn:exclusiveGateway id="DIRECTION_CHECK" default="Flow_0n3pmu4">
+      <bpmn:incoming>Flow_0ax0fmd</bpmn:incoming>
+      <bpmn:outgoing>Flow_0n3pmu4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1qyq8b4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0n3pmu4" sourceRef="DIRECTION_CHECK" targetRef="ALLOCATE_TO_DRAFT_TEAM" />
+    <bpmn:sequenceFlow id="Flow_1qyq8b4" sourceRef="DIRECTION_CHECK" targetRef="ACCEPT_OR_REJECT">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED" name="Set Acceptance Date" camunda:expression="${now()}" camunda:resultVariable="AcceptanceDate">
+      <bpmn:incoming>Flow_0vf1kiz</bpmn:incoming>
+      <bpmn:outgoing>Flow_02cqwfu</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="CHOOSE_DRAFT_TEAM_NO_BACK" name="Choose Drafting Team No Back Button" camunda:formKey="FOI_ACCEPTANCE_DRAFT_TEAM_SELECTION_NO_BACK">
+      <bpmn:incoming>Flow_0tfq7wl</bpmn:incoming>
+      <bpmn:incoming>Flow_02cqwfu</bpmn:incoming>
+      <bpmn:outgoing>Flow_014l0wj</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_014l0wj" sourceRef="CHOOSE_DRAFT_TEAM_NO_BACK" targetRef="ALLOCATE_TO_DRAFT_TEAM" />
+    <bpmn:sequenceFlow id="Flow_02cqwfu" sourceRef="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED" targetRef="CHOOSE_DRAFT_TEAM_NO_BACK" />
+    <bpmn:serviceTask id="SET_ACCEPTED" name="Set Accepted" camunda:expression="Y" camunda:resultVariable="AcceptCase">
+      <bpmn:incoming>Flow_06i32v8</bpmn:incoming>
+      <bpmn:outgoing>Flow_0vf1kiz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0vf1kiz" sourceRef="SET_ACCEPTED" targetRef="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI_ACCEPTANCE">
+      <bpmndi:BPMNEdge id="Flow_0qt4rdd_di" bpmnElement="Flow_0qt4rdd">
+        <di:waypoint x="1430" y="280" />
+        <di:waypoint x="1482" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gorye6_di" bpmnElement="Flow_0gorye6">
+        <di:waypoint x="1170" y="120" />
+        <di:waypoint x="1500" y="120" />
+        <di:waypoint x="1500" y="262" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1r680pp_di" bpmnElement="Flow_1r680pp">
+        <di:waypoint x="920" y="280" />
+        <di:waypoint x="950" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1es0j8i_di" bpmnElement="Flow_1es0j8i">
+        <di:waypoint x="1280" y="280" />
+        <di:waypoint x="1330" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tfq7wl_di" bpmnElement="Flow_0tfq7wl">
+        <di:waypoint x="290" y="305" />
+        <di:waypoint x="290" y="520" />
+        <di:waypoint x="1070" y="520" />
+        <di:waypoint x="1070" y="470" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="674" y="502" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1w23xmd_di" bpmnElement="Flow_1w23xmd">
+        <di:waypoint x="315" y="280" />
+        <di:waypoint x="396" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="347" y="262" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1unjlmz_di" bpmnElement="Flow_1unjlmz">
+        <di:waypoint x="1030" y="120" />
+        <di:waypoint x="1070" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yfmzj0_di" bpmnElement="case_rejected">
+        <di:waypoint x="740" y="255" />
+        <di:waypoint x="740" y="120" />
+        <di:waypoint x="790" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="749" y="140" width="13" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18o4582_di" bpmnElement="case_accepted">
+        <di:waypoint x="765" y="280" />
+        <di:waypoint x="820" y="280" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="785" y="262" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19r0f4t_di" bpmnElement="Flow_19r0f4t">
+        <di:waypoint x="890" y="120" />
+        <di:waypoint x="930" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12m1o51_di" bpmnElement="Flow_12m1o51">
+        <di:waypoint x="496" y="280" />
+        <di:waypoint x="553" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0y329xm_di" bpmnElement="Flow_0y329xm">
+        <di:waypoint x="208" y="280" />
+        <di:waypoint x="265" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06i32v8_di" bpmnElement="Flow_06i32v8">
+        <di:waypoint x="653" y="430" />
+        <di:waypoint x="720" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bprjjp_di" bpmnElement="Flow_1bprjjp">
+        <di:waypoint x="603" y="338" />
+        <di:waypoint x="603" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ax0fmd_di" bpmnElement="Flow_0ax0fmd">
+        <di:waypoint x="1050" y="280" />
+        <di:waypoint x="1095" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0eg5k1f_di" bpmnElement="Flow_0eg5k1f">
+        <di:waypoint x="653" y="280" />
+        <di:waypoint x="715" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0n3pmu4_di" bpmnElement="Flow_0n3pmu4">
+        <di:waypoint x="1145" y="280" />
+        <di:waypoint x="1180" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qyq8b4_di" bpmnElement="Flow_1qyq8b4" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
+        <di:waypoint x="1120" y="255" />
+        <di:waypoint x="1120" y="190" />
+        <di:waypoint x="603" y="190" />
+        <di:waypoint x="603" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_014l0wj_di" bpmnElement="Flow_014l0wj">
+        <di:waypoint x="1120" y="430" />
+        <di:waypoint x="1230" y="430" />
+        <di:waypoint x="1230" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02cqwfu_di" bpmnElement="Flow_02cqwfu">
+        <di:waypoint x="990" y="430" />
+        <di:waypoint x="1020" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vf1kiz_di" bpmnElement="Flow_0vf1kiz">
+        <di:waypoint x="820" y="430" />
+        <di:waypoint x="890" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="START_FOI_ACCEPTANCE">
+        <dc:Bounds x="172" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="160" y="305" width="61" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_118ky5k_di" bpmnElement="ACCEPT_OR_REJECT">
+        <dc:Bounds x="553" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0li7pgk_di" bpmnElement="CHOOSE_DRAFT_TEAM">
+        <dc:Bounds x="950" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ic873f_di" bpmnElement="CALCULATE_ACCEPTANCE_DEADLINE">
+        <dc:Bounds x="396" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ucipti_di" bpmnElement="case_acceptance_status" isMarkerVisible="true">
+        <dc:Bounds x="715" y="255" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="704" y="314.5" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1afewk4_di" bpmnElement="has_case_returned_from_draft_acceptance" isMarkerVisible="true">
+        <dc:Bounds x="265" y="255" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="248" y="183" width="84" height="93" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0oxvate_di" bpmnElement="SET_ACCEPTANCE_DATE">
+        <dc:Bounds x="820" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1p4d6iv_di" bpmnElement="END_FOI_ACCEPTANCE">
+        <dc:Bounds x="1482" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1475" y="305" width="52" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09xo1h1_di" bpmnElement="REJECT_CASE">
+        <dc:Bounds x="790" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wpvryy_di" bpmnElement="SAVE_ALLOCATION_NOTE">
+        <dc:Bounds x="930" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0d7iuad_di" bpmnElement="SET_TO_REJECTED_BY_ACCEPTANCE">
+        <dc:Bounds x="1070" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_06r8uey_di" bpmnElement="ALLOCATE_TO_DRAFT_TEAM">
+        <dc:Bounds x="1180" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1e9argp_di" bpmnElement="DIRECTION_CHECK" isMarkerVisible="true" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
+        <dc:Bounds x="1095" y="255" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1h6qqi4_di" bpmnElement="CLEAR_REJECTED">
+        <dc:Bounds x="1330" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bfgolq_di" bpmnElement="DEADLINE_PASSED">
+        <dc:Bounds x="553" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vr5rlz_di" bpmnElement="CHOOSE_DRAFT_TEAM_NO_BACK">
+        <dc:Bounds x="1020" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zcpctt_di" bpmnElement="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED">
+        <dc:Bounds x="890" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0scg81e_di" bpmnElement="SET_ACCEPTED">
+        <dc:Bounds x="720" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0bge9re_di" bpmnElement="Event_0flqj0g">
+        <dc:Bounds x="585" y="302" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

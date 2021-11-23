@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_124y0jh" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+  <bpmn:process id="MPAM_QA_CLEARANCE_REQ" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_07ee3to</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Validate_Clearance_Fulfilment" name="Validate User Input" camunda:formKey="MPAM_CLEARANCE_FULFILMENT">
+      <bpmn:incoming>SequenceFlow_07ee3to</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_10hrj3t</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1xqw3h3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1jszt5w">
+      <bpmn:incoming>SequenceFlow_1xqw3h3</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0mxqn3d</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_10hrj3t</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1xqw3h3" sourceRef="Validate_Clearance_Fulfilment" targetRef="ExclusiveGateway_1jszt5w" />
+    <bpmn:sequenceFlow id="SequenceFlow_07ee3to" sourceRef="StartEvent_1" targetRef="Validate_Clearance_Fulfilment" />
+    <bpmn:endEvent id="mpam_clearance_end" name="End Stage">
+      <bpmn:incoming>SequenceFlow_1tbjsft</bpmn:incoming>
+      <bpmn:incoming>Flow_0zau21k</bpmn:incoming>
+      <bpmn:incoming>Flow_0l0p60c</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0mxqn3d" sourceRef="ExclusiveGateway_1jszt5w" targetRef="ExclusiveGateway_1mk5us6">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_1mk5us6">
+      <bpmn:incoming>SequenceFlow_0mxqn3d</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1fy5iui</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1az80al</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0l0p60c</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1fy5iui" sourceRef="ExclusiveGateway_1mk5us6" targetRef="AddClearanceRejectionNote_ServiceTask">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ClearanceStatus == "RejectDraft"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="mpam_qa_clearance_update_po" name="Update Team for PO" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_PO&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
+      <bpmn:incoming>Flow_1az80al</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1tbjsft</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1tbjsft" sourceRef="mpam_qa_clearance_update_po" targetRef="mpam_clearance_end" />
+    <bpmn:sequenceFlow id="Flow_1az80al" sourceRef="ExclusiveGateway_1mk5us6" targetRef="mpam_qa_clearance_update_po">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ClearanceStatus == "ApprovePO"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="mpam_qa_clearance_update_draft" name="Update Team for Draft" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;MPAM_DRAFT&#34;,&#34;QueueTeamUUID&#34;, &#34;QueueTeamName&#34;,&#34;BusArea&#34;,&#34;RefType&#34;)}">
+      <bpmn:incoming>Flow_14mm1b3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zau21k</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0zau21k" sourceRef="mpam_qa_clearance_update_draft" targetRef="mpam_clearance_end" />
+    <bpmn:sequenceFlow id="Flow_0l0p60c" sourceRef="ExclusiveGateway_1mk5us6" targetRef="mpam_clearance_end">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ClearanceStatus == "Cancelled"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="SequenceFlow_10hrj3t" name="false" sourceRef="ExclusiveGateway_1jszt5w" targetRef="Validate_Clearance_Fulfilment">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="AddClearanceRejectionNote_ServiceTask" name="Add Rejection Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;ClearanceRejectionReason&#34;), &#34;REJECT&#34;)}">
+      <bpmn:incoming>SequenceFlow_1fy5iui</bpmn:incoming>
+      <bpmn:outgoing>Flow_0si4cno</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0si4cno" sourceRef="AddClearanceRejectionNote_ServiceTask" targetRef="UpdateRejectedByQa_ServiceTask" />
+    <bpmn:serviceTask id="UpdateRejectedByQa_ServiceTask" name="Update to Rejected by QA" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;Rejected&#34;, &#34;By QA&#34;)}">
+      <bpmn:incoming>Flow_0si4cno</bpmn:incoming>
+      <bpmn:outgoing>Flow_14mm1b3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_14mm1b3" sourceRef="UpdateRejectedByQa_ServiceTask" targetRef="mpam_qa_clearance_update_draft" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="MPAM_QA_CLEARANCE_REQ">
+      <bpmndi:BPMNEdge id="SequenceFlow_10hrj3t_di" bpmnElement="SequenceFlow_10hrj3t">
+        <di:waypoint x="560" y="244" />
+        <di:waypoint x="560" y="170" />
+        <di:waypoint x="420" y="170" />
+        <di:waypoint x="420" y="229" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="478" y="153" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0l0p60c_di" bpmnElement="Flow_0l0p60c">
+        <di:waypoint x="695" y="269" />
+        <di:waypoint x="1072" y="269" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zau21k_di" bpmnElement="Flow_0zau21k">
+        <di:waypoint x="1060" y="380" />
+        <di:waypoint x="1090" y="380" />
+        <di:waypoint x="1090" y="287" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1az80al_di" bpmnElement="Flow_1az80al">
+        <di:waypoint x="670" y="244" />
+        <di:waypoint x="670" y="160" />
+        <di:waypoint x="710" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1tbjsft_di" bpmnElement="SequenceFlow_1tbjsft">
+        <di:waypoint x="810" y="160" />
+        <di:waypoint x="1090" y="160" />
+        <di:waypoint x="1090" y="251" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1fy5iui_di" bpmnElement="SequenceFlow_1fy5iui">
+        <di:waypoint x="670" y="294" />
+        <di:waypoint x="670" y="380" />
+        <di:waypoint x="700" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0mxqn3d_di" bpmnElement="SequenceFlow_0mxqn3d">
+        <di:waypoint x="585" y="269" />
+        <di:waypoint x="645" y="269" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_07ee3to_di" bpmnElement="SequenceFlow_07ee3to">
+        <di:waypoint x="215" y="269" />
+        <di:waypoint x="370" y="269" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1xqw3h3_di" bpmnElement="SequenceFlow_1xqw3h3">
+        <di:waypoint x="470" y="269" />
+        <di:waypoint x="535" y="269" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0si4cno_di" bpmnElement="Flow_0si4cno">
+        <di:waypoint x="800" y="380" />
+        <di:waypoint x="830" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14mm1b3_di" bpmnElement="Flow_14mm1b3">
+        <di:waypoint x="930" y="380" />
+        <di:waypoint x="960" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="251" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_1udw7zu_di" bpmnElement="Validate_Clearance_Fulfilment">
+        <dc:Bounds x="370" y="229" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1jszt5w_di" bpmnElement="ExclusiveGateway_1jszt5w" isMarkerVisible="true">
+        <dc:Bounds x="535" y="244" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_1mk5us6_di" bpmnElement="ExclusiveGateway_1mk5us6" isMarkerVisible="true">
+        <dc:Bounds x="645" y="244" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0zwr9c3_di" bpmnElement="mpam_qa_clearance_update_po">
+        <dc:Bounds x="710" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1cbg2t0_di" bpmnElement="mpam_clearance_end">
+        <dc:Bounds x="1072" y="251" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1118" y="262" width="52" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16yec29_di" bpmnElement="AddClearanceRejectionNote_ServiceTask">
+        <dc:Bounds x="700" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16lunzw_di" bpmnElement="UpdateRejectedByQa_ServiceTask">
+        <dc:Bounds x="830" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_10lw97s_di" bpmnElement="mpam_qa_clearance_update_draft">
+        <dc:Bounds x="960" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

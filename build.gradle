@@ -1,0 +1,169 @@
+buildscript {
+    ext {
+        springBootVersion = '2.5.1'
+        camelVersion = '2.25.4'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.21"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'jacoco'
+
+task copyLombok(type: Copy) {
+    outputs.upToDateWhen { false }
+    into "${buildDir}/libs"
+    include "lombok*.jar"
+    from configurations.compileClasspath
+}
+
+build.dependsOn(copyLombok)
+
+group = 'uk.gov.digital.ho.hocs'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.camunda.bpm:camunda-bom:7.9.0'
+    }
+}
+
+dependencies {
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.5'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.5'
+
+
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude(module: 'spring-boot-starter-tomcat')
+    }
+    implementation('org.springframework.boot:spring-boot-starter-undertow')
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation('org.springframework.boot:spring-boot-starter-json')
+    implementation('org.springframework.boot:spring-boot-starter-cache')
+    implementation('org.springframework.boot:spring-boot-starter-validation')
+    implementation('org.springframework.retry:spring-retry')
+    implementation("org.apache.camel:camel-aws:${camelVersion}")
+    implementation("org.apache.camel:camel-spring-boot-starter:${camelVersion}")
+    implementation('com.github.ben-manes.caffeine:caffeine')
+    implementation('com.amazonaws:aws-java-sdk:1.11.470')
+
+    implementation('net.logstash.logback:logstash-logback-encoder:5.2')
+
+    implementation('org.camunda.bpm:camunda-engine-spring:7.9.0')
+    implementation('com.fasterxml.uuid:java-uuid-generator:4.0.1')
+
+    implementation('org.postgresql:postgresql')
+    implementation 'org.projectlombok:lombok:1.18.20'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    annotationProcessor "org.springframework:spring-context-indexer:5.3.12"
+
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation("org.apache.camel:camel-test-spring:${camelVersion}")
+    testImplementation('org.assertj:assertj-core')
+
+    testImplementation('org.camunda.bpm.extension:camunda-bpm-assert:1.2')
+    testImplementation('org.camunda.bpm.extension.mockito:camunda-bpm-mockito:4.13.0')
+    testImplementation('org.camunda.bpm.extension:camunda-bpm-assert-scenario:1.0.0')
+    testImplementation('org.camunda.bpm.extension:camunda-bpm-process-test-coverage:0.4.0')
+
+    testImplementation('com.h2database:h2')
+}
+
+sourceSets {
+    test {
+        resources.srcDir 'src/main/resources'
+    }
+
+    integrationTest {
+        java.srcDir 'src/integration-test/java'
+        resources.srcDir 'src/integration-test/resources'
+        compileClasspath += main.output + test.output
+        runtimeClasspath += main.output + test.output
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntime
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+}
+
+task createCOMPSnapshots {
+
+    doLast {
+
+        def compDir = "src/main/resources/processes";
+        FileTree compFiles = fileTree(compDir).matching {
+            include "COMP_*.bpmn"
+            include "COMP.bpmn"
+        }
+
+        compFiles.visit(f -> {
+            exec {
+                commandLine 'src/test/scripts/diff_COMP_COMP2.sh', compDir + "/" + f.name,
+                        'src/test/diffs'
+            }
+
+        }
+        )
+
+    }
+}
+
+task checkCOMPSnapshots {
+
+    doFirst {
+        def compDiffs = "src/test/diffs"
+        def compFiles = "src/main/resources/processes/COMP_*.bpmn";
+
+        exec {
+            commandLine 'src/test/scripts/check_COMP_COMP2.sh', compFiles, compDiffs
+        }
+
+        compFiles = "src/main/resources/processes/COMP.bpmn";
+
+        exec {
+            commandLine 'src/test/scripts/check_COMP_COMP2.sh', compFiles, compDiffs
+        }
+
+    }
+}
+
+test {
+    maxHeapSize = "1024m"
+}
+
+jar {
+    enabled = false
+}
+
+check.dependsOn integrationTest
+test.dependsOn checkCOMPSnapshots
