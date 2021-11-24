@@ -15,6 +15,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStagesResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
@@ -366,8 +367,8 @@ public class WorkflowService {
         GetCaseworkCaseDataResponse caseDetails = caseworkClient.getCase(caseUUID);
 
         //Get stage uuid from casework
-        String stage = caseworkClient.getActiveStage(caseDetails.getReference().replace("/", "%2F"));
-        UUID stageUUID = UUID.fromString(getStageUUID(stage));
+        GetStagesResponse stage = caseworkClient.getActiveStage(caseDetails.getReference().replace("/", "%2F"));
+        UUID stageUUID = stage.getStages().stream().findFirst().get().getStageUUID();
 
         //Mark case as complete
         caseworkClient.completeCase(caseUUID, true);

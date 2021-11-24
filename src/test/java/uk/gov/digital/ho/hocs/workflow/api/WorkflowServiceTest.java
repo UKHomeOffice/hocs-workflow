@@ -7,13 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
@@ -749,7 +743,14 @@ public class WorkflowServiceTest {
         getCaseworkCaseDataResponse.setReference("caseref");
         getCaseworkCaseDataResponse.setCompleted(false);
         Mockito.doReturn(getCaseworkCaseDataResponse).when(caseworkClient).getCase(any());
-        Mockito.doReturn("{\"stages\" : [ { \"uuid\" : \"" + stageUUID + "\" } ]}").when(caseworkClient).getActiveStage(anyString());
+
+        GetStageResponseDto getStageResponseDto = new GetStageResponseDto(UUID.fromString(stageUUID), null, null);
+        Set<GetStageResponseDto> stages = new HashSet<>(Collections.singletonList(getStageResponseDto));
+        GetStagesResponse getStagesResponse = new GetStagesResponse(stages);
+
+        Mockito.doReturn(getStagesResponse).when(caseworkClient).getActiveStage(anyString());
+
+//        Mockito.doReturn("{\"stages\" : [ { \"uuid\" : \"" + stageUUID + "\" } ]}").when(caseworkClient).getActiveStage(anyString());
         Mockito.doReturn(oldTeam).when(caseworkClient).getStageTeam(any(), any());
         Mockito.doReturn(null).when(caseworkClient).updateStageTeam(any(), any(), any(), any());
         Mockito.doNothing().when(caseworkClient).completeCase(any(), anyBoolean());
