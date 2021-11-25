@@ -393,12 +393,6 @@ public class WorkflowService {
         return ResponseEntity.ok("Closed case " + caseUUID);
     }
 
-    private String getStageUUID(String stage) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode node = objectMapper.readTree(stage).get("stages").get(0).get("uuid");
-        return node.toString().substring(1, node.toString().length() -1);
-    }
-
     public void deleteProcess(UUID stageUuid){
         camundaClient.removeProcess(stageUuid);
     }

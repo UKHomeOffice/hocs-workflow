@@ -7,8 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.*;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +27,16 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
@@ -750,7 +758,6 @@ public class WorkflowServiceTest {
 
         Mockito.doReturn(getStagesResponse).when(caseworkClient).getActiveStage(anyString());
 
-//        Mockito.doReturn("{\"stages\" : [ { \"uuid\" : \"" + stageUUID + "\" } ]}").when(caseworkClient).getActiveStage(anyString());
         Mockito.doReturn(oldTeam).when(caseworkClient).getStageTeam(any(), any());
         Mockito.doReturn(null).when(caseworkClient).updateStageTeam(any(), any(), any(), any());
         Mockito.doNothing().when(caseworkClient).completeCase(any(), anyBoolean());
