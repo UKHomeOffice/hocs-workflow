@@ -509,25 +509,26 @@ public class BpmnService {
 
     private UUID deriveTeamUUID(String caseUUIDString, String stageTypeString, String allocationTeamString) {
         UUID teamUUID;
-        if (StringUtils.isEmpty(allocationTeamString)) {
+        if (!StringUtils.hasText(allocationTeamString)) {
             log.debug("Getting Team selection from Info Service for stage {} for case {}", stageTypeString, caseUUIDString);
             teamUUID = infoClient.getTeamForStageType(stageTypeString);
         } else {
             log.debug("Overriding Team selection with {} for stage {} for case {}", allocationTeamString, stageTypeString, caseUUIDString);
             teamUUID = UUID.fromString(allocationTeamString);
         }
-
+        log.info("Assigning teamUUID {} for case {} at stage {}",teamUUID, caseUUIDString, stageTypeString);
         return teamUUID;
 
     }
 
     private UUID deriveUserUUID(String caseUUIDString, String stageTypeString, String allocatedUserId) {
-        UUID userUUID = null;
-        if (!StringUtils.isEmpty(allocatedUserId)) {
-            log.debug("Assigning user {} to stage {} for case {}", allocatedUserId, stageTypeString, caseUUIDString);
-            userUUID = UUID.fromString(allocatedUserId);
+        if (StringUtils.hasText(allocatedUserId)) {
+            log.info("Assigning user {} to stage {} for case {}", allocatedUserId, stageTypeString, caseUUIDString);
+            return UUID.fromString(allocatedUserId);
         }
-        return userUUID;
+
+        log.warn("No userUUID provided for assignment to case {} at stage {}", caseUUIDString, stageTypeString);
+        return null;
     }
 
     private void recreateStage(String caseUUIDString, String stageUUIDString, String stageType, String allocationType, UUID teamUUID, UUID userUUID) {
