@@ -742,21 +742,15 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shouldUpdateAllocationNoteFromNullNote() {
+    public void shouldNotUpdateAllocationNoteFromNullNote() {
 
         UUID testCaseId = UUID.randomUUID();
         UUID testStageId = UUID.randomUUID();
         String testCaseNote = null;
-        String expectedCaseNote ="";
-        ArgumentCaptor<String> valueCapture = ArgumentCaptor.forClass(String.class);
-
-        when(caseworkClient.createCaseNote(testCaseId, "CLOSE_CASE", expectedCaseNote)).thenReturn(testCaseId);
 
         bpmnService.updateAllocationNote(testCaseId.toString(), testStageId.toString(), testCaseNote, "CLOSE_CASE");
 
-        verify(caseworkClient, times(1)).createCaseNote(testCaseId, "CLOSE_CASE", expectedCaseNote);
-        verify(caseworkClient).createCaseNote(eq(testCaseId), eq("CLOSE_CASE"), valueCapture.capture());
-        assertThat(valueCapture.getValue()).isEqualTo(expectedCaseNote);
+        verify(caseworkClient, times(0)).createCaseNote(any(), any(), any());
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
 
