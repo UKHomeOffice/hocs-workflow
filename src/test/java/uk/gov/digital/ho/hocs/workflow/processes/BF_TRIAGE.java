@@ -45,6 +45,10 @@ public class BF_TRIAGE {
 
     @Test
     public void testHappyPath(){
+        when(process.waitsAtUserTask("Validate_Capture_Reason"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
         Scenario.run(process).startByKey("BF_TRIAGE").execute();
         verify(process).hasCompleted("EndEvent_BF_TRIAGE");
     }
