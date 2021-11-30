@@ -1,8 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,12 +25,16 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentReques
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_CLOSE_ERROR;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 
@@ -363,11 +364,11 @@ public class WorkflowService {
         camundaClient.completeTask(stageUUID, values);
     }
 
-    public ResponseEntity closeCase(UUID caseUUID) throws JsonProcessingException {
+    public ResponseEntity closeCase(UUID caseUUID) throws UnsupportedEncodingException {
         GetCaseworkCaseDataResponse caseDetails = caseworkClient.getCase(caseUUID);
 
         //Get stage uuid from casework
-        GetStagesResponse stage = caseworkClient.getActiveStage(caseDetails.getReference().replace("/", "%2F"));
+        GetStagesResponse stage = caseworkClient.getActiveStage(URLEncoder.encode(caseDetails.getReference(), StandardCharsets.UTF_8));
         UUID stageUUID = stage.getStages().stream().findFirst().get().getStageUUID();
 
         //Mark case as complete
@@ -378,6 +379,7 @@ public class WorkflowService {
         try {
             caseworkClient.updateStageTeam(caseUUID, stageUUID, null, null);
         } catch(Exception e) { //Revert marking as complete and return error
+            log.error("Failed to update team: {}", e.getMessage(), value(EVENT, CASE_CLOSE_ERROR));
             caseworkClient.completeCase(caseUUID, caseDetails.getCompleted()); //Audit event may already have been created for closed case
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update stage team for " + caseUUID + " Error : " + e);
         }
@@ -386,6 +388,7 @@ public class WorkflowService {
         try{
             deleteProcess(stageUUID);
         } catch(Exception e) { //Revert team change and case complete and return error
+            log.error("Failed to delete process: {}", e.getMessage(), value(EVENT, CASE_CLOSE_ERROR));
             caseworkClient.updateStageTeam(caseUUID, stageUUID, oldTeam, null);
             caseworkClient.completeCase(caseUUID, caseDetails.getCompleted()); //Audit event may already have been created for closed case
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete process for " + caseUUID + " Error : " + e);

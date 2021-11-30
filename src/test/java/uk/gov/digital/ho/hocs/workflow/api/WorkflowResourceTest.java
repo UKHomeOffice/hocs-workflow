@@ -14,6 +14,7 @@ import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -250,7 +251,7 @@ public class WorkflowResourceTest {
     }
 
     @Test
-    public void closeCase_shouldCallWorkflowService() throws JsonProcessingException {
+    public void closeCase_shouldCallWorkflowService() throws UnsupportedEncodingException {
         UUID caseUUID = UUID.fromString("8ecc4f69-b64a-4825-afbf-31f5af95d292");
         workflowResource.closeCase(caseUUID);
         verify(workflowService).closeCase(caseUUID);

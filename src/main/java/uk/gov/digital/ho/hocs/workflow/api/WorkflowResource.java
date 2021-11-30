@@ -13,6 +13,7 @@ import uk.gov.digital.ho.hocs.workflow.security.Allocated;
 import uk.gov.digital.ho.hocs.workflow.security.AllocationLevel;
 import uk.gov.digital.ho.hocs.workflow.security.Authorised;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +115,7 @@ class WorkflowResource {
 
     @Authorised(accessLevel = AccessLevel.CASE_ADMIN)
     @PutMapping(value = "/case/close/{caseUUID}")
-    public ResponseEntity closeCase(@PathVariable UUID caseUUID) throws JsonProcessingException {
+    public ResponseEntity closeCase(@PathVariable UUID caseUUID) throws UnsupportedEncodingException {
         ResponseEntity response = workflowService.closeCase(caseUUID);
         return response;
     }

@@ -26,6 +26,7 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -715,7 +716,7 @@ public class WorkflowServiceTest {
     }
 
     @Test
-    public void closeCase() throws JsonProcessingException {
+    public void closeCase() throws JsonProcessingException, UnsupportedEncodingException {
         setupCloseCase();
 
         ResponseEntity response = workflowService.closeCase(caseUUID);
@@ -723,7 +724,7 @@ public class WorkflowServiceTest {
     }
 
     @Test
-    public void closeCaseBreakAtUpdateTeam() throws JsonProcessingException {
+    public void closeCaseBreakAtUpdateTeam() throws JsonProcessingException, UnsupportedEncodingException {
         setupCloseCase();
         doThrow(new RuntimeException()).when(caseworkClient).updateStageTeam(any(), any(), any(), any());
 
@@ -735,7 +736,7 @@ public class WorkflowServiceTest {
     }
 
     @Test
-    public void closeCaseBreakAtProcessStop() throws JsonProcessingException {
+    public void closeCaseBreakAtProcessStop() throws JsonProcessingException, UnsupportedEncodingException {
         setupCloseCase();
         doThrow(new RuntimeException()).when(workflowServiceSpy).deleteProcess(any());
 
@@ -746,7 +747,7 @@ public class WorkflowServiceTest {
         Mockito.verify(caseworkClient).updateStageTeam(caseUUID, UUID.fromString(stageUUID), oldTeam, null);
     }
 
-    private void setupCloseCase() throws JsonProcessingException {
+    private void setupCloseCase() throws UnsupportedEncodingException {
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse();
         getCaseworkCaseDataResponse.setReference("caseref");
         getCaseworkCaseDataResponse.setCompleted(false);
