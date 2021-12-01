@@ -148,4 +148,9 @@ public class CamundaClient {
         }
     }
 
+    public void removeProcess(UUID stageUUID){
+        String processID = getProcessIdByBusinessKey(stageUUID);
+        runtimeService.deleteProcessInstance(processID, null);
+    }
+
 }
