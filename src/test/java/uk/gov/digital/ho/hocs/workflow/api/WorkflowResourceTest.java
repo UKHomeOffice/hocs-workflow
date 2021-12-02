@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +14,7 @@ import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -246,6 +248,14 @@ public class WorkflowResourceTest {
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
 
         verifyNoMoreInteractions(bpmnService);
+    }
+
+    @Test
+    public void closeCase_shouldCallWorkflowService() throws UnsupportedEncodingException {
+        UUID caseUUID = UUID.fromString("8ecc4f69-b64a-4825-afbf-31f5af95d292");
+        workflowResource.closeCase(caseUUID);
+        verify(workflowService).closeCase(caseUUID);
+        verifyNoMoreInteractions(workflowService);
     }
 
     @Test

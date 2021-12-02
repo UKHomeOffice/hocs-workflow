@@ -17,6 +17,8 @@ public final class GetCaseworkCaseDataResponseBuilder {
     private GetTopicResponse primaryTopic;
     private UUID primaryCorrespondentUUID;
     private GetCorrespondentResponse primaryCorrespondent;
+    private Boolean completed;
+
 
     private GetCaseworkCaseDataResponseBuilder() {
     }
@@ -80,7 +82,12 @@ public final class GetCaseworkCaseDataResponseBuilder {
         return this;
     }
 
+    public GetCaseworkCaseDataResponseBuilder withCompleted(Boolean completed) {
+        this.completed = completed;
+        return this;
+    }
+
     public GetCaseworkCaseDataResponse build() {
-        return new GetCaseworkCaseDataResponse(uuid, created, type, reference, data, caseDeadline, dateReceived, primaryTopicUUID, primaryTopic, primaryCorrespondentUUID, primaryCorrespondent);
+        return new GetCaseworkCaseDataResponse(uuid, created, type, reference, data, caseDeadline, dateReceived, primaryTopicUUID, primaryTopic, primaryCorrespondentUUID, primaryCorrespondent, completed);
     }
 }
