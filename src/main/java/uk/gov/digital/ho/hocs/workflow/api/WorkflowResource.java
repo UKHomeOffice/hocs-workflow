@@ -1,5 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import uk.gov.digital.ho.hocs.workflow.security.Allocated;
 import uk.gov.digital.ho.hocs.workflow.security.AllocationLevel;
 import uk.gov.digital.ho.hocs.workflow.security.Authorised;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +111,13 @@ class WorkflowResource {
                         @PathVariable String variable, @RequestBody UpdateCaseValueRequest request) {
         bpmnService.updateValue(caseUUID.toString(), stageUUID.toString(), variable, request.getValue());
         return ResponseEntity.ok().build();
+    }
+
+    @Authorised(accessLevel = AccessLevel.CASE_ADMIN)
+    @PutMapping(value = "/case/close/{caseUUID}")
+    public ResponseEntity closeCase(@PathVariable UUID caseUUID) throws UnsupportedEncodingException {
+        ResponseEntity response = workflowService.closeCase(caseUUID);
+        return response;
     }
 
 }

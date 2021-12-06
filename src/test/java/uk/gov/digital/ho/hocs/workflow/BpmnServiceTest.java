@@ -294,7 +294,7 @@ public class BpmnServiceTest {
         UUID caseUUID = UUID.randomUUID();
         UUID primaryUUID = UUID.randomUUID();
         GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
-                caseUUID, null, null, null, null, null, null, null, null, primaryUUID, null);
+                caseUUID, null, null, null, null, null, null, null, null, primaryUUID, null, false);
         GetCorrespondentResponse correspondent1 = new GetCorrespondentResponse(
                 UUID.randomUUID(), null, "NO", null, null, null, null, null, null);
         GetCorrespondentResponse correspondent2 = new GetCorrespondentResponse(
@@ -319,7 +319,7 @@ public class BpmnServiceTest {
         UUID caseUUID = UUID.randomUUID();
         UUID primaryUUID = UUID.randomUUID();
         GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
-                caseUUID, null, null, null, null, null, null, null, null, primaryUUID, null);
+                caseUUID, null, null, null, null, null, null, null, null, primaryUUID, null, false);
         GetCorrespondentResponse correspondent1 = new GetCorrespondentResponse(
                 UUID.randomUUID(), null, "NO", null, null, null, null, null, null);
         GetCorrespondentResponse correspondent2 = new GetCorrespondentResponse(

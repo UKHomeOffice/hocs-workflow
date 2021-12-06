@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
@@ -11,6 +12,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStagesResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
@@ -23,12 +25,16 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentReques
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_CLOSE_ERROR;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 
@@ -357,4 +363,41 @@ public class WorkflowService {
 
         camundaClient.completeTask(stageUUID, values);
     }
+
+    public ResponseEntity closeCase(UUID caseUUID) throws UnsupportedEncodingException {
+        GetCaseworkCaseDataResponse caseDetails = caseworkClient.getCase(caseUUID);
+
+        //Get stage uuid from casework
+        GetStagesResponse stage = caseworkClient.getActiveStage(URLEncoder.encode(caseDetails.getReference(), StandardCharsets.UTF_8));
+        UUID stageUUID = stage.getStages().stream().findFirst().get().getStageUUID();
+
+        //Mark case as complete
+        caseworkClient.completeCase(caseUUID, true);
+
+        //Update the stage team to null
+        UUID oldTeam = caseworkClient.getStageTeam(caseUUID, stageUUID); //To allow reversion if required
+        try {
+            caseworkClient.updateStageTeam(caseUUID, stageUUID, null, null);
+        } catch(Exception e) { //Revert marking as complete and return error
+            log.error("Failed to update team: {}", e.getMessage(), value(EVENT, CASE_CLOSE_ERROR));
+            caseworkClient.completeCase(caseUUID, caseDetails.getCompleted()); //Audit event may already have been created for closed case
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update stage team for " + caseUUID + " Error : " + e);
+        }
+
+        //Delete Camunda process
+        try{
+            deleteProcess(stageUUID);
+        } catch(Exception e) { //Revert team change and case complete and return error
+            log.error("Failed to delete process: {}", e.getMessage(), value(EVENT, CASE_CLOSE_ERROR));
+            caseworkClient.updateStageTeam(caseUUID, stageUUID, oldTeam, null);
+            caseworkClient.completeCase(caseUUID, caseDetails.getCompleted()); //Audit event may already have been created for closed case
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete process for " + caseUUID + " Error : " + e);
+        }
+        return ResponseEntity.ok("Closed case " + caseUUID);
+    }
+
+    public void deleteProcess(UUID stageUuid){
+        camundaClient.removeProcess(stageUuid);
+    }
+
 }
