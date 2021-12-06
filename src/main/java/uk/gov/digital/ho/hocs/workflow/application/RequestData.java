@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.application;
 
-import org.apache.camel.Processor;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -20,14 +19,6 @@ public class RequestData implements HandlerInterceptor {
     public static final String GROUP_HEADER = "X-Auth-Groups";
 
     private static final String ANONYMOUS = "anonymous";
-
-    public static Processor transferHeadersToMDC() {
-        return ex -> {
-            MDC.put(CORRELATION_ID_HEADER, ex.getIn().getHeader(CORRELATION_ID_HEADER, String.class));
-            MDC.put(USER_ID_HEADER, ex.getIn().getHeader(USER_ID_HEADER, String.class));
-            MDC.put(USERNAME_HEADER, ex.getIn().getHeader(USERNAME_HEADER, String.class));
-        };
-    }
 
     private static boolean isNullOrEmpty(String value) {
         return value == null || value.equals("");
