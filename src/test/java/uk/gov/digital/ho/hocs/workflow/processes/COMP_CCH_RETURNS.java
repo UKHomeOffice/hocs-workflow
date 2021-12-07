@@ -51,6 +51,8 @@ public class COMP_CCH_RETURNS {
 
         verify(compReturnProcess, times(2)).hasCompleted("Screen_Input");
         verify(compReturnProcess).hasCompleted("ServiceTask_1ipast6");
+        verify(compReturnProcess).hasCompleted("Activity_0mtedcn");
+        verify(bpmnService, times(1)).updateValue(any(), any(), eq("CompType"), eq("Service"));
         verify(compReturnProcess, never()).hasCompleted("Service_CompleteReason");
     }
 
@@ -150,6 +152,8 @@ public class COMP_CCH_RETURNS {
 
         verify(compReturnProcess).hasCompleted("Screen_Input");
         verify(compReturnProcess).hasCompleted("Activity_1fcu4pc");
+        verify(compReturnProcess).hasCompleted("Activity_0mtedcn");
+        verify(bpmnService, times(1)).updateValue(any(), any(), eq("CompType"), eq("Ex-Gratia"));
     }
 
     @Test
@@ -161,6 +165,8 @@ public class COMP_CCH_RETURNS {
 
         verify(compReturnProcess).hasCompleted("Screen_Input");
         verify(compReturnProcess).hasCompleted("Activity_05t6j35");
+        verify(compReturnProcess).hasCompleted("Activity_0mtedcn");
+        verify(bpmnService, times(1)).updateValue(any(), any(), eq("CompType"), eq("MinorMisconduct"));
     }
 
 }
