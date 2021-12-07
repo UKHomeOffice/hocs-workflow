@@ -35,9 +35,10 @@ steps:
 
   - name: sonar scanner
     image: quay.io/ukhomeofficedigital/sonar-scanner:v3.0.2
-    environment:
-      SONAR_PROJECT_VERSION: {DRONE_REPO_BRANCH}
-      SONAR_ANALYSIS_BRANCH: {DRONE_REPO_BRANCH}
+    script:
+      - sonar-scanner
+        -Dsonar.branch.name=${DRONE_REPO_BRANCH}
+        -Dsonar.projectVersion="$(git describe --tags $(git rev-list --tags --max-count=1))"
     depends_on:
       - test project
 
