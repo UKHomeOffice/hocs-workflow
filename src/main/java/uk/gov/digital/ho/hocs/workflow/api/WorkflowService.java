@@ -119,7 +119,8 @@ public class WorkflowService {
             camundaClient.startCase(caseUUID, caseDataType, seedData);
             //Create correspondent
             if (correspondentRequest != null) {
-                UUID stageUUID = caseworkClient.getStageUUID(caseUUID);
+                Optional<StageDto> maybeStages = caseworkClient.getActiveStage(caseUUID);
+                UUID stageUUID = maybeStages.filter(stageDto -> stageDto.getTeamUUID() != null).orElseThrow().getUuid();
                 caseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
             }
 
