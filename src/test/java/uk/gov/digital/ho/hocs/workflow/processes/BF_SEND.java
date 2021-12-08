@@ -16,7 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/BF_SEND.bpmn")
@@ -42,6 +44,10 @@ public class BF_SEND {
 
     @Test
     public void testHappyPath(){
+        when(process.waitsAtUserTask("Validate_Send"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
         Scenario.run(process).startByKey("BF_SEND").execute();
         verify(process).hasCompleted("EndEvent_BF_SEND");
     }
