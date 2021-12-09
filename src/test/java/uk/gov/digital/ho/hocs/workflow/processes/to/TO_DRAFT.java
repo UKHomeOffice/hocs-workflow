@@ -55,7 +55,7 @@ public class TO_DRAFT {
 
 
     @Test
-    public void shouldAndSaveAndComplete() {
+    public void shouldSaveAndComplete() {
 
         when(TOProcess.waitsAtUserTask(TO_DRAFT_UPLOAD_DOC))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, DRAFT_STATUS, SAVE)))
