@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_05fb2zj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_05fb2zj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:process id="TO" isExecutable="true">
     <bpmn:startEvent id="TO_START" name="Start case">
       <bpmn:outgoing>SequenceFlow_14toxc6</bpmn:outgoing>
@@ -111,7 +111,6 @@
       <bpmn:incoming>SequenceFlow_0d2t738</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:serviceTask id="COMPLETE_CASE" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
-      <bpmn:incoming>Flow_19dj2qm</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1l6znvc</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0d2t738</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -156,7 +155,6 @@
       <bpmn:outgoing>SequenceFlow_0eiezwh</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0nwmpuu</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0gaps17</bpmn:outgoing>
-      <bpmn:outgoing>Flow_19dj2qm</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0e2x7lp</bpmn:outgoing>
       <bpmn:outgoing>Flow_0cabz2n</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -191,7 +189,7 @@
         <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
         <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
         <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
-        <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in source="TROFTeamUUID" target="AllocationTeamUUID" />
         <camunda:out source="HomeSecStatus" target="HomeSecStatus" />
         <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
         <camunda:out source="LastUpdatedByUserUUID" target="LastUpdatedByUserUUID" />
@@ -266,7 +264,7 @@
         <camunda:in sourceExpression="TO_STOP_LIST" target="StageType" />
         <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
         <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
-        <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in source="TROFTeamUUID" target="AllocationTeamUUID" />
         <camunda:in source="TriageUserUUID" target="AllocatedUserUUID" />
         <camunda:out source="StopListOutcome" target="StopListOutcome" />
       </bpmn:extensionElements>
@@ -289,7 +287,7 @@
         <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
         <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
         <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
-        <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in source="TROFTeamUUID" target="AllocationTeamUUID" />
         <camunda:in source="DraftUserUUID" target="AllocatedUserUUID" />
         <camunda:out source="DispatchStatus" target="DispatchStatus" />
         <camunda:out source="LastUpdatedByUserUUID" target="LastUpdatedByUserUUID" />
@@ -301,9 +299,6 @@
       <bpmn:outgoing>SequenceFlow_0i4wmw7</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_0i4wmw7" sourceRef="TO_DISPATCH" targetRef="ExclusiveGateway_1gth2bz" />
-    <bpmn:sequenceFlow id="Flow_19dj2qm" name="CloseCase" sourceRef="Gateway_0wovayw" targetRef="COMPLETE_CASE">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DraftStatus == "CloseCaseTelephone"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_10qstih" name="Transfer Case?">
       <bpmn:incoming>SequenceFlow_009f2xi</bpmn:incoming>
       <bpmn:outgoing>Flow_0pn4t37</bpmn:outgoing>
@@ -451,15 +446,6 @@
         <di:waypoint x="1041" y="314" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="910" y="296" width="15" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_19dj2qm_di" bpmnElement="Flow_19dj2qm">
-        <di:waypoint x="2080" y="287" />
-        <di:waypoint x="2080" y="80" />
-        <di:waypoint x="3810" y="80" />
-        <di:waypoint x="3810" y="260" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2023" y="231" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0i4wmw7_di" bpmnElement="SequenceFlow_0i4wmw7">

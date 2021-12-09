@@ -101,6 +101,9 @@ public class FOI {
         whenAtCallActivity(COMPLETE_CASE)
                 .deploy(rule);
 
+        whenAtCallActivity(COMPLETE_CASE)
+                .deploy(rule);
+
         Scenario.run(FOIProcess)
                 .startByKey("FOI")
                 .execute();
