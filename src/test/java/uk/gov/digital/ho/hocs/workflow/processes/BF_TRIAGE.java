@@ -49,6 +49,11 @@ public class BF_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
+        when(process.waitsAtUserTask("Validate_Contributions"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "TriageResult", "Pending")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "TriageResult", "Pending")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "TriageResult", "NotPending")));
+
         Scenario.run(process).startByKey("BF_TRIAGE").execute();
         verify(process).hasCompleted("EndEvent_BF_TRIAGE");
     }
