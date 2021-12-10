@@ -18,10 +18,12 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.Mockito.*;
+import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/TO_DRAFT.bpmn",
+        "processes/TO_CHANGE_BUSINESS_AREA.bpmn"
 })
 public class TO_DRAFT {
 
@@ -31,9 +33,13 @@ public class TO_DRAFT {
     private static final String FORWARD = "FORWARD";
     private static final String SAVE = "Save";
     private static final String TO_DISPATCH = "SendToDispatch";
+    private static final String CHANGE_BUSINESS_AREA = "ChangeBusinessArea";
+    private static final String BACKWARD = "BACKWARD";
 
     // USER AND SERVICE TASKS
     private static final String TO_DRAFT_UPLOAD_DOC = "TO_DRAFT_UPLOAD_DOC";
+    private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
+
 
     @Rule
     @ClassRule
@@ -68,5 +74,49 @@ public class TO_DRAFT {
 
         verify(TOProcess, times(2))
                 .hasCompleted(TO_DRAFT_UPLOAD_DOC);
+    }
+
+    @Test
+    public void shouldChangeBusinessAreaAndComplete() {
+
+        when(TOProcess.waitsAtUserTask(TO_DRAFT_UPLOAD_DOC))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)));
+
+        whenAtCallActivity(TO_CHANGE_BUSINESS_AREA)
+                .thenReturn("BusAreaStatus", "Transferred", DIRECTION, FORWARD, "TROFTeamUUID", "e4925c53-cbec-4690-a9f0-e09111fb281f")
+                .deploy(rule);
+
+        Scenario.run(TOProcess)
+                .startByKey("TO_DRAFT")
+                .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TO_DRAFT_UPLOAD_DOC);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+    }
+
+    @Test
+    public void shouldChangeBusinessAreaAndGoBackAndComplete() {
+
+        when(TOProcess.waitsAtUserTask(TO_DRAFT_UPLOAD_DOC))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD,DRAFT_STATUS,TO_DISPATCH)));
+
+        whenAtCallActivity(TO_CHANGE_BUSINESS_AREA)
+                .thenReturn(DIRECTION, BACKWARD)
+                .deploy(rule);
+
+        Scenario.run(TOProcess)
+                .startByKey("TO_DRAFT")
+                .execute();
+
+        verify(TOProcess, times(2))
+                .hasCompleted(TO_DRAFT_UPLOAD_DOC);
+
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
     }
 }
