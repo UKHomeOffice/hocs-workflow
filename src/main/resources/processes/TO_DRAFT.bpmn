@@ -5,8 +5,8 @@
       <bpmn:outgoing>Flow_03guvgo</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="Event_1v5mqaj">
-      <bpmn:incoming>Flow_0qdqyke</bpmn:incoming>
       <bpmn:incoming>Flow_1m6v0co</bpmn:incoming>
+      <bpmn:incoming>Flow_00vcxdd</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_03guvgo" sourceRef="StartEvent_1" targetRef="TO_DRAFT_UPLOAD_DOC" />
     <bpmn:sequenceFlow id="Flow_1cmkj35" sourceRef="TO_DRAFT_UPLOAD_DOC" targetRef="DIRECTION" />
@@ -21,7 +21,7 @@
       <bpmn:outgoing>Flow_0qdqyke</bpmn:outgoing>
       <bpmn:outgoing>Save</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0qdqyke" sourceRef="check_draft_status_for_save" targetRef="Event_1v5mqaj" />
+    <bpmn:sequenceFlow id="Flow_0qdqyke" sourceRef="check_draft_status_for_save" targetRef="UPDATE_BUS_AREA_STATUS" />
     <bpmn:sequenceFlow id="Save" name="Save" sourceRef="check_draft_status_for_save" targetRef="TO_DRAFT_UPLOAD_DOC">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftStatus == "Save" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -55,6 +55,11 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1m6v0co" sourceRef="DIRECTION_2" targetRef="Event_1v5mqaj" />
+    <bpmn:serviceTask id="UPDATE_BUS_AREA_STATUS" name="Update Business Area Status: Confirmed" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;BusAreaStatus&#34;, &#34;Confirmed&#34;)}">
+      <bpmn:incoming>Flow_0qdqyke</bpmn:incoming>
+      <bpmn:outgoing>Flow_00vcxdd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_00vcxdd" sourceRef="UPDATE_BUS_AREA_STATUS" targetRef="Event_1v5mqaj" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TO_DRAFT">
@@ -69,7 +74,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qdqyke_di" bpmnElement="Flow_0qdqyke">
         <di:waypoint x="735" y="187" />
-        <di:waypoint x="842" y="187" />
+        <di:waypoint x="780" y="187" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1cmkj35_di" bpmnElement="Flow_1cmkj35">
         <di:waypoint x="400" y="187" />
@@ -98,17 +103,18 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1m6v0co_di" bpmnElement="Flow_1m6v0co">
         <di:waypoint x="555" y="370" />
-        <di:waypoint x="860" y="370" />
-        <di:waypoint x="860" y="205" />
+        <di:waypoint x="940" y="370" />
+        <di:waypoint x="940" y="205" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00vcxdd_di" bpmnElement="Flow_00vcxdd">
+        <di:waypoint x="880" y="187" />
+        <di:waypoint x="922" y="187" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="162" y="169" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1fmoph5_di" bpmnElement="TO_DRAFT_UPLOAD_DOC">
         <dc:Bounds x="300" y="147" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1v5mqaj_di" bpmnElement="Event_1v5mqaj">
-        <dc:Bounds x="842" y="169" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_00cp2pv_di" bpmnElement="check_draft_status_for_save" isMarkerVisible="true">
         <dc:Bounds x="685" y="162" width="50" height="50" />
@@ -130,6 +136,12 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="505" y="402" width="50" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1v5mqaj_di" bpmnElement="Event_1v5mqaj">
+        <dc:Bounds x="922" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1tds1s9_di" bpmnElement="UPDATE_BUS_AREA_STATUS">
+        <dc:Bounds x="780" y="147" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
