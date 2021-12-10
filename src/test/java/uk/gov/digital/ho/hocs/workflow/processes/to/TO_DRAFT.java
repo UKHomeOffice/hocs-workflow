@@ -39,6 +39,7 @@ public class TO_DRAFT {
     // USER AND SERVICE TASKS
     private static final String TO_DRAFT_UPLOAD_DOC = "TO_DRAFT_UPLOAD_DOC";
     private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
+    private static final String UPDATE_BUS_AREA_STATUS = "UPDATE_BUS_AREA_STATUS";
 
 
     @Rule
@@ -74,6 +75,9 @@ public class TO_DRAFT {
 
         verify(TOProcess, times(2))
                 .hasCompleted(TO_DRAFT_UPLOAD_DOC);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
     }
 
     @Test
@@ -95,6 +99,9 @@ public class TO_DRAFT {
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
     }
 
     @Test
@@ -118,5 +125,8 @@ public class TO_DRAFT {
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
     }
 }
