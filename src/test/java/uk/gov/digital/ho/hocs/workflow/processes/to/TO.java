@@ -79,7 +79,7 @@ public class TO {
     }
 
     @Test
-    public void happyPath() {
+    public void testHappyPath() {
 
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
@@ -142,7 +142,7 @@ public class TO {
     }
 
     @Test
-    public void homeSec() {
+    public void testHomeSec() {
 
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
@@ -214,7 +214,7 @@ public class TO {
     }
 
     @Test
-    public void bypassQA() {
+    public void testBypassQA() {
 
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
@@ -273,7 +273,7 @@ public class TO {
     }
 
     @Test
-    public void allPutOnCampaign() {
+    public void testAllPutOnCampaign() {
 
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
@@ -385,7 +385,7 @@ public class TO {
     }
 
     @Test
-    public void allSendToStopList() {
+    public void testAllSendToStopList() {
 
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
@@ -497,7 +497,7 @@ public class TO {
     }
 
     @Test
-    public void allTransfers() {
+    public void testAllTransfers() {
 
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
@@ -573,7 +573,7 @@ public class TO {
     }
 
     @Test
-    public void allRejectDraft() {
+    public void testAllRejectDraft() {
 
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
@@ -588,7 +588,7 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .thenReturn("QaStatus", REJECT_DRAFT)
+                .thenReturn("QaStatus", SEND_TO_DRAFT)
                 .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "Yes")
                 .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "Yes")
                 .deploy(rule);
@@ -646,7 +646,7 @@ public class TO {
     }
 
     @Test
-    public void allSendToTriage() {
+    public void testAllSendToTriage() {
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
 
