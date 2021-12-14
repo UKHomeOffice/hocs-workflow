@@ -76,7 +76,7 @@ public class FOI_ACCEPTANCE {
     public void happyPath() {
 
         Date futureDeadline = new GregorianCalendar(3000, Calendar.JANUARY, 1, 0, 0, 0).getTime();
-        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(2))).thenReturn(futureDeadline);
+        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(3))).thenReturn(futureDeadline);
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
                 .thenReturn(task -> task.complete(withVariables(
@@ -104,7 +104,7 @@ public class FOI_ACCEPTANCE {
     public void acceptedAfterClickingBackPath() {
 
         Date futureDeadline = new GregorianCalendar(3000, Calendar.JANUARY, 1, 0, 0, 0).getTime();
-        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(2))).thenReturn(futureDeadline);
+        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(3))).thenReturn(futureDeadline);
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
                 .thenReturn(task -> task.complete(withVariables(
@@ -134,7 +134,7 @@ public class FOI_ACCEPTANCE {
     public void deadlinePassed() {
 
         Date pastDeadline = new GregorianCalendar(2000, Calendar.JANUARY, 1, 0, 0, 0).getTime();
-        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(2))).thenReturn(pastDeadline);
+        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(3))).thenReturn(pastDeadline);
 
         when(processScenario.waitsAtUserTask(DEADLINE_PASSED))
             .thenReturn(TaskDelegate::complete);
@@ -179,7 +179,7 @@ public class FOI_ACCEPTANCE {
     @Test
     public void caseRejected() {
         Date futureDeadline = new GregorianCalendar(3000, Calendar.JANUARY, 1, 0, 0, 0).getTime();
-        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(2))).thenReturn(futureDeadline);
+        when(bpmnService.calculateDeadline(eq(FOI_CASE_TYPE), eq(3))).thenReturn(futureDeadline);
 
         when(processScenario.waitsAtUserTask(ACCEPT_OR_REJECT))
                 .thenReturn(task -> task.complete(withVariables(
