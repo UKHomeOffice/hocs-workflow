@@ -1,41 +1,35 @@
-buildscript {
-    ext {
-        springBootVersion = '2.5.1'
-    }
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.21"
-    }
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'org.springframework.boot' version '2.5.6'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
-
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'jacoco'
-
-task copyLombok(type: Copy) {
-    outputs.upToDateWhen { false }
-    into "${buildDir}/libs"
-    include "lombok*.jar"
-    from configurations.compileClasspath
-}
-
-build.dependsOn(copyLombok)
 
 group = 'uk.gov.digital.ho.hocs'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
-targetCompatibility = '11'
 
 repositories {
     mavenCentral()
+}
+
+plugins.withType(JacocoPlugin) {
+    tasks["test"].finalizedBy 'jacocoTestReport'
+}
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    reports {
+        xml.required = true
+        html.required = false
+        csv.required = false
+        //for XML
+        xml.destination file("${buildDir}/reports/jacoco.xml")
+    }
 }
 
 dependencyManagement {
@@ -45,47 +39,39 @@ dependencyManagement {
 }
 
 dependencies {
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.5'
-	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.5'
-
-
     implementation('org.springframework.boot:spring-boot-starter-web') {
         exclude(module: 'spring-boot-starter-tomcat')
     }
-    implementation('org.springframework.boot:spring-boot-starter-undertow')
-    implementation('org.springframework.boot:spring-boot-starter-actuator')
-    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    implementation('org.springframework.boot:spring-boot-starter-json')
-    implementation('org.springframework.boot:spring-boot-starter-cache')
-    implementation('org.springframework.boot:spring-boot-starter-validation')
-    implementation('org.springframework.retry:spring-retry')
-    implementation('com.github.ben-manes.caffeine:caffeine')
+    implementation 'org.springframework.boot:spring-boot-starter-undertow'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-json'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
 
-    implementation('net.logstash.logback:logstash-logback-encoder:5.2')
+    implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
 
-    implementation('org.camunda.bpm:camunda-engine-spring:7.9.0')
-    implementation('com.fasterxml.uuid:java-uuid-generator:4.0.1')
-    implementation('commons-codec:commons-codec:1.15')
-    implementation('org.apache.httpcomponents:httpclient:4.5.13')
+    implementation 'org.camunda.bpm:camunda-engine-spring:7.9.0'
+    implementation 'com.fasterxml.uuid:java-uuid-generator:4.0.1'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
 
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.springframework:spring-context-indexer:5.3.12'
 
-    implementation('org.postgresql:postgresql')
-    implementation 'org.projectlombok:lombok:1.18.20'
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
-    annotationProcessor "org.springframework:spring-context-indexer:5.3.12"
+    runtimeOnly 'org.hsqldb:hsqldb'
+    runtimeOnly 'org.postgresql:postgresql:42.3.1'
 
-    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.assertj:assertj-core'
 
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testImplementation('org.assertj:assertj-core')
-
-    testImplementation('org.camunda.bpm.extension:camunda-bpm-assert:1.2')
-    testImplementation('org.camunda.bpm.extension.mockito:camunda-bpm-mockito:4.13.0')
-    testImplementation('org.camunda.bpm.extension:camunda-bpm-assert-scenario:1.0.0')
-    testImplementation('org.camunda.bpm.extension:camunda-bpm-process-test-coverage:0.4.0')
-
-    testImplementation('com.h2database:h2')
+    testImplementation 'org.camunda.bpm.extension:camunda-bpm-assert:1.2'
+    testImplementation 'org.camunda.bpm.extension.mockito:camunda-bpm-mockito:4.13.0'
+    testImplementation 'org.camunda.bpm.extension:camunda-bpm-assert-scenario:1.0.0'
+    testImplementation 'org.camunda.bpm.extension:camunda-bpm-process-test-coverage:0.4.0'
 }
 
 sourceSets {
@@ -104,26 +90,6 @@ sourceSets {
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntime
-}
-
-plugins.withType(JacocoPlugin) {
-    tasks["test"].finalizedBy 'jacocoTestReport'
-}
-
-test {
-    maxHeapSize = "1024m"
-    finalizedBy jacocoTestReport // report is always generated after tests run
-}
-
-jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
-    reports {
-        xml.required = true
-        html.required = false
-        csv.required = false
-        //for XML
-        xml.destination file("${buildDir}/reports/jacoco.xml")
-    }
 }
 
 task integrationTest(type: Test) {
