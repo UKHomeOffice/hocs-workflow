@@ -1,6 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.CallActivity;
@@ -14,7 +13,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-@Slf4j
 public class CallActivityTestUtil {
     private final String callActivityId;
     private final List<CallActivityVariable> expectedInputVariables = new ArrayList<>();
