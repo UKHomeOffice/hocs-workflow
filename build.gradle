@@ -5,9 +5,6 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
-def camelVersion = '2.25.4'
-def lombokVersion = '1.18.22'
-
 group = 'uk.gov.digital.ho.hocs'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
@@ -53,31 +50,24 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-json')
     implementation('org.springframework.boot:spring-boot-starter-cache')
     implementation('org.springframework.boot:spring-boot-starter-validation')
-
-    implementation("org.apache.camel:camel-aws:${camelVersion}")
-    implementation("org.apache.camel:camel-spring-boot-starter:${camelVersion}")
     implementation('com.github.ben-manes.caffeine:caffeine')
-    implementation('com.amazonaws:aws-java-sdk:1.11.470')
 
-    implementation('net.logstash.logback:logstash-logback-encoder:5.2')
+    implementation('net.logstash.logback:logstash-logback-encoder:6.6')
 
     implementation('org.camunda.bpm:camunda-engine-spring:7.9.0')
     implementation('com.fasterxml.uuid:java-uuid-generator:4.0.1')
+    implementation('commons-codec:commons-codec:1.15')
+    implementation('org.apache.httpcomponents:httpclient:4.5.13')
 
-    implementation 'org.flywaydb:flyway-core'
-    runtimeOnly 'org.hsqldb:hsqldb'
-    runtimeOnly 'org.postgresql:postgresql'
+    implementation('org.postgresql:postgresql')
 
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
     annotationProcessor "org.springframework:spring-context-indexer:5.3.12"
 
-    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
-    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
-    testImplementation("org.apache.camel:camel-test-spring:${camelVersion}")
     testImplementation('org.assertj:assertj-core')
 
     testImplementation('org.camunda.bpm.extension:camunda-bpm-assert:1.2')
@@ -85,6 +75,7 @@ dependencies {
     testImplementation('org.camunda.bpm.extension:camunda-bpm-assert-scenario:1.0.0')
     testImplementation('org.camunda.bpm.extension:camunda-bpm-process-test-coverage:0.4.0')
 
+    testImplementation('com.h2database:h2')
 }
 
 sourceSets {
@@ -103,6 +94,26 @@ sourceSets {
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntimeOnly.extendsFrom testRuntime
+}
+
+plugins.withType(JacocoPlugin) {
+    tasks["test"].finalizedBy 'jacocoTestReport'
+}
+
+test {
+    maxHeapSize = "1024m"
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    reports {
+        xml.required = true
+        html.required = false
+        csv.required = false
+        //for XML
+        xml.destination file("${buildDir}/reports/jacoco.xml")
+    }
 }
 
 task integrationTest(type: Test) {
