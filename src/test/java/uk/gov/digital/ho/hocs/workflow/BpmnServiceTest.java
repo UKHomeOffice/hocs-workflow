@@ -74,8 +74,8 @@ public class BpmnServiceTest {
 
         verify(caseworkClient).calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list");
         verifyNoMoreInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -85,8 +85,8 @@ public class BpmnServiceTest {
 
         verify(caseworkClient).updateDateReceived(UUID.fromString(caseUUID), UUID.fromString(stageUUID), LocalDate.parse(dateReceived));
         verifyNoMoreInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -96,8 +96,8 @@ public class BpmnServiceTest {
 
         verify(caseworkClient).updateDispatchDeadlineDate(UUID.fromString(caseUUID), UUID.fromString(stageUUID), LocalDate.parse(dateReceived));
         verifyNoMoreInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -108,8 +108,8 @@ public class BpmnServiceTest {
 
         verify(caseworkClient).updateDeadlineDays(UUID.fromString(caseUUID), UUID.fromString(stageUUID), 123);
         verifyNoMoreInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -120,8 +120,8 @@ public class BpmnServiceTest {
 
         verify(caseworkClient).updateStageDeadline(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "TEST", 7);
         verifyNoMoreInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -151,9 +151,9 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
 
     }
 
@@ -161,18 +161,18 @@ public class BpmnServiceTest {
     public void shouldNotUpdateDataNoNewTeams() {
         bpmnService.updateTeamSelection(caseUUID, stageUUID, null, null);
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
     public void shouldNotUpdateDataNoNewTeamsWhenEmptyString() {
         bpmnService.updateTeamSelection(caseUUID, stageUUID, "", "");
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -200,9 +200,9 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -229,9 +229,9 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -258,9 +258,9 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -284,9 +284,9 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
         verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -308,9 +308,9 @@ public class BpmnServiceTest {
 
         verify(caseworkClient).getCase(caseUUID);
         verify(caseworkClient).getCorrespondentsForCase(caseUUID);
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
         assertThat(result).isFalse();
     }
 
@@ -333,9 +333,9 @@ public class BpmnServiceTest {
 
         verify(caseworkClient).getCase(caseUUID);
         verify(caseworkClient).getCorrespondentsForCase(caseUUID);
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
         assertThat(result).isTrue();
     }
 
@@ -357,8 +357,8 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(eq(stageUUID), eq(new HashMap<>()));
         verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
     }
 
     @Test
@@ -385,8 +385,8 @@ public class BpmnServiceTest {
 
         assertThat(valueCapture.getValue().size()).isEqualTo(3);
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
     }
 
     @Test
@@ -411,9 +411,9 @@ public class BpmnServiceTest {
         verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
         verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
 
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -437,9 +437,9 @@ public class BpmnServiceTest {
                 eq(caseUUID), eq(stageUUID), eq("stageType"), eq("teamUUIDKey"), eq("teamNameKey"), any());
         verify(camundaClient, times(1)).updateTask(eq(stageUUID), any());
         verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -453,9 +453,9 @@ public class BpmnServiceTest {
         assertThat(valueCapture.getValue().size()).isEqualTo(1);
         assertThat(valueCapture.getValue().keySet()).contains("testKey");
         assertThat(valueCapture.getValue().values()).contains("testValue");
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+        verifyNoMoreInteractions(caseworkClient);
+        verifyNoMoreInteractions(camundaClient);
+        verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -468,7 +468,7 @@ public class BpmnServiceTest {
         verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), eq(expectedData));
         assertThat(valueCapture.getValue().size()).isEqualTo(3);
         assertThat(valueCapture.getValue()).isEqualTo(expectedData);
-        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
+        verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient);
     }
 
     @Test(expected = ApplicationExceptions.InvalidMethodArgumentException.class)
@@ -486,9 +486,9 @@ public class BpmnServiceTest {
         assertThat(valueCapture.getValue().size()).isEqualTo(1);
         assertThat(valueCapture.getValue().keySet()).contains("testKey");
         assertThat(valueCapture.getValue().values()).contains("testValue");
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+        verifyNoMoreInteractions(caseworkClient);
+        verifyNoMoreInteractions(camundaClient);
+        verifyNoMoreInteractions(infoClient);
     }
 
     @Test
@@ -501,7 +501,7 @@ public class BpmnServiceTest {
         verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture());
         assertThat(valueCapture.getValue().size()).isEqualTo(3);
         assertThat(valueCapture.getValue()).isEqualTo(expectedData);
-        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
+        verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient);
     }
 
     @Test(expected = ApplicationExceptions.InvalidMethodArgumentException.class)
@@ -521,7 +521,7 @@ public class BpmnServiceTest {
         assertThat(valueCapture.getValue().size()).isEqualTo(3);
         assertThat(valueCapture.getValue().keySet()).containsOnly("key1", "key2", "key3");
         assertThat(valueCapture.getValue().values()).containsOnly("");
-        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
+        verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient);
     }
 
     @Test
@@ -720,7 +720,7 @@ public class BpmnServiceTest {
         );
         assertThat(valueCapture.getValue().size()).isEqualTo(2);
         assertThat(valueCapture.getValue()).isEqualTo(expectedData);
-        verifyZeroInteractions(caseworkClient, camundaClient, infoClient);
+         verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient);
     }
 
     @Test
@@ -823,9 +823,9 @@ public class BpmnServiceTest {
         assertThat(valueCapture.getValue().size()).isEqualTo(1);
         assertThat(valueCapture.getValue().keySet()).contains("destination");
         assertThat(valueCapture.getValue().values()).contains("1989-01-13");
-        verifyZeroInteractions(caseworkClient);
-        verifyZeroInteractions(camundaClient);
-        verifyZeroInteractions(infoClient);
+         verifyNoMoreInteractions(caseworkClient);
+         verifyNoMoreInteractions(camundaClient);
+         verifyNoMoreInteractions(infoClient);
     }
 
     @Test
