@@ -5,7 +5,7 @@ name: build
 
 services:
   - name: postgres
-    image: quay.io/ukhomeofficedigital/postgres-alpine
+    image: postgres:12-alpine
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: dev
@@ -34,7 +34,7 @@ steps:
       - build project
 
   - name: sonar scanner
-    image: quay.io/ukhomeofficedigital/sonar-scanner:v3.0.2
+    image: quay.io/ukhomeofficedigital/sonar-scanner:v4.6
     commands:
       - sonar-scanner -Dsonar.projectVersion="$(git rev-parse --abbrev-ref HEAD)"
     depends_on:
@@ -107,7 +107,7 @@ environment:
 steps:
 
   - name: deploy to cs-dev
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    image: quay.io/ukhomeofficedigital/kd
     commands:
       - cd kube
       - ./deploy.sh
@@ -124,7 +124,7 @@ steps:
         - push
 
   - name: deploy to wcs-dev
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    image: quay.io/ukhomeofficedigital/kd
     commands:
       - cd kube
       - ./deploy.sh
@@ -151,7 +151,7 @@ steps:
         - release
 
   - name: generate & tag build
-    image: quay.io/ukhomeofficedigital/hocs-version-bot:latest
+    image: quay.io/ukhomeofficedigital/hocs-version-bot
     commands:
       - >
         /app/hocs-deploy
@@ -182,7 +182,7 @@ steps:
         - release
 
   - name: deploy to cs-qa
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    image: quay.io/ukhomeofficedigital/kd
     commands:
       - source version.txt
       - echo $VERSION
@@ -202,7 +202,7 @@ steps:
       - generate & tag build
 
   - name: deploy to wcs-qa
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    image: quay.io/ukhomeofficedigital/kd
     commands:
       - source version.txt
       - echo $VERSION
@@ -222,7 +222,7 @@ steps:
       - generate & tag build
 
   - name: deploy to not prod
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    image: quay.io/ukhomeofficedigital/kd
     commands:
       - cd kube
       - ./deploy.sh
@@ -240,7 +240,7 @@ steps:
           - "*-prod"
 
   - name: deploy to prod
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    image: quay.io/ukhomeofficedigital/kd
     commands:
       - cd kube
       - ./deploy.sh
