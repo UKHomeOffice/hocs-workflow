@@ -71,7 +71,7 @@ public class MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION {
         verify(mpamProcess, times(1))
                 .hasCompleted(DRAFT_UNALLOCATE_CASE_SCREEN);
 
-        verifyZeroInteractions(bpmnService);
+         verifyNoMoreInteractions(bpmnService);
     }
 
     @Test
@@ -177,7 +177,7 @@ public class MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION {
         verify(mpamProcess, never())
                 .hasCompleted(DRAFT_UNALLOCATE_CASE_SCREEN);
 
-        verifyZeroInteractions(bpmnService);
+         verifyNoMoreInteractions(bpmnService);
     }
 
     @Test
