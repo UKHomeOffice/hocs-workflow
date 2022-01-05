@@ -782,7 +782,7 @@ public class BpmnServiceTest {
         doReturn(fixedClock.instant()).when(clock).instant();
         doReturn(fixedClock.getZone()).when(clock).getZone();
         Date dateReturnedByInfo = mock(Date.class);
-        when(infoClient.calculateDeadline(caseType, localDate, workingDays)).thenReturn(dateReturnedByInfo);
+        when(caseworkClient.calculateDeadline(caseType, localDate, workingDays)).thenReturn(dateReturnedByInfo);
 
         //when
         Date date = bpmnService.calculateDeadline(caseType, workingDays);

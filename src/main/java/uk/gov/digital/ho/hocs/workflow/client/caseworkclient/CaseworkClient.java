@@ -1,5 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CREATE_CASE_SUCCESS;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 
 @Slf4j
 @Component
@@ -201,5 +202,11 @@ public class CaseworkClient {
 
     public GetStagesResponse getActiveStage(String caseReference){
         return restHelper.get(serviceBaseURL, String.format("/case/%s/stage", caseReference), GetStagesResponse.class);
+    }
+
+    public Date calculateDeadline(String caseType, LocalDate startDate, int workingDays) {
+        LocalDate deadLineDate = restHelper.get(serviceBaseURL, String.format("/deadline/{caseType}", caseType, startDate, workingDays), LocalDate.class);
+        log.info("Calculate deadline {} ", value(EVENT, INFO_CLIENT_CALCULATE_DEADLINE));
+        return Date.from(deadLineDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }
