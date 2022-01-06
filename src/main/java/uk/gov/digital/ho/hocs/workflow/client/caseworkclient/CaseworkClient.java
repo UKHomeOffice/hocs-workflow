@@ -205,7 +205,7 @@ public class CaseworkClient {
     }
 
     public Date calculateDeadline(String caseType, LocalDate startDate, int workingDays) {
-        LocalDate deadLineDate = restHelper.get(serviceBaseURL, String.format("/deadline/{caseType}", caseType, startDate, workingDays), LocalDate.class);
+        LocalDate deadLineDate = restHelper.get(serviceBaseURL, String.format("/deadline/%s?received=%s&days=%s", caseType, startDate, workingDays), LocalDate.class);
         log.info("Calculate deadline {} ", value(EVENT, INFO_CLIENT_CALCULATE_DEADLINE));
         return Date.from(deadLineDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
