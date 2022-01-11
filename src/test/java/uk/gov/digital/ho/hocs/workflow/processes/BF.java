@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
@@ -24,6 +25,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/BF_REGISTRATION.bpmn",
         "processes/BF_TRIAGE.bpmn",
         "processes/BF_SEND.bpmn",
+        "processes/BF_ESCALATE.bpmn",
         "processes/STAGE.bpmn"})
 public class BF {
 
@@ -52,6 +54,43 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
+                .thenReturn("valid", "true", "TriageResult", "Draft")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_DRAFT")
+                .thenReturn("valid", "true")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_SEND")
+                .thenReturn("valid", "true")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("BF")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF");
+        verify(processScenario).hasCompleted("CallActivity_BF_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_BF_TRIAGE");
+        verify(processScenario).hasCompleted("CallActivity_BF_DRAFT");
+        verify(processScenario).hasCompleted("CallActivity_BF_SEND");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF");
+
+        verify(processScenario, times(0)).hasCompleted("CallActivity_BF_ESCALATE");
+    }
+
+    @Test
+    public void testEscalate() {
+        whenAtCallActivity("BF_REGISTRATION")
+                .thenReturn("valid", "true")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_TRIAGE")
+                .thenReturn("valid", "true", "TriageResult", "Escalate")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_ESCALATE")
                 .thenReturn("valid", "true")
                 .deploy(rule);
 
@@ -71,6 +110,7 @@ public class BF {
         verify(processScenario).hasCompleted("CallActivity_BF_REGISTRATION");
         verify(processScenario).hasCompleted("CallActivity_BF_TRIAGE");
         verify(processScenario).hasCompleted("CallActivity_BF_DRAFT");
+        verify(processScenario).hasCompleted("CallActivity_BF_ESCALATE");
         verify(processScenario).hasCompleted("CallActivity_BF_SEND");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_BF");

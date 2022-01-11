@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
   <bpmn:process id="BF" isExecutable="true">
     <bpmn:startEvent id="StartEvent_BF">
       <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
@@ -93,6 +93,7 @@
         <camunda:out source="Stage" target="Stage" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0ybbpfj</bpmn:incoming>
+      <bpmn:incoming>Flow_0f7wh3p</bpmn:incoming>
       <bpmn:outgoing>Flow_1e0lle4</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1e0lle4" sourceRef="CallActivity_BF_DRAFT" targetRef="CallActivity_BF_SEND" />
@@ -101,16 +102,50 @@
       <bpmn:incoming>Flow_1xr2nd0</bpmn:incoming>
       <bpmn:outgoing>Flow_0ybbpfj</bpmn:outgoing>
       <bpmn:outgoing>Flow_0ybkkcr</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ilq1fw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0ybbpfj" sourceRef="Gateway_11e7u0t" targetRef="CallActivity_BF_DRAFT">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageResult != "Complete"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageResult == "Draft"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0ybkkcr" sourceRef="Gateway_11e7u0t" targetRef="ServiceTask_CompleteCase">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageResult == "Complete"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:callActivity id="CallActivity_BF_ESCALATE" name="Escalate" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="EscalateUUID" target="StageUUID" />
+        <camunda:in sourceExpression="BF_ESCALATE" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="EscalateUUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="BF_ESCALATE" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
+        <camunda:out source="CompType" target="CompType" />
+        <camunda:out source="Stage" target="Stage" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ilq1fw</bpmn:incoming>
+      <bpmn:outgoing>Flow_0f7wh3p</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_0ilq1fw" sourceRef="Gateway_11e7u0t" targetRef="CallActivity_BF_ESCALATE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageResult == "Escalate"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0f7wh3p" sourceRef="CallActivity_BF_ESCALATE" targetRef="CallActivity_BF_DRAFT" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BF">
+      <bpmndi:BPMNEdge id="Flow_0ybkkcr_di" bpmnElement="Flow_0ybkkcr">
+        <di:waypoint x="730" y="166" />
+        <di:waypoint x="730" y="80" />
+        <di:waypoint x="1210" y="80" />
+        <di:waypoint x="1210" y="151" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ybbpfj_di" bpmnElement="Flow_0ybbpfj">
+        <di:waypoint x="755" y="191" />
+        <di:waypoint x="790" y="191" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1xr2nd0_di" bpmnElement="Flow_1xr2nd0">
         <di:waypoint x="670" y="191" />
         <di:waypoint x="705" y="191" />
@@ -135,15 +170,14 @@
         <di:waypoint x="218" y="191" />
         <di:waypoint x="340" y="191" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ybbpfj_di" bpmnElement="Flow_0ybbpfj">
-        <di:waypoint x="755" y="191" />
-        <di:waypoint x="790" y="191" />
+      <bpmndi:BPMNEdge id="Flow_0ilq1fw_di" bpmnElement="Flow_0ilq1fw">
+        <di:waypoint x="730" y="216" />
+        <di:waypoint x="730" y="320" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ybkkcr_di" bpmnElement="Flow_0ybkkcr">
-        <di:waypoint x="730" y="166" />
-        <di:waypoint x="730" y="80" />
-        <di:waypoint x="1210" y="80" />
-        <di:waypoint x="1210" y="151" />
+      <bpmndi:BPMNEdge id="Flow_0f7wh3p_di" bpmnElement="Flow_0f7wh3p">
+        <di:waypoint x="780" y="360" />
+        <di:waypoint x="870" y="360" />
+        <di:waypoint x="870" y="231" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_BF">
         <dc:Bounds x="182" y="173" width="36" height="36" />
@@ -168,6 +202,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_11e7u0t_di" bpmnElement="Gateway_11e7u0t" isMarkerVisible="true">
         <dc:Bounds x="705" y="166" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1msj7o8_di" bpmnElement="CallActivity_BF_ESCALATE">
+        <dc:Bounds x="680" y="320" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
