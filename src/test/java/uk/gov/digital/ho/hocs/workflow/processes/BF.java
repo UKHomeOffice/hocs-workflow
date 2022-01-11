@@ -76,4 +76,25 @@ public class BF {
         verify(processScenario).hasCompleted("EndEvent_BF");
     }
 
+    @Test
+    public void testTriageComplete() {
+        whenAtCallActivity("BF_REGISTRATION")
+                .thenReturn("valid", "true")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_TRIAGE")
+                .thenReturn("valid", "true", "TriageResult", "Complete")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("BF")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF");
+        verify(processScenario).hasCompleted("CallActivity_BF_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_BF_TRIAGE");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF");
+    }
+
 }
