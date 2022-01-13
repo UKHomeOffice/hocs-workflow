@@ -26,6 +26,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/BF_TRIAGE.bpmn",
         "processes/BF_SEND.bpmn",
         "processes/BF_ESCALATE.bpmn",
+        "processes/BF_QA.bpmn",
         "processes/STAGE.bpmn"})
 public class BF {
 
@@ -58,7 +59,7 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
-                .thenReturn("valid", "true")
+                .thenReturn("valid", "true", "BfDraftResult", "Send")
                 .deploy(rule);
 
         whenAtCallActivity("BF_SEND")
@@ -95,7 +96,7 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
-                .thenReturn("valid", "true")
+                .thenReturn("valid", "true", "BfDraftResult", "Send")
                 .deploy(rule);
 
         whenAtCallActivity("BF_SEND")
@@ -106,14 +107,50 @@ public class BF {
                 .startByKey("BF")
                 .execute();
 
-        verify(processScenario).hasCompleted("StartEvent_BF");
-        verify(processScenario).hasCompleted("CallActivity_BF_REGISTRATION");
-        verify(processScenario).hasCompleted("CallActivity_BF_TRIAGE");
-        verify(processScenario).hasCompleted("CallActivity_BF_DRAFT");
-        verify(processScenario).hasCompleted("CallActivity_BF_ESCALATE");
-        verify(processScenario).hasCompleted("CallActivity_BF_SEND");
-        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
-        verify(processScenario).hasCompleted("EndEvent_BF");
+        verify(processScenario, times(1)).hasCompleted("StartEvent_BF");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_DRAFT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_ESCALATE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_SEND");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_BF");
+    }
+
+    @Test
+    public void testQA() {
+        whenAtCallActivity("BF_REGISTRATION")
+                .thenReturn("valid", "true")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_TRIAGE")
+                .thenReturn("valid", "true", "TriageResult", "Draft")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_QA")
+                .thenReturn("valid", "true")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_DRAFT")
+                .thenReturn("valid", "true", "BfDraftResult", "QA")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_SEND")
+                .thenReturn("valid", "true")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("BF")
+                .execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_BF");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_DRAFT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_QA");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_SEND");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_BF");
     }
 
     @Test
