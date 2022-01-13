@@ -34,12 +34,14 @@ public class TO_DRAFT {
     private static final String SAVE = "Save";
     private static final String TO_DISPATCH = "SendToDispatch";
     private static final String CHANGE_BUSINESS_AREA = "ChangeBusinessArea";
+    private static final String PUT_ON_CAMPAIGN = "PutOnCampaign";
     private static final String BACKWARD = "BACKWARD";
 
     // USER AND SERVICE TASKS
     private static final String TO_DRAFT_UPLOAD_DOC = "TO_DRAFT_UPLOAD_DOC";
     private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
     private static final String UPDATE_BUS_AREA_STATUS = "UPDATE_BUS_AREA_STATUS";
+    private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
 
 
     @Rule
@@ -66,15 +68,22 @@ public class TO_DRAFT {
 
         when(TOProcess.waitsAtUserTask(TO_DRAFT_UPLOAD_DOC))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, DRAFT_STATUS, SAVE)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, DRAFT_STATUS, TO_DISPATCH)));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, DRAFT_STATUS, PUT_ON_CAMPAIGN)));
 
+        when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(task -> task.complete());
 
         Scenario.run(TOProcess)
                 .startByKey("TO_DRAFT")
                 .execute();
 
+        verify(TOProcess, times(1))
+                .hasCompleted(TO_GET_CAMPAIGN_TYPE);
+
         verify(TOProcess, times(2))
                 .hasCompleted(TO_DRAFT_UPLOAD_DOC);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TO_GET_CAMPAIGN_TYPE);
 
         verify(TOProcess, times(1))
                 .hasCompleted(UPDATE_BUS_AREA_STATUS);
