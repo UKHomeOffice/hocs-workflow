@@ -1,40 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0wwnsbm" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0wwnsbm" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="TO_DISPATCH" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_14vng6x</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="Event_0dxg41b" name="End Stage">
-      <bpmn:incoming>Flow_1anp5o7</bpmn:incoming>
+      <bpmn:incoming>Flow_0bcrg1l</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_14vng6x" sourceRef="StartEvent_1" targetRef="DISPATCH" />
-    <bpmn:sequenceFlow id="Flow_1anp5o7" sourceRef="DISPATCH" targetRef="Event_0dxg41b" />
-    <bpmn:userTask id="DISPATCH" name="Dispatch" camunda:formKey="TO_DISPATCH">
+    <bpmn:sequenceFlow id="Flow_1anp5o7" sourceRef="DISPATCH" targetRef="Gateway_1lw3j11" />
+    <bpmn:userTask id="DISPATCH" name="Dispatch Final Response" camunda:formKey="TO_DISPATCH_FINAL_RESPONSE">
       <bpmn:incoming>Flow_14vng6x</bpmn:incoming>
+      <bpmn:incoming>Flow_19shjkm</bpmn:incoming>
       <bpmn:outgoing>Flow_1anp5o7</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1lw3j11" name="Dispatch Status?">
+      <bpmn:incoming>Flow_1anp5o7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bcrg1l</bpmn:outgoing>
+      <bpmn:outgoing>Flow_19shjkm</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0bcrg1l" name="NOT Save" sourceRef="Gateway_1lw3j11" targetRef="Event_0dxg41b">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DispatchStatus != "Save" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_19shjkm" name="Save" sourceRef="Gateway_1lw3j11" targetRef="DISPATCH">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DispatchStatus == "Save" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TO_DISPATCH">
-      <bpmndi:BPMNEdge id="Flow_14vng6x_di" bpmnElement="Flow_14vng6x">
-        <di:waypoint x="168" y="97" />
-        <di:waypoint x="210" y="97" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1anp5o7_di" bpmnElement="Flow_1anp5o7">
-        <di:waypoint x="310" y="97" />
-        <di:waypoint x="352" y="97" />
+        <di:waypoint x="310" y="157" />
+        <di:waypoint x="385" y="157" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_0dxg41b_di" bpmnElement="Event_0dxg41b">
-        <dc:Bounds x="352" y="79" width="36" height="36" />
+      <bpmndi:BPMNEdge id="Flow_14vng6x_di" bpmnElement="Flow_14vng6x">
+        <di:waypoint x="168" y="157" />
+        <di:waypoint x="210" y="157" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bcrg1l_di" bpmnElement="Flow_0bcrg1l">
+        <di:waypoint x="435" y="157" />
+        <di:waypoint x="512" y="157" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="344" y="122" width="52" height="14" />
+          <dc:Bounds x="451" y="139" width="52" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19shjkm_di" bpmnElement="Flow_19shjkm">
+        <di:waypoint x="410" y="132" />
+        <di:waypoint x="410" y="80" />
+        <di:waypoint x="260" y="80" />
+        <di:waypoint x="260" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="417" y="103" width="26" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="132" y="79" width="36" height="36" />
+        <dc:Bounds x="132" y="139" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0hu2rlc_di" bpmnElement="DISPATCH">
-        <dc:Bounds x="210" y="57" width="100" height="80" />
+        <dc:Bounds x="210" y="117" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0dxg41b_di" bpmnElement="Event_0dxg41b">
+        <dc:Bounds x="512" y="139" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="504" y="182" width="52" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1lw3j11_di" bpmnElement="Gateway_1lw3j11" isMarkerVisible="true">
+        <dc:Bounds x="385" y="132" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="370" y="189" width="84" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
