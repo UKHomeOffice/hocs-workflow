@@ -22,11 +22,11 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/TO_TRIAGE.bpmn",
+        "processes/TO_CAMPAIGN.bpmn",
         "processes/TO_ENQUIRY_SUBJECT_REASON.bpmn",
         "processes/TO_CHANGE_BUSINESS_AREA.bpmn"
 })
-public class TO_TRIAGE {
+public class TO_CAMPAIGN {
 
     // COMMON GATEWAY &  GATEWAY OUTCOMES
     private static final String DIRECTION = "DIRECTION";
@@ -40,11 +40,11 @@ public class TO_TRIAGE {
     private static final String PUT_ON_CAMPAIGN = "PutOnCampaign";
 
     // USER AND SERVICE TASKS
-    private static final String TO_TRIAGE_INPUT = "TO_TRIAGE_INPUT";
-    private static final String UPDATE_BUS_AREA_STATUS = "Activity_0y2w7dl";
+    private static final String UPDATE_BUS_AREA_STATUS = "UPDATE_BUS_AREA_STATUS";
     private static final String TO_ENQUIRY_SUBJECT_REASON = "TO_ENQUIRY_SUBJECT_REASON";
     private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
     private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
+    private static final String CAMPAIGN_INPUT = "CAMPAIGN_INPUT";
 
     @Rule
     @ClassRule
@@ -67,50 +67,20 @@ public class TO_TRIAGE {
     @Test
     public void shouldSetEnquiryAndComplete() {
 
-        when(TOProcess.waitsAtUserTask(TO_TRIAGE_INPUT))
+        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, TO_DRAFT)));
 
-        when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(task -> task.complete());
 
         whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO_TRIAGE")
+                .startByKey("TO_CAMPAIGN")
                 .execute();
 
         verify(TOProcess, times(2))
-                .hasCompleted(TO_TRIAGE_INPUT);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
-    }
-
-    @Test
-    public void shouldGetCampaignTypeAndComplete() {
-
-        when(TOProcess.waitsAtUserTask(TO_TRIAGE_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, PUT_ON_CAMPAIGN)));
-
-        when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(task -> task.complete());
-
-        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
-                .deploy(rule);
-
-        Scenario.run(TOProcess)
-                .startByKey("TO_TRIAGE")
-                .execute();
-
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_GET_CAMPAIGN_TYPE);
+                .hasCompleted(CAMPAIGN_INPUT);
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
@@ -125,7 +95,7 @@ public class TO_TRIAGE {
     @Test
     public void shouldSetEnquiryAndSaveAndComplete() {
 
-        when(TOProcess.waitsAtUserTask(TO_TRIAGE_INPUT))
+        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, SAVE)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, TO_DRAFT)));
@@ -133,11 +103,11 @@ public class TO_TRIAGE {
         whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON).deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO_TRIAGE")
+                .startByKey("TO_CAMPAIGN")
                 .execute();
 
         verify(TOProcess, times(3))
-                .hasCompleted(TO_TRIAGE_INPUT);
+                .hasCompleted(CAMPAIGN_INPUT);
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
@@ -152,7 +122,7 @@ public class TO_TRIAGE {
     @Test
     public void shouldChangeBusinessAreaAndComplete() {
 
-        when(TOProcess.waitsAtUserTask(TO_TRIAGE_INPUT))
+        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)));
 
         whenAtCallActivity(TO_CHANGE_BUSINESS_AREA)
@@ -160,11 +130,11 @@ public class TO_TRIAGE {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO_TRIAGE")
+                .startByKey("TO_CAMPAIGN")
                 .execute();
 
         verify(TOProcess, times(1))
-                .hasCompleted(TO_TRIAGE_INPUT);
+                .hasCompleted(CAMPAIGN_INPUT);
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
@@ -179,7 +149,7 @@ public class TO_TRIAGE {
     @Test
     public void shouldChangeBusinessAreaAndGoBackAndSetEnquiryAndComplete() {
 
-        when(TOProcess.waitsAtUserTask(TO_TRIAGE_INPUT))
+        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD,TRIAGE_OUTCOME,TO_DRAFT)));
@@ -192,11 +162,11 @@ public class TO_TRIAGE {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO_TRIAGE")
+                .startByKey("TO_CAMPAIGN")
                 .execute();
 
         verify(TOProcess, times(3))
-                .hasCompleted(TO_TRIAGE_INPUT);
+                .hasCompleted(CAMPAIGN_INPUT);
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
