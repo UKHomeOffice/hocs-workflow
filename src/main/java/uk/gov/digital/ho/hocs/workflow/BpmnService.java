@@ -570,7 +570,7 @@ public class BpmnService {
     }
 
     public void allocateUserToStage(String caseUUIDString, String stageUUIDString, String userUUIDString) {
-        
+
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
         UUID userUUID = UUID.fromString(userUUIDString);
@@ -582,7 +582,7 @@ public class BpmnService {
 
     public Date calculateDeadline(String caseType, int workingDays) {
         LocalDate startDate = LocalDate.now(clock);
-        return infoClient.calculateDeadline(caseType, startDate, workingDays);
+        return caseworkClient.calculateDeadline(caseType, startDate, workingDays);
     }
 
     private NoteDetails fetchNoteDetails(String caseUUIDString, String allocationStageUUID) {
