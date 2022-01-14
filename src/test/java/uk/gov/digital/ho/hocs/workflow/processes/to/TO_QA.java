@@ -209,9 +209,10 @@ public class TO_QA {
     @Test
     public void testPutOnCampaign() {
         when(TOProcess.waitsAtUserTask(TO_QA_OUTCOME))
-                .thenReturn(task -> task.complete(withVariables(QA_STATUS,"PutOnCampaign")));
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, PUT_ON_CAMPAIGN)));
 
-        when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(task -> task.complete());
+        when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(
+                task -> task.complete(withVariables(DIRECTION,FORWARD)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_QA")
