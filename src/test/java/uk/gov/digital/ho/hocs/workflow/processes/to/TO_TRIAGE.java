@@ -71,8 +71,6 @@ public class TO_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, TO_DRAFT)));
 
-        when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(task -> task.complete());
-
         whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
                 .deploy(rule);
 
