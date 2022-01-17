@@ -34,6 +34,7 @@ public class TO_QA {
     private static final String QA_STATUS = "QaStatus";
     private static final String BACKWARD = "BACKWARD";
     private static final String FORWARD = "FORWARD";
+    private static final String PUT_ON_CAMPAIGN = "PutOnCampaign";
 
     // USER AND SERVICE TASKS
     private static final String TO_QA_OUTCOME = "TO_QA_OUTCOME";
@@ -43,6 +44,7 @@ public class TO_QA {
     private static final String UPDATE_APP_Rejected = "Activity_0k5qv30";
     private static final String CLEAR_REJ_NOTE = "Activity_0extn6g";
     private static final String SAVE_REJ_NOTE = "Activity_1t508ui";
+    private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
 
     @Rule
     @ClassRule
@@ -207,7 +209,10 @@ public class TO_QA {
     @Test
     public void testPutOnCampaign() {
         when(TOProcess.waitsAtUserTask(TO_QA_OUTCOME))
-                .thenReturn(task -> task.complete(withVariables(QA_STATUS,"PutOnCampaign")));
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, PUT_ON_CAMPAIGN)));
+
+        when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(
+                task -> task.complete(withVariables(DIRECTION,FORWARD)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_QA")

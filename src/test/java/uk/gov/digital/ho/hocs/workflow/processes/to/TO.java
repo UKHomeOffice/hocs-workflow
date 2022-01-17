@@ -338,7 +338,12 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(CAMPAIGN)
-                .alwaysReturn("CampaignOutcome", SEND_TO_DRAFT)
+                .thenReturn("BusAreaStatus", "Transferred")
+                .thenReturn("CampaignOutcome", SEND_TO_DRAFT, "BusAreaStatus", "Confirmed")
+                .thenReturn("CampaignOutcome", SEND_TO_DRAFT)
+                .thenReturn("CampaignOutcome", SEND_TO_DRAFT)
+                .thenReturn("CampaignOutcome", SEND_TO_DRAFT)
+                .thenReturn("CampaignOutcome", SEND_TO_DRAFT)
                 .deploy(rule);
 
         Scenario.run(TOProcess)
@@ -354,7 +359,7 @@ public class TO {
         verify(TOProcess, times(1))
                 .hasCompleted(TRIAGE);
 
-        verify(TOProcess, times(5))
+        verify(TOProcess, times(6))
                 .hasCompleted(CAMPAIGN);
 
         verify(TOProcess, times(5))

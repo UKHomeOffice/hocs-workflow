@@ -17,6 +17,8 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import java.util.List;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -73,6 +75,7 @@ public class MPAMPoApprovedMinDispatch {
                 .startByKey("MPAM_PO_APPROVED_MIN_DISPATCH")
                 .execute();
 
+        verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By Dispatch"));
         verify(processScenario).hasCompleted("Activity_13s3swa");
         verify(processScenario).hasFinished("EndEvent_MPAMPoApprovedMinDispatch");
     }

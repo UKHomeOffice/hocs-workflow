@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_05fb2zj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_05fb2zj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0">
   <bpmn:process id="TO" isExecutable="true">
     <bpmn:startEvent id="TO_START" name="Start case">
       <bpmn:outgoing>SequenceFlow_14toxc6</bpmn:outgoing>
@@ -200,14 +200,14 @@
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_1d7lzq0" sourceRef="TO_HOME_SEC" targetRef="ExclusiveGateway_168lif2" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_0fb6a7m" name="Campaign Outcome?">
-      <bpmn:incoming>SequenceFlow_07swn4y</bpmn:incoming>
+      <bpmn:incoming>Flow_1tse4cz</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0oah2ej</bpmn:outgoing>
       <bpmn:outgoing>Flow_1qg8gr0</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0oah2ej" name="SendToTriage" sourceRef="ExclusiveGateway_0fb6a7m" targetRef="TO_TRIAGE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CampaignOutcome == "SendToTriage"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:callActivity id="TO_CAMPAIGN" name="Campaign" calledElement="STAGE">
+    <bpmn:callActivity id="TO_CAMPAIGN" name="Campaign" default="SequenceFlow_07swn4y" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="CampaignUUID" target="StageUUID" />
         <camunda:in sourceExpression="TO_CAMPAIGN" target="StageWorkFlow" />
@@ -216,18 +216,21 @@
         <camunda:in sourceExpression="TO_CAMPAIGN" target="StageType" />
         <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
         <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
-        <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
+        <camunda:in source="TROFTeamUUID" target="AllocationTeamUUID" />
         <camunda:in source="CampaignUserUUID" target="AllocatedUserUUID" />
         <camunda:out source="CampaignOutcome" target="CampaignOutcome" />
+        <camunda:out source="TROFTeamUUID" target="TROFTeamUUID" />
+        <camunda:out source="BusAreaStatus" target="BusAreaStatus" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_18on675</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1cowsmg</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0nwmpuu</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_11klb2d</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0ep2gw3</bpmn:incoming>
+      <bpmn:incoming>Flow_0l2rb7q</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_07swn4y</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_07swn4y" sourceRef="TO_CAMPAIGN" targetRef="ExclusiveGateway_0fb6a7m" />
+    <bpmn:sequenceFlow id="SequenceFlow_07swn4y" sourceRef="TO_CAMPAIGN" targetRef="Gateway_1xdki5a" />
     <bpmn:sequenceFlow id="SequenceFlow_18on675" name="PutOnCampaign" sourceRef="ExclusiveGateway_168lif2" targetRef="TO_CAMPAIGN">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${HomeSecStatus == "PutOnCampaign"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -348,9 +351,31 @@
     <bpmn:sequenceFlow id="Flow_0xhav8z" name="SendToTriage" sourceRef="Gateway_1byd7u3" targetRef="TO_TRIAGE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${StopListOutcome == "SendToTriage"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_1xdki5a" name="Transfer Case?">
+      <bpmn:incoming>SequenceFlow_07swn4y</bpmn:incoming>
+      <bpmn:outgoing>Flow_1tse4cz</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0l2rb7q</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1tse4cz" sourceRef="Gateway_1xdki5a" targetRef="ExclusiveGateway_0fb6a7m">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BusAreaStatus == "Confirmed"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0l2rb7q" sourceRef="Gateway_1xdki5a" targetRef="TO_CAMPAIGN">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BusAreaStatus == "Transferred"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TO">
+      <bpmndi:BPMNEdge id="Flow_0l2rb7q_di" bpmnElement="Flow_0l2rb7q" bioc:stroke="rgb(142, 36, 170)" bioc:fill="rgb(225, 190, 231)">
+        <di:waypoint x="935" y="780" />
+        <di:waypoint x="880" y="780" />
+        <di:waypoint x="880" y="670" />
+        <di:waypoint x="910" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tse4cz_di" bpmnElement="Flow_1tse4cz">
+        <di:waypoint x="960" y="805" />
+        <di:waypoint x="960" y="880" />
+        <di:waypoint x="1053" y="973" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0xhav8z_di" bpmnElement="Flow_0xhav8z" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
         <di:waypoint x="1165" y="840" />
         <di:waypoint x="680" y="840" />
@@ -511,8 +536,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_07swn4y_di" bpmnElement="SequenceFlow_07swn4y">
         <di:waypoint x="960" y="710" />
-        <di:waypoint x="960" y="880" />
-        <di:waypoint x="1053" y="973" />
+        <di:waypoint x="960" y="755" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0oah2ej_di" bpmnElement="SequenceFlow_0oah2ej" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
         <di:waypoint x="1041" y="985" />
@@ -741,6 +765,12 @@
         <dc:Bounds x="1165" y="815" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1166" y="872" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1xdki5a_di" bpmnElement="Gateway_1xdki5a" isMarkerVisible="true">
+        <dc:Bounds x="935" y="755" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="992" y="773" width="76" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
