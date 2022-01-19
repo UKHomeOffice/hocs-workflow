@@ -15,10 +15,7 @@ import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateTopicRequest;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
@@ -55,9 +52,8 @@ public class BpmnServiceTest {
 
     private BpmnService bpmnService;
 
-    private final String caseUUID = UUID.randomUUID().toString();
-
-    private final String stageUUID = UUID.randomUUID().toString();
+    private final UUID caseUUID = UUID.randomUUID();
+    private final UUID stageUUID = UUID.randomUUID();
     private final String dateReceived = LocalDate.now().toString();
 
 
@@ -67,23 +63,23 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shoudCalculateTotals() {
-        when(caseworkClient.calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list")).thenReturn(null);
+    public void testShouldCalculateTotals() {
+        when(caseworkClient.calculateTotals(caseUUID, stageUUID, "list")).thenReturn(null);
 
-        bpmnService.calculateTotals(caseUUID, stageUUID, "list");
+        bpmnService.calculateTotals(caseUUID.toString(), stageUUID.toString(), "list");
 
-        verify(caseworkClient).calculateTotals(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "list");
+        verify(caseworkClient).calculateTotals(caseUUID, stageUUID, "list");
         verifyNoMoreInteractions(caseworkClient);
-         verifyNoMoreInteractions(camundaClient);
-         verifyNoMoreInteractions(infoClient);
+        verifyNoMoreInteractions(camundaClient);
+        verifyNoMoreInteractions(infoClient);
     }
 
     @Test
-    public void shoudUpdateDeadline() {
+    public void testShouldUpdateDeadline() {
 
-        bpmnService.updateDeadline(caseUUID, stageUUID, dateReceived);
+        bpmnService.updateDeadline(caseUUID.toString(), stageUUID.toString(), dateReceived);
 
-        verify(caseworkClient).updateDateReceived(UUID.fromString(caseUUID), UUID.fromString(stageUUID), LocalDate.parse(dateReceived));
+        verify(caseworkClient).updateDateReceived(caseUUID, stageUUID, LocalDate.parse(dateReceived));
         verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
          verifyNoMoreInteractions(infoClient);
@@ -92,9 +88,9 @@ public class BpmnServiceTest {
     @Test
     public void shoudUpdateDispatchDeadlineDate() {
 
-        bpmnService.updateDispatchDeadlineDate(caseUUID, stageUUID, dateReceived);
+        bpmnService.updateDispatchDeadlineDate(caseUUID.toString(), stageUUID.toString(), dateReceived);
 
-        verify(caseworkClient).updateDispatchDeadlineDate(UUID.fromString(caseUUID), UUID.fromString(stageUUID), LocalDate.parse(dateReceived));
+        verify(caseworkClient).updateDispatchDeadlineDate(caseUUID, stageUUID, LocalDate.parse(dateReceived));
         verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
          verifyNoMoreInteractions(infoClient);
@@ -102,11 +98,11 @@ public class BpmnServiceTest {
 
     @Test
     public void shoudUpdateDeadlineDays() {
-        doNothing().when(caseworkClient).updateDeadlineDays(UUID.fromString(caseUUID), UUID.fromString(stageUUID), 123);
+        doNothing().when(caseworkClient).updateDeadlineDays(caseUUID, stageUUID, 123);
 
-        bpmnService.updateDeadlineDays(caseUUID, stageUUID, "123");
+        bpmnService.updateDeadlineDays(caseUUID.toString(), stageUUID.toString(), "123");
 
-        verify(caseworkClient).updateDeadlineDays(UUID.fromString(caseUUID), UUID.fromString(stageUUID), 123);
+        verify(caseworkClient).updateDeadlineDays(caseUUID, stageUUID, 123);
         verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
          verifyNoMoreInteractions(infoClient);
@@ -114,11 +110,11 @@ public class BpmnServiceTest {
 
     @Test
     public void shoudUpdateStageDeadline() {
-        doNothing().when(caseworkClient).updateStageDeadline(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "TEST", 7);
+        doNothing().when(caseworkClient).updateStageDeadline(caseUUID, stageUUID, "TEST", 7);
 
-        bpmnService.updateStageDeadline(caseUUID, stageUUID, "TEST", "7");
+        bpmnService.updateStageDeadline(caseUUID.toString(), stageUUID.toString(), "TEST", "7");
 
-        verify(caseworkClient).updateStageDeadline(UUID.fromString(caseUUID), UUID.fromString(stageUUID), "TEST", 7);
+        verify(caseworkClient).updateStageDeadline(caseUUID, stageUUID, "TEST", 7);
         verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
          verifyNoMoreInteractions(infoClient);
@@ -144,12 +140,12 @@ public class BpmnServiceTest {
         when(infoClient.getTeam(draftingString)).thenReturn(team);
         when(infoClient.getUnitForTeam(draftingString)).thenReturn(unit);
 
-        bpmnService.setDraftingTeam(caseUUID, stageUUID, draftingString.toString());
+        bpmnService.setDraftingTeam(caseUUID.toString(), stageUUID.toString(), draftingString.toString());
 
         verify(infoClient, times(1)).getTeam(draftingString);
         verify(infoClient, times(1)).getUnitForTeam(draftingString);
-        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
-        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
+        verify(camundaClient, times(1)).updateTask(stageUUID, teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(caseUUID, stageUUID, teamsForTopic);
 
          verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
@@ -159,7 +155,7 @@ public class BpmnServiceTest {
 
     @Test
     public void shouldNotUpdateDataNoNewTeams() {
-        bpmnService.updateTeamSelection(caseUUID, stageUUID, null, null);
+        bpmnService.updateTeamSelection(caseUUID.toString(), stageUUID.toString(), null, null);
 
          verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
@@ -168,7 +164,7 @@ public class BpmnServiceTest {
 
     @Test
     public void shouldNotUpdateDataNoNewTeamsWhenEmptyString() {
-        bpmnService.updateTeamSelection(caseUUID, stageUUID, "", "");
+        bpmnService.updateTeamSelection(caseUUID.toString(), stageUUID.toString(), "", "");
 
          verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
@@ -193,12 +189,12 @@ public class BpmnServiceTest {
         when(infoClient.getTeam(draftingString)).thenReturn(team);
         when(infoClient.getUnitForTeam(draftingString)).thenReturn(unit);
 
-        bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), null);
+        bpmnService.updateTeamSelection(caseUUID.toString(), stageUUID.toString(), draftingString.toString(), null);
 
         verify(infoClient, times(1)).getTeam(draftingString);
         verify(infoClient, times(1)).getUnitForTeam(draftingString);
-        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
-        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
+        verify(camundaClient, times(1)).updateTask(stageUUID, teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(caseUUID, stageUUID, teamsForTopic);
 
          verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
@@ -222,12 +218,12 @@ public class BpmnServiceTest {
         when(infoClient.getTeam(draftingString)).thenReturn(team);
         when(infoClient.getUnitForTeam(draftingString)).thenReturn(unit);
 
-        bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), null);
+        bpmnService.updateTeamSelection(caseUUID.toString(), stageUUID.toString(), draftingString.toString(), null);
 
         verify(infoClient, times(1)).getTeam(draftingString);
         verify(infoClient, times(1)).getUnitForTeam(draftingString);
-        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
-        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
+        verify(camundaClient, times(1)).updateTask(stageUUID, teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(caseUUID, stageUUID, teamsForTopic);
 
          verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
@@ -251,12 +247,12 @@ public class BpmnServiceTest {
         when(infoClient.getTeam(privateOfficeString)).thenReturn(team);
         when(infoClient.getUnitForTeam(privateOfficeString)).thenReturn(unit);
 
-        bpmnService.updateTeamSelection(caseUUID, stageUUID, null, privateOfficeString.toString());
+        bpmnService.updateTeamSelection(caseUUID.toString(), stageUUID.toString(), null, privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(privateOfficeString);
         verify(infoClient, times(1)).getUnitForTeam(privateOfficeString);
-        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
-        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
+        verify(camundaClient, times(1)).updateTask(stageUUID, teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(caseUUID, stageUUID, teamsForTopic);
 
          verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
@@ -277,12 +273,12 @@ public class BpmnServiceTest {
 
         when(infoClient.getTeam(privateOfficeString)).thenReturn(team);
 
-        bpmnService.updateTeamSelection(caseUUID, stageUUID, null, privateOfficeString.toString());
+        bpmnService.updateTeamSelection(caseUUID.toString(), stageUUID.toString(), null, privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(privateOfficeString);
         verify(infoClient, times(1)).getUnitForTeam(privateOfficeString);
-        verify(camundaClient, times(1)).updateTask(UUID.fromString(stageUUID), teamsForTopic);
-        verify(caseworkClient, times(1)).updateCase(UUID.fromString(caseUUID), UUID.fromString(stageUUID), teamsForTopic);
+        verify(camundaClient, times(1)).updateTask(stageUUID, teamsForTopic);
+        verify(caseworkClient, times(1)).updateCase(caseUUID, stageUUID, teamsForTopic);
 
          verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
@@ -399,17 +395,17 @@ public class BpmnServiceTest {
         when(infoClient.getUnitForTeam(privateOfficeString)).thenReturn(new UnitDto("Unit1", "Unit1"));
         when(infoClient.getTeam(draftingString)).thenReturn(new TeamDto("Team1", privateOfficeString, true, new HashSet<>()));
         when(infoClient.getUnitForTeam(draftingString)).thenReturn(new UnitDto("Unit1", "Unit1"));
-        doNothing().when(camundaClient).updateTask(eq(UUID.fromString(stageUUID)), any());
-        doNothing().when(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        doNothing().when(camundaClient).updateTask(eq(stageUUID), any());
+        doNothing().when(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), any());
 
-        bpmnService.updateTeamSelection(caseUUID, stageUUID, draftingString.toString(), privateOfficeString.toString());
+        bpmnService.updateTeamSelection(caseUUID.toString(), stageUUID.toString(), draftingString.toString(), privateOfficeString.toString());
 
         verify(infoClient, times(1)).getTeam(draftingString);
         verify(infoClient, times(1)).getUnitForTeam(draftingString);
         verify(infoClient, times(1)).getTeam(privateOfficeString);
         verify(infoClient, times(1)).getUnitForTeam(privateOfficeString);
-        verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), any());
-        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        verify(camundaClient, times(1)).updateTask(eq(stageUUID), any());
+        verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
 
          verifyNoMoreInteractions(caseworkClient);
          verifyNoMoreInteractions(camundaClient);
@@ -446,10 +442,10 @@ public class BpmnServiceTest {
     public void shouldUpdateValue() {
         ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
 
-        bpmnService.updateValue(caseUUID, stageUUID, "testKey", "testValue");
+        bpmnService.updateValue(caseUUID.toString(), stageUUID.toString(), "testKey", "testValue");
 
-        verify(camundaClient, times(1)).updateTask(eq(UUID.fromString(stageUUID)), valueCapture.capture());
-        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), any());
+        verify(camundaClient, times(1)).updateTask(eq(stageUUID), valueCapture.capture());
+        verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), any());
         assertThat(valueCapture.getValue().size()).isEqualTo(1);
         assertThat(valueCapture.getValue().keySet()).contains("testKey");
         assertThat(valueCapture.getValue().values()).contains("testValue");
@@ -462,10 +458,10 @@ public class BpmnServiceTest {
     public void shouldUpdateValue_multiple() {
         ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
         Map<String, String> expectedData = Map.of("key1", "value1", "key2", "value3", "key3", "value3");
-        bpmnService.updateValue(caseUUID, stageUUID, "key1", "value1", "key2", "value3", "key3", "value3");
+        bpmnService.updateValue(caseUUID.toString(), stageUUID.toString(), "key1", "value1", "key2", "value3", "key3", "value3");
 
-        verify(camundaClient).updateTask(eq(UUID.fromString(stageUUID)), valueCapture.capture());
-        verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), eq(expectedData));
+        verify(camundaClient).updateTask(eq(stageUUID), valueCapture.capture());
+        verify(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), eq(expectedData));
         assertThat(valueCapture.getValue().size()).isEqualTo(3);
         assertThat(valueCapture.getValue()).isEqualTo(expectedData);
         verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient);
@@ -473,16 +469,16 @@ public class BpmnServiceTest {
 
     @Test(expected = ApplicationExceptions.InvalidMethodArgumentException.class)
     public void shouldFailToUpdateValue() {
-        bpmnService.updateCaseValue(caseUUID, stageUUID, "key1", "value1", "key2", "value3", "key3", "value3", "key4");
+        bpmnService.updateCaseValue(caseUUID.toString(), stageUUID.toString(), "key1", "value1", "key2", "value3", "key3", "value3", "key4");
     }
 
     @Test
     public void shouldUpdateCaseValue() {
         ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
 
-        bpmnService.updateCaseValue(caseUUID, stageUUID, "testKey", "testValue");
+        bpmnService.updateCaseValue(caseUUID.toString(), stageUUID.toString(), "testKey", "testValue");
 
-        verify(caseworkClient, times(1)).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture());
+        verify(caseworkClient, times(1)).updateCase(eq(caseUUID), eq(stageUUID), valueCapture.capture());
         assertThat(valueCapture.getValue().size()).isEqualTo(1);
         assertThat(valueCapture.getValue().keySet()).contains("testKey");
         assertThat(valueCapture.getValue().values()).contains("testValue");
@@ -496,9 +492,9 @@ public class BpmnServiceTest {
         ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
 
         Map<String, String> expectedData = Map.of("key1", "value1", "key2", "value3", "key3", "value3");
-        bpmnService.updateCaseValue(caseUUID, stageUUID, "key1", "value1", "key2", "value3", "key3", "value3");
+        bpmnService.updateCaseValue(caseUUID.toString(), stageUUID.toString(), "key1", "value1", "key2", "value3", "key3", "value3");
 
-        verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture());
+        verify(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), valueCapture.capture());
         assertThat(valueCapture.getValue().size()).isEqualTo(3);
         assertThat(valueCapture.getValue()).isEqualTo(expectedData);
         verifyNoMoreInteractions(caseworkClient, camundaClient, infoClient);
@@ -507,7 +503,7 @@ public class BpmnServiceTest {
     @Test(expected = ApplicationExceptions.InvalidMethodArgumentException.class)
     public void shouldFailToUpdateCaseValue() {
 
-        bpmnService.updateCaseValue(caseUUID, stageUUID, "key1", "value1", "key2", "value3", "key3", "value3", "key4");
+        bpmnService.updateCaseValue(caseUUID.toString(), stageUUID.toString(), "key1", "value1", "key2", "value3", "key3", "value3", "key4");
 
     }
 
@@ -515,9 +511,9 @@ public class BpmnServiceTest {
     public void shouldBlankCaseValues() {
         ArgumentCaptor<Map<String, String>> valueCapture = ArgumentCaptor.forClass(Map.class);
 
-        bpmnService.blankCaseValues(caseUUID, stageUUID, "key1", "key2", "key3");
+        bpmnService.blankCaseValues(caseUUID.toString(), stageUUID.toString(), "key1", "key2", "key3");
 
-        verify(caseworkClient).updateCase(eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture());
+        verify(caseworkClient).updateCase(eq(caseUUID), eq(stageUUID), valueCapture.capture());
         assertThat(valueCapture.getValue().size()).isEqualTo(3);
         assertThat(valueCapture.getValue().keySet()).containsOnly("key1", "key2", "key3");
         assertThat(valueCapture.getValue().values()).containsOnly("");
@@ -528,17 +524,17 @@ public class BpmnServiceTest {
     public void shouldCreateNewStage_whenUserIsInTeam() {
         String stageType = "testStageType";
         String allocationType = "testAllocationType";
-        String allocationTeam = UUID.randomUUID().toString();
-        String allocatedUserId = UUID.randomUUID().toString();
-        when(infoClient.getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId))).thenReturn(new UserDto());
-        UUID expectedStageUUID = UUID.randomUUID();
-        when(caseworkClient.createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId), allocationType)).thenReturn(expectedStageUUID);
+        UUID allocationTeam = UUID.randomUUID();
+        UUID allocatedUserId = UUID.randomUUID();
 
-        String resultUUID = bpmnService.createStage(caseUUID, null, stageType, allocationType, allocationTeam, allocatedUserId);
+        when(infoClient.getUserForTeam(allocationTeam, allocatedUserId)).thenReturn(new UserDto());
+        UUID expectedStageUUID = UUID.randomUUID();
+        when(caseworkClient.createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class))).thenReturn(expectedStageUUID);
+
+        String resultUUID = bpmnService.createStage(caseUUID.toString(), null, stageType, allocationType, allocationTeam.toString(), allocatedUserId.toString());
 
         assertThat(resultUUID).isEqualTo(expectedStageUUID.toString());
-        verify(infoClient).getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId));
-        verify(caseworkClient).createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId), allocationType);
+        verify(caseworkClient).createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class));
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
 
@@ -546,33 +542,37 @@ public class BpmnServiceTest {
     public void shouldCreateNewStage_whenUserNotInTeam() {
         String stageType = "testStageType";
         String allocationType = "testAllocationType";
-        String allocationTeam = UUID.randomUUID().toString();
-        String allocatedUserId = UUID.randomUUID().toString();
-        when(infoClient.getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId))).thenReturn(null);
+        UUID allocationTeam = UUID.randomUUID();
+        UUID allocatedUserId = UUID.randomUUID();
         UUID expectedStageUUID = UUID.randomUUID();
-        when(caseworkClient.createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), null, allocationType)).thenReturn(expectedStageUUID);
 
-        String resultUUID = bpmnService.createStage(caseUUID, null, stageType, allocationType, allocationTeam, allocatedUserId);
+        when(infoClient.getUserForTeam(allocationTeam, allocatedUserId)).thenReturn(null);
+        when(caseworkClient.createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class))).thenReturn(expectedStageUUID);
+
+        String resultUUID = bpmnService.createStage(caseUUID.toString(), null, stageType, allocationType, allocationTeam.toString(), allocatedUserId.toString());
 
         assertThat(resultUUID).isEqualTo(expectedStageUUID.toString());
-        verify(infoClient).getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId));
-        verify(caseworkClient).createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), null, allocationType);
+        verify(caseworkClient).createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class));
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
 
     @Test
     public void shouldCreateNewStage_NoUserParam() {
+
+        // GIVEN
         String stageType = "testStageType";
         String allocationType = "testAllocationType";
-        String allocationTeam = UUID.randomUUID().toString();
-
+        UUID allocationTeam = UUID.randomUUID();
         UUID expectedStageUUID = UUID.randomUUID();
 
-        when(caseworkClient.createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), null, allocationType)).thenReturn(expectedStageUUID);
-        String resultUUID = bpmnService.createStage(caseUUID, null, stageType, allocationType, allocationTeam);
+        when(caseworkClient.createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class))).thenReturn(expectedStageUUID);
 
+        // WHEN
+        String resultUUID = bpmnService.createStage(caseUUID.toString(), null, stageType, allocationType, allocationTeam.toString());
+
+        // THEN
         assertThat(resultUUID).isEqualTo(expectedStageUUID.toString());
-        verify(caseworkClient).createStage(UUID.fromString(caseUUID), stageType, UUID.fromString(allocationTeam), null, allocationType);
+        verify(caseworkClient).createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class));
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
 
     }
@@ -581,19 +581,18 @@ public class BpmnServiceTest {
     public void shouldCreateNewStage_NoAllocationTeam() {
         String stageType = "testStageType";
         String allocationType = "testAllocationType";
-        String allocatedUserId = UUID.randomUUID().toString();
+        UUID allocatedUserId = UUID.randomUUID();
         UUID expectedStageUUID = UUID.randomUUID();
         UUID expectedAllocationTeam = UUID.randomUUID();
-        when(infoClient.getTeamForStageType(stageType)).thenReturn(expectedAllocationTeam);
-        when(infoClient.getUserForTeam(expectedAllocationTeam, UUID.fromString(allocatedUserId))).thenReturn(new UserDto());
-        when(caseworkClient.createStage(UUID.fromString(caseUUID), stageType, expectedAllocationTeam, UUID.fromString(allocatedUserId), allocationType)).thenReturn(expectedStageUUID);
 
-        String resultUUID = bpmnService.createStage(caseUUID, null, stageType, allocationType, null, allocatedUserId);
+        when(infoClient.getTeamForStageType(stageType)).thenReturn(expectedAllocationTeam);
+        when(infoClient.getUserForTeam(expectedAllocationTeam, allocatedUserId)).thenReturn(new UserDto());
+        when(caseworkClient.createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class))).thenReturn(expectedStageUUID);
+
+        String resultUUID = bpmnService.createStage(caseUUID.toString(), null, stageType, allocationType, null, allocatedUserId.toString());
 
         assertThat(resultUUID).isEqualTo(expectedStageUUID.toString());
-        verify(infoClient).getTeamForStageType(stageType);
-        verify(infoClient).getUserForTeam(expectedAllocationTeam, UUID.fromString(allocatedUserId));
-        verify(caseworkClient).createStage(UUID.fromString(caseUUID), stageType, expectedAllocationTeam, UUID.fromString(allocatedUserId), allocationType);
+        verify(caseworkClient).createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class));
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
 
@@ -601,17 +600,15 @@ public class BpmnServiceTest {
     public void shouldRecreateStage() {
         String stageType = "testStageType";
         String allocationType = "testAllocationType";
-        String allocationTeam = UUID.randomUUID().toString();
-        String allocatedUserId = UUID.randomUUID().toString();
-        when(infoClient.getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId))).thenReturn(new UserDto());
+        UUID allocationTeam = UUID.randomUUID();
+        UUID allocatedUserId = UUID.randomUUID();
 
-        String resultUUID = bpmnService.createStage(caseUUID, stageUUID, stageType, allocationType, allocationTeam, allocatedUserId);
+        when(infoClient.getUserForTeam(allocationTeam, allocatedUserId)).thenReturn(new UserDto());
 
-        assertThat(resultUUID).isEqualTo(stageUUID);
-        verify(infoClient).getUserForTeam(UUID.fromString(allocationTeam), UUID.fromString(allocatedUserId));
-        verify(caseworkClient).recreateStage(UUID.fromString(caseUUID), UUID.fromString(stageUUID), stageType);
-        verify(caseworkClient).updateStageTeam(UUID.fromString(caseUUID), UUID.fromString(stageUUID), UUID.fromString(allocationTeam), allocationType);
-        verify(caseworkClient).updateStageUser(UUID.fromString(caseUUID), UUID.fromString(stageUUID), UUID.fromString(allocatedUserId));
+        String resultUUID = bpmnService.createStage(caseUUID.toString(), stageUUID.toString(), stageType, allocationType, allocationTeam.toString(), allocatedUserId.toString());
+
+        assertThat(resultUUID).isEqualTo(stageUUID.toString());
+        verify(caseworkClient).recreateStage(eq(caseUUID), any(RecreateCaseworkStageRequest.class));
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
 
@@ -619,13 +616,12 @@ public class BpmnServiceTest {
     public void shouldRecreateStage_NoUserUUIDProvided() {
         String stageType = "testStageType";
         String allocationType = "testAllocationType";
-        String allocationTeam = UUID.randomUUID().toString();
+        UUID allocationTeam = UUID.randomUUID();
 
-        String resultUUID = bpmnService.createStage(caseUUID, stageUUID, stageType, allocationType, allocationTeam, null);
+        String resultUUID = bpmnService.createStage(caseUUID.toString(), stageUUID.toString(), stageType, allocationType, allocationTeam.toString(), null);
 
-        assertThat(resultUUID).isEqualTo(stageUUID);
-        verify(caseworkClient).recreateStage(UUID.fromString(caseUUID), UUID.fromString(stageUUID), stageType);
-        verify(caseworkClient).updateStageTeam(UUID.fromString(caseUUID), UUID.fromString(stageUUID), UUID.fromString(allocationTeam), allocationType);
+        assertThat(resultUUID).isEqualTo(stageUUID.toString());
+        verify(caseworkClient).recreateStage(eq(caseUUID), any(RecreateCaseworkStageRequest.class));
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
 
     }
@@ -635,12 +631,12 @@ public class BpmnServiceTest {
         String variableName = "testVariableName";
         int additive = 1;
 
-        when(caseworkClient.getDataValue(caseUUID, variableName)).thenReturn(null);
+        when(caseworkClient.getDataValue(caseUUID.toString(), variableName)).thenReturn(null);
 
-        bpmnService.updateCount(caseUUID, variableName, additive);
+        bpmnService.updateCount(caseUUID.toString(), variableName, additive);
 
-        verify(caseworkClient).getDataValue(caseUUID, variableName);
-        verify(caseworkClient).updateDataValue(caseUUID, variableName, "1");
+        verify(caseworkClient).getDataValue(caseUUID.toString(), variableName);
+        verify(caseworkClient).updateDataValue(caseUUID.toString(), variableName, "1");
 
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
@@ -669,12 +665,12 @@ public class BpmnServiceTest {
         String variableName = "testVariableName";
         int additive = 1;
 
-        when(caseworkClient.getDataValue(caseUUID, variableName)).thenReturn("0");
+        when(caseworkClient.getDataValue(caseUUID.toString(), variableName)).thenReturn("0");
 
-        bpmnService.updateCount(caseUUID, variableName, additive);
+        bpmnService.updateCount(caseUUID.toString(), variableName, additive);
 
-        verify(caseworkClient).getDataValue(caseUUID, variableName);
-        verify(caseworkClient).updateDataValue(caseUUID, variableName, "1");
+        verify(caseworkClient).getDataValue(caseUUID.toString(), variableName);
+        verify(caseworkClient).updateDataValue(caseUUID.toString(), variableName, "1");
 
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
@@ -684,12 +680,12 @@ public class BpmnServiceTest {
         String variableName = "testVariableName";
         int additive = -3;
 
-        when(caseworkClient.getDataValue(caseUUID, variableName)).thenReturn("5");
+        when(caseworkClient.getDataValue(caseUUID.toString(), variableName)).thenReturn("5");
 
-        bpmnService.updateCount(caseUUID, variableName, additive);
+        bpmnService.updateCount(caseUUID.toString(), variableName, additive);
 
-        verify(caseworkClient).getDataValue(caseUUID, variableName);
-        verify(caseworkClient).updateDataValue(caseUUID, variableName, "2");
+        verify(caseworkClient).getDataValue(caseUUID.toString(), variableName);
+        verify(caseworkClient).updateDataValue(caseUUID.toString(), variableName, "2");
 
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
@@ -707,8 +703,8 @@ public class BpmnServiceTest {
         Map<String, Integer> expectedData = Map.of("stage_type1", 5, "stage_type2", 10);
 
         bpmnService.updateDeadlineForStages(
-                caseUUID,
-                stageUUID,
+                caseUUID.toString(),
+                stageUUID.toString(),
                 stageType1,
                 no_of_days_1,
                 stageType2,
@@ -716,7 +712,7 @@ public class BpmnServiceTest {
         );
 
         verify(caseworkClient).updateDeadlineForStages(
-                eq(UUID.fromString(caseUUID)), eq(UUID.fromString(stageUUID)), valueCapture.capture()
+                eq(caseUUID), eq(stageUUID), valueCapture.capture()
         );
         assertThat(valueCapture.getValue().size()).isEqualTo(2);
         assertThat(valueCapture.getValue()).isEqualTo(expectedData);

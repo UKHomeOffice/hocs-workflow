@@ -508,27 +508,27 @@ public class BpmnService {
 
     }
 
-    private UUID deriveTeamUUID(String caseUUIDString, String stageTypeString, String allocationTeamString) {
-        UUID teamUUID;
-        if (!StringUtils.hasText(allocationTeamString)) {
-            log.debug("Getting Team selection from Info Service for stage {} for case {}", stageTypeString, caseUUIDString);
-        } else {
-            log.info("Overriding Team selection with {} for stage {} for case {}", allocationTeamString, stageTypeString, caseUUIDString);
-            teamUUID = UUID.fromString(allocationTeamString);
-        }
-        return teamUUID;
+//    private UUID deriveTeamUUID(String caseUUIDString, String stageTypeString, String allocationTeamString) {
+//        UUID teamUUID;
+//        if (!StringUtils.hasText(allocationTeamString)) {
+//            log.debug("Getting Team selection from Info Service for stage {} for case {}", stageTypeString, caseUUIDString);
+//        } else {
+//            log.info("Overriding Team selection with {} for stage {} for case {}", allocationTeamString, stageTypeString, caseUUIDString);
+//            teamUUID = UUID.fromString(allocationTeamString);
+//        }
+//        return teamUUID;
+//
+//    }
 
-    }
-
-    private UUID deriveUserUUID(String caseUUIDString, String stageTypeString, String allocatedUserId) {
-        if (StringUtils.hasText(allocatedUserId)) {
-            log.info("Assigning user {} to stage {} for case {}", allocatedUserId, stageTypeString, caseUUIDString);
-            return UUID.fromString(allocatedUserId);
-        }
-
-        log.warn("No userUUID provided for assignment to case {} at stage {}", caseUUIDString, stageTypeString);
-        return null;
-    }
+//    private UUID deriveUserUUID(String caseUUIDString, String stageTypeString, String allocatedUserId) {
+//        if (StringUtils.hasText(allocatedUserId)) {
+//            log.info("Assigning user {} to stage {} for case {}", allocatedUserId, stageTypeString, caseUUIDString);
+//            return UUID.fromString(allocatedUserId);
+//        }
+//
+//        log.warn("No userUUID provided for assignment to case {} at stage {}", caseUUIDString, stageTypeString);
+//        return null;
+//    }
 
     // todo remove
 //    private void recreateStage(UUID caseUUID, RecreateCaseworkStageRequest recreateStageRequest) {
