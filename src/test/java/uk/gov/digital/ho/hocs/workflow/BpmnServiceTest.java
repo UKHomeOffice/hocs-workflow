@@ -527,7 +527,6 @@ public class BpmnServiceTest {
         UUID allocationTeam = UUID.randomUUID();
         UUID allocatedUserId = UUID.randomUUID();
 
-        when(infoClient.getUserForTeam(allocationTeam, allocatedUserId)).thenReturn(new UserDto());
         UUID expectedStageUUID = UUID.randomUUID();
         when(caseworkClient.createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class))).thenReturn(expectedStageUUID);
 
@@ -546,7 +545,6 @@ public class BpmnServiceTest {
         UUID allocatedUserId = UUID.randomUUID();
         UUID expectedStageUUID = UUID.randomUUID();
 
-        when(infoClient.getUserForTeam(allocationTeam, allocatedUserId)).thenReturn(null);
         when(caseworkClient.createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class))).thenReturn(expectedStageUUID);
 
         String resultUUID = bpmnService.createStage(caseUUID.toString(), null, stageType, allocationType, allocationTeam.toString(), allocatedUserId.toString());
@@ -585,8 +583,6 @@ public class BpmnServiceTest {
         UUID expectedStageUUID = UUID.randomUUID();
         UUID expectedAllocationTeam = UUID.randomUUID();
 
-        when(infoClient.getTeamForStageType(stageType)).thenReturn(expectedAllocationTeam);
-        when(infoClient.getUserForTeam(expectedAllocationTeam, allocatedUserId)).thenReturn(new UserDto());
         when(caseworkClient.createStage(eq(caseUUID), any(CreateCaseworkStageRequest.class))).thenReturn(expectedStageUUID);
 
         String resultUUID = bpmnService.createStage(caseUUID.toString(), null, stageType, allocationType, null, allocatedUserId.toString());
@@ -603,7 +599,6 @@ public class BpmnServiceTest {
         UUID allocationTeam = UUID.randomUUID();
         UUID allocatedUserId = UUID.randomUUID();
 
-        when(infoClient.getUserForTeam(allocationTeam, allocatedUserId)).thenReturn(new UserDto());
 
         String resultUUID = bpmnService.createStage(caseUUID.toString(), stageUUID.toString(), stageType, allocationType, allocationTeam.toString(), allocatedUserId.toString());
 
