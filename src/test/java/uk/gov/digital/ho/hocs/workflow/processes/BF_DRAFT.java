@@ -46,9 +46,24 @@ public class BF_DRAFT {
     public void testHappyPath(){
         when(process.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfDraftResult", "Send")));
 
         Scenario.run(process).startByKey("BF_DRAFT").execute();
+        verify(process).hasCompleted("EndEvent_BF_DRAFT");
+    }
+
+    @Test
+    public void testEscalate(){
+        when(process.waitsAtUserTask("Validate_Input"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfDraftResult", "Escalate")));
+
+        when(process.waitsAtUserTask("Validate_Escalate"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        Scenario.run(process).startByKey("BF_DRAFT").execute();
+        verify(process).hasCompleted("Save_Note");
         verify(process).hasCompleted("EndEvent_BF_DRAFT");
     }
 }
