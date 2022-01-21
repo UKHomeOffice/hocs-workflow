@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:process id="IEDET" isExecutable="true">
     <bpmn:startEvent id="StartEvent_IEDET">
       <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
@@ -106,30 +106,34 @@
       <bpmn:outgoing>Flow_0li8ecg</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:serviceTask id="ServiceTask_CompleteCase" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
-      <bpmn:incoming>Flow_1mlwgjt</bpmn:incoming>
-      <bpmn:incoming>Flow_0li8ecg</bpmn:incoming>
+      <bpmn:incoming>Flow_0h3cywh</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1y94fvq</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1y94fvq" sourceRef="ServiceTask_CompleteCase" targetRef="EndEvent_IEDET" />
     <bpmn:sequenceFlow id="Flow_1mu9t5g" sourceRef="CallActivity_IEDET_DRAFT" targetRef="CallActivity_IEDET_SEND" />
-    <bpmn:sequenceFlow id="Flow_0li8ecg" sourceRef="CallActivity_IEDET_SEND" targetRef="ServiceTask_CompleteCase" />
-    <bpmn:sequenceFlow id="Flow_1mlwgjt" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="ServiceTask_CompleteCase">
+    <bpmn:sequenceFlow id="Flow_0li8ecg" sourceRef="CallActivity_IEDET_SEND" targetRef="Activity_05vykz4" />
+    <bpmn:sequenceFlow id="Flow_1mlwgjt" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="Activity_05vykz4">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageAccept == "NoFurtherConsideration" || TriageAccept == "NoCch"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_05vykz4" name="Complete Last Stage" camunda:expression="${bpmnService.completeStage(execution.processBusinessKey,StageUUID)}">
+      <bpmn:incoming>Flow_0li8ecg</bpmn:incoming>
+      <bpmn:incoming>Flow_1mlwgjt</bpmn:incoming>
+      <bpmn:outgoing>Flow_0h3cywh</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0h3cywh" sourceRef="Activity_05vykz4" targetRef="ServiceTask_CompleteCase" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET">
       <bpmndi:BPMNEdge id="Flow_1mlwgjt_di" bpmnElement="Flow_1mlwgjt">
         <di:waypoint x="1055" y="390" />
-        <di:waypoint x="2874" y="390" />
-        <di:waypoint x="2874" y="162" />
+        <di:waypoint x="2730" y="390" />
+        <di:waypoint x="2730" y="161" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0li8ecg_di" bpmnElement="Flow_0li8ecg">
         <di:waypoint x="2370" y="323" />
         <di:waypoint x="2597" y="323" />
         <di:waypoint x="2597" y="121" />
-        <di:waypoint x="2745" y="123" />
-        <di:waypoint x="2824" y="123" />
+        <di:waypoint x="2680" y="121" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mu9t5g_di" bpmnElement="Flow_1mu9t5g">
         <di:waypoint x="1635" y="323" />
@@ -168,6 +172,10 @@
         <di:waypoint x="215" y="121" />
         <di:waypoint x="442" y="121" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h3cywh_di" bpmnElement="Flow_0h3cywh">
+        <di:waypoint x="2780" y="123" />
+        <di:waypoint x="2824" y="123" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_IEDET">
         <dc:Bounds x="179" y="103" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -194,6 +202,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_16gueal_di" bpmnElement="ServiceTask_CompleteCase">
         <dc:Bounds x="2824" y="82" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_05vykz4_di" bpmnElement="Activity_05vykz4">
+        <dc:Bounds x="2680" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

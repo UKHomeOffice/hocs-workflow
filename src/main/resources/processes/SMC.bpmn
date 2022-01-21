@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1">
   <bpmn:process id="SMC" isExecutable="true">
     <bpmn:startEvent id="StartEvent_SMC">
       <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
@@ -28,8 +28,7 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1jkxh22" sourceRef="StartEvent_SMC" targetRef="CallActivity_SMC_REGISTRATION" />
     <bpmn:serviceTask id="ServiceTask_CompleteCase" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
-      <bpmn:incoming>Flow_1i9x1ld</bpmn:incoming>
-      <bpmn:incoming>Flow_11adx4a</bpmn:incoming>
+      <bpmn:incoming>Flow_093eby2</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1y94fvq</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1y94fvq" sourceRef="ServiceTask_CompleteCase" targetRef="EndEvent_SMC" />
@@ -75,14 +74,14 @@
       <bpmn:incoming>Flow_1e0lle4</bpmn:incoming>
       <bpmn:outgoing>Flow_1i9x1ld</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_1i9x1ld" sourceRef="CallActivity_SMC_SEND" targetRef="ServiceTask_CompleteCase" />
+    <bpmn:sequenceFlow id="Flow_1i9x1ld" sourceRef="CallActivity_SMC_SEND" targetRef="Activity_0qp859h" />
     <bpmn:exclusiveGateway id="Gateway_1jw1ec3" default="Flow_1mtexdl">
       <bpmn:incoming>Flow_115y0ny</bpmn:incoming>
       <bpmn:outgoing>Flow_1mtexdl</bpmn:outgoing>
       <bpmn:outgoing>Flow_11adx4a</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1mtexdl" sourceRef="Gateway_1jw1ec3" targetRef="CallActivity_SMC_DRAFT" />
-    <bpmn:sequenceFlow id="Flow_11adx4a" sourceRef="Gateway_1jw1ec3" targetRef="ServiceTask_CompleteCase">
+    <bpmn:sequenceFlow id="Flow_11adx4a" sourceRef="Gateway_1jw1ec3" targetRef="Activity_0qp859h">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ScmTriageResult == "NoResponse" || ScmTriageResult == "Complete"  || CctTriageAccept == "No" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_SMC_DRAFT" name="Draft" calledElement="STAGE">
@@ -105,9 +104,19 @@
       <bpmn:outgoing>Flow_1e0lle4</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1e0lle4" sourceRef="CallActivity_SMC_DRAFT" targetRef="CallActivity_SMC_SEND" />
+    <bpmn:serviceTask id="Activity_0qp859h" name="Complete Last Stage" camunda:expression="${bpmnService.completeStage(execution.processBusinessKey,StageUUID)}">
+      <bpmn:incoming>Flow_1i9x1ld</bpmn:incoming>
+      <bpmn:incoming>Flow_11adx4a</bpmn:incoming>
+      <bpmn:outgoing>Flow_093eby2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_093eby2" sourceRef="Activity_0qp859h" targetRef="ServiceTask_CompleteCase" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="SMC">
+      <bpmndi:BPMNEdge id="Flow_1e0lle4_di" bpmnElement="Flow_1e0lle4">
+        <di:waypoint x="900" y="121" />
+        <di:waypoint x="980" y="121" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_11adx4a_di" bpmnElement="Flow_11adx4a">
         <di:waypoint x="710" y="146" />
         <di:waypoint x="710" y="260" />
@@ -118,6 +127,10 @@
         <di:waypoint x="735" y="121" />
         <di:waypoint x="800" y="121" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i9x1ld_di" bpmnElement="Flow_1i9x1ld">
+        <di:waypoint x="1080" y="121" />
+        <di:waypoint x="1160" y="121" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_115y0ny_di" bpmnElement="Flow_115y0ny">
         <di:waypoint x="630" y="121" />
         <di:waypoint x="685" y="121" />
@@ -126,21 +139,17 @@
         <di:waypoint x="440" y="121" />
         <di:waypoint x="530" y="121" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1y94fvq_di" bpmnElement="SequenceFlow_1y94fvq">
+        <di:waypoint x="1400" y="121" />
+        <di:waypoint x="1452" y="121" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1jkxh22_di" bpmnElement="SequenceFlow_1jkxh22">
         <di:waypoint x="218" y="121" />
         <di:waypoint x="340" y="121" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1y94fvq_di" bpmnElement="SequenceFlow_1y94fvq">
+      <bpmndi:BPMNEdge id="Flow_093eby2_di" bpmnElement="Flow_093eby2">
         <di:waypoint x="1260" y="121" />
-        <di:waypoint x="1332" y="121" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1i9x1ld_di" bpmnElement="Flow_1i9x1ld">
-        <di:waypoint x="1080" y="121" />
-        <di:waypoint x="1160" y="121" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1e0lle4_di" bpmnElement="Flow_1e0lle4">
-        <di:waypoint x="900" y="121" />
-        <di:waypoint x="980" y="121" />
+        <di:waypoint x="1300" y="121" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_SMC">
         <dc:Bounds x="182" y="103" width="36" height="36" />
@@ -151,20 +160,23 @@
       <bpmndi:BPMNShape id="Activity_0vwpt24_di" bpmnElement="CallActivity_SMC_TRIAGE">
         <dc:Bounds x="530" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1jw1ec3_di" bpmnElement="Gateway_1jw1ec3" isMarkerVisible="true">
-        <dc:Bounds x="685" y="96" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_1afztus_di" bpmnElement="EndEvent_SMC">
-        <dc:Bounds x="1332" y="103" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_16gueal_di" bpmnElement="ServiceTask_CompleteCase">
-        <dc:Bounds x="1160" y="81" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1r6hsvl_di" bpmnElement="CallActivity_SMC_SEND">
         <dc:Bounds x="980" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1jw1ec3_di" bpmnElement="Gateway_1jw1ec3" isMarkerVisible="true">
+        <dc:Bounds x="685" y="96" width="50" height="50" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_17xikz2_di" bpmnElement="CallActivity_SMC_DRAFT">
         <dc:Bounds x="800" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1afztus_di" bpmnElement="EndEvent_SMC">
+        <dc:Bounds x="1452" y="103" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_16gueal_di" bpmnElement="ServiceTask_CompleteCase">
+        <dc:Bounds x="1300" y="81" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qp859h_di" bpmnElement="Activity_0qp859h">
+        <dc:Bounds x="1160" y="81" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

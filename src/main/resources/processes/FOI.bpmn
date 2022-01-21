@@ -180,11 +180,11 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="REOPEN_CASE" name="Return to case creation&#10;" sourceRef="Gateway_0g5ob46" targetRef="FOI_CASE_CREATION" />
     <bpmn:sequenceFlow id="Flow_1ykeaok" sourceRef="CaseComplete" targetRef="Event_1uaa2lv" />
-    <bpmn:sequenceFlow id="Flow_1irmoll" sourceRef="Gateway_0g5ob46" targetRef="CaseComplete">
+    <bpmn:sequenceFlow id="Flow_1irmoll" sourceRef="Gateway_0g5ob46" targetRef="Activity_16wtssh">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ForceClose=="true"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="CaseComplete" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
-      <bpmn:incoming>Flow_1irmoll</bpmn:incoming>
+      <bpmn:incoming>Flow_1uvexin</bpmn:incoming>
       <bpmn:outgoing>Flow_1ykeaok</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:callActivity id="FOI_CASE_CREATION" name="Case Creation" calledElement="STAGE">
@@ -287,6 +287,11 @@
       <bpmn:incoming>Flow_17lyviv</bpmn:incoming>
       <bpmn:outgoing>Flow_1ltwvps</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_16wtssh" name="Complete Last Stage" camunda:expression="${bpmnService.completeStage(execution.processBusinessKey,StageUUID)}">
+      <bpmn:incoming>Flow_1irmoll</bpmn:incoming>
+      <bpmn:outgoing>Flow_1uvexin</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1uvexin" sourceRef="Activity_16wtssh" targetRef="CaseComplete" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="FOI">
@@ -343,11 +348,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1irmoll_di" bpmnElement="Flow_1irmoll">
         <di:waypoint x="2524" y="338" />
-        <di:waypoint x="2569" y="338" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ykeaok_di" bpmnElement="Flow_1ykeaok">
-        <di:waypoint x="2669" y="338" />
-        <di:waypoint x="2701" y="338" />
+        <di:waypoint x="2590" y="338" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0h51m3d_di" bpmnElement="REOPEN_CASE" bioc:stroke="rgb(30, 136, 229)" bioc:fill="rgb(187, 222, 251)">
         <di:waypoint x="2499" y="313" />
@@ -410,6 +411,14 @@
           <dc:Bounds x="1102.5" y="595" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ykeaok_di" bpmnElement="Flow_1ykeaok">
+        <di:waypoint x="2880" y="338" />
+        <di:waypoint x="2912" y="338" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1uvexin_di" bpmnElement="Flow_1uvexin">
+        <di:waypoint x="2690" y="338" />
+        <di:waypoint x="2780" y="338" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="FOI_START">
         <dc:Bounds x="162" y="322" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -443,17 +452,8 @@
       <bpmndi:BPMNShape id="Activity_0s3wvir_di" bpmnElement="FOI_SOFT_CLOSE">
         <dc:Bounds x="2339" y="298" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1uaa2lv_di" bpmnElement="Event_1uaa2lv">
-        <dc:Bounds x="2701" y="320" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2747" y="331" width="49" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0g5ob46_di" bpmnElement="Gateway_0g5ob46" isMarkerVisible="true" bioc:stroke="black" bioc:fill="white">
         <dc:Bounds x="2474" y="313" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_01yky7p_di" bpmnElement="CaseComplete">
-        <dc:Bounds x="2569" y="298" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1w0zoo5_di" bpmnElement="FOI_CASE_CREATION">
         <dc:Bounds x="250" y="300" width="100" height="80" />
@@ -481,6 +481,18 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_07w86c2_di" bpmnElement="StickyCasesForNonValidClose" bioc:stroke="rgb(67, 160, 71)" bioc:fill="rgb(200, 230, 201)">
         <dc:Bounds x="2180" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1uaa2lv_di" bpmnElement="Event_1uaa2lv">
+        <dc:Bounds x="2912" y="320" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2958" y="331" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01yky7p_di" bpmnElement="CaseComplete">
+        <dc:Bounds x="2780" y="298" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_16wtssh_di" bpmnElement="Activity_16wtssh">
+        <dc:Bounds x="2590" y="298" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
