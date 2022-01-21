@@ -14,7 +14,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -38,6 +40,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/STAGE_WITH_USER.bpmn"})
 public class COMP {
 
+    private static final Map<String, Object> PROCESS_INSTANCE_VARS = new HashMap<>();
+
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(0.30).build();
@@ -53,8 +57,8 @@ public class COMP {
 
     @Before
     public void setup() {
+        PROCESS_INSTANCE_VARS.put("StageUUID", "RANDOM_UUID_AS_STRING");
         Mocks.register("bpmnService", bpmnService);
-
     }
 
     @Test
@@ -74,7 +78,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -100,7 +104,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -132,7 +136,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -166,7 +170,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -201,7 +205,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -227,7 +231,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -261,7 +265,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -296,7 +300,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -322,7 +326,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -356,7 +360,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -391,7 +395,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -417,7 +421,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -440,7 +444,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
@@ -461,7 +465,7 @@ public class COMP {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("COMP")
+                .startByKey("COMP", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");

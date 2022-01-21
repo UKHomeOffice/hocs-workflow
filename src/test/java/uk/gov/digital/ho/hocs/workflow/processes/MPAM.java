@@ -16,9 +16,7 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.util.CallActivityReturnVariable;
 import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -55,6 +53,7 @@ public class MPAM {
     public static final String TRANSFER_ACCEPTED_GATEWAY = "Gateway_0xmbo1i";
     public static final String AWAITING_DISPATCH_MINISTERIAL = "CallActivity_0g8kpaf";
     public static final String COMPLETE_CASE = "ServiceTask_0rwk9ie";
+    private static final Map<String, Object> PROCESS_INSTANCE_VARS = new HashMap<>();
 
     @Rule
     @ClassRule
@@ -69,6 +68,7 @@ public class MPAM {
     @Before
     public void defaultScenario() {
 
+        PROCESS_INSTANCE_VARS.put("StageUUID", "RANDOM_UUID_AS_STRING");
         Mocks.register("bpmnService", bpmnService);
 
         ProcessExpressions.registerCallActivityMock("MPAM_CREATION")
@@ -103,7 +103,7 @@ public class MPAM {
     public void happyPath() {
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -144,7 +144,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -184,7 +184,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -218,7 +218,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -250,7 +250,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -288,7 +288,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -326,7 +326,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess, times(2))
@@ -360,7 +360,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -403,7 +403,7 @@ public class MPAM {
 
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -434,7 +434,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -466,7 +466,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -512,7 +512,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -554,7 +554,7 @@ public class MPAM {
 
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -600,7 +600,7 @@ public class MPAM {
 
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -642,7 +642,7 @@ public class MPAM {
 
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -677,7 +677,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -709,7 +709,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -755,7 +755,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)
@@ -788,7 +788,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess, times(2))
@@ -817,7 +817,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess, times(2))
@@ -847,7 +847,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess, times(1))
@@ -883,7 +883,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess, times(1))
@@ -919,7 +919,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess, times(1))
@@ -939,7 +939,7 @@ public class MPAM {
                 .deploy(rule);
 
         Scenario.run(mpamProcess)
-                .startByKey("MPAM")
+                .startByKey("MPAM", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mpamProcess)

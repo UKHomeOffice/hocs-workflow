@@ -13,6 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -53,6 +56,7 @@ public class FOI {
     public static final String IS_CASE_ACCEPTED_GATE = "is_case_accepted";
     public static final String SHOULD_DISPATCH_GATE = "should_dispatch";
 
+    private static final Map<String, Object> PROCESS_INSTANCE_VARS = new HashMap<>();
 
     @Rule
     @ClassRule
@@ -67,6 +71,7 @@ public class FOI {
 
     @Before
     public void setUp() {
+        PROCESS_INSTANCE_VARS.put("StageUUID", "RANDOM_UUID_AS_STRING");
         Mocks.register("bpmnService", bpmnService);
     }
 
@@ -105,7 +110,7 @@ public class FOI {
                 .deploy(rule);
 
         Scenario.run(FOIProcess)
-                .startByKey("FOI")
+                .startByKey("FOI", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(FOIProcess, times(1))
@@ -178,7 +183,7 @@ public class FOI {
                 .deploy(rule);
 
         Scenario.run(FOIProcess)
-                .startByKey("FOI")
+                .startByKey("FOI", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(FOIProcess, times(1))
@@ -268,7 +273,7 @@ public class FOI {
                 .deploy(rule);
 
         Scenario.run(FOIProcess)
-                .startByKey("FOI")
+                .startByKey("FOI", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(FOIProcess, times(1))
@@ -358,7 +363,7 @@ public class FOI {
                 .deploy(rule);
 
         Scenario.run(FOIProcess)
-                .startByKey("FOI")
+                .startByKey("FOI", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(FOIProcess, times(1))
@@ -448,7 +453,7 @@ public class FOI {
                 .deploy(rule);
 
         Scenario.run(FOIProcess)
-                .startByKey("FOI")
+                .startByKey("FOI", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(FOIProcess, times(1))

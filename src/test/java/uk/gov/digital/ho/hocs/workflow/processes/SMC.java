@@ -16,6 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
@@ -26,6 +29,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/SMC_SEND.bpmn",
         "processes/STAGE.bpmn"})
 public class SMC {
+
+    private static final Map<String, Object> PROCESS_INSTANCE_VARS = new HashMap<>();
 
     @Rule
     @ClassRule
@@ -42,6 +47,7 @@ public class SMC {
 
     @Before
     public void setup() {
+        PROCESS_INSTANCE_VARS.put("StageUUID", "RANDOM_UUID_AS_STRING");
         Mocks.register("bpmnService", bpmnService);
     }
 
@@ -64,7 +70,7 @@ public class SMC {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("SMC")
+                .startByKey("SMC", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_SMC");

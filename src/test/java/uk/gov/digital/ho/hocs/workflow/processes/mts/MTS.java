@@ -20,6 +20,8 @@ import uk.gov.digital.ho.hocs.workflow.util.ExecutionVariableSequence;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 
@@ -37,6 +39,9 @@ public class MTS {
 
     public static final String END_EVENT = "EndEvent_0h34pj4";
 
+    private static final Map<String, Object> PROCESS_INSTANCE_VARS = new HashMap<>();
+
+
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
@@ -50,6 +55,7 @@ public class MTS {
 
     @Before
     public void defaultScenario() {
+        PROCESS_INSTANCE_VARS.put("StageUUID", "RANDOM_UUID_AS_STRING");
         Mocks.register("bpmnService", bpmnService);
 
         ProcessExpressions.registerCallActivityMock("MTS_DATA_INPUT")
@@ -59,7 +65,7 @@ public class MTS {
     @Test
     public void happyPath() {
         Scenario.run(mtsProcess)
-                .startByKey("MTS")
+                .startByKey("MTS", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(mtsProcess)

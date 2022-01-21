@@ -17,6 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -60,6 +63,8 @@ public class TO {
     private static final String SEND_TO_STOP_LIST = "SendToStopList";
     private static final String REJECT_DRAFT = "RejectDraft";
 
+    private static final Map<String, Object> PROCESS_INSTANCE_VARS = new HashMap<>();
+
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().build();
@@ -75,6 +80,7 @@ public class TO {
 
     @Before
     public void setUp() {
+        PROCESS_INSTANCE_VARS.put("StageUUID", "RANDOM_UUID_AS_STRING");
         Mocks.register("bpmnService", bpmnService);
     }
 
@@ -103,7 +109,7 @@ public class TO {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO")
+                .startByKey("TO", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(TOProcess, times(1))
@@ -171,7 +177,7 @@ public class TO {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO")
+                .startByKey("TO", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(TOProcess, times(1))
@@ -234,7 +240,7 @@ public class TO {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO")
+                .startByKey("TO", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(TOProcess, times(1))
@@ -347,7 +353,7 @@ public class TO {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO")
+                .startByKey("TO", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(TOProcess, times(1))
@@ -459,7 +465,7 @@ public class TO {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO")
+                .startByKey("TO", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(TOProcess, times(1))
@@ -536,7 +542,7 @@ public class TO {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO")
+                .startByKey("TO", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(TOProcess, times(1))
@@ -608,7 +614,7 @@ public class TO {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO")
+                .startByKey("TO", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(TOProcess, times(1))
@@ -687,7 +693,7 @@ public class TO {
                 .deploy(rule);
 
         Scenario.run(TOProcess)
-                .startByKey("TO")
+                .startByKey("TO", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(TOProcess, times(1))

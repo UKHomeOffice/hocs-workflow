@@ -16,6 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -43,8 +46,11 @@ public class BF {
     @Mock
     private ProcessScenario processScenario;
 
+    private static final Map<String, Object> PROCESS_INSTANCE_VARS = new HashMap<>();
+
     @Before
     public void setup() {
+        PROCESS_INSTANCE_VARS.put("StageUUID", "RANDOM_UUID_AS_STRING");
         Mocks.register("bpmnService", bpmnService);
     }
 
@@ -67,7 +73,7 @@ public class BF {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("BF")
+                .startByKey("BF", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_BF");
@@ -106,7 +112,7 @@ public class BF {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("BF")
+                .startByKey("BF", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_BF");
@@ -142,7 +148,7 @@ public class BF {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("BF")
+                .startByKey("BF", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_BF");
@@ -166,7 +172,7 @@ public class BF {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("BF")
+                .startByKey("BF", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_BF");

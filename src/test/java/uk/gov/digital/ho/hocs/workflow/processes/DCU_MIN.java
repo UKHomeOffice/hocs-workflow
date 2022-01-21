@@ -13,7 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -36,6 +38,8 @@ public class DCU_MIN {
     public static final String DISPATCH = "CallActivity_1rowgu5";
     public static final String PO_SIGN_OFF = "POSignOff_CallActivity";
     public static final String INITIAL_DRAFT = "InitialDraft_CallActivity";
+    private static final Map<String, Object> PROCESS_INSTANCE_VARS = new HashMap<>();
+
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
@@ -49,6 +53,7 @@ public class DCU_MIN {
     @Before
     public void defaultScenario() {
 
+        PROCESS_INSTANCE_VARS.put("StageUUID", "RANDOM_UUID_AS_STRING");
         Mocks.register("bpmnService", bpmnService);
 
         whenAtCallActivity("DCU_BASE_DATA_INPUT")
@@ -79,7 +84,7 @@ public class DCU_MIN {
                 .deploy(rule);
 
         Scenario.run(dcuMinProcess)
-                .startByKey("MIN")
+                .startByKey("MIN", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(dcuMinProcess, times(1))
@@ -99,7 +104,7 @@ public class DCU_MIN {
                 .deploy(rule);
 
         Scenario.run(dcuMinProcess)
-                .startByKey("MIN")
+                .startByKey("MIN", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(dcuMinProcess, times(2))
@@ -121,7 +126,7 @@ public class DCU_MIN {
                 .deploy(rule);
 
         Scenario.run(dcuMinProcess)
-                .startByKey("MIN")
+                .startByKey("MIN", PROCESS_INSTANCE_VARS)
                 .execute();
 
         verify(dcuMinProcess, times(1))
