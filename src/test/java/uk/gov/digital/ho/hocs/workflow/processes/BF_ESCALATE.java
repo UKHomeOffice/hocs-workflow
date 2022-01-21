@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,7 +27,10 @@ public class BF_ESCALATE {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder
+            .create()
+            .assertClassCoverageAtLeast(1)
+            .build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -45,9 +49,12 @@ public class BF_ESCALATE {
     @Test
     public void testHappyPath(){
         when(process.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("valid", false)))
+                .thenReturn(task -> task.complete(withVariables("valid", true)));
 
         Scenario.run(process).startByKey("BF_ESCALATE").execute();
+
+        verify(process, times(2)).hasCompleted("Validate_Input");
         verify(process).hasCompleted("EndEvent_BF_ESCALATE");
     }
 }
