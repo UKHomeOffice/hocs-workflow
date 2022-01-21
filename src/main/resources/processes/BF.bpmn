@@ -74,7 +74,7 @@
         <camunda:out source="Stage" target="Stage" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0scfnca</bpmn:incoming>
-      <bpmn:incoming>Flow_1ckkodx</bpmn:incoming>
+      <bpmn:incoming>Flow_1h9akqu</bpmn:incoming>
       <bpmn:outgoing>Flow_1i9x1ld</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1i9x1ld" sourceRef="CallActivity_BF_SEND" targetRef="ServiceTask_CompleteCase" />
@@ -97,6 +97,7 @@
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0ybbpfj</bpmn:incoming>
       <bpmn:incoming>Flow_1e3yq3q</bpmn:incoming>
+      <bpmn:incoming>Flow_0p2whb3</bpmn:incoming>
       <bpmn:outgoing>Flow_1e0lle4</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1e0lle4" sourceRef="CallActivity_BF_DRAFT" targetRef="Gateway_0seoltl" />
@@ -164,6 +165,7 @@
         <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
         <camunda:out source="CompType" target="CompType" />
         <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="BfQaResult" target="BfQaResult" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_048qgem</bpmn:incoming>
       <bpmn:outgoing>Flow_1ckkodx</bpmn:outgoing>
@@ -171,7 +173,7 @@
     <bpmn:sequenceFlow id="Flow_048qgem" sourceRef="Gateway_0seoltl" targetRef="CallActivity_BF_QA">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BfDraftResult == "QA"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1ckkodx" sourceRef="CallActivity_BF_QA" targetRef="CallActivity_BF_SEND" />
+    <bpmn:sequenceFlow id="Flow_1ckkodx" sourceRef="CallActivity_BF_QA" targetRef="Gateway_1f4aohb" />
     <bpmn:sequenceFlow id="Flow_1e3yq3q" sourceRef="Gateway_1j0kezi" targetRef="CallActivity_BF_DRAFT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${EscalationResult == "SendToDraft"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -184,17 +186,41 @@
       <bpmn:outgoing>Flow_106rzcp</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1xhrh97" sourceRef="CallActivity_BF_ESCALATE" targetRef="Gateway_1j0kezi" />
+    <bpmn:exclusiveGateway id="Gateway_1f4aohb">
+      <bpmn:incoming>Flow_1ckkodx</bpmn:incoming>
+      <bpmn:outgoing>Flow_1h9akqu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0p2whb3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1h9akqu" sourceRef="Gateway_1f4aohb" targetRef="CallActivity_BF_SEND">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BfQaResult == "Accept"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0p2whb3" sourceRef="Gateway_1f4aohb" targetRef="CallActivity_BF_DRAFT">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BfQaResult == "Reject"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BF">
+      <bpmndi:BPMNEdge id="Flow_1xhrh97_di" bpmnElement="Flow_1xhrh97">
+        <di:waypoint x="670" y="360" />
+        <di:waypoint x="735" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_106rzcp_di" bpmnElement="Flow_106rzcp">
+        <di:waypoint x="753" y="343" />
+        <di:waypoint x="641" y="231" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1e3yq3q_di" bpmnElement="Flow_1e3yq3q">
+        <di:waypoint x="785" y="360" />
+        <di:waypoint x="840" y="360" />
+        <di:waypoint x="840" y="231" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ckkodx_di" bpmnElement="Flow_1ckkodx">
-        <di:waypoint x="1120" y="320" />
-        <di:waypoint x="1120" y="231" />
+        <di:waypoint x="1120" y="390" />
+        <di:waypoint x="1120" y="335" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_048qgem_di" bpmnElement="Flow_048qgem">
         <di:waypoint x="980" y="216" />
-        <di:waypoint x="980" y="370" />
-        <di:waypoint x="1070" y="370" />
+        <di:waypoint x="980" y="440" />
+        <di:waypoint x="1070" y="440" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0kevzbw_di" bpmnElement="Flow_0kevzbw">
         <di:waypoint x="980" y="216" />
@@ -244,18 +270,14 @@
         <di:waypoint x="218" y="191" />
         <di:waypoint x="340" y="191" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1e3yq3q_di" bpmnElement="Flow_1e3yq3q">
-        <di:waypoint x="785" y="360" />
-        <di:waypoint x="840" y="360" />
-        <di:waypoint x="840" y="231" />
+      <bpmndi:BPMNEdge id="Flow_1h9akqu_di" bpmnElement="Flow_1h9akqu">
+        <di:waypoint x="1120" y="285" />
+        <di:waypoint x="1120" y="231" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_106rzcp_di" bpmnElement="Flow_106rzcp">
-        <di:waypoint x="753" y="343" />
-        <di:waypoint x="641" y="231" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1xhrh97_di" bpmnElement="Flow_1xhrh97">
-        <di:waypoint x="670" y="360" />
-        <di:waypoint x="735" y="360" />
+      <bpmndi:BPMNEdge id="Flow_0p2whb3_di" bpmnElement="Flow_0p2whb3">
+        <di:waypoint x="1095" y="310" />
+        <di:waypoint x="860" y="310" />
+        <di:waypoint x="860" y="231" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_BF">
         <dc:Bounds x="182" y="173" width="36" height="36" />
@@ -281,17 +303,20 @@
       <bpmndi:BPMNShape id="Gateway_11e7u0t_di" bpmnElement="Gateway_11e7u0t" isMarkerVisible="true">
         <dc:Bounds x="705" y="166" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0seoltl_di" bpmnElement="Gateway_0seoltl" isMarkerVisible="true">
-        <dc:Bounds x="955" y="166" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1r7xsyc_di" bpmnElement="CallActivity_BF_QA">
-        <dc:Bounds x="1070" y="320" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1msj7o8_di" bpmnElement="CallActivity_BF_ESCALATE">
         <dc:Bounds x="570" y="320" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0seoltl_di" bpmnElement="Gateway_0seoltl" isMarkerVisible="true">
+        <dc:Bounds x="955" y="166" width="50" height="50" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1j0kezi_di" bpmnElement="Gateway_1j0kezi" isMarkerVisible="true">
         <dc:Bounds x="735" y="335" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1r7xsyc_di" bpmnElement="CallActivity_BF_QA">
+        <dc:Bounds x="1070" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1f4aohb_di" bpmnElement="Gateway_1f4aohb" isMarkerVisible="true">
+        <dc:Bounds x="1095" y="285" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

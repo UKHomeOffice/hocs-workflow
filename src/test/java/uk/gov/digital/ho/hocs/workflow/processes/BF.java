@@ -130,7 +130,7 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_QA")
-                .thenReturn("valid", "true")
+                .thenReturn("valid", "true", "BfQaResult", "Accept")
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
