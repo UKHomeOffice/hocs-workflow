@@ -5,7 +5,6 @@ import java.time.Clock;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,11 @@ import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkStageRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.RecreateCaseworkStageRequest;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
@@ -28,7 +31,12 @@ import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.time.LocalTime.now;
@@ -507,42 +515,6 @@ public class BpmnService {
         }
 
     }
-
-//    private UUID deriveTeamUUID(String caseUUIDString, String stageTypeString, String allocationTeamString) {
-//        UUID teamUUID;
-//        if (!StringUtils.hasText(allocationTeamString)) {
-//            log.debug("Getting Team selection from Info Service for stage {} for case {}", stageTypeString, caseUUIDString);
-//        } else {
-//            log.info("Overriding Team selection with {} for stage {} for case {}", allocationTeamString, stageTypeString, caseUUIDString);
-//            teamUUID = UUID.fromString(allocationTeamString);
-//        }
-//        return teamUUID;
-//
-//    }
-
-//    private UUID deriveUserUUID(String caseUUIDString, String stageTypeString, String allocatedUserId) {
-//        if (StringUtils.hasText(allocatedUserId)) {
-//            log.info("Assigning user {} to stage {} for case {}", allocatedUserId, stageTypeString, caseUUIDString);
-//            return UUID.fromString(allocatedUserId);
-//        }
-//
-//        log.warn("No userUUID provided for assignment to case {} at stage {}", caseUUIDString, stageTypeString);
-//        return null;
-//    }
-
-    // todo remove
-//    private void recreateStage(UUID caseUUID, RecreateCaseworkStageRequest recreateStageRequest) {
-//
-//
-//// todo move to casework
-////        log.debug("Stage already exists for case {}, assigning to team {}", caseUUID, teamUUID);
-////        caseworkClient.updateStageTeam(caseUUID, stageUUID, teamUUID, allocationType);
-////
-////        if (userUUID != null) {
-////            caseworkClient.updateStageUser(caseUUID, stageUUID, userUUID);
-////        }
-//
-//    }
 
     public void updateCount(String caseUUID, String variableName, int additive) {
 
