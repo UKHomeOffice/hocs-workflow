@@ -1,4 +1,6 @@
 # HOCS Workflow Service
+
+[![CodeQL](https://github.com/UKHomeOffice/hocs-workflow/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/UKHomeOffice/hocs-workflow/actions/workflows/codeql-analysis.yml)
  
  ## Developing locally
  
