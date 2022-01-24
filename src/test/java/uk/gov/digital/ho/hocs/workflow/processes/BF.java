@@ -89,10 +89,12 @@ public class BF {
 
         whenAtCallActivity("BF_TRIAGE")
                 .thenReturn("valid", "true", "TriageResult", "Escalate")
+                .thenReturn("valid", "true", "TriageResult", "Escalate")
                 .deploy(rule);
 
         whenAtCallActivity("BF_ESCALATE")
-                .thenReturn("valid", "true")
+                .thenReturn("valid", "true", "BfEscalationResult", "SendToTriage")
+                .thenReturn("valid", "true", "BfEscalationResult", "SendToDraft")
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
@@ -109,9 +111,9 @@ public class BF {
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_BF");
         verify(processScenario, times(1)).hasCompleted("CallActivity_BF_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_TRIAGE");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_BF_TRIAGE");
         verify(processScenario, times(1)).hasCompleted("CallActivity_BF_DRAFT");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_ESCALATE");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_BF_ESCALATE");
         verify(processScenario, times(1)).hasCompleted("CallActivity_BF_SEND");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_BF");
@@ -128,7 +130,7 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_QA")
-                .thenReturn("valid", "true")
+                .thenReturn("valid", "true", "BfQaResult", "Accept")
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
