@@ -17,20 +17,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/BF_ESCALATE.bpmn")
-public class BF_ESCALATE {
+@Deployment(resources = "processes/BF_QA.bpmn")
+public class BF_QA {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder
-            .create()
-            .assertClassCoverageAtLeast(1)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -47,14 +43,28 @@ public class BF_ESCALATE {
     }
 
     @Test
-    public void testHappyPath(){
+    public void testAccept(){
         when(process.waitsAtUserTask("Validate_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfQaResult", "Accept")));
 
-        Scenario.run(process).startByKey("BF_ESCALATE").execute();
-
-        verify(process, times(2)).hasCompleted("Validate_Input");
-        verify(process).hasCompleted("EndEvent_BF_ESCALATE");
+        Scenario.run(process).startByKey("BF_QA").execute();
+        verify(process).hasCompleted("EndEvent_BF_QA");
     }
+
+    @Test
+    public void testReject(){
+        when(process.waitsAtUserTask("Validate_Input"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfQaResult", "Reject")));
+
+        when(process.waitsAtUserTask("Validate_Reject_reason"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        Scenario.run(process).startByKey("BF_QA").execute();
+        verify(process).hasCompleted("Save_Reject_Note");
+        verify(process).hasCompleted("EndEvent_BF_QA");
+    }
+
 }

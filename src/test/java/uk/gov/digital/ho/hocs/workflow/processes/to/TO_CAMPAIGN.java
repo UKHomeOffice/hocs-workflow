@@ -30,7 +30,7 @@ public class TO_CAMPAIGN {
 
     // COMMON GATEWAY &  GATEWAY OUTCOMES
     private static final String DIRECTION = "DIRECTION";
-    private static final String TRIAGE_OUTCOME = "TriageOutcome";
+    private static final String CAMPAIGN_OUTCOME = "CampaignOutcome";
     private static final String BACKWARD = "BACKWARD";
     private static final String FORWARD = "FORWARD";
     private static final String SET_ENQUIRY = "SetEnquiry";
@@ -69,7 +69,7 @@ public class TO_CAMPAIGN {
 
         when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, TO_DRAFT)));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, TO_DRAFT)));
 
 
         whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
@@ -97,8 +97,8 @@ public class TO_CAMPAIGN {
 
         when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, SAVE)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, TO_DRAFT)));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, SAVE)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, TO_DRAFT)));
 
         whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON).deploy(rule);
 
@@ -152,7 +152,7 @@ public class TO_CAMPAIGN {
         when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD,TRIAGE_OUTCOME,TO_DRAFT)));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD, CAMPAIGN_OUTCOME,TO_DRAFT)));
 
         whenAtCallActivity(TO_CHANGE_BUSINESS_AREA)
                 .thenReturn(DIRECTION, BACKWARD)
