@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0f1wfnj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0f1wfnj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="TO_QA" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0flmj05</bpmn:outgoing>
@@ -16,6 +16,7 @@
       <bpmn:incoming>Flow_1rlor87</bpmn:incoming>
       <bpmn:incoming>Flow_0n7rdkp</bpmn:incoming>
       <bpmn:incoming>Flow_1ekh7v9</bpmn:incoming>
+      <bpmn:incoming>Flow_1azbbx1</bpmn:incoming>
       <bpmn:outgoing>Flow_0i8bf5b</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_0vour6f" name="QaStatus?">
@@ -62,11 +63,11 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Activity_0xe7z8s" name="Update Approval: DecisionNotYetMade" camunda:expression="${ bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;ApprovalStatus&#34;, &#34;DecisionNotYetMade&#34;) }">
-      <bpmn:incoming>Flow_0ni3gfo</bpmn:incoming>
       <bpmn:incoming>Flow_1sjleue</bpmn:incoming>
+      <bpmn:incoming>Flow_1ap8fuu</bpmn:incoming>
       <bpmn:outgoing>Flow_1tgyxfj</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0ni3gfo" sourceRef="Gateway_0vour6f" targetRef="Activity_0xe7z8s">
+    <bpmn:sequenceFlow id="Flow_0ni3gfo" sourceRef="Gateway_0vour6f" targetRef="Activity_0uqyjy5">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QaStatus == "SendToStopList" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1tgyxfj" sourceRef="Activity_0xe7z8s" targetRef="Event_0nlva02" />
@@ -95,13 +96,27 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1sjleue" sourceRef="Gateway_05qknzm" targetRef="Activity_0xe7z8s" />
+    <bpmn:userTask id="Activity_0uqyjy5" name="Get Stop List" camunda:formKey="TO_STOP_LIST_REQUEST">
+      <bpmn:incoming>Flow_0ni3gfo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1632wcz</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_15vux8v" name="Direction" default="Flow_1ap8fuu">
+      <bpmn:incoming>Flow_1632wcz</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ap8fuu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1azbbx1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1632wcz" sourceRef="Activity_0uqyjy5" targetRef="Gateway_15vux8v" />
+    <bpmn:sequenceFlow id="Flow_1ap8fuu" sourceRef="Gateway_15vux8v" targetRef="Activity_0xe7z8s" />
+    <bpmn:sequenceFlow id="Flow_1azbbx1" sourceRef="Gateway_15vux8v" targetRef="TO_QA_OUTCOME">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TO_QA">
       <bpmndi:BPMNEdge id="Flow_1sjleue_di" bpmnElement="Flow_1sjleue">
         <di:waypoint x="535" y="130" />
         <di:waypoint x="860" y="130" />
-        <di:waypoint x="860" y="260" />
+        <di:waypoint x="860" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ekh7v9_di" bpmnElement="Flow_1ekh7v9" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
         <di:waypoint x="485" y="130" />
@@ -127,15 +142,15 @@
         <di:waypoint x="810" y="447" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tgyxfj_di" bpmnElement="Flow_1tgyxfj">
-        <di:waypoint x="910" y="300" />
-        <di:waypoint x="1120" y="300" />
+        <di:waypoint x="910" y="310" />
+        <di:waypoint x="1120" y="310" />
         <di:waypoint x="1120" y="447" />
         <di:waypoint x="1202" y="447" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ni3gfo_di" bpmnElement="Flow_0ni3gfo">
-        <di:waypoint x="521" y="433" />
-        <di:waypoint x="630" y="300" />
-        <di:waypoint x="810" y="300" />
+        <di:waypoint x="524" y="436" />
+        <di:waypoint x="610" y="370" />
+        <di:waypoint x="610" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1rlor87_di" bpmnElement="Flow_1rlor87" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
         <di:waypoint x="720" y="615" />
@@ -185,6 +200,20 @@
         <di:waypoint x="215" y="447" />
         <di:waypoint x="320" y="447" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1632wcz_di" bpmnElement="Flow_1632wcz">
+        <di:waypoint x="660" y="310" />
+        <di:waypoint x="695" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ap8fuu_di" bpmnElement="Flow_1ap8fuu">
+        <di:waypoint x="745" y="310" />
+        <di:waypoint x="810" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1azbbx1_di" bpmnElement="Flow_1azbbx1" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
+        <di:waypoint x="720" y="285" />
+        <di:waypoint x="720" y="70" />
+        <di:waypoint x="330" y="70" />
+        <di:waypoint x="330" y="407" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="179" y="429" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -218,9 +247,6 @@
       <bpmndi:BPMNShape id="Gateway_1mpvidq_di" bpmnElement="Gateway_1mpvidq" isMarkerVisible="true" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
         <dc:Bounds x="695" y="565" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0xe7z8s_di" bpmnElement="Activity_0xe7z8s">
-        <dc:Bounds x="810" y="260" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0pk0o3c_di" bpmnElement="Activity_0extn6g">
         <dc:Bounds x="610" y="407" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -232,6 +258,18 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="485" y="81" width="50" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0uqyjy5_di" bpmnElement="Activity_0uqyjy5">
+        <dc:Bounds x="560" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_15vux8v_di" bpmnElement="Gateway_15vux8v" isMarkerVisible="true" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
+        <dc:Bounds x="695" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="699" y="342" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xe7z8s_di" bpmnElement="Activity_0xe7z8s">
+        <dc:Bounds x="810" y="270" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
