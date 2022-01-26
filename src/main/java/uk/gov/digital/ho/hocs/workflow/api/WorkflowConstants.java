@@ -23,4 +23,7 @@ public interface WorkflowConstants {
     String REQUEST_QUESTION = "RequestQuestion";
     String TOPICS = "Topics";
     String CASE_DATA_TYPE_FOI = "FOI";
+    String CASE_DATA_TYPE_COMP = "COMP";
+    String CHANNEL = "Channel";
+    String CHANNEL_COMP_WEBFORM = "Webform";
 }
