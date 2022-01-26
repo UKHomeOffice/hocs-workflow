@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -468,6 +469,22 @@ public class COMP {
         verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void whenWebformClosureCompletesCase() {
+        whenAtCallActivity("COMP_REGISTRATION")
+                .thenReturn("WebformComplaintInvalid", "Yes")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("COMP", Map.of("Channel", "Webform"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_COMP");
+        verify(processScenario).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_COMP");
     }
 
     @After
