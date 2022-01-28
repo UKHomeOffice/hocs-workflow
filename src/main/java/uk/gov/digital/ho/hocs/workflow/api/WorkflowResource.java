@@ -14,10 +14,7 @@ import uk.gov.digital.ho.hocs.workflow.security.AllocationLevel;
 import uk.gov.digital.ho.hocs.workflow.security.Authorised;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -112,6 +109,15 @@ class WorkflowResource {
         bpmnService.updateValue(caseUUID.toString(), stageUUID.toString(), variable, request.getValue());
         return ResponseEntity.ok().build();
     }
+
+    @Authorised(accessLevel = AccessLevel.WRITE)
+    @PutMapping(value = "/case/{caseUUID}/stage/{stageUUID}/data")
+    public ResponseEntity<Void> updateCaseDataValues(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID,
+                                           @RequestBody Map<String, String> request) {
+        workflowService.updateCaseDataValues(caseUUID, stageUUID, request);
+        return ResponseEntity.ok().build();
+    }
+
 
     @Authorised(accessLevel = AccessLevel.CASE_ADMIN)
     @PutMapping(value = "/case/close/{caseUUID}")
