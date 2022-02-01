@@ -32,7 +32,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/TO_CAMPAIGN.bpmn",
         "processes/TO_STOP_LIST.bpmn",
         "processes/TO_HOME_SEC.bpmn",
-        "processes/TO_DISPATCH.bpmn"
+        "processes/TO_DISPATCH.bpmn",
+        "processes/TO_HOME_SEC_INTEREST.bpmn"
 })
 public class TO {
 
@@ -44,6 +45,7 @@ public class TO {
     private static final String STOP_LIST = "TO_STOP_LIST";
     private static final String DRAFT = "TO_DRAFT";
     private static final String HOME_SEC = "TO_HOME_SEC";
+    private static final String HOME_SEC_INTEREST = "TO_HOME_SEC";
     private static final String DISPATCH = "TO_DISPATCH";
 
     // SERVICE TASKS

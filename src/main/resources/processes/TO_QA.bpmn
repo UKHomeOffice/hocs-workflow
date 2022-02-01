@@ -24,7 +24,7 @@
       <bpmn:outgoing>Flow_0i8bf5b</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_0vour6f" name="QaStatus?">
-      <bpmn:incoming>Flow_1iab2lc</bpmn:incoming>
+      <bpmn:incoming>Flow_00wjrub</bpmn:incoming>
       <bpmn:outgoing>Flow_0je25my</bpmn:outgoing>
       <bpmn:outgoing>Flow_16shlwv</bpmn:outgoing>
       <bpmn:outgoing>Flow_0ni3gfo</bpmn:outgoing>
@@ -105,6 +105,7 @@
       <bpmn:outgoing>Flow_07diyw6</bpmn:outgoing>
       <bpmn:outgoing>Flow_0zty0rx</bpmn:outgoing>
       <bpmn:outgoing>Flow_00wjrub</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0dj0w4z</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:callActivity id="TO_CHANGE_BUSINESS_AREA" name="Change Business Area" calledElement="TO_CHANGE_BUSINESS_AREA">
       <bpmn:extensionElements>
@@ -142,37 +143,31 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1bhksxl" sourceRef="Gateway_0pyf671" targetRef="Event_0nlva02" />
-    <bpmn:sequenceFlow id="Flow_00wjrub" sourceRef="Gateway_00zyo7p" targetRef="Gateway_103i5ai" />
+    <bpmn:sequenceFlow id="Flow_00wjrub" sourceRef="Gateway_00zyo7p" targetRef="Gateway_0vour6f" />
     <bpmn:serviceTask id="UPDATE_BUS_AREA_STATUS" name="Update Business Area Status: Confirmed" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;BusAreaStatus&#34;, &#34;Confirmed&#34;)}">
       <bpmn:incoming>Flow_0rvjo1x</bpmn:incoming>
       <bpmn:outgoing>Flow_1eovvna</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1eovvna" sourceRef="UPDATE_BUS_AREA_STATUS" targetRef="Event_0nlva02" />
-    <bpmn:exclusiveGateway id="Gateway_103i5ai" default="Flow_1iab2lc">
-      <bpmn:incoming>Flow_00wjrub</bpmn:incoming>
-      <bpmn:outgoing>Flow_0dj0w4z</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1iab2lc</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:callActivity id="Activity_08jbtcu" name="Change Home Secretary Interest" calledElement="TO_HOME_SEC">
+    <bpmn:callActivity id="TO_HOME_SEC_INTEREST" name="Change Home Secretary Interest" calledElement="TO_HOME_SEC_INTEREST">
       <bpmn:extensionElements>
         <camunda:in businessKey="#{execution.processBusinessKey}" />
         <camunda:in source="CaseUUID" target="CaseUUID" />
         <camunda:out source="DIRECTION" target="DIRECTION" />
-        <camunda:out source="TROFTeamUUID" target="TROFTeamUUID" />
+        <camunda:out source="HomeSecIntUpdated" target="HomeSecIntUpdated" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0dj0w4z</bpmn:incoming>
       <bpmn:outgoing>Flow_1b0rvi4</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_0dj0w4z" sourceRef="Gateway_103i5ai" targetRef="Activity_08jbtcu">
+    <bpmn:sequenceFlow id="Flow_0dj0w4z" sourceRef="Gateway_00zyo7p" targetRef="TO_HOME_SEC_INTEREST">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "ChangeHomeSecretaryInterest" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1iab2lc" sourceRef="Gateway_103i5ai" targetRef="Gateway_0vour6f" />
     <bpmn:exclusiveGateway id="Gateway_1igku9e" name="Direction?" default="Flow_1aokc7l">
       <bpmn:incoming>Flow_1b0rvi4</bpmn:incoming>
       <bpmn:outgoing>Flow_0he0g5g</bpmn:outgoing>
       <bpmn:outgoing>Flow_1aokc7l</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1b0rvi4" sourceRef="Activity_08jbtcu" targetRef="Gateway_1igku9e" />
+    <bpmn:sequenceFlow id="Flow_1b0rvi4" sourceRef="TO_HOME_SEC_INTEREST" targetRef="Gateway_1igku9e" />
     <bpmn:sequenceFlow id="Flow_0he0g5g" sourceRef="Gateway_1igku9e" targetRef="TO_QA_OUTCOME">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -180,13 +175,32 @@
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TO_QA">
+      <bpmndi:BPMNEdge id="Flow_1aokc7l_di" bpmnElement="Flow_1aokc7l">
+        <di:waypoint x="645" y="110" />
+        <di:waypoint x="1530" y="110" />
+        <di:waypoint x="1530" y="489" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0he0g5g_di" bpmnElement="Flow_0he0g5g">
+        <di:waypoint x="595" y="110" />
+        <di:waypoint x="300" y="110" />
+        <di:waypoint x="300" y="467" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b0rvi4_di" bpmnElement="Flow_1b0rvi4">
+        <di:waypoint x="620" y="270" />
+        <di:waypoint x="620" y="135" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dj0w4z_di" bpmnElement="Flow_0dj0w4z">
+        <di:waypoint x="530" y="482" />
+        <di:waypoint x="530" y="310" />
+        <di:waypoint x="570" y="310" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1eovvna_di" bpmnElement="Flow_1eovvna">
         <di:waypoint x="1480" y="507" />
         <di:waypoint x="1512" y="507" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_00wjrub_di" bpmnElement="Flow_00wjrub">
         <di:waypoint x="555" y="507" />
-        <di:waypoint x="595" y="507" />
+        <di:waypoint x="705" y="507" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1bhksxl_di" bpmnElement="Flow_1bhksxl">
         <di:waypoint x="805" y="760" />
@@ -311,28 +325,6 @@
         <di:waypoint x="188" y="507" />
         <di:waypoint x="250" y="507" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0dj0w4z_di" bpmnElement="Flow_0dj0w4z">
-        <di:waypoint x="620" y="482" />
-        <di:waypoint x="620" y="350" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1iab2lc_di" bpmnElement="Flow_1iab2lc">
-        <di:waypoint x="645" y="507" />
-        <di:waypoint x="705" y="507" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1b0rvi4_di" bpmnElement="Flow_1b0rvi4">
-        <di:waypoint x="620" y="270" />
-        <di:waypoint x="620" y="135" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0he0g5g_di" bpmnElement="Flow_0he0g5g">
-        <di:waypoint x="595" y="110" />
-        <di:waypoint x="300" y="110" />
-        <di:waypoint x="300" y="467" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1aokc7l_di" bpmnElement="Flow_1aokc7l">
-        <di:waypoint x="645" y="110" />
-        <di:waypoint x="1530" y="110" />
-        <di:waypoint x="1530" y="489" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="489" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -399,10 +391,7 @@
       <bpmndi:BPMNShape id="Activity_0e048yc_di" bpmnElement="UPDATE_BUS_AREA_STATUS">
         <dc:Bounds x="1380" y="467" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_103i5ai_di" bpmnElement="Gateway_103i5ai" isMarkerVisible="true">
-        <dc:Bounds x="595" y="482" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_08jbtcu_di" bpmnElement="Activity_08jbtcu">
+      <bpmndi:BPMNShape id="Activity_08jbtcu_di" bpmnElement="TO_HOME_SEC_INTEREST">
         <dc:Bounds x="570" y="270" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1igku9e_di" bpmnElement="Gateway_1igku9e" isMarkerVisible="true">
