@@ -50,6 +50,7 @@ public class TO_QA {
     private static final String CLEAR_REJ_NOTE = "Activity_0extn6g";
     private static final String SAVE_REJ_NOTE = "Activity_1t508ui";
     private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
+    private static final String TO_GET_STOP_LIST = "Activity_0rehwcp";
 
     @Rule
     @ClassRule
@@ -211,12 +212,18 @@ public class TO_QA {
         when(TOProcess.waitsAtUserTask(TO_QA_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables(QA_STATUS,"SendToStopList", DIRECTION, FORWARD)));
 
+        when(TOProcess.waitsAtUserTask(TO_GET_STOP_LIST))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION,"FORWARD")));
+
         Scenario.run(TOProcess)
                 .startByKey("TO_QA")
                 .execute();
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_QA_OUTCOME);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TO_GET_STOP_LIST);
 
         verify(TOProcess, times(1))
                 .hasCompleted(UPDATE_APP_DecisionNotYetMade);

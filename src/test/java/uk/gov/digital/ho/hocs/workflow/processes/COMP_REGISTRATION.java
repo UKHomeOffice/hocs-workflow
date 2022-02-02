@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import java.util.Map;
+
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,7 +30,7 @@ public class COMP_REGISTRATION {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.91)
+            .assertClassCoverageAtLeast(0.93)
             .build();
 
     @Rule
@@ -73,6 +75,45 @@ public class COMP_REGISTRATION {
 
         verify(compRegistrationProcess)
                 .hasCompleted("ServiceTask_0pumxnf");
+    }
+
+    @Test
+    public void webformHappyPath() {
+        when(compRegistrationProcess.waitsAtUserTask("Validate_WebformComplaint"))
+                .thenReturn(task -> task.complete(withVariables("valid", false)))
+                .thenReturn(task -> task.complete(withVariables("valid", true)));
+
+        Scenario.run(compRegistrationProcess)
+                .startByKey("COMP_REGISTRATION", Map.of("Channel", "Webform"))
+                .execute();
+
+        verify(compRegistrationProcess, times(2))
+                .hasCompleted("Validate_WebformComplaint");
+
+        verify(compRegistrationProcess)
+                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
+
+        verify(compRegistrationProcess)
+                .hasCompleted("ServiceTask_0pumxnf");
+    }
+
+    @Test
+    public void webformNotValidPath() {
+        when(compRegistrationProcess.waitsAtUserTask("Validate_WebformComplaint"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "WebformComplaintInvalid", "Yes")));
+
+        Scenario.run(compRegistrationProcess)
+                .startByKey("COMP_REGISTRATION", Map.of("Channel", "Webform"))
+                .execute();
+
+        verify(compRegistrationProcess)
+                .hasCompleted("Validate_WebformComplaint");
+
+        verify(compRegistrationProcess, times(0))
+                .hasCompleted("Screen_Correspondents");
+
+        verify(compRegistrationProcess)
+                .hasCompleted("EndEvent_COMP_CREATION");
     }
 
     @Test

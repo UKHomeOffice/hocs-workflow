@@ -103,19 +103,19 @@ public class WorkflowService {
 
             // Start a new camunda workflow (caseUUID is the business key).
             Map<String, String> seedData = new HashMap<>();
-            if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI) && receivedData != null) {
-                seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
-                seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
-                seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
-                seedData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
-                seedData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
-                seedData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
-                seedData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
-            } else {
-                seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
-                seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
-                seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+            if (receivedData != null) {
+                if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)) {
+                    seedData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
+                    seedData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
+                    seedData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
+                    seedData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
+                } else if (isCreationForCompWebformCase(caseDataType, receivedData)) {
+                    seedData.putAll(receivedData);
+                }
             }
+            seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
+            seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+            seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
             camundaClient.startCase(caseUUID, caseDataType, seedData);
             //Create correspondent
@@ -409,4 +409,8 @@ public class WorkflowService {
         log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
     }
 
+    private boolean isCreationForCompWebformCase(String caseDataType, Map<String, String> receivedData) {
+        return Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_COMP)
+                    && Objects.equals(receivedData.get(WorkflowConstants.CHANNEL), WorkflowConstants.CHANNEL_COMP_WEBFORM);
+    }
 }

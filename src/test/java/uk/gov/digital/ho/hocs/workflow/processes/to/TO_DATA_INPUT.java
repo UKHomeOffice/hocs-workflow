@@ -31,6 +31,7 @@ public class TO_DATA_INPUT {
     private static final String ALLOCATE_TO_BF_TEAM   = "Activity_1u2gne9";
     private static final String ALLOCATE_TO_HMPO_TEAM = "Activity_08iee1e";
     private static final String CAPTURE_CORRESPONDENT_DETAILS = "Activity_08vy6zg";
+    private static final String SAVE_CORRESPONDENT_DETAILS = "SAVE_CORRESPONDENT_DETAILS";
     private static final String ADD_RECIPIENT_QUESTION = "Activity_03q1s1y";
     private static final String CAPTURE_RECIPIENT_DETAILS = "Activity_03anlsv";
 
@@ -93,6 +94,9 @@ public class TO_DATA_INPUT {
                 .hasCompleted(CAPTURE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(1))
+                .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
+
+        verify(TOProcess, times(1))
                 .hasCompleted(ADD_RECIPIENT_QUESTION);
 
         verify(TOProcess, times(1))
@@ -136,6 +140,9 @@ public class TO_DATA_INPUT {
                 .hasCompleted(CAPTURE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(1))
+                .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
+
+        verify(TOProcess, times(1))
                 .hasCompleted(ADD_RECIPIENT_QUESTION);
 
         verify(TOProcess, times(0))
@@ -171,6 +178,9 @@ public class TO_DATA_INPUT {
 
         verify(TOProcess, times(1))
                 .hasCompleted(CAPTURE_BUSINESS_AREA);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(0))
                 .hasCompleted(ALLOCATE_TO_UKVI_TEAM);
@@ -220,6 +230,9 @@ public class TO_DATA_INPUT {
         verify(TOProcess, times(1))
                 .hasCompleted(CAPTURE_BUSINESS_AREA);
 
+        verify(TOProcess, times(1))
+                .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
+
         verify(TOProcess, times(0))
                 .hasCompleted(ALLOCATE_TO_UKVI_TEAM);
 
@@ -231,6 +244,9 @@ public class TO_DATA_INPUT {
 
         verify(TOProcess, times(1))
                 .hasCompleted(CAPTURE_CORRESPONDENT_DETAILS);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(1))
                 .hasCompleted(ADD_RECIPIENT_QUESTION);
@@ -278,6 +294,9 @@ public class TO_DATA_INPUT {
 
         verify(TOProcess, times(3))
                 .hasCompleted(CAPTURE_CORRESPONDENT_DETAILS);
+
+        verify(TOProcess, times(3))
+                .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(3))
                 .hasCompleted(ADD_RECIPIENT_QUESTION);
