@@ -59,6 +59,20 @@ public class BF_TRIAGE {
     }
 
     @Test
+    public void testValidateContributionsBackThenComplete(){
+        when(process.waitsAtUserTask("Validate_Capture_Reason"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(process.waitsAtUserTask("Validate_Contributions"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "TriageResult", "Draft")));
+
+        Scenario.run(process).startByKey("BF_TRIAGE").execute();
+        verify(process).hasCompleted("EndEvent_BF_TRIAGE");
+    }
+
+    @Test
     public void testCompleteComplaint(){
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
