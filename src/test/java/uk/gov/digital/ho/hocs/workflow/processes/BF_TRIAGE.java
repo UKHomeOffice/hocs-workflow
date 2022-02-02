@@ -66,7 +66,7 @@ public class BF_TRIAGE {
 
         when(process.waitsAtUserTask("Validate_Contributions"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "TriageResult", "Draft")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BFTriageResult", "Draft")));
 
         Scenario.run(process).startByKey("BF_TRIAGE").execute();
         verify(process).hasCompleted("EndEvent_BF_TRIAGE");
