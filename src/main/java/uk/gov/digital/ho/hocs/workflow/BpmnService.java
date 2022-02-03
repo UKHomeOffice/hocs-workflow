@@ -104,6 +104,18 @@ public class BpmnService {
         }
     }
 
+    /**
+     * This method has now been deprecated, however as Camunda stores a stack of sub-processes to create as cases
+     * enter a subprocess, this method needs to remain for completion of stages created, but not completed prior to this
+     * code update.
+     *
+     * Stage completion now takes place as part of the "createStage" and "completeCase" methods in
+     * hocs-casework.
+     *
+     * @param caseUUIDString
+     * @param stageUUIDString
+     */
+    @Deprecated
     public void completeStage(String caseUUIDString, String stageUUIDString) {
         caseworkClient.updateStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(stageUUIDString), null, null);
         log.info("Completed Stage {} for Case {}", stageUUIDString, caseUUIDString);
