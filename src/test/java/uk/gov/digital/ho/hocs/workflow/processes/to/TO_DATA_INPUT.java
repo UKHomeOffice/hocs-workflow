@@ -32,8 +32,7 @@ public class TO_DATA_INPUT {
     private static final String ALLOCATE_TO_HMPO_TEAM = "Activity_08iee1e";
     private static final String CAPTURE_CORRESPONDENT_DETAILS = "Activity_08vy6zg";
     private static final String SAVE_CORRESPONDENT_DETAILS = "SAVE_CORRESPONDENT_DETAILS";
-    private static final String ADD_RECIPIENT_QUESTION = "Activity_03q1s1y";
-    private static final String CAPTURE_RECIPIENT_DETAILS = "Activity_03anlsv";
+    private static final String ADD_RECIPIENT = "Activity_03q1s1y";
 
     @Rule
     @ClassRule
@@ -66,13 +65,8 @@ public class TO_DATA_INPUT {
                         "DIRECTION", "FORWARD")
                 ));
 
-        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT_QUESTION))
+        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","RecipientAdded", "YES")));
-
-        when(TOProcess.waitsAtUserTask(CAPTURE_RECIPIENT_DETAILS))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD")
-                ));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_DATA_INPUT")
@@ -97,10 +91,7 @@ public class TO_DATA_INPUT {
                 .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(1))
-                .hasCompleted(ADD_RECIPIENT_QUESTION);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(CAPTURE_RECIPIENT_DETAILS);
+                .hasCompleted(ADD_RECIPIENT);
 
     }
 
@@ -117,7 +108,7 @@ public class TO_DATA_INPUT {
                         "DIRECTION", "FORWARD")
                 ));
 
-        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT_QUESTION))
+        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","RecipientAdded", "NO")));
 
         Scenario.run(TOProcess)
@@ -143,10 +134,7 @@ public class TO_DATA_INPUT {
                 .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(1))
-                .hasCompleted(ADD_RECIPIENT_QUESTION);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(CAPTURE_RECIPIENT_DETAILS);
+                .hasCompleted(ADD_RECIPIENT);
 
     }
 
@@ -164,13 +152,9 @@ public class TO_DATA_INPUT {
                         "DIRECTION", "FORWARD")
                 ));
 
-        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT_QUESTION))
+        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","RecipientAdded", "YES")));
 
-        when(TOProcess.waitsAtUserTask(CAPTURE_RECIPIENT_DETAILS))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD")
-                ));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_DATA_INPUT")
@@ -195,10 +179,7 @@ public class TO_DATA_INPUT {
                 .hasCompleted(CAPTURE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(1))
-                .hasCompleted(ADD_RECIPIENT_QUESTION);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(CAPTURE_RECIPIENT_DETAILS);
+                .hasCompleted(ADD_RECIPIENT);
 
     }
 
@@ -215,13 +196,8 @@ public class TO_DATA_INPUT {
                         "DIRECTION", "FORWARD")
                 ));
 
-        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT_QUESTION))
+        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","RecipientAdded", "YES")));
-
-        when(TOProcess.waitsAtUserTask(CAPTURE_RECIPIENT_DETAILS))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD")
-                ));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_DATA_INPUT")
@@ -249,10 +225,7 @@ public class TO_DATA_INPUT {
                 .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(1))
-                .hasCompleted(ADD_RECIPIENT_QUESTION);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(CAPTURE_RECIPIENT_DETAILS);
+                .hasCompleted(ADD_RECIPIENT);
 
     }
 
@@ -268,13 +241,9 @@ public class TO_DATA_INPUT {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT_QUESTION))
+        when(TOProcess.waitsAtUserTask(ADD_RECIPIENT))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","RecipientAdded", "YES")));
-
-        when(TOProcess.waitsAtUserTask(CAPTURE_RECIPIENT_DETAILS))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_DATA_INPUT")
@@ -298,11 +267,8 @@ public class TO_DATA_INPUT {
         verify(TOProcess, times(3))
                 .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
 
-        verify(TOProcess, times(3))
-                .hasCompleted(ADD_RECIPIENT_QUESTION);
-
         verify(TOProcess, times(2))
-                .hasCompleted(CAPTURE_RECIPIENT_DETAILS);
+                .hasCompleted(ADD_RECIPIENT);
 
     }
 
