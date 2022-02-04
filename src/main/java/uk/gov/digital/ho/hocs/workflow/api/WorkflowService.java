@@ -404,7 +404,9 @@ public class WorkflowService {
 
     public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, Map<String, String> request) {
         log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
-        camundaClient.updateTask(stageUUID, request);
+        if (!caseworkClient.getActiveStage(caseUUID).isEmpty()) {
+            camundaClient.updateTask(stageUUID, request);
+        }
         caseworkClient.updateCase(caseUUID, stageUUID, request);
         log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
     }
