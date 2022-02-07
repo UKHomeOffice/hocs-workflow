@@ -44,6 +44,7 @@
         <camunda:out source="BusArea" target="BusArea" />
         <camunda:out source="TROFTeamUUID" target="TROFTeamUUID" />
         <camunda:in variables="all" />
+        <camunda:out source="HomeSecInterest" target="HomeSecInterest" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_02q4ggm</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0oah2ej</bpmn:incoming>
@@ -51,8 +52,7 @@
       <bpmn:incoming>Flow_1gvq3nw</bpmn:incoming>
       <bpmn:incoming>Flow_0cabz2n</bpmn:incoming>
       <bpmn:incoming>Flow_0xhav8z</bpmn:incoming>
-      <bpmn:incoming>Flow_1sn6s5c</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_009f2xi</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0zdenb5</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_0u2xrvf" sourceRef="TO_DATA_INPUT" targetRef="TO_TRIAGE" />
     <bpmn:callActivity id="TO_DRAFT" name="Draft" calledElement="STAGE">
@@ -73,6 +73,8 @@
         <camunda:out source="BusArea" target="BusArea" />
         <camunda:out source="TROFTeamUUID" target="TROFTeamUUID" />
         <camunda:in variables="all" />
+        <camunda:in source="HomeSecInterest" target="HomeSecInterest" />
+        <camunda:out source="HomeSecInterest" target="HomeSecInterest" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1lxdhh3</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1vol2gw</bpmn:incoming>
@@ -80,10 +82,8 @@
       <bpmn:incoming>SequenceFlow_01kmqfv</bpmn:incoming>
       <bpmn:incoming>Flow_15cziqn</bpmn:incoming>
       <bpmn:incoming>Flow_1pp6tii</bpmn:incoming>
-      <bpmn:incoming>Flow_1u36ad4</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_14ecjwg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14wukt9</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_009f2xi" sourceRef="TO_TRIAGE" targetRef="Gateway_0mqssy0" />
     <bpmn:callActivity id="TO_QA" name="QA" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="QaUUID" target="StageUUID" />
@@ -100,16 +100,15 @@
         <camunda:out source="BusAreaStatus" target="BusAreaStatus" />
         <camunda:out source="BusArea" target="BusArea" />
         <camunda:out source="TROFTeamUUID" target="TROFTeamUUID" />
+        <camunda:in source="HomeSecInterest" target="HomeSecInterest" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0eiezwh</bpmn:incoming>
       <bpmn:incoming>Flow_08620bi</bpmn:incoming>
-      <bpmn:incoming>Flow_1ihdtvd</bpmn:incoming>
-      <bpmn:outgoing>Flow_1tnpcrx</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ws7wut</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_14ecjwg" sourceRef="TO_DRAFT" targetRef="Gateway_17l9vvx" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_1n7066i" name="Home Secretary Interest?">
       <bpmn:incoming>SequenceFlow_0e2x7lp</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1m1p15j</bpmn:incoming>
+      <bpmn:incoming>Flow_1ye95fk</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1hnwm4d</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1pemtrq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -130,7 +129,7 @@
       <bpmn:outgoing>SequenceFlow_1lxdhh3</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_02q4ggm</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1m1p15j" name="SendToDispatch" sourceRef="ExclusiveGateway_1squ1ke" targetRef="ExclusiveGateway_1n7066i">
+    <bpmn:sequenceFlow id="SequenceFlow_1m1p15j" name="SendToDispatch" sourceRef="ExclusiveGateway_1squ1ke" targetRef="Activity_14f0wuu">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QaStatus == "SendToDispatch"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1lxdhh3" name="SendToDraft" sourceRef="ExclusiveGateway_1squ1ke" targetRef="TO_DRAFT">
@@ -182,7 +181,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${HomeSecStatus == "RejectDraft"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1hnwm4d" name="Yes" sourceRef="ExclusiveGateway_1n7066i" targetRef="TO_HOME_SEC_INTEREST">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.hasVariable("HomeSecInt") == true &amp;&amp; HomeSecInt == "Yes"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.hasVariable("HomeSecInterest") == true &amp;&amp; execution.getVariable("HomeSecInterest").equals("Yes")}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="TO_HOME_SEC_INTEREST" name="Home Secretary" calledElement="STAGE">
       <bpmn:extensionElements>
@@ -201,6 +200,7 @@
         <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
         <camunda:out source="LastUpdatedByUserUUID" target="LastUpdatedByUserUUID" />
         <camunda:out source="DraftUserUUID" target="CampaignUserUUID" />
+        <camunda:in source="HomeSecInterest" target="HomeSecInterest" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1hnwm4d</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1d7lzq0</bpmn:outgoing>
@@ -304,7 +304,7 @@
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_0i4wmw7" sourceRef="TO_DISPATCH" targetRef="ExclusiveGateway_1gth2bz" />
     <bpmn:exclusiveGateway id="Gateway_10qstih" name="Transfer Case?">
-      <bpmn:incoming>Flow_15j3zes</bpmn:incoming>
+      <bpmn:incoming>Flow_0zdenb5</bpmn:incoming>
       <bpmn:outgoing>Flow_0pn4t37</bpmn:outgoing>
       <bpmn:outgoing>Flow_1gvq3nw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -315,7 +315,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BusAreaStatus == "Transferred"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0doav68" name="Transfer Case?" default="Flow_0lnxwrr">
-      <bpmn:incoming>Flow_07l45ku</bpmn:incoming>
+      <bpmn:incoming>Flow_14wukt9</bpmn:incoming>
       <bpmn:outgoing>Flow_0lnxwrr</bpmn:outgoing>
       <bpmn:outgoing>Flow_15cziqn</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -362,48 +362,24 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BusAreaStatus == "Transferred"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0ogmuj4" name="Transfer Case?" default="SequenceFlow_05zoqyj">
-      <bpmn:incoming>Flow_058ea43</bpmn:incoming>
+      <bpmn:incoming>Flow_1ws7wut</bpmn:incoming>
       <bpmn:outgoing>Flow_08620bi</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_05zoqyj</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_08620bi" name="Yes" sourceRef="Gateway_0ogmuj4" targetRef="TO_QA">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BusAreaStatus == "Transferred"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1tnpcrx" sourceRef="TO_QA" targetRef="Gateway_0vlhdbq" />
-    <bpmn:exclusiveGateway id="Gateway_17l9vvx" default="Flow_07l45ku">
-      <bpmn:incoming>SequenceFlow_14ecjwg</bpmn:incoming>
-      <bpmn:outgoing>Flow_07l45ku</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1u36ad4</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_07l45ku" name="No" sourceRef="Gateway_17l9vvx" targetRef="Gateway_0doav68" />
-    <bpmn:sequenceFlow id="Flow_1u36ad4" name="Yes" sourceRef="Gateway_17l9vvx" targetRef="TO_DRAFT">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${HomeSecIntUpdated == "Transferred"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_0mqssy0">
-      <bpmn:incoming>SequenceFlow_009f2xi</bpmn:incoming>
-      <bpmn:outgoing>Flow_15j3zes</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1sn6s5c</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_15j3zes" sourceRef="Gateway_0mqssy0" targetRef="Gateway_10qstih" />
-    <bpmn:sequenceFlow id="Flow_1sn6s5c" sourceRef="Gateway_0mqssy0" targetRef="TO_TRIAGE">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${HomeSecIntUpdated == "Transferred"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_0vlhdbq">
-      <bpmn:incoming>Flow_1tnpcrx</bpmn:incoming>
-      <bpmn:outgoing>Flow_058ea43</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1ihdtvd</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_058ea43" sourceRef="Gateway_0vlhdbq" targetRef="Gateway_0ogmuj4" />
-    <bpmn:sequenceFlow id="Flow_1ihdtvd" sourceRef="Gateway_0vlhdbq" targetRef="TO_QA">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${HomeSecIntUpdated == "Transferred"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1ws7wut" sourceRef="TO_QA" targetRef="Gateway_0ogmuj4" />
+    <bpmn:sequenceFlow id="Flow_14wukt9" sourceRef="TO_DRAFT" targetRef="Gateway_0doav68" />
+    <bpmn:sequenceFlow id="Flow_0zdenb5" sourceRef="TO_TRIAGE" targetRef="Gateway_10qstih" />
+    <bpmn:sequenceFlow id="Flow_1ye95fk" sourceRef="Activity_14f0wuu" targetRef="ExclusiveGateway_1n7066i" />
+    <bpmn:serviceTask id="Activity_14f0wuu" name="debug" camunda:expression="${bpmnService.debug(execution.getVariable(&#34;HomeSecInterest&#34;) )}">
+      <bpmn:incoming>SequenceFlow_1m1p15j</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ye95fk</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="TO">
-      <bpmndi:BPMNEdge id="Flow_1tnpcrx_di" bpmnElement="Flow_1tnpcrx">
-        <di:waypoint x="2420" y="314" />
-        <di:waypoint x="2465" y="314" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08620bi_di" bpmnElement="Flow_08620bi" bioc:stroke="rgb(142, 36, 170)" bioc:fill="rgb(225, 190, 231)">
         <di:waypoint x="2600" y="289" />
         <di:waypoint x="2600" y="240" />
@@ -687,9 +663,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1m1p15j_di" bpmnElement="SequenceFlow_1m1p15j">
         <di:waypoint x="2755" y="314" />
-        <di:waypoint x="3175" y="314" />
+        <di:waypoint x="2930" y="314" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2820" y="296" width="81" height="14" />
+          <dc:Bounds x="2797" y="296" width="81" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0d2t738_di" bpmnElement="SequenceFlow_0d2t738">
@@ -703,14 +679,6 @@
           <dc:Bounds x="2630" y="293" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_14ecjwg_di" bpmnElement="SequenceFlow_14ecjwg">
-        <di:waypoint x="1520" y="314" />
-        <di:waypoint x="1595" y="314" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_009f2xi_di" bpmnElement="SequenceFlow_009f2xi">
-        <di:waypoint x="730" y="314" />
-        <di:waypoint x="765" y="314" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0u2xrvf_di" bpmnElement="SequenceFlow_0u2xrvf">
         <di:waypoint x="380" y="314" />
         <di:waypoint x="630" y="314" />
@@ -719,38 +687,21 @@
         <di:waypoint x="198" y="314" />
         <di:waypoint x="280" y="314" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_07l45ku_di" bpmnElement="Flow_07l45ku">
-        <di:waypoint x="1645" y="314" />
-        <di:waypoint x="1729" y="314" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1680" y="296" width="15" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1u36ad4_di" bpmnElement="Flow_1u36ad4">
-        <di:waypoint x="1620" y="289" />
-        <di:waypoint x="1620" y="280" />
-        <di:waypoint x="1520" y="280" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1581" y="269" width="18" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15j3zes_di" bpmnElement="Flow_15j3zes">
-        <di:waypoint x="815" y="314" />
-        <di:waypoint x="855" y="314" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1sn6s5c_di" bpmnElement="Flow_1sn6s5c">
-        <di:waypoint x="790" y="289" />
-        <di:waypoint x="790" y="280" />
-        <di:waypoint x="730" y="280" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_058ea43_di" bpmnElement="Flow_058ea43">
-        <di:waypoint x="2515" y="314" />
+      <bpmndi:BPMNEdge id="Flow_1ws7wut_di" bpmnElement="Flow_1ws7wut">
+        <di:waypoint x="2420" y="314" />
         <di:waypoint x="2575" y="314" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ihdtvd_di" bpmnElement="Flow_1ihdtvd">
-        <di:waypoint x="2490" y="289" />
-        <di:waypoint x="2490" y="280" />
-        <di:waypoint x="2420" y="280" />
+      <bpmndi:BPMNEdge id="Flow_14wukt9_di" bpmnElement="Flow_14wukt9">
+        <di:waypoint x="1520" y="314" />
+        <di:waypoint x="1729" y="314" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zdenb5_di" bpmnElement="Flow_0zdenb5">
+        <di:waypoint x="730" y="314" />
+        <di:waypoint x="855" y="314" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ye95fk_di" bpmnElement="Flow_1ye95fk">
+        <di:waypoint x="3030" y="314" />
+        <di:waypoint x="3175" y="314" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="TO_START">
         <dc:Bounds x="162" y="296" width="36" height="36" />
@@ -766,6 +717,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_15pewv4_di" bpmnElement="TO_DRAFT">
         <dc:Bounds x="1420" y="274" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_1rhesrm_di" bpmnElement="TO_QA">
+        <dc:Bounds x="2320" y="274" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1n7066i_di" bpmnElement="ExclusiveGateway_1n7066i" isMarkerVisible="true">
         <dc:Bounds x="3175" y="289" width="50" height="50" />
@@ -830,6 +784,12 @@
       <bpmndi:BPMNShape id="CallActivity_0om0308_di" bpmnElement="TO_DISPATCH">
         <dc:Bounds x="3350" y="410" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_10qstih_di" bpmnElement="Gateway_10qstih" isMarkerVisible="true">
+        <dc:Bounds x="855" y="289" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="843" y="346" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0doav68_di" bpmnElement="Gateway_0doav68" isMarkerVisible="true">
         <dc:Bounds x="1729" y="289" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -854,23 +814,8 @@
           <dc:Bounds x="2563" y="346" width="76" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_17l9vvx_di" bpmnElement="Gateway_17l9vvx" isMarkerVisible="true">
-        <dc:Bounds x="1595" y="289" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_10qstih_di" bpmnElement="Gateway_10qstih" isMarkerVisible="true">
-        <dc:Bounds x="855" y="289" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="843" y="346" width="76" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0mqssy0_di" bpmnElement="Gateway_0mqssy0" isMarkerVisible="true">
-        <dc:Bounds x="765" y="289" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="CallActivity_1rhesrm_di" bpmnElement="TO_QA">
-        <dc:Bounds x="2320" y="274" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0vlhdbq_di" bpmnElement="Gateway_0vlhdbq" isMarkerVisible="true">
-        <dc:Bounds x="2465" y="289" width="50" height="50" />
+      <bpmndi:BPMNShape id="Activity_0k7ka1o_di" bpmnElement="Activity_14f0wuu">
+        <dc:Bounds x="2930" y="274" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

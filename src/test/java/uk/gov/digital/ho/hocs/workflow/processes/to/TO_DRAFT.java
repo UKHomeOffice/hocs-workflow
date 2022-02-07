@@ -23,7 +23,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/TO_DRAFT.bpmn",
-        "processes/TO_CHANGE_BUSINESS_AREA.bpmn"
+        "processes/TO_CHANGE_BUSINESS_AREA.bpmn",
+        "processes/TO_HOME_SEC_INTEREST.bpmn"
 })
 public class TO_DRAFT {
 
