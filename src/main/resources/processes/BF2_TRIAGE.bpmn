@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_0a8virv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
+  <bpmn:process id="BF2_TRIAGE" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_BF_TRIAGE">
+      <bpmn:outgoing>Flow_0b8s8w8</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_BF_TRIAGE">
+      <bpmn:incoming>Flow_0pawikq</bpmn:incoming>
+      <bpmn:incoming>Flow_1bnsbkw</bpmn:incoming>
+      <bpmn:incoming>Flow_1hvxas2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0b8s8w8" sourceRef="StartEvent_BF_TRIAGE" targetRef="Validate_Capture_Reason" />
+    <bpmn:userTask id="Validate_Capture_Reason" name="Capture Reason" camunda:formKey="BF2_TRIAGE_BUSAREA">
+      <bpmn:incoming>Flow_0b8s8w8</bpmn:incoming>
+      <bpmn:incoming>Flow_10dx3g9</bpmn:incoming>
+      <bpmn:incoming>Flow_09qcc5c</bpmn:incoming>
+      <bpmn:outgoing>Flow_0nritne</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0nritne" sourceRef="Validate_Capture_Reason" targetRef="Gateway_1xii2tv" />
+    <bpmn:exclusiveGateway id="Gateway_1xii2tv">
+      <bpmn:incoming>Flow_0nritne</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tijz6t</bpmn:outgoing>
+      <bpmn:outgoing>Flow_10dx3g9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0tijz6t" sourceRef="Gateway_1xii2tv" targetRef="Validate_Contributions">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_10dx3g9" sourceRef="Gateway_1xii2tv" targetRef="Validate_Capture_Reason">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="Validate_Contributions" name="Contributions" camunda:formKey="BF2_TRIAGE_INPUT">
+      <bpmn:incoming>Flow_0tijz6t</bpmn:incoming>
+      <bpmn:incoming>Flow_0yqamon</bpmn:incoming>
+      <bpmn:incoming>Flow_0nvtbw4</bpmn:incoming>
+      <bpmn:incoming>Flow_1im69is</bpmn:incoming>
+      <bpmn:outgoing>Flow_0etgm4c</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0etgm4c" sourceRef="Validate_Contributions" targetRef="Gateway_06lehq4" />
+    <bpmn:exclusiveGateway id="Gateway_06lehq4" name="valid?">
+      <bpmn:incoming>Flow_0etgm4c</bpmn:incoming>
+      <bpmn:outgoing>Flow_1b7g9ks</bpmn:outgoing>
+      <bpmn:outgoing>Flow_09qcc5c</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1b7g9ks" name="true" sourceRef="Gateway_06lehq4" targetRef="Gateway_0tf16js">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_09qcc5c" name="false" sourceRef="Gateway_06lehq4" targetRef="Validate_Capture_Reason">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == "false"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_0tf16js" name="TriageResult?">
+      <bpmn:incoming>Flow_1b7g9ks</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pawikq</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0yqamon</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1k4hd8y</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1i1vtvo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0pawikq" sourceRef="Gateway_0tf16js" targetRef="EndEvent_BF_TRIAGE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BFTriageResult != "Pending" &amp;&amp; BFTriageResult != "Complete" &amp;&amp; BFTriageResult != "Escalate"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0yqamon" name="Pending" sourceRef="Gateway_0tf16js" targetRef="Validate_Contributions">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BFTriageResult == "Pending"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_0drd59m">
+      <bpmn:incoming>Flow_1ogj4fu</bpmn:incoming>
+      <bpmn:outgoing>Flow_19x2wtx</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0qvdnyq</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_1g7b2fa">
+      <bpmn:incoming>Flow_1twhx74</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ogj4fu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0nvtbw4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Complete_Reason" name="Complete Reason" camunda:expression="BF_COMPLETE_REASON" camunda:resultVariable="screen">
+      <bpmn:incoming>Flow_19x2wtx</bpmn:incoming>
+      <bpmn:incoming>Flow_1k4hd8y</bpmn:incoming>
+      <bpmn:outgoing>Flow_1t6oi6m</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Validate_Complete_Reason" name="Validate Complete Reason">
+      <bpmn:incoming>Flow_1t6oi6m</bpmn:incoming>
+      <bpmn:outgoing>Flow_1twhx74</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1ogj4fu" sourceRef="Gateway_1g7b2fa" targetRef="Gateway_0drd59m">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_19x2wtx" sourceRef="Gateway_0drd59m" targetRef="Complete_Reason">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1k4hd8y" sourceRef="Gateway_0tf16js" targetRef="Complete_Reason">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BFTriageResult == "Complete"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_13taydb" name="Save Complete Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_CompleteReason&#34;), &#34;CLOSE&#34;)}">
+      <bpmn:incoming>Flow_0qvdnyq</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bnsbkw</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0qvdnyq" sourceRef="Gateway_0drd59m" targetRef="Activity_13taydb">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1bnsbkw" sourceRef="Activity_13taydb" targetRef="EndEvent_BF_TRIAGE" />
+    <bpmn:sequenceFlow id="Flow_0nvtbw4" sourceRef="Gateway_1g7b2fa" targetRef="Validate_Contributions">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1t6oi6m" sourceRef="Complete_Reason" targetRef="Validate_Complete_Reason" />
+    <bpmn:sequenceFlow id="Flow_1twhx74" sourceRef="Validate_Complete_Reason" targetRef="Gateway_1g7b2fa" />
+    <bpmn:userTask id="Validate_Escalate" name="Escalate" camunda:formKey="BF_TRIAGE_ESCALATE">
+      <bpmn:incoming>Flow_1lgnaji</bpmn:incoming>
+      <bpmn:incoming>Flow_1i1vtvo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jtzjzy</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Save_Note" name="Save Escalation Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_TriageEscalate&#34;), &#34;SEND_TO_WORKFLOW_MANAGER&#34;)}">
+      <bpmn:incoming>Flow_07vvmye</bpmn:incoming>
+      <bpmn:outgoing>Flow_1hvxas2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_01ihebc">
+      <bpmn:incoming>Flow_1jtzjzy</bpmn:incoming>
+      <bpmn:outgoing>Flow_17hpetn</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1im69is</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_05ok60y">
+      <bpmn:incoming>Flow_17hpetn</bpmn:incoming>
+      <bpmn:outgoing>Flow_1lgnaji</bpmn:outgoing>
+      <bpmn:outgoing>Flow_07vvmye</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1lgnaji" sourceRef="Gateway_05ok60y" targetRef="Validate_Escalate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1jtzjzy" sourceRef="Validate_Escalate" targetRef="Gateway_01ihebc" />
+    <bpmn:sequenceFlow id="Flow_07vvmye" sourceRef="Gateway_05ok60y" targetRef="Save_Note">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_17hpetn" sourceRef="Gateway_01ihebc" targetRef="Gateway_05ok60y">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1i1vtvo" name="Escalate" sourceRef="Gateway_0tf16js" targetRef="Validate_Escalate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BFTriageResult == "Escalate"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1hvxas2" sourceRef="Save_Note" targetRef="EndEvent_BF_TRIAGE" />
+    <bpmn:sequenceFlow id="Flow_1im69is" sourceRef="Gateway_01ihebc" targetRef="Validate_Contributions">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BF2_TRIAGE">
+      <bpmndi:BPMNEdge id="Flow_1im69is_di" bpmnElement="Flow_1im69is">
+        <di:waypoint x="950" y="125" />
+        <di:waypoint x="950" y="50" />
+        <di:waypoint x="600" y="50" />
+        <di:waypoint x="600" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hvxas2_di" bpmnElement="Flow_1hvxas2">
+        <di:waypoint x="1190" y="150" />
+        <di:waypoint x="1300" y="150" />
+        <di:waypoint x="1300" y="312" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i1vtvo_di" bpmnElement="Flow_1i1vtvo">
+        <di:waypoint x="850" y="305" />
+        <di:waypoint x="850" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="858" y="245" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17hpetn_di" bpmnElement="Flow_17hpetn">
+        <di:waypoint x="975" y="150" />
+        <di:waypoint x="1015" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07vvmye_di" bpmnElement="Flow_07vvmye">
+        <di:waypoint x="1065" y="150" />
+        <di:waypoint x="1090" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jtzjzy_di" bpmnElement="Flow_1jtzjzy">
+        <di:waypoint x="900" y="150" />
+        <di:waypoint x="925" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lgnaji_di" bpmnElement="Flow_1lgnaji">
+        <di:waypoint x="1040" y="125" />
+        <di:waypoint x="1040" y="80" />
+        <di:waypoint x="850" y="80" />
+        <di:waypoint x="850" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1twhx74_di" bpmnElement="Flow_1twhx74">
+        <di:waypoint x="900" y="653" />
+        <di:waypoint x="1005" y="653" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1t6oi6m_di" bpmnElement="Flow_1t6oi6m">
+        <di:waypoint x="850" y="530" />
+        <di:waypoint x="850" y="613" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nvtbw4_di" bpmnElement="Flow_0nvtbw4">
+        <di:waypoint x="1030" y="678" />
+        <di:waypoint x="1030" y="750" />
+        <di:waypoint x="580" y="750" />
+        <di:waypoint x="580" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bnsbkw_di" bpmnElement="Flow_1bnsbkw">
+        <di:waypoint x="1260" y="490" />
+        <di:waypoint x="1300" y="490" />
+        <di:waypoint x="1300" y="348" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qvdnyq_di" bpmnElement="Flow_0qvdnyq">
+        <di:waypoint x="1055" y="490" />
+        <di:waypoint x="1160" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1k4hd8y_di" bpmnElement="Flow_1k4hd8y">
+        <di:waypoint x="850" y="355" />
+        <di:waypoint x="850" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19x2wtx_di" bpmnElement="Flow_19x2wtx">
+        <di:waypoint x="1005" y="490" />
+        <di:waypoint x="900" y="490" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="989" y="311" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ogj4fu_di" bpmnElement="Flow_1ogj4fu">
+        <di:waypoint x="1030" y="628" />
+        <di:waypoint x="1030" y="515" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0yqamon_di" bpmnElement="Flow_0yqamon">
+        <di:waypoint x="839" y="316" />
+        <di:waypoint x="780" y="240" />
+        <di:waypoint x="580" y="240" />
+        <di:waypoint x="580" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="749" y="253" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pawikq_di" bpmnElement="Flow_0pawikq">
+        <di:waypoint x="875" y="330" />
+        <di:waypoint x="1282" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09qcc5c_di" bpmnElement="Flow_09qcc5c">
+        <di:waypoint x="700" y="305" />
+        <di:waypoint x="700" y="210" />
+        <di:waypoint x="290" y="210" />
+        <di:waypoint x="290" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="668" y="283" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b7g9ks_di" bpmnElement="Flow_1b7g9ks">
+        <di:waypoint x="725" y="330" />
+        <di:waypoint x="825" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="730" y="313" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0etgm4c_di" bpmnElement="Flow_0etgm4c">
+        <di:waypoint x="630" y="330" />
+        <di:waypoint x="675" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10dx3g9_di" bpmnElement="Flow_10dx3g9">
+        <di:waypoint x="450" y="305" />
+        <di:waypoint x="450" y="240" />
+        <di:waypoint x="320" y="240" />
+        <di:waypoint x="320" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tijz6t_di" bpmnElement="Flow_0tijz6t">
+        <di:waypoint x="475" y="330" />
+        <di:waypoint x="530" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nritne_di" bpmnElement="Flow_0nritne">
+        <di:waypoint x="360" y="330" />
+        <di:waypoint x="425" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b8s8w8_di" bpmnElement="Flow_0b8s8w8">
+        <di:waypoint x="188" y="330" />
+        <di:waypoint x="260" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_BF_TRIAGE">
+        <dc:Bounds x="152" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0pmmumb_di" bpmnElement="EndEvent_BF_TRIAGE">
+        <dc:Bounds x="1282" y="312" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11s75w3_di" bpmnElement="Validate_Capture_Reason">
+        <dc:Bounds x="260" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1xii2tv_di" bpmnElement="Gateway_1xii2tv" isMarkerVisible="true">
+        <dc:Bounds x="425" y="305" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1yty991_di" bpmnElement="Validate_Contributions">
+        <dc:Bounds x="530" y="290" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_06lehq4_di" bpmnElement="Gateway_06lehq4" isMarkerVisible="true">
+        <dc:Bounds x="675" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="665" y="353" width="29" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0tf16js_di" bpmnElement="Gateway_0tf16js" isMarkerVisible="true">
+        <dc:Bounds x="825" y="305" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="775" y="353" width="69" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0drd59m_di" bpmnElement="Gateway_0drd59m" isMarkerVisible="true">
+        <dc:Bounds x="1005" y="465" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1g7b2fa_di" bpmnElement="Gateway_1g7b2fa" isMarkerVisible="true">
+        <dc:Bounds x="1005" y="628" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065" y="486" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ui0b1l_di" bpmnElement="Complete_Reason">
+        <dc:Bounds x="800" y="450" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0yi6phj_di" bpmnElement="Validate_Complete_Reason">
+        <dc:Bounds x="800" y="613" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_13taydb_di" bpmnElement="Activity_13taydb">
+        <dc:Bounds x="1160" y="450" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09xwkjb_di" bpmnElement="Validate_Escalate">
+        <dc:Bounds x="800" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0hn5mnb_di" bpmnElement="Save_Note">
+        <dc:Bounds x="1090" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_01ihebc_di" bpmnElement="Gateway_01ihebc" isMarkerVisible="true">
+        <dc:Bounds x="925" y="125" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_05ok60y_di" bpmnElement="Gateway_05ok60y" isMarkerVisible="true">
+        <dc:Bounds x="1015" y="125" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
