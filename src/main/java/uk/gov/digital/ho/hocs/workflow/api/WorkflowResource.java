@@ -37,7 +37,7 @@ class WorkflowResource {
         this.bpmnService = bpmnService;
     }
 
-    @Authorised(accessLevel = AccessLevel.OWNER)
+    @Authorised(accessLevel = AccessLevel.RESTRICTED_READ)
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
         CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments(), userUUID, request.getFromCaseUUID(), request.getData());
