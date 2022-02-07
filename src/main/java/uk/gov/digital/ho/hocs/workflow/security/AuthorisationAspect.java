@@ -34,11 +34,22 @@ public class AuthorisationAspect {
     @Around("@annotation(authorised)")
     public Object validateUserAccess(ProceedingJoinPoint joinPoint, Authorised authorised) throws Throwable {
 
-        if (getUserAccessLevel(joinPoint).getLevel() >= getRequiredAccessLevel(authorised).getLevel()) {
-            return joinPoint.proceed();
+
+        int accessLevelAsInt = getUserAccessLevel(joinPoint).getLevel();
+        if (accessLevelAsInt >= getRequiredAccessLevel(authorised).getLevel()) {
+
+            Object response = joinPoint.proceed();
+
+            filterResponseByPermissionLevel(response, accessLevelAsInt);
+
+            return response;
         } else {
             throw new SecurityExceptions.PermissionCheckException("User does not have access to the requested resource", SECURITY_UNAUTHORISED);
         }
+    }
+
+    private void filterResponseByPermissionLevel(Object unfilteredResponse, int accessLevelAsInt) {
+        log.debug("Filtering out restricted fields");
     }
 
     AccessLevel getAccessRequestAccessLevel() {
