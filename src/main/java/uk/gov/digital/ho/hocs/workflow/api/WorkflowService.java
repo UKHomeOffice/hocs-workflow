@@ -81,15 +81,18 @@ public class WorkflowService {
         caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
-        if (receivedData != null && Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)) {
-            // If we have a name we have correspondent details attached to the case creation request
-            if(receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
+        if (receivedData != null) {
+            // If FOI and we have a name we have correspondent details attached to the case creation reques
+            if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)
+                    && receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
                 correspondentRequest = buildCorrespondentRequest(receivedData);
 
                 caseData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
                 caseData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
                 caseData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
                 caseData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
+            } else if (isCreationForCompWebformCase(caseDataType, receivedData)) {
+                caseData.putAll(receivedData);
             }
         }
 
@@ -403,7 +406,7 @@ public class WorkflowService {
 
     private boolean isCreationForCompWebformCase(String caseDataType, Map<String, String> receivedData) {
         return Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_COMP)
-                    && Objects.equals(receivedData.get(WorkflowConstants.CHANNEL), WorkflowConstants.CHANNEL_COMP_WEBFORM);
+                    && Objects.equals(receivedData.get(WorkflowConstants.CHANNEL_COMP_ORIGINATEDFROM), WorkflowConstants.CHANNEL_COMP_WEBFORM);
     }
 
 }
