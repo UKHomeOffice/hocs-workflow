@@ -59,6 +59,8 @@ public class TO {
     private static final String SEND_TO_DISPATCH = "SendToDispatch";
     private static final String SEND_TO_STOP_LIST = "SendToStopList";
     private static final String REJECT_DRAFT = "RejectDraft";
+    private static final String CLOSE_CASE = "CloseCase";
+
 
     @Rule
     @ClassRule
@@ -136,6 +138,56 @@ public class TO {
 
         verify(TOProcess, times(0))
                 .hasCompleted(STOP_LIST);
+
+        // CASE COMPLETED
+        verify(bpmnService).completeCase(any());
+    }
+
+    @Test
+    public void testAllCloseAfterTriage() {
+
+        whenAtCallActivity(DATA_INPUT)
+                .deploy(rule);
+
+        whenAtCallActivity(TRIAGE)
+                .alwaysReturn("BusAreaStatus", "Confirmed")
+                .alwaysReturn("TriageOutcome", CLOSE_CASE)
+                .deploy(rule);
+
+        Scenario.run(TOProcess)
+                .startByKey("TO")
+                .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(START);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(DATA_INPUT);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TRIAGE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(COMPLETE_CASE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(END);
+
+        // NOT CALLED CHECK
+        verify(TOProcess, times(0))
+                .hasCompleted(CAMPAIGN);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(STOP_LIST);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(DRAFT);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(QA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(DISPATCH);
 
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
