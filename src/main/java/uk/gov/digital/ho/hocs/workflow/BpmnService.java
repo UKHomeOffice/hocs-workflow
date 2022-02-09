@@ -5,7 +5,6 @@ import java.time.Clock;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +15,12 @@ import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UnitDto;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
+
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
@@ -33,7 +30,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.time.LocalTime.now;
 
 @Service
 @Slf4j
@@ -63,28 +59,31 @@ public class BpmnService {
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String allocationType, String allocationTeamString, String allocatedUserId) {
+
+        UUID caseUUID = UUID.fromString(caseUUIDString);
         log.debug("Creating or Updating Stage {} for case {}", stageTypeString, caseUUIDString);
 
-        UUID teamUUID = deriveTeamUUID(caseUUIDString, stageTypeString, allocationTeamString);
-        UUID userUUID = deriveUserUUID(caseUUIDString, stageTypeString, allocatedUserId);
-        if (teamUUID != null && userUUID != null) {
-            UserDto userInTeam = infoClient.getUserForTeam(teamUUID, userUUID);
-            if (userInTeam == null) {
-                log.info("Requested user {} for new stage {} is not in team {}", userUUID, stageTypeString, teamUUID);
-                userUUID = null;
-            }
-        }
+        UUID teamUUID = StringUtils.hasText(allocationTeamString) ? UUID.fromString(allocationTeamString) : null;
+        UUID userUUID = StringUtils.hasText(allocatedUserId) ? UUID.fromString(allocatedUserId) : null;
 
         String resultStageUUID;
+
         if (StringUtils.hasText(stageUUIDString)) {
-            log.debug("Stage {} already exists for case {}, recreating stage {}", stageTypeString, caseUUIDString, stageUUIDString);
-            recreateStage(caseUUIDString, stageUUIDString, stageTypeString, allocationType, teamUUID, userUUID);
+
+            UUID stageUUID = UUID.fromString(stageUUIDString);
+            RecreateCaseworkStageRequest recreateStageRequest = new RecreateCaseworkStageRequest(stageUUID, stageTypeString, teamUUID, userUUID);
+
+            log.debug("Stage {} already exists for case {}, recreating stage {}", stageTypeString, caseUUID, recreateStageRequest);
+            caseworkClient.recreateStage(caseUUID, recreateStageRequest);
             resultStageUUID = stageUUIDString;
-            log.info("Updated Stage {} for Case {}", stageUUIDString, caseUUIDString);
+            log.info("Updated Stage {} for Case {}", stageUUID, caseUUID);
+
         } else {
-            log.debug("Creating new stage {} for case {}, assigning to team {}", stageTypeString, caseUUIDString, teamUUID);
-            resultStageUUID = caseworkClient.createStage(UUID.fromString(caseUUIDString), stageTypeString, teamUUID, userUUID, allocationType).toString();
-            log.info("Created Stage {} for Case {}", resultStageUUID, caseUUIDString);
+
+            CreateCaseworkStageRequest stageRequest = new CreateCaseworkStageRequest(stageTypeString, teamUUID, userUUID, allocationType);
+            log.debug("Creating new stage {} for case {}", stageRequest, caseUUIDString);
+            resultStageUUID = caseworkClient.createStage(caseUUID, stageRequest).toString();
+            log.info("Created Stage {} for Case {}", resultStageUUID, caseUUID);
         }
 
         return resultStageUUID;
@@ -541,22 +540,6 @@ public class BpmnService {
 
         log.warn("No userUUID provided for assignment to case {} at stage {}", caseUUIDString, stageTypeString);
         return null;
-    }
-
-    private void recreateStage(String caseUUIDString, String stageUUIDString, String stageType, String allocationType, UUID teamUUID, UUID userUUID) {
-
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID = UUID.fromString(stageUUIDString);
-
-        caseworkClient.recreateStage(caseUUID, stageUUID, stageType);
-
-        log.debug("Stage already exists for case {}, assigning to team {}", caseUUID, teamUUID);
-        caseworkClient.updateStageTeam(caseUUID, stageUUID, teamUUID, allocationType);
-
-        if (userUUID != null) {
-            caseworkClient.updateStageUser(caseUUID, stageUUID, userUUID);
-        }
-
     }
 
     public void updateCount(String caseUUID, String variableName, int additive) {
