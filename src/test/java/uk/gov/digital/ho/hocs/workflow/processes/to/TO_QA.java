@@ -37,6 +37,7 @@ public class TO_QA {
     private static final String FORWARD = "FORWARD";
     private static final String PUT_ON_CAMPAIGN = "PutOnCampaign";
     private static final String CHANGE_BUSINESS_AREA = "ChangeBusinessArea";
+    private static final String CLOSE_CASE = "CloseCase";
     private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
     private static final String UPDATE_BUS_AREA_STATUS = "UPDATE_BUS_AREA_STATUS";
 
@@ -51,6 +52,8 @@ public class TO_QA {
     private static final String SAVE_REJ_NOTE = "Activity_1t508ui";
     private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
     private static final String TO_GET_STOP_LIST = "Activity_0rehwcp";
+    private static final String TO_CLOSE_CASE = "TO_CLOSE_CASE";
+    private static final String SAVE_CLOSE_CASE_NOTE = "Activity_1eq5t4p";
 
     @Rule
     @ClassRule
@@ -103,6 +106,12 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(UPDATE_APP_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
     }
 
 
@@ -131,6 +140,12 @@ public class TO_QA {
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
     }
 
     @Test
@@ -166,6 +181,12 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(UPDATE_APP_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
 
     }
 
@@ -205,6 +226,12 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(UPDATE_APP_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
     }
 
     @Test
@@ -243,6 +270,12 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_QA_REJECTION_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
     }
 
     @Test
@@ -269,6 +302,55 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(UPDATE_APP_Rejected);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(CLEAR_REJ_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APP_Approved);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_QA_REJECTION_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
+    }
+
+    @Test
+    public void testCloseCaseBackThenCloseCaseForward() {
+        when(TOProcess.waitsAtUserTask(TO_QA_OUTCOME))
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, CLOSE_CASE, DIRECTION, FORWARD)))
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, CLOSE_CASE, DIRECTION, FORWARD)));
+
+        when(TOProcess.waitsAtUserTask(TO_CLOSE_CASE))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION,BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD)));
+
+        Scenario.run(TOProcess)
+                .startByKey("TO_QA")
+                .execute();
+
+        verify(TOProcess, times(2))
+                .hasCompleted(TO_QA_OUTCOME);
+
+        verify(TOProcess, times(2))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
+
+        // Not invoked
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_REJ_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APP_Rejected);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APP_DecisionNotYetMade);
 
         verify(TOProcess, times(0))
                 .hasCompleted(CLEAR_REJ_NOTE);

@@ -47,6 +47,7 @@ public class TO_TRIAGE {
     private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
     private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
     private static final String TO_CLOSE_CASE = "TO_CLOSE_CASE";
+    private static final String SAVE_CLOSE_CASE_NOTE = "Activity_1htq4co";
 
     @Rule
     @ClassRule
@@ -91,6 +92,12 @@ public class TO_TRIAGE {
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
     }
 
     @Test
@@ -120,35 +127,12 @@ public class TO_TRIAGE {
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
-    }
-
-    @Test
-    public void shouldCloseCaseAndComplete() {
-
-        when(TOProcess.waitsAtUserTask(TO_TRIAGE_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, TRIAGE_OUTCOME, CLOSE_CASE)));
-
-        when(TOProcess.waitsAtUserTask(TO_CLOSE_CASE)).thenReturn(task -> task.complete());
-
-        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
-                .deploy(rule);
-
-        Scenario.run(TOProcess)
-                .startByKey("TO_TRIAGE")
-                .execute();
-
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_CLOSE_CASE);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
 
         verify(TOProcess, times(0))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
     }
 
     @Test
@@ -176,6 +160,12 @@ public class TO_TRIAGE {
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
     }
 
     @Test
@@ -203,6 +193,12 @@ public class TO_TRIAGE {
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
     }
 
     @Test
@@ -235,5 +231,46 @@ public class TO_TRIAGE {
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
+    }
+
+    @Test
+    public void testCloseCaseBackThenCloseCaseForward() {
+        when(TOProcess.waitsAtUserTask(TO_TRIAGE_INPUT))
+                .thenReturn(task -> task.complete(withVariables(TRIAGE_OUTCOME, CLOSE_CASE, DIRECTION, FORWARD)))
+                .thenReturn(task -> task.complete(withVariables(TRIAGE_OUTCOME, CLOSE_CASE, DIRECTION, FORWARD)));
+
+        when(TOProcess.waitsAtUserTask(TO_CLOSE_CASE))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION,BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD)));
+
+        Scenario.run(TOProcess)
+                .startByKey("TO_TRIAGE")
+                .execute();
+
+        verify(TOProcess, times(2))
+                .hasCompleted(TO_TRIAGE_INPUT);
+
+        verify(TOProcess, times(2))
+                .hasCompleted(TO_CLOSE_CASE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(SAVE_CLOSE_CASE_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
+
+        // Not invoked
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
     }
 }
