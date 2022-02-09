@@ -55,7 +55,7 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
-                .thenReturn("valid", "true", "TriageResult", "Draft")
+                .thenReturn("valid", "true", "BFTriageResult", "Draft")
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
@@ -88,8 +88,8 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
-                .thenReturn("valid", "true", "TriageResult", "Escalate")
-                .thenReturn("valid", "true", "TriageResult", "Escalate")
+                .thenReturn("valid", "true", "BFTriageResult", "Escalate")
+                .thenReturn("valid", "true", "BFTriageResult", "Escalate")
                 .deploy(rule);
 
         whenAtCallActivity("BF_ESCALATE")
@@ -126,7 +126,7 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
-                .thenReturn("valid", "true", "TriageResult", "Draft")
+                .thenReturn("valid", "true", "BFTriageResult", "Draft")
                 .deploy(rule);
 
         whenAtCallActivity("BF_QA")
@@ -162,7 +162,7 @@ public class BF {
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
-                .thenReturn("valid", "true", "TriageResult", "Complete")
+                .thenReturn("valid", "true", "BFTriageResult", "Complete")
                 .deploy(rule);
 
         Scenario.run(processScenario)

@@ -84,7 +84,7 @@ public class COMP_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("valid", true)));
 
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_REGISTRATION", Map.of("Channel", "Webform"))
+                .startByKey("COMP_REGISTRATION", Map.of("XOriginatedFrom", "Webform"))
                 .execute();
 
         verify(compRegistrationProcess, times(2))
@@ -103,7 +103,7 @@ public class COMP_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("valid", true, "WebformComplaintInvalid", "Yes")));
 
         Scenario.run(compRegistrationProcess)
-                .startByKey("COMP_REGISTRATION", Map.of("Channel", "Webform"))
+                .startByKey("COMP_REGISTRATION", Map.of("XOriginatedFrom", "Webform"))
                 .execute();
 
         verify(compRegistrationProcess)
