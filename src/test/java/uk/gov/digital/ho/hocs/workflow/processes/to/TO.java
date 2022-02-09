@@ -32,7 +32,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/TO_CAMPAIGN.bpmn",
         "processes/TO_STOP_LIST.bpmn",
         "processes/TO_HOME_SEC.bpmn",
-        "processes/TO_DISPATCH.bpmn"
+        "processes/TO_DISPATCH.bpmn",
+        "processes/TO_EARLY_CLOSURE.bpmn"
 })
 public class TO {
 
@@ -45,6 +46,7 @@ public class TO {
     private static final String DRAFT = "TO_DRAFT";
     private static final String HOME_SEC = "TO_HOME_SEC";
     private static final String DISPATCH = "TO_DISPATCH";
+    private static final String EARLY_CLOSURE = "TO_EARLY_CLOSURE";
 
     // SERVICE TASKS
     private static final String START = "TO_START";
@@ -139,6 +141,9 @@ public class TO {
         verify(TOProcess, times(0))
                 .hasCompleted(STOP_LIST);
 
+        verify(TOProcess, times(0))
+                .hasCompleted(EARLY_CLOSURE);
+
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
     }
@@ -154,6 +159,9 @@ public class TO {
                 .alwaysReturn("TriageOutcome", CLOSE_CASE)
                 .deploy(rule);
 
+        whenAtCallActivity(EARLY_CLOSURE)
+                .deploy(rule);
+
         Scenario.run(TOProcess)
                 .startByKey("TO")
                 .execute();
@@ -166,6 +174,9 @@ public class TO {
 
         verify(TOProcess, times(1))
                 .hasCompleted(TRIAGE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(EARLY_CLOSURE);
 
         verify(TOProcess, times(1))
                 .hasCompleted(COMPLETE_CASE);
@@ -185,6 +196,132 @@ public class TO {
 
         verify(TOProcess, times(0))
                 .hasCompleted(QA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(DISPATCH);
+
+        // CASE COMPLETED
+        verify(bpmnService).completeCase(any());
+    }
+
+    @Test
+    public void testCloseAtDraft() {
+        whenAtCallActivity(DATA_INPUT)
+                .deploy(rule);
+
+        whenAtCallActivity(TRIAGE)
+                .alwaysReturn("BusAreaStatus", "Confirmed")
+                .alwaysReturn("TriageOutcome", SEND_TO_DRAFT)
+                .deploy(rule);
+
+        whenAtCallActivity(DRAFT)
+                .alwaysReturn("BusAreaStatus", "Confirmed")
+                .alwaysReturn("DraftStatus", CLOSE_CASE)
+                .deploy(rule);
+
+        whenAtCallActivity(EARLY_CLOSURE)
+                .deploy(rule);
+
+        Scenario.run(TOProcess)
+                .startByKey("TO")
+                .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(START);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(DATA_INPUT);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TRIAGE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(DRAFT);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(EARLY_CLOSURE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(COMPLETE_CASE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(END);
+
+        // NOT CALLED CHECK
+        verify(TOProcess, times(0))
+                .hasCompleted(CAMPAIGN);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(STOP_LIST);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(QA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(DISPATCH);
+
+        // CASE COMPLETED
+        verify(bpmnService).completeCase(any());
+    }
+
+    @Test
+    public void testCloseAtQA() {
+        whenAtCallActivity(DATA_INPUT)
+                .deploy(rule);
+
+        whenAtCallActivity(TRIAGE)
+                .alwaysReturn("BusAreaStatus", "Confirmed")
+                .alwaysReturn("TriageOutcome", SEND_TO_DRAFT)
+                .deploy(rule);
+
+        whenAtCallActivity(DRAFT)
+                .alwaysReturn("BusAreaStatus", "Confirmed")
+                .alwaysReturn("DraftStatus", SEND_TO_QA)
+                .deploy(rule);
+
+        whenAtCallActivity(QA)
+                .alwaysReturn("BusAreaStatus", "Confirmed")
+                .alwaysReturn("QaStatus", CLOSE_CASE)
+                .deploy(rule);
+
+        whenAtCallActivity(EARLY_CLOSURE)
+                .deploy(rule);
+
+        Scenario.run(TOProcess)
+                .startByKey("TO")
+                .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(START);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(DATA_INPUT);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TRIAGE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(DRAFT);
+
+
+        verify(TOProcess, times(1))
+                .hasCompleted(QA);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(EARLY_CLOSURE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(COMPLETE_CASE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(END);
+
+        // NOT CALLED CHECK
+        verify(TOProcess, times(0))
+                .hasCompleted(CAMPAIGN);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(STOP_LIST);
 
         verify(TOProcess, times(0))
                 .hasCompleted(DISPATCH);
@@ -436,6 +573,9 @@ public class TO {
         verify(TOProcess, times(0))
                 .hasCompleted(STOP_LIST);
 
+        verify(TOProcess, times(0))
+                .hasCompleted(EARLY_CLOSURE);
+
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
 
@@ -553,6 +693,9 @@ public class TO {
         verify(TOProcess, times(0))
                 .hasCompleted(CAMPAIGN);
 
+        verify(TOProcess, times(0))
+                .hasCompleted(EARLY_CLOSURE);
+
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
 
@@ -630,6 +773,9 @@ public class TO {
         verify(TOProcess, times(0))
                 .hasCompleted(HOME_SEC);
 
+        verify(TOProcess, times(0))
+                .hasCompleted(EARLY_CLOSURE);
+
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
     }
@@ -701,6 +847,9 @@ public class TO {
 
         verify(TOProcess, times(0))
                 .hasCompleted(STOP_LIST);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(EARLY_CLOSURE);
 
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
@@ -780,6 +929,9 @@ public class TO {
         // NOT CALLED CHECK
         verify(TOProcess, times(0))
                 .hasCompleted(HOME_SEC);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(EARLY_CLOSURE);
 
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
