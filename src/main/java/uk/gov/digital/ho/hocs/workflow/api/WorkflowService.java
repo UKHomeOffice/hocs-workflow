@@ -37,6 +37,7 @@ import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_CLOSE_ERROR;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES;
 
 @Service
 @Slf4j
@@ -81,15 +82,18 @@ public class WorkflowService {
         caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
-        if (receivedData != null && Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)) {
-            // If we have a name we have correspondent details attached to the case creation request
-            if(receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
+        if (receivedData != null) {
+            // If FOI and we have a name we have correspondent details attached to the case creation reques
+            if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)
+                    && receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
                 correspondentRequest = buildCorrespondentRequest(receivedData);
 
                 caseData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
                 caseData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
                 caseData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
                 caseData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
+            } else if (isCreationForCompWebformCase(caseDataType, receivedData)) {
+                caseData.putAll(receivedData);
             }
         }
 
@@ -401,9 +405,15 @@ public class WorkflowService {
         camundaClient.removeProcess(stageUuid);
     }
 
-    private boolean isCreationForCompWebformCase(String caseDataType, Map<String, String> receivedData) {
-        return Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_COMP)
-                    && Objects.equals(receivedData.get(WorkflowConstants.CHANNEL), WorkflowConstants.CHANNEL_COMP_WEBFORM);
+    public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, Map<String, String> request) {
+        log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
+        camundaClient.updateTask(stageUUID, request);
+        caseworkClient.updateCase(caseUUID, stageUUID, request);
+        log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
     }
 
+    private boolean isCreationForCompWebformCase(String caseDataType, Map<String, String> receivedData) {
+        return Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_COMP)
+                    && Objects.equals(receivedData.get(WorkflowConstants.CHANNEL_COMP_ORIGINATEDFROM), WorkflowConstants.CHANNEL_COMP_WEBFORM);
+    }
 }

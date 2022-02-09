@@ -34,9 +34,9 @@ public enum LogEvent {
     REST_HELPER_GET_FORBIDDEN,
     REST_HELPER_GET_NOT_FOUND,
     REST_HELPER_GET_BAD_REQUEST,
-    CACHE_PRIME_FAILED,
     MIGRATION_EVENT,
-    CASE_CLOSE_ERROR;
+    CASE_CLOSE_ERROR,
+    WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES;
     public static final String EVENT = "event_id";
     public static final String EXCEPTION = "exception";
 }

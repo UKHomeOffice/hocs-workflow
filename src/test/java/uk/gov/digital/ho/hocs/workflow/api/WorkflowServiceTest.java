@@ -63,6 +63,8 @@ public class WorkflowServiceTest {
     ArgumentCaptor<CreateCaseworkCorrespondentRequest> argumentCaptor;
 
     @Captor
+    ArgumentCaptor<Map<String, String>> caseDateArgumentCaptor;
+    @Captor
     ArgumentCaptor<Map<String, String>> seedDateArgumentCaptor;
 
     @Spy
@@ -163,17 +165,21 @@ public class WorkflowServiceTest {
         LocalDate dateReceived = LocalDate.EPOCH;
         List<DocumentSummary> documents =  new ArrayList<>();
         UUID userUUID = UUID.randomUUID();
-        Map<String, String> receivedData = Map.of(WorkflowConstants.CHANNEL, WorkflowConstants.CHANNEL_COMP_WEBFORM);
+        Map<String, String> receivedData = Map.of(
+                WorkflowConstants.CHANNEL, WorkflowConstants.CHANNEL_COMP_WEBFORM,
+                WorkflowConstants.CHANNEL_COMP_ORIGINATEDFROM, WorkflowConstants.CHANNEL_COMP_WEBFORM
+                );
         CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(UUID.randomUUID(), null);
 
-        when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
+        when(caseworkClient.createCase(any(), caseDateArgumentCaptor.capture(), any(), any())).thenReturn(createCaseworkCaseResponse);
 
         CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID,null, receivedData);
         assertThat(output.getUuid()).isNotNull();
         verify(camundaClient, times(1)).startCase(any(), any(), seedDateArgumentCaptor.capture());
         verify(caseworkClient, times(0)).saveCorrespondent(any(), any(), any());
-
-        assertThat(seedDateArgumentCaptor.getValue()).containsEntry(WorkflowConstants.CHANNEL, WorkflowConstants.CHANNEL_COMP_WEBFORM);
+        
+        assertThat(seedDateArgumentCaptor.getValue()).containsAllEntriesOf(receivedData);
+        assertThat(seedDateArgumentCaptor.getValue()).containsAllEntriesOf(receivedData);
     }
 
     @Test

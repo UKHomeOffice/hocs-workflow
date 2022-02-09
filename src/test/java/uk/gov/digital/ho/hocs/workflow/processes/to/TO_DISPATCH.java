@@ -38,6 +38,7 @@ public class TO_DISPATCH {
     // USER AND SERVICE TASKS
     private static final String TO_DISPATCH_FINAL_RESPONSE = "TO_DISPATCH_FINAL_RESPONSE";
     private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
+    private static final String TO_GET_STOP_LIST = "Activity_1iw3bp3";
 
     @Rule
     @ClassRule
@@ -121,6 +122,9 @@ public class TO_DISPATCH {
                 .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,SAVE)))
                 .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,STOP_LIST)));
 
+        when(TOProcess.waitsAtUserTask(TO_GET_STOP_LIST))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD)));
+
         Scenario.run(TOProcess)
                 .startByKey("TO_DISPATCH")
                 .execute();
@@ -128,6 +132,8 @@ public class TO_DISPATCH {
         verify(TOProcess, times(2))
                 .hasCompleted(TO_DISPATCH_FINAL_RESPONSE);
 
+        verify(TOProcess, times(1))
+                .hasCompleted(TO_GET_STOP_LIST);
 
         // NOT CALLED PROCESSES
 

@@ -457,7 +457,12 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(STOP_LIST)
-                .alwaysReturn("StopListOutcome", SEND_TO_DRAFT)
+                .thenReturn("BusAreaStatus", "Transferred")
+                .thenReturn("StopListOutcome", SEND_TO_DRAFT, "BusAreaStatus", "Confirmed")
+                .thenReturn("StopListOutcome", SEND_TO_DRAFT)
+                .thenReturn("StopListOutcome", SEND_TO_DRAFT)
+                .thenReturn("StopListOutcome", SEND_TO_DRAFT)
+                .thenReturn("StopListOutcome", SEND_TO_DRAFT)
                 .deploy(rule);
 
         Scenario.run(TOProcess)
@@ -473,7 +478,7 @@ public class TO {
         verify(TOProcess, times(1))
                 .hasCompleted(TRIAGE);
 
-        verify(TOProcess, times(5))
+        verify(TOProcess, times(6))
                 .hasCompleted(STOP_LIST);
 
         verify(TOProcess, times(5))
@@ -729,4 +734,5 @@ public class TO {
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
     }
+
 }

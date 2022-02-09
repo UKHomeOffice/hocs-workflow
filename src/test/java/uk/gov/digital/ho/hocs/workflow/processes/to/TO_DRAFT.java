@@ -37,12 +37,15 @@ public class TO_DRAFT {
     private static final String CHANGE_BUSINESS_AREA = "ChangeBusinessArea";
     private static final String PUT_ON_CAMPAIGN = "PutOnCampaign";
     private static final String BACKWARD = "BACKWARD";
+    private static final String SEND_TO_TRIAGE = "SendToTriage";
 
     // USER AND SERVICE TASKS
     private static final String TO_DRAFT_UPLOAD_DOC = "TO_DRAFT_UPLOAD_DOC";
     private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
     private static final String UPDATE_BUS_AREA_STATUS = "UPDATE_BUS_AREA_STATUS";
     private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
+    private static final String TO_DRAFT_REJECTION_NOTE = "TO_DRAFT_REJECTION_NOTE";
+    private static final String TO_DRAFT_REJECT_CASE_NOTE = "TO_DRAFT_REJECT_CASE_NOTE";
 
 
     @Rule
@@ -135,6 +138,33 @@ public class TO_DRAFT {
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
+    }
+
+    @Test
+    public void shouldProgressToRejectionNoteGoBackThenBackToRejectionNoteAndComplete() {
+
+        when(TOProcess.waitsAtUserTask(TO_DRAFT_UPLOAD_DOC))
+                .thenReturn(task -> task.complete(withVariables(
+                        DRAFT_STATUS, SEND_TO_TRIAGE,
+                        DIRECTION, FORWARD
+                )));
+
+        when(TOProcess.waitsAtUserTask(TO_DRAFT_REJECTION_NOTE))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD)))
+                .thenReturn(task -> task.complete());
+
+        Scenario.run(TOProcess)
+                .startByKey("TO_DRAFT")
+                .execute();
+
+        verify(TOProcess, times(2))
+                .hasCompleted(TO_DRAFT_UPLOAD_DOC);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TO_DRAFT_REJECT_CASE_NOTE);
 
         verify(TOProcess, times(1))
                 .hasCompleted(UPDATE_BUS_AREA_STATUS);
