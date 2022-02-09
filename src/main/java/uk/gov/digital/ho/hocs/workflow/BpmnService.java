@@ -574,6 +574,12 @@ public class BpmnService {
 
     }
 
+    public void debug(String var1) {
+
+        String var = var1;
+
+    }
+
     public void unallocateUserFromStage(String caseUUIDString, String stageUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
