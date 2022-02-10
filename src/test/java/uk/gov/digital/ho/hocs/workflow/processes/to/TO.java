@@ -223,11 +223,13 @@ public class TO {
         whenAtCallActivity(TRIAGE)
                 .alwaysReturn("BusAreaStatus", "Confirmed")
                 .alwaysReturn("TriageOutcome", SEND_TO_DRAFT)
+                .alwaysReturn("HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DRAFT)
                 .alwaysReturn("BusAreaStatus", "Confirmed")
                 .alwaysReturn("DraftStatus", SEND_TO_DISPATCH)
+                .alwaysReturn("HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
