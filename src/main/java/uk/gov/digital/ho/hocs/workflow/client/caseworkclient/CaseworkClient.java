@@ -113,17 +113,15 @@ public class CaseworkClient {
         return response;
     }
 
-    public UUID createStage(UUID caseUUID, String stageType, UUID teamUUID, UUID userUUID, String allocationType) {
-        CreateCaseworkStageRequest request = new CreateCaseworkStageRequest(stageType, teamUUID, userUUID, allocationType);
+    public UUID createStage(UUID caseUUID, CreateCaseworkStageRequest request) {
         CreateCaseworkStageResponse response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         log.info("Created Stage: {} for Case {}", response.getUuid(), caseUUID);
         return response.getUuid();
     }
 
-    public void recreateStage(UUID caseUUID, UUID stageUUID, String stageType) {
-        RecreateCaseworkStageRequest request = new RecreateCaseworkStageRequest(stageUUID, stageType);
-        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/recreate", caseUUID, stageUUID), request, Void.class);
-        log.info("Recreated Stage: {} for Case {}", stageUUID, caseUUID);
+    public void recreateStage(UUID caseUUID, RecreateCaseworkStageRequest recreateStageRequest) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/recreate", caseUUID, recreateStageRequest.getStageUUID()), recreateStageRequest, Void.class);
+        log.info("Recreated Stage: {} for Case {}", recreateStageRequest, caseUUID);
     }
 
     public UUID updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {

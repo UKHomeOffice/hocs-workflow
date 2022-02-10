@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Getter
+@ToString
 public class RecreateCaseworkStageRequest {
 
     @JsonProperty("stageUUID")
@@ -19,5 +21,11 @@ public class RecreateCaseworkStageRequest {
 
     @JsonProperty("stageType")
     private String stageType;
+
+    @JsonProperty("teamUUID")
+    private UUID teamUUID;
+
+    @JsonProperty("userUUID")
+    private UUID userUUID;
 
 }
