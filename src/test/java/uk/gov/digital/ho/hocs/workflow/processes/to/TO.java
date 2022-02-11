@@ -31,8 +31,6 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/TO_QA.bpmn",
         "processes/TO_CAMPAIGN.bpmn",
         "processes/TO_STOP_LIST.bpmn",
-        "processes/TO_HOME_SEC_INTEREST.bpmn",
-        "processes/TO_HOME_SEC.bpmn",
         "processes/TO_DISPATCH.bpmn",
         "processes/TO_EARLY_CLOSURE.bpmn"
 })
