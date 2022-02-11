@@ -45,6 +45,6 @@ public class HocsFormField {
         props.put("label", title);
         props.put("name", UUID.randomUUID());
 
-        return new HocsFormField("text", new String[0], props);
+        return new HocsFormField("text", null, props);
     }
 }
