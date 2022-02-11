@@ -31,7 +31,6 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/TO_QA.bpmn",
         "processes/TO_CAMPAIGN.bpmn",
         "processes/TO_STOP_LIST.bpmn",
-        "processes/TO_HOME_SEC.bpmn",
         "processes/TO_DISPATCH.bpmn",
         "processes/TO_EARLY_CLOSURE.bpmn"
 })
@@ -45,6 +44,7 @@ public class TO {
     private static final String STOP_LIST = "TO_STOP_LIST";
     private static final String DRAFT = "TO_DRAFT";
     private static final String HOME_SEC = "TO_HOME_SEC";
+    private static final String HOME_SEC_INTEREST = "TO_HOME_SEC";
     private static final String DISPATCH = "TO_DISPATCH";
     private static final String EARLY_CLOSURE = "TO_EARLY_CLOSURE";
 
@@ -99,7 +99,7 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "")
+                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -348,7 +348,7 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .alwaysReturn("QaStatus", SEND_TO_DISPATCH)
-                .alwaysReturn("HomeSecInt", "Yes")
+                .alwaysReturn("HomeSecInterest", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity(HOME_SEC)
@@ -411,11 +411,13 @@ public class TO {
         whenAtCallActivity(TRIAGE)
                 .alwaysReturn("BusAreaStatus", "Confirmed")
                 .alwaysReturn("TriageOutcome", SEND_TO_DRAFT)
+                .alwaysReturn("HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DRAFT)
                 .alwaysReturn("BusAreaStatus", "Confirmed")
                 .alwaysReturn("DraftStatus", SEND_TO_DISPATCH)
+                .alwaysReturn("HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -499,19 +501,19 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", PUT_ON_CAMPAIGN
                 )
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .thenReturn(
-                        "HomeSecInt", "No",
+                        "HomeSecInterest", "No",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .deploy(rule);
@@ -619,19 +621,19 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_STOP_LIST
                 )
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .thenReturn(
-                        "HomeSecInt", "No",
+                        "HomeSecInterest", "No",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .deploy(rule);
@@ -728,7 +730,7 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "")
+                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -797,8 +799,8 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .thenReturn("QaStatus", SEND_TO_DRAFT)
-                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "Yes")
-                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "Yes")
+                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "Yes")
+                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity(HOME_SEC)
@@ -885,7 +887,7 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .thenReturn("QaStatus", SEND_TO_TRIAGE)
-                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "")
+                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
