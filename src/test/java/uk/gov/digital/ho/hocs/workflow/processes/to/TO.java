@@ -60,7 +60,7 @@ public class TO {
     private static final String SEND_TO_QA = "SendToQA";
     private static final String SEND_TO_DISPATCH = "SendToDispatch";
     private static final String SEND_TO_STOP_LIST = "SendToStopList";
-    private static final String REJECT_DRAFT = "RejectDraft";
+    private static final String REJECT_DRAFT = "SendToDraft";
     private static final String CLOSE_CASE = "CloseCase";
 
 
