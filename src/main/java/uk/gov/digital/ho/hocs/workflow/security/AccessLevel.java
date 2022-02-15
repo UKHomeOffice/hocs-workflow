@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 @Getter
 public enum AccessLevel {
-    UNSET(0), SUMMARY(1), READ(2), WRITE(3), OWNER(5), CASE_ADMIN(6);
+    UNSET(0), MIGRATE(1), SUMMARY(2), READ(3), WRITE(4), OWNER(5), CASE_ADMIN(6);
 
     private int level;
 
