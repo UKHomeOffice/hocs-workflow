@@ -88,9 +88,9 @@ public class CaseworkClientTest {
     @Test
     public void recreateStage() {
         String expectedUrl = String.format("/case/%s/stage/%s/recreate", caseUUID, stageUUID);
-        RecreateCaseworkStageRequest expectedBody = new RecreateCaseworkStageRequest(stageUUID, stageType);
+        RecreateCaseworkStageRequest expectedBody = new RecreateCaseworkStageRequest(stageUUID, stageType, stageUUID, userUUID);
 
-        caseworkClient.recreateStage(caseUUID, stageUUID, stageType);
+        caseworkClient.recreateStage(caseUUID, expectedBody);
 
         verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), eq(expectedBody), eq(Void.class));
 
