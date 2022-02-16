@@ -74,10 +74,7 @@ public class WorkflowService {
         this.userPermissionsService = userPermissionsService;
     }
 
-    public CreateCaseResponse buildCaseCreateRequest(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData, Boolean migrate) {
-        // Create a case in the casework service in order to get a reference back to display to the user.
-        CreateCaseworkCorrespondentRequest correspondentRequest = null;
-
+    private Map<String, String> buildCaseData(String caseDataType, LocalDate dateReceived, UUID userUUID, Map<String, String> receivedData) {
         Map<String, String> caseData = new HashMap<>();
         caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
@@ -86,7 +83,6 @@ public class WorkflowService {
             // If FOI and we have a name we have correspondent details attached to the case creation reques
             if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)
                     && receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
-                correspondentRequest = buildCorrespondentRequest(receivedData);
 
                 caseData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
                 caseData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
@@ -97,15 +93,17 @@ public class WorkflowService {
             }
         }
 
-        CreateCaseworkCaseResponse caseResponse;
+        return caseData;
+    }
 
-        if (migrate) {
-            caseResponse = caseworkClient.migrateCase(caseDataType, caseData, dateReceived, fromCaseUUID);
-        } else {
-            caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
-        }
-
+    private CreateCaseResponse buildCreateCaseResponse(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, Map<String, String> receivedData, CreateCaseworkCaseResponse caseResponse) {
         UUID caseUUID = caseResponse.getUuid();
+        CreateCaseworkCorrespondentRequest correspondentRequest = null;
+
+        if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)
+                && receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
+            correspondentRequest = buildCorrespondentRequest(receivedData);
+        }
 
         if (caseUUID != null) {
             // Add Documents to the case
@@ -143,11 +141,19 @@ public class WorkflowService {
     }
 
     public CreateCaseResponse migrateCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
-        return buildCaseCreateRequest(caseDataType, dateReceived, documents, userUUID, fromCaseUUID, receivedData, true);
+        Map<String, String> caseData = buildCaseData(caseDataType, dateReceived,  userUUID, receivedData);
+
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.migrateCase(caseDataType, caseData, dateReceived, fromCaseUUID);
+
+        return buildCreateCaseResponse(caseDataType, dateReceived, documents, userUUID, receivedData, caseResponse);
     }
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
-        return buildCaseCreateRequest(caseDataType, dateReceived, documents, userUUID, fromCaseUUID, receivedData, false);
+        Map<String, String> caseData = buildCaseData(caseDataType, dateReceived,  userUUID, receivedData);
+
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
+
+        return buildCreateCaseResponse(caseDataType, dateReceived, documents, userUUID, receivedData, caseResponse);
     }
 
     private CreateCaseworkCorrespondentRequest buildCorrespondentRequest(Map<String, String> data) {
