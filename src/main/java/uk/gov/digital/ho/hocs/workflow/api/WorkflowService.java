@@ -155,7 +155,7 @@ public class WorkflowService {
     }
 
     public void createDocument(UUID caseUUID, UUID actionDataItemUuid, List<DocumentSummary> documents) {
-        UUID creatingUserUUID = userPermissionsService.getUserId();
+
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
@@ -166,7 +166,7 @@ public class WorkflowService {
                         document.getS3UntrustedUrl(),
                         caseUUID,
                         actionDataItemUuid,
-                        creatingUserUUID
+                        userPermissionsService.getUserId()
                 );
 
                 documentClient.createDocument(caseUUID, request);
@@ -182,7 +182,7 @@ public class WorkflowService {
                         document.getDisplayName(),
                         document.getType(),
                         document.getS3UntrustedUrl(),
-                        null,
+                        caseUUID,
                         null,
                         userPermissionsService.getUserId()
                 );
