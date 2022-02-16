@@ -39,14 +39,13 @@ public class TO_HOME_SEC {
     private static final String SEND_TO_DRAFT = "SendToDraft";
     private static final String SEND_TO_TRIAGE = "SendToTriage";
     private static final String SEND_TO_DISPATCH = "SendToDispatch";
+    private static final String SEND_TO_STOP_LIST = "SendToStopList";
     private static final String PUT_ON_CAMPAIGN = "PutOnCampaign";
 
     // USER AND SERVICE TASKS
     private static final String HOME_SEC_INPUT = "HOME_SEC_INPUT";
-    private static final String UPDATE_BUS_AREA_STATUS = "Activity_0xtxyl6";
-    private static final String TO_ENQUIRY_SUBJECT_REASON = "TO_ENQUIRY_SUBJECT_REASON";
-    private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
     private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
+    private static final String TO_GET_STOP_LIST = "TO_GET_STOP_LIST";
     private static final String TO_CASE_REJECTED = "CASE_REJECTED";
     private static final String SAVE_REJECT_CASE_NOTE = "Activity_0d5e4m4";
 
@@ -69,14 +68,38 @@ public class TO_HOME_SEC {
     }
 
     @Test
-    public void shouldSetEnquiryAndComplete() {
+    public void shouldApproveAndComplete() {
 
         when(TOProcess.waitsAtUserTask(HOME_SEC_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, HOME_SEC_STATUS, SEND_TO_DISPATCH)));
+                .thenReturn(task -> task.complete(withVariables(HOME_SEC_STATUS, SEND_TO_DISPATCH)));
 
-        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
-                .deploy(rule);
+        Scenario.run(TOProcess)
+                .startByKey("TO_HOME_SEC")
+                .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(HOME_SEC_INPUT);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_CASE_REJECTED);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_REJECT_CASE_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_GET_CAMPAIGN_TYPE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_GET_STOP_LIST);
+
+    }
+
+    @Test
+    public void shouldSaveThenApproveAndComplete() {
+
+        when(TOProcess.waitsAtUserTask(HOME_SEC_INPUT))
+                .thenReturn(task -> task.complete(withVariables(HOME_SEC_STATUS, SAVE)))
+                .thenReturn(task -> task.complete(withVariables(HOME_SEC_STATUS, SEND_TO_DISPATCH)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_HOME_SEC")
@@ -85,33 +108,29 @@ public class TO_HOME_SEC {
         verify(TOProcess, times(2))
                 .hasCompleted(HOME_SEC_INPUT);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
-
         verify(TOProcess, times(0))
                 .hasCompleted(TO_CASE_REJECTED);
 
         verify(TOProcess, times(0))
                 .hasCompleted(SAVE_REJECT_CASE_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_GET_CAMPAIGN_TYPE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_GET_STOP_LIST);
+
     }
 
+
     @Test
-    public void shouldGetCampaignTypeAndComplete() {
+    public void shouldGetCampaignTypeAndGoBackThenForwardAndComplete() {
 
         when(TOProcess.waitsAtUserTask(HOME_SEC_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, HOME_SEC_STATUS, PUT_ON_CAMPAIGN)));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD, HOME_SEC_STATUS, PUT_ON_CAMPAIGN)))
+                .thenReturn(task -> task.complete(withVariables(HOME_SEC_STATUS, SEND_TO_DISPATCH)));
 
         when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(task -> task.complete());
-
-        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
-                .deploy(rule);
 
         Scenario.run(TOProcess)
                 .startByKey("TO_HOME_SEC")
@@ -120,131 +139,56 @@ public class TO_HOME_SEC {
         verify(TOProcess, times(1))
                 .hasCompleted(TO_GET_CAMPAIGN_TYPE);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
-
         verify(TOProcess, times(0))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+                .hasCompleted(SAVE_REJECT_CASE_NOTE);
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_CASE_REJECTED);
 
         verify(TOProcess, times(0))
                 .hasCompleted(SAVE_REJECT_CASE_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_GET_STOP_LIST);
     }
 
     @Test
-    public void shouldSetEnquiryAndSaveAndComplete() {
+    public void shouldGetStopListAndGoBackAndGoForwardAndComplete() {
 
         when(TOProcess.waitsAtUserTask(HOME_SEC_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, HOME_SEC_STATUS, SAVE)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD, HOME_SEC_STATUS, SEND_TO_STOP_LIST)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, HOME_SEC_STATUS, SEND_TO_DISPATCH)));
 
-        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON).deploy(rule);
+        when(TOProcess.waitsAtUserTask(TO_GET_STOP_LIST)).thenReturn(task -> task.complete());
 
         Scenario.run(TOProcess)
                 .startByKey("TO_HOME_SEC")
                 .execute();
 
-        verify(TOProcess, times(3))
-                .hasCompleted(HOME_SEC_INPUT);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_GET_CAMPAIGN_TYPE);
 
         verify(TOProcess, times(0))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+                .hasCompleted(SAVE_REJECT_CASE_NOTE);
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_CASE_REJECTED);
 
         verify(TOProcess, times(0))
                 .hasCompleted(SAVE_REJECT_CASE_NOTE);
-    }
 
-    @Test
-    public void shouldChangeBusinessAreaAndComplete() {
-
-        when(TOProcess.waitsAtUserTask(HOME_SEC_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)));
-
-        whenAtCallActivity(TO_CHANGE_BUSINESS_AREA)
-                .thenReturn("BusAreaStatus", "Transferred", DIRECTION, FORWARD, "TROFTeamUUID", "e4925c53-cbec-4690-a9f0-e09111fb281f")
-                .deploy(rule);
-
-        Scenario.run(TOProcess)
-                .startByKey("TO_HOME_SEC")
-                .execute();
+        verify(TOProcess, times(0))
+                .hasCompleted(TO_GET_CAMPAIGN_TYPE);
 
         verify(TOProcess, times(1))
-                .hasCompleted(HOME_SEC_INPUT);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_CASE_REJECTED);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(SAVE_REJECT_CASE_NOTE);
-    }
-
-    @Test
-    public void shouldChangeBusinessAreaAndGoBackAndSetEnquiryAndComplete() {
-
-        when(TOProcess.waitsAtUserTask(HOME_SEC_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD, HOME_SEC_STATUS, SEND_TO_DISPATCH)));
-
-        whenAtCallActivity(TO_CHANGE_BUSINESS_AREA)
-                .thenReturn(DIRECTION, BACKWARD)
-                .deploy(rule);
-
-        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
-                .deploy(rule);
-
-        Scenario.run(TOProcess)
-                .startByKey("TO_HOME_SEC")
-                .execute();
-
-        verify(TOProcess, times(3))
-                .hasCompleted(HOME_SEC_INPUT);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_CASE_REJECTED);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(SAVE_REJECT_CASE_NOTE);
+                .hasCompleted(TO_GET_STOP_LIST);
     }
 
     @Test
     public void testRejectCaseBackThenRejectCaseForward() {
         when(TOProcess.waitsAtUserTask(HOME_SEC_INPUT))
                 .thenReturn(task -> task.complete(withVariables(HOME_SEC_STATUS, SEND_TO_DRAFT, DIRECTION, FORWARD)))
-                .thenReturn(task -> task.complete(withVariables(HOME_SEC_STATUS, SEND_TO_DRAFT, DIRECTION, FORWARD)));
+                .thenReturn(task -> task.complete(withVariables(HOME_SEC_STATUS, SEND_TO_TRIAGE, DIRECTION, FORWARD)));
 
         when(TOProcess.waitsAtUserTask(TO_CASE_REJECTED))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION,BACKWARD)))
@@ -262,16 +206,6 @@ public class TO_HOME_SEC {
 
         verify(TOProcess, times(1))
                 .hasCompleted(SAVE_REJECT_CASE_NOTE);
-
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
-
-        // Not invoked
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
 
     }
 }
