@@ -74,7 +74,7 @@ public class WorkflowService {
         this.userPermissionsService = userPermissionsService;
     }
 
-    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
+    public CreateCaseResponse buildCaseCreateRequest(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData, Boolean migrate) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
@@ -97,7 +97,14 @@ public class WorkflowService {
             }
         }
 
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
+        CreateCaseworkCaseResponse caseResponse;
+
+        if (migrate) {
+            caseResponse = caseworkClient.migrateCase(caseDataType, caseData, dateReceived, fromCaseUUID);
+        } else {
+            caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
+        }
+
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
@@ -133,6 +140,14 @@ public class WorkflowService {
             throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
+    }
+
+    public CreateCaseResponse migrateCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
+        return buildCaseCreateRequest(caseDataType, dateReceived, documents, userUUID, fromCaseUUID, receivedData, true);
+    }
+
+    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
+        return buildCaseCreateRequest(caseDataType, dateReceived, documents, userUUID, fromCaseUUID, receivedData, false);
     }
 
     private CreateCaseworkCorrespondentRequest buildCorrespondentRequest(Map<String, String> data) {

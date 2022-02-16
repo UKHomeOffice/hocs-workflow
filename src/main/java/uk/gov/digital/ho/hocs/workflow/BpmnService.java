@@ -103,6 +103,20 @@ public class BpmnService {
         }
     }
 
+    public void migrateCase(@NotNull String caseType, @NotNull String dateReceived, @NotNull String fromCaseUUID) {
+        UUID caseUuid = UUID.fromString(fromCaseUUID);
+        GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUuid);
+        Map<String, String> data = caseData.getData();
+        String userUUID = data.get("LastUpdatedByUserUUID");
+        CreateCaseResponse response = workflowService.migrateCase(caseType, LocalDate.parse(dateReceived), null, UUID.fromString(userUUID), caseUuid, data);
+
+        if (response.getUuid() != null) {
+            log.info("Migrating case for caseType {} from caseUUID {}", caseType, fromCaseUUID);
+        } else {
+            log.error("Failed migrating case for caseType {} from caseUUID {}", caseType, fromCaseUUID);
+        }
+    }
+
     /**
      * This method has now been deprecated, however as Camunda stores a stack of sub-processes to create as cases
      * enter a subprocess, this method needs to remain for completion of stages created, but not completed prior to this
