@@ -33,14 +33,18 @@ public class TO_HOME_SEC {
     private static final String HOME_SEC_STATUS = "HomeSecStatus";
     private static final String BACKWARD = "BACKWARD";
     private static final String FORWARD = "FORWARD";
-    private static final String SET_ENQUIRY = "SetEnquiry";
-    private static final String CHANGE_BUSINESS_AREA = "ChangeBusinessArea";
     private static final String SAVE = "Save";
     private static final String SEND_TO_DRAFT = "SendToDraft";
     private static final String SEND_TO_TRIAGE = "SendToTriage";
     private static final String SEND_TO_DISPATCH = "SendToDispatch";
     private static final String SEND_TO_STOP_LIST = "SendToStopList";
     private static final String PUT_ON_CAMPAIGN = "PutOnCampaign";
+    private static final String CLEAR_REJ_NOTE = "Activity_0qr7nqk";
+    private static final String UPDATE_APPROVAL_Approved = "Activity_1c62b9x";
+    private static final String UPDATE_APPROVAL_STOP_LIST_DecisionNotYetMade = "Activity_133xh4v";
+    private static final String UPDATE_APPROVAL_CAMPAIGN_DecisionNotYetMade = "Activity_0ff2k6a";
+    private static final String UPDATE_APPROVAL_Rejected = "Activity_1ku6hqd";
+
 
     // USER AND SERVICE TASKS
     private static final String HOME_SEC_INPUT = "HOME_SEC_INPUT";
@@ -80,6 +84,21 @@ public class TO_HOME_SEC {
         verify(TOProcess, times(1))
                 .hasCompleted(HOME_SEC_INPUT);
 
+        verify(TOProcess, times(1))
+                .hasCompleted(CLEAR_REJ_NOTE);
+
+        verify(TOProcess, times(2))
+               .hasCompleted(UPDATE_APPROVAL_Approved);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_STOP_LIST_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_CAMPAIGN_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_Rejected);
+
         verify(TOProcess, times(0))
                 .hasCompleted(TO_CASE_REJECTED);
 
@@ -107,6 +126,21 @@ public class TO_HOME_SEC {
 
         verify(TOProcess, times(2))
                 .hasCompleted(HOME_SEC_INPUT);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(CLEAR_REJ_NOTE);
+
+        verify(TOProcess, times(2))
+                .hasCompleted(UPDATE_APPROVAL_Approved);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_STOP_LIST_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_CAMPAIGN_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_Rejected);
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_CASE_REJECTED);
@@ -150,6 +184,21 @@ public class TO_HOME_SEC {
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_GET_STOP_LIST);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(CLEAR_REJ_NOTE);
+
+        verify(TOProcess, times(2))
+                .hasCompleted(UPDATE_APPROVAL_Approved);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_STOP_LIST_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_CAMPAIGN_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_Rejected);
     }
 
     @Test
@@ -182,6 +231,21 @@ public class TO_HOME_SEC {
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_GET_STOP_LIST);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(CLEAR_REJ_NOTE);
+
+        verify(TOProcess, times(2))
+                .hasCompleted(UPDATE_APPROVAL_Approved);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_STOP_LIST_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_CAMPAIGN_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_Rejected);
     }
 
     @Test
@@ -206,6 +270,21 @@ public class TO_HOME_SEC {
 
         verify(TOProcess, times(1))
                 .hasCompleted(SAVE_REJECT_CASE_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(CLEAR_REJ_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_Approved);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_STOP_LIST_DecisionNotYetMade);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(UPDATE_APPROVAL_CAMPAIGN_DecisionNotYetMade);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_APPROVAL_Rejected);
 
     }
 }
