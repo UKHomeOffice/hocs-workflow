@@ -59,7 +59,11 @@ public class BF2 {
                 .deploy(rule);
 
         whenAtCallActivity("BF2_DRAFT")
-                .thenReturn("valid", "true", "BfDraftResult", "Send")
+                .thenReturn("valid", "true", "BfDraftResult", "QA")
+                .deploy(rule);
+
+        whenAtCallActivity("BF2_QA")
+                .thenReturn("BfQaResult", "Accept")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_SEND")
@@ -74,6 +78,7 @@ public class BF2 {
         verify(processScenario).hasCompleted("CallActivity_BF2_REGISTRATION");
         verify(processScenario).hasCompleted("CallActivity_BF2_TRIAGE");
         verify(processScenario).hasCompleted("CallActivity_BF2_DRAFT");
+        verify(processScenario).hasCompleted("CallActivity_BF2_QA");
         verify(processScenario).hasCompleted("CallActivity_BF2_SEND");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_BF2");
@@ -98,7 +103,11 @@ public class BF2 {
                 .deploy(rule);
 
         whenAtCallActivity("BF2_DRAFT")
-                .thenReturn("valid", "true", "BfDraftResult", "Send")
+                .thenReturn("valid", "true", "BfDraftResult", "QA")
+                .deploy(rule);
+
+        whenAtCallActivity("BF2_QA")
+                .thenReturn("BfQaResult", "Accept")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_SEND")
@@ -114,6 +123,7 @@ public class BF2 {
         verify(processScenario, times(2)).hasCompleted("CallActivity_BF2_TRIAGE");
         verify(processScenario, times(1)).hasCompleted("CallActivity_BF2_DRAFT");
         verify(processScenario, times(2)).hasCompleted("CallActivity_BF2_ESCALATE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF2_QA");
         verify(processScenario, times(1)).hasCompleted("CallActivity_BF2_SEND");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_BF2");
