@@ -5,17 +5,19 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseRequestInterface;
 import uk.gov.digital.ho.hocs.workflow.application.NonMigrationEnvCondition;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.security.filters.AuthFilter;
 
-import java.util.UUID;
+import java.util.*;
 
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_PARSE_ERROR;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAUTHORISED;
+import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 
 @Aspect
 @Component
@@ -25,31 +27,71 @@ public class AuthorisationAspect {
 
     private InfoClient infoClient;
     private UserPermissionsService userService;
+    private final Map<String,AuthFilter> authFilterList = new HashMap<>();
 
-    public AuthorisationAspect(InfoClient infoClient, UserPermissionsService userService) {
+
+    public AuthorisationAspect(InfoClient infoClient, UserPermissionsService userService, List<AuthFilter> authFilters) {
         this.infoClient = infoClient;
         this.userService = userService;
+        authFilters.forEach(filter -> authFilterList.put(filter.getKey(), filter));
     }
 
     @Around("@annotation(authorised)")
     public Object validateUserAccess(ProceedingJoinPoint joinPoint, Authorised authorised) throws Throwable {
-
-
-        int accessLevelAsInt = getUserAccessLevel(joinPoint).getLevel();
-        if (accessLevelAsInt >= getRequiredAccessLevel(authorised).getLevel()) {
+        if (isAllowedToProceed(joinPoint, authorised)) {
 
             Object response = joinPoint.proceed();
-
-            filterResponseByPermissionLevel(response, accessLevelAsInt);
-
-            return response;
+            return filterResponseByPermissionLevel(response, getUserAccessLevel(joinPoint));
         } else {
             throw new SecurityExceptions.PermissionCheckException("User does not have access to the requested resource", SECURITY_UNAUTHORISED);
         }
     }
 
-    private void filterResponseByPermissionLevel(Object unfilteredResponse, int accessLevelAsInt) {
-        log.debug("Filtering out restricted fields");
+    private boolean isAllowedToProceed(ProceedingJoinPoint joinPoint, Authorised authorised) {
+        return (getUserAccessLevel(joinPoint).getLevel() >= getRequiredAccessLevel(authorised).getLevel()) || isPermittedLowerLevel(authorised,getUserAccessLevel(joinPoint).getLevel());
+    }
+
+    private boolean isPermittedLowerLevel(Authorised authorised, int usersLevel) {
+        return Arrays.stream(authorised.permittedLowerLevels()).anyMatch(level -> level.getLevel() == usersLevel);
+    }
+
+    private Object filterResponseByPermissionLevel(Object objectToFilter, AccessLevel userAccessLevel) throws Exception {
+        log.debug("Checking if response filtering is required");
+
+        if (objectToFilter.getClass() != ResponseEntity.class) {
+            return objectToFilter;
+        }
+
+        ResponseEntity<?> responseEntityToFilter = (ResponseEntity<?>) objectToFilter;
+
+        String simpleName;
+        Object object = responseEntityToFilter.getBody();
+        Object[] collectionAsArray = new Object[0];
+
+        if (responseEntityToFilter.getBody() != null && object != null) {
+
+            if (!Collection.class.isAssignableFrom(object.getClass())) {
+                simpleName = object.getClass().getSimpleName();
+            } else {
+                collectionAsArray = ((Collection<?>) object).toArray();
+                if (collectionAsArray.length < 1) {
+                    log.trace("No elements in array, cannot get filter key, setting key to NONE");
+                    simpleName =  "NONE";
+                } else {
+                    simpleName= collectionAsArray[0].getClass().getSimpleName();
+                }
+            }
+
+            AuthFilter filter = authFilterList.get(simpleName);
+
+            if (filter != null) {
+                log.info("Filtering response for {} call.", simpleName, value(EVENT, AUTH_FILTER_SUCCESS));
+                return filter.applyFilter(responseEntityToFilter, userAccessLevel, collectionAsArray);
+            }
+        }
+        log.trace("The response does not need to be filtered.");
+        return objectToFilter;
+
     }
 
     AccessLevel getAccessRequestAccessLevel() {

@@ -13,10 +13,12 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseRequest;
 import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
+import uk.gov.digital.ho.hocs.workflow.security.filters.AuthFilter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +32,9 @@ public class AuthorisationAspectTest {
 
     @Mock
     private InfoClient infoClient;
+
+    @Mock
+    private List<AuthFilter> authFilters;
 
     @Mock
     private Authorised annotation;
@@ -48,7 +53,7 @@ public class AuthorisationAspectTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setMethod("GET");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-        aspect = new AuthorisationAspect(infoClient, userService);
+        aspect = new AuthorisationAspect(infoClient, userService, authFilters);
 
     }
 
