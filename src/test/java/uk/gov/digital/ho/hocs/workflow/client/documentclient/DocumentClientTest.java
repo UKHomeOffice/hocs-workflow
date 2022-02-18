@@ -45,7 +45,7 @@ public class DocumentClientTest {
                 "displayName",
                 "type",
                 "fileLocation",
-                null,
+                caseUuid,
                 null,
                 ownerUUID
         );
@@ -78,7 +78,7 @@ public class DocumentClientTest {
                 "displayName",
                 "type",
                 "fileLocation",
-                null,
+                caseUuid,
                 actionDataItemUuid,
                 ownerUUID
         );
