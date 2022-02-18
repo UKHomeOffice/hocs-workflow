@@ -36,6 +36,7 @@ import static java.util.stream.Collectors.toList;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_CLOSE_ERROR;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_NOTE_FAILED;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES;
 
@@ -405,10 +406,19 @@ public class WorkflowService {
         camundaClient.removeProcess(stageUuid);
     }
 
-    public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, Map<String, String> request) {
+    public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, String caseDataType, Map<String, String> request) {
         log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
         camundaClient.updateTask(stageUUID, request);
         caseworkClient.updateCase(caseUUID, stageUUID, request);
+
+        if (caseDataType != null) {
+            if ("EX_GRATIA_UPDATE".equals(caseDataType)) {
+                caseworkClient.createCaseNote(caseUUID, caseDataType, "Updated Ex-Gratia case data");
+            } else {
+                log.warn("Unable to create case note for case data update of type {}", caseDataType, value(EVENT, CASE_NOTE_FAILED));
+            }
+        }
+
         log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
     }
 
