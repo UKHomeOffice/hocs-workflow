@@ -264,7 +264,7 @@ public class TO_DATA_INPUT {
         verify(TOProcess, times(3))
                 .hasCompleted(CAPTURE_CORRESPONDENT_DETAILS);
 
-        verify(TOProcess, times(3))
+        verify(TOProcess, times(2))
                 .hasCompleted(SAVE_CORRESPONDENT_DETAILS);
 
         verify(TOProcess, times(2))
