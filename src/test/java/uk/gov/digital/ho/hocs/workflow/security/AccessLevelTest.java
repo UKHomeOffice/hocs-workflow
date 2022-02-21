@@ -11,9 +11,10 @@ public class AccessLevelTest {
     @Test
     public void getDisplayValue() {
         assertThat(UNSET.getLevel()).isEqualTo(0);
-        assertThat(SUMMARY.getLevel()).isEqualTo(1);
-        assertThat(READ.getLevel()).isEqualTo(2);
-        assertThat(WRITE.getLevel()).isEqualTo(3);
+        assertThat(MIGRATE.getLevel()).isEqualTo(1);
+        assertThat(SUMMARY.getLevel()).isEqualTo(2);
+        assertThat(READ.getLevel()).isEqualTo(3);
+        assertThat(WRITE.getLevel()).isEqualTo(4);
         assertThat(OWNER.getLevel()).isEqualTo(5);
         assertThat(CASE_ADMIN.getLevel()).isEqualTo(6);
 
@@ -22,11 +23,12 @@ public class AccessLevelTest {
     @Test
     public void shouldNotAccidentallyChangeTheOrder() {
         assertOrderValue(UNSET, 0);
-        assertOrderValue(SUMMARY, 1);
-        assertOrderValue(READ, 2);
-        assertOrderValue(WRITE, 3);
-        assertOrderValue(OWNER, 4);
-        assertOrderValue(CASE_ADMIN, 5);
+        assertOrderValue(MIGRATE, 1);
+        assertOrderValue(SUMMARY, 2);
+        assertOrderValue(READ, 3);
+        assertOrderValue(WRITE, 4);
+        assertOrderValue(OWNER, 5);
+        assertOrderValue(CASE_ADMIN, 6);
     }
 
     @Test
@@ -34,6 +36,7 @@ public class AccessLevelTest {
         for (AccessLevel accessLevel : AccessLevel.values()) {
             switch (accessLevel) {
                 case UNSET:
+                case MIGRATE:
                 case SUMMARY:
                 case READ:
                 case WRITE:
