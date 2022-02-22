@@ -16,11 +16,13 @@ do
   rm -f diff.tmp
   echo "Checking $f $bf2file...\c"
   diff --strip-trailing-cr $f $bf2file > diff.tmp
+  echo "Completed diff 1"
   diff -b diff.tmp $2/$diffImage
+  echo "Completed diff 2"
   exitCode=$?
   rm -f diff.tmp
   if [ $exitCode -ne 0 ]; then
-     echo "Unexpected error found"
+     echo "Unexpected error found, exited with exit code $exitCode"
      exit $exitCode;
   fi
 
