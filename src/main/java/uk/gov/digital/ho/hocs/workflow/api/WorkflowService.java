@@ -412,8 +412,9 @@ public class WorkflowService {
         caseworkClient.updateCase(caseUUID, stageUUID, request);
 
         if (caseDataType != null) {
+            // Check here that the type is supported and in future this would allow for custom note text per type update
             if ("EX_GRATIA_UPDATE".equals(caseDataType)) {
-                caseworkClient.createCaseNote(caseUUID, caseDataType, "Updated Ex-Gratia case data");
+                caseworkClient.createCaseNote(caseUUID, caseDataType, "Case data updated");
             } else {
                 log.warn("Unable to create case note for case data update of type {}", caseDataType, value(EVENT, CASE_NOTE_FAILED));
             }
