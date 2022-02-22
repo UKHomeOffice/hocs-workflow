@@ -60,7 +60,7 @@ public class TO {
     private static final String SEND_TO_QA = "SendToQA";
     private static final String SEND_TO_DISPATCH = "SendToDispatch";
     private static final String SEND_TO_STOP_LIST = "SendToStopList";
-    private static final String REJECT_DRAFT = "RejectDraft";
+    private static final String REJECT_DRAFT = "SendToDraft";
     private static final String CLOSE_CASE = "CloseCase";
 
 
@@ -99,7 +99,7 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "")
+                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -730,7 +730,10 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "")
+                .thenReturn(
+                        "BusAreaStatus", "Transferred"
+                )
+                .thenReturn("BusAreaStatus", "Confirmed","QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -753,7 +756,7 @@ public class TO {
         verify(TOProcess, times(2))
                 .hasCompleted(DRAFT);
 
-        verify(TOProcess, times(1))
+        verify(TOProcess, times(2))
                 .hasCompleted(QA);
 
         verify(TOProcess, times(1))
@@ -886,8 +889,8 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .thenReturn("QaStatus", SEND_TO_TRIAGE)
-                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "")
+                .thenReturn("BusAreaStatus", "Confirmed","QaStatus", SEND_TO_TRIAGE)
+                .thenReturn("BusAreaStatus", "Confirmed","QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
