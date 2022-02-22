@@ -20,7 +20,7 @@ do
   exitCode=$?
   rm -f diff.tmp
   if [ $exitCode -ne 0 ]; then
-     echo "Unexpected error found"
+     echo "Unexpected error found, exited with exit code $exitCode"
      exit $exitCode;
   fi
 
