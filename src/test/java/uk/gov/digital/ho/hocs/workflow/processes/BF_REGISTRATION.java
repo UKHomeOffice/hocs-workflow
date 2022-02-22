@@ -64,11 +64,6 @@ public class BF_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD", "CompType", "Service")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
 
-        when(process.waitsAtUserTask("Validate_Category"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
-
         Scenario.run(process).startByKey("BF_REGISTRATION").execute();
 
         verify(bpmnService, times(2)).updatePrimaryCorrespondent(any(), any(), any());
