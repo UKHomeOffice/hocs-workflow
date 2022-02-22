@@ -410,17 +410,16 @@ public class WorkflowService {
         log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
         camundaClient.updateTask(stageUUID, request);
         caseworkClient.updateCase(caseUUID, stageUUID, request);
-
-        if (caseDataType != null) {
-            // Check here that the type is supported and in future this would allow for custom note text per type update
-            if ("EX_GRATIA_UPDATE".equals(caseDataType)) {
-                caseworkClient.createCaseNote(caseUUID, caseDataType, "Case data updated");
-            } else {
-                log.warn("Unable to create case note for case data update of type {}", caseDataType, value(EVENT, CASE_NOTE_FAILED));
-            }
-        }
-
+        caseworkClient.createCaseNote(caseUUID, caseDataType, getCaseNoteText(caseDataType));
         log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
+    }
+
+    private String getCaseNoteText(String caseDataType) {
+        if ("EX_GRATIA_UPDATE".equals(caseDataType)) {
+            return "Ex-Gratia data updated";
+        } else {
+           return "Case data updated";
+        }
     }
 
     private boolean isCreationForCompWebformCase(String caseDataType, Map<String, String> receivedData) {
