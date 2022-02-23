@@ -13,13 +13,13 @@ do
 
   # Build the diff output filename
   diffImage=`echo "$(basename $f)-$(basename $bf2file).diff" | sed 's/\.bpmn//g'`
-  rm -f diff.tmp
+  rm -f bfdiff.tmp
   echo "Checking $f $bf2file...\c"
-  diff --strip-trailing-cr $f $bf2file > diff.tmp
+  diff --strip-trailing-cr $f $bf2file > bfdiff.tmp
   echo "Checking diff..."
-  diff -b diff.tmp $2/$diffImage
+  diff -b bfdiff.tmp $2/$diffImage
   exitCode=$?
-  rm -f diff.tmp
+  rm -f bfdiff.tmp
   if [ $exitCode -ne 0 ]; then
      echo "Unexpected error found, exited with exit code $exitCode"
      exit $exitCode;
