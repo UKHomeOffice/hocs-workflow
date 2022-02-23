@@ -14,7 +14,10 @@ do
   # Build the diff output filename
   diffImage=`echo "$(basename $f)-$(basename $bf2file).diff" | sed 's/\.bpmn//g'`
   rm -f bfdiff.tmp
+  # Adding the ls in so we can see any existing file does not exist
+  ls bfdiff.tmp
   echo "Checking $f $bf2file...\c"
+  # Create the new diff file
   diff --strip-trailing-cr $f $bf2file > bfdiff.tmp
   echo "Checking diff..."
   diff -b bfdiff.tmp $2/$diffImage
