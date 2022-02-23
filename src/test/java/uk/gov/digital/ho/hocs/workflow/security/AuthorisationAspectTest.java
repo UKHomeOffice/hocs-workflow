@@ -5,7 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -17,11 +19,14 @@ import uk.gov.digital.ho.hocs.workflow.security.filters.AuthFilter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,17 +48,31 @@ public class AuthorisationAspectTest {
     @Mock
     private ProceedingJoinPoint proceedingJoinPoint;
 
-    private List<AuthFilter> authFilterList;
+    private final List<AuthFilter> authFilterList = new ArrayList<>();
+
+    @Spy
+    private AuthFilter testAuthFilter = new TestAuthFilter();
 
     @Before
     public void setup() {
+
         when(userService.getMaxAccessLevel(any())).thenReturn(AccessLevel.OWNER);
         when(userService.getUserId()).thenReturn(UUID.randomUUID());
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setMethod("GET");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-        aspect = new AuthorisationAspect(infoClient, userService, authFilterList);
 
+        authFilterList.add(testAuthFilter);
+        aspect = new AuthorisationAspect(infoClient, userService, authFilterList);
+    }
+
+    @Test
+    public void testShouldLoadFilter() {
+        // GIVEN
+        // WHEN - class loaded in setup method.
+
+        // THEN
+        verify(testAuthFilter, times(1)).getKey();
     }
 
     @Test
@@ -63,10 +82,10 @@ public class AuthorisationAspectTest {
         Object[] args = new Object[1];
         args[0] = caseUUID;
 
-
         when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(AccessLevel.READ);
+        when(proceedingJoinPoint.proceed()).thenReturn(new Object());
 
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
 
@@ -85,6 +104,7 @@ public class AuthorisationAspectTest {
 
         when(annotation.accessLevel()).thenReturn(AccessLevel.READ);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(proceedingJoinPoint.proceed()).thenReturn(new Object());
 
         aspect.validateUserAccess(proceedingJoinPoint,annotation);
 
@@ -103,6 +123,7 @@ public class AuthorisationAspectTest {
         when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(AccessLevel.READ);
+        when(proceedingJoinPoint.proceed()).thenReturn(new Object());
 
         aspect.validateUserAccess(proceedingJoinPoint,annotation);
 
@@ -160,6 +181,7 @@ public class AuthorisationAspectTest {
         when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(AccessLevel.READ);
+        when(proceedingJoinPoint.proceed()).thenReturn(new Object());
 
         aspect.validateUserAccess(proceedingJoinPoint,annotation);
 
@@ -183,6 +205,7 @@ public class AuthorisationAspectTest {
         when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(AccessLevel.UNSET);
+        when(proceedingJoinPoint.proceed()).thenReturn(new Object());
 
         aspect.validateUserAccess(proceedingJoinPoint,annotation);
 
@@ -192,5 +215,208 @@ public class AuthorisationAspectTest {
         verifyNoMoreInteractions(infoClient);
 
     }
+    @Test(expected = SecurityExceptions.PermissionCheckException.class)
+    public void testShouldRejectWhenUserLevelIsBelowRequiredAndPermittedLower() throws Throwable {
 
+        // GIVEN
+        String type = "ANY";
+        Object[] args = new Object[1];
+        args[0] = caseUUID;
+
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(userService.getMaxAccessLevel(type)).thenReturn(AccessLevel.READ);
+        when(annotation.accessLevel()).thenReturn(AccessLevel.OWNER);
+        when(annotation.permittedLowerLevels()).thenReturn(new AccessLevel[]{AccessLevel.RESTRICTED_OWNER});
+
+        // WHEN
+        aspect.validateUserAccess(proceedingJoinPoint,annotation);
+
+        // THEN - expect exception
+
+    }
+
+    @Test
+    public void testShouldAllowWhenUserLevelIsBelowRequiredButIsPermittedLower() throws Throwable {
+
+        // GIVEN
+        String type = "ANY";
+        Object[] args = new Object[1];
+        args[0] = caseUUID;
+
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(userService.getMaxAccessLevel(type)).thenReturn(AccessLevel.RESTRICTED_OWNER);
+        when(annotation.accessLevel()).thenReturn(AccessLevel.OWNER);
+        when(annotation.permittedLowerLevels()).thenReturn(new AccessLevel[]{AccessLevel.RESTRICTED_OWNER});
+        when(proceedingJoinPoint.proceed()).thenReturn(new Object());
+
+        // WHEN
+        // THEN
+        assertThatNoException().isThrownBy(() -> aspect.validateUserAccess(proceedingJoinPoint,annotation));
+
+    }
+
+    @Test
+    public void testShouldNotInvokeFilterWhenSufficientLevel() throws Throwable {
+
+        // GIVEN
+        String type = "ANY";
+        Object[] args = new Object[1];
+        args[0] = caseUUID;
+
+        ResponseEntity<TestResponseObjectNoFilter> testResponse = ResponseEntity.ok(new TestResponseObjectNoFilter());
+
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(userService.getMaxAccessLevel(type)).thenReturn(AccessLevel.OWNER);
+        when(annotation.accessLevel()).thenReturn(AccessLevel.OWNER);
+        when(proceedingJoinPoint.proceed()).thenReturn(testResponse);
+
+        // WHEN
+        aspect.validateUserAccess(proceedingJoinPoint,annotation);
+
+        // THEN
+        verify(testAuthFilter, times(0)).applyFilter(any(), any(), any());
+    }
+
+    @Test
+    public void testShouldInvokeFilterWhenPermittedLowerLevel() throws Throwable {
+
+        // GIVEN
+        String type = "ANY";
+        Object[] args = new Object[1];
+        args[0] = caseUUID;
+
+        ResponseEntity<TestResponseObject> testResponse = ResponseEntity.ok(new TestResponseObject());
+
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(userService.getMaxAccessLevel(type)).thenReturn(AccessLevel.RESTRICTED_OWNER);
+        when(annotation.accessLevel()).thenReturn(AccessLevel.OWNER);
+        when(annotation.permittedLowerLevels()).thenReturn(new AccessLevel[]{AccessLevel.RESTRICTED_OWNER});
+        when(proceedingJoinPoint.proceed()).thenReturn(testResponse);
+        when(testAuthFilter.applyFilter(any(),any(),any())).thenReturn(testResponse);
+
+        // WHEN
+        Object result = aspect.validateUserAccess(proceedingJoinPoint,annotation);
+
+        // THEN
+        verify(testAuthFilter, times(1)).applyFilter(any(), any(), any());
+
+        assertThat(result).isInstanceOf(ResponseEntity.class);
+
+        ResponseEntity<?> resultResponseEntity = (ResponseEntity<?>) result;
+        assertThat(resultResponseEntity.getBody()).isInstanceOf(TestResponseObject.class);
+
+    }
+
+    @Test
+    public void testShouldInvokeFilterWhenPermittedLowerLevelAndArrayListIsResponseBody() throws Throwable {
+        // GIVEN
+        String type = "ANY";
+        Object[] args = new Object[1];
+        args[0] = caseUUID;
+
+        ResponseEntity<List<TestResponseObject>> testResponse = ResponseEntity.ok(List.of(new TestResponseObject()));
+
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(userService.getMaxAccessLevel(type)).thenReturn(AccessLevel.RESTRICTED_OWNER);
+        when(annotation.accessLevel()).thenReturn(AccessLevel.OWNER);
+        when(annotation.permittedLowerLevels()).thenReturn(new AccessLevel[]{AccessLevel.RESTRICTED_OWNER});
+        when(proceedingJoinPoint.proceed()).thenReturn(testResponse);
+        when(testAuthFilter.applyFilter(any(),any(),any())).thenReturn(testResponse);
+
+        // WHEN
+        Object result = aspect.validateUserAccess(proceedingJoinPoint,annotation);
+
+        // THEN
+        verify(testAuthFilter, times(1)).applyFilter(any(), any(), any());
+
+        assertThat(result).isInstanceOf(ResponseEntity.class);
+
+        ResponseEntity<?> resultResponseEntity = (ResponseEntity<?>) result;
+        assertThat(resultResponseEntity.getBody()).isInstanceOf(Collection.class);
+        assertThat(Collection.class.isAssignableFrom(resultResponseEntity.getBody().getClass())).isTrue();
+
+        Object[] responseAsArray = ((Collection<?>) resultResponseEntity.getBody()).toArray();
+        assertThat(responseAsArray.length).isEqualTo(1);
+        assertThat(responseAsArray[0]).isInstanceOf(TestResponseObject.class);
+    }
+
+    @Test
+    public void testShouldInvokeFilterWhenPermittedLowerLevelAndSetIsResponseBody() throws Throwable {
+        // GIVEN
+        String type = "ANY";
+        Object[] args = new Object[1];
+        args[0] = caseUUID;
+
+        ResponseEntity<Set<TestResponseObject>> testResponse = ResponseEntity.ok(Set.of(new TestResponseObject()));
+
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(userService.getMaxAccessLevel(type)).thenReturn(AccessLevel.RESTRICTED_OWNER);
+        when(annotation.accessLevel()).thenReturn(AccessLevel.OWNER);
+        when(annotation.permittedLowerLevels()).thenReturn(new AccessLevel[]{AccessLevel.RESTRICTED_OWNER});
+        when(proceedingJoinPoint.proceed()).thenReturn(testResponse);
+        when(testAuthFilter.applyFilter(any(),any(),any())).thenReturn(testResponse);
+
+        // WHEN
+        Object result = aspect.validateUserAccess(proceedingJoinPoint,annotation);
+
+        // THEN
+        verify(testAuthFilter, times(1)).applyFilter(any(), any(), any());
+
+        assertThat(result).isInstanceOf(ResponseEntity.class);
+
+        ResponseEntity<?> resultResponseEntity = (ResponseEntity<?>) result;
+        assertThat(resultResponseEntity.getBody()).isInstanceOf(Collection.class);
+        assertThat(Collection.class.isAssignableFrom(resultResponseEntity.getBody().getClass())).isTrue();
+
+        Object[] responseAsArray = ((Collection<?>) resultResponseEntity.getBody()).toArray();
+        assertThat(responseAsArray.length).isEqualTo(1);
+        assertThat(responseAsArray[0]).isInstanceOf(TestResponseObject.class);
+    }
+
+    @Test
+    public void testShouldNotFilterWhenPermittedLowerLevelAndEmptyCollectionIsResponseBody() throws Throwable {
+        // GIVEN
+        String type = "ANY";
+        Object[] args = new Object[1];
+        args[0] = caseUUID;
+
+        ResponseEntity<Set<TestResponseObject>> testResponse = ResponseEntity.ok(Set.of());
+
+        when(infoClient.getCaseTypeByShortCode(caseUUID.toString().substring(34))).thenReturn(new CaseDataType(type, "al"));
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(userService.getMaxAccessLevel(type)).thenReturn(AccessLevel.RESTRICTED_OWNER);
+        when(annotation.accessLevel()).thenReturn(AccessLevel.OWNER);
+        when(annotation.permittedLowerLevels()).thenReturn(new AccessLevel[]{AccessLevel.RESTRICTED_OWNER});
+        when(proceedingJoinPoint.proceed()).thenReturn(testResponse);
+
+        // WHEN
+        aspect.validateUserAccess(proceedingJoinPoint,annotation);
+
+        // THEN
+        verify(testAuthFilter, times(0)).applyFilter(any(), any(), any());
+    }
+
+
+    // HELPER CLASSES
+    private static class TestResponseObject {}
+    private static class TestResponseObjectNoFilter {}
+
+    private static class TestAuthFilter implements AuthFilter {
+
+        @Override
+        public String getKey() {
+            return TestResponseObject.class.getSimpleName();
+        }
+
+        @Override
+        public Object applyFilter(ResponseEntity<?> responseEntityToFilter, AccessLevel userAccessLevel, Object[] collectionAsArray) throws SecurityExceptions.AuthFilterException {
+            return responseEntityToFilter;
+        }
+    }
 }
