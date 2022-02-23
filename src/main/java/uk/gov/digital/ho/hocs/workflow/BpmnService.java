@@ -13,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.MigrateCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
@@ -108,7 +109,7 @@ public class BpmnService {
         GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUuid);
         Map<String, String> data = caseData.getData();
         String userUUID = data.get("LastUpdatedByUserUUID");
-        CreateCaseResponse response = workflowService.migrateCase(caseType, LocalDate.parse(dateReceived), null, UUID.fromString(userUUID), caseUuid, data);
+        MigrateCaseResponse response = workflowService.migrateCase(caseType, LocalDate.parse(dateReceived), null, UUID.fromString(userUUID), caseUuid, data);
 
         if (response.getUuid() != null) {
             log.info("Migrating case for caseType {} from caseUUID {}", caseType, fromCaseUUID);

@@ -13,6 +13,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkC
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStagesResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
@@ -96,8 +97,7 @@ public class WorkflowService {
         return caseData;
     }
 
-    private CreateCaseResponse buildCreateCaseResponse(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, Map<String, String> receivedData, CreateCaseworkCaseResponse caseResponse) {
-        UUID caseUUID = caseResponse.getUuid();
+    private void startCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, Map<String, String> receivedData, UUID caseUUID, String caseReference) {
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
         if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)
@@ -121,7 +121,7 @@ public class WorkflowService {
                     seedData.putAll(receivedData);
                 }
             }
-            seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
+            seedData.put(WorkflowConstants.CASE_REFERENCE, caseReference);
             seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
             seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
@@ -137,15 +137,18 @@ public class WorkflowService {
             log.error("Failed to start case, invalid caseUUID!, event: {}", value(EVENT, CASE_STARTED_FAILURE));
             throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);
         }
-        return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
 
-    public CreateCaseResponse migrateCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
+    public MigrateCaseResponse migrateCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
         Map<String, String> caseData = buildCaseData(caseDataType, dateReceived,  userUUID, receivedData);
 
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.migrateCase(caseDataType, caseData, dateReceived, fromCaseUUID);
+        MigrateCaseworkCaseResponse caseResponse = caseworkClient.migrateCase(caseDataType, caseData, dateReceived, fromCaseUUID);
 
-        return buildCreateCaseResponse(caseDataType, dateReceived, documents, userUUID, receivedData, caseResponse);
+        UUID caseUUID = caseResponse.getUuid();
+        String caseReference = caseResponse.getReference();
+        startCase(caseDataType, dateReceived, documents, userUUID, receivedData, caseUUID, caseReference);
+
+        return new MigrateCaseResponse(caseUUID, caseReference);
     }
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
@@ -153,7 +156,11 @@ public class WorkflowService {
 
         CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
 
-        return buildCreateCaseResponse(caseDataType, dateReceived, documents, userUUID, receivedData, caseResponse);
+        UUID caseUUID = caseResponse.getUuid();
+        String caseReference = caseResponse.getReference();
+        startCase(caseDataType, dateReceived, documents, userUUID, receivedData, caseUUID, caseReference);
+
+        return new CreateCaseResponse(caseUUID, caseReference);
     }
 
     private CreateCaseworkCorrespondentRequest buildCorrespondentRequest(Map<String, String> data) {

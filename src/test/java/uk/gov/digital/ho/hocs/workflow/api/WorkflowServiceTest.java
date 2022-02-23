@@ -337,6 +337,22 @@ public class WorkflowServiceTest {
         caseworkClient.getCorrespondentsForCase(caseUUID);
     }
 
+    @Test
+    public void migrateCase() {
+        String caseDataType = "BF";
+        LocalDate dateReceived = LocalDate.EPOCH;
+        List<DocumentSummary> documents =  new ArrayList<>();
+        UUID userUUID = UUID.randomUUID();
+        Map<String, String> receivedData = new HashMap<>();
+        MigrateCaseworkCaseResponse migrateCaseworkCaseResponse = new MigrateCaseworkCaseResponse(UUID.randomUUID(), null);
+
+        when(caseworkClient.migrateCase(any(), any(), any(), any())).thenReturn(migrateCaseworkCaseResponse);
+
+        MigrateCaseResponse output = workflowService.migrateCase(caseDataType, dateReceived, documents, userUUID,null, receivedData);
+        assertThat(output.getUuid()).isNotNull();
+        verify(camundaClient, times(1)).startCase(any(), any(), any());
+        verify(caseworkClient, times(0)).saveCorrespondent(any(), any(), any());
+    }
 
     @Test
     public void getCreateCaseRequest_WhenEntitylistDocuments() {

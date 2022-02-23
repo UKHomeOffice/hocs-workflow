@@ -65,7 +65,7 @@ public class SecurityIntegrationTest {
 
     @Before
     public void setup() {
-        when(infoClient.getTeams()).thenReturn(setupMockTeams("MIN", 5));
+        when(infoClient.getTeams()).thenReturn(setupMockTeams("MIN", AccessLevel.OWNER.getLevel()));
     }
 
 
