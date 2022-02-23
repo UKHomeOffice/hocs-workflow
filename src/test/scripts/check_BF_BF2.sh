@@ -16,6 +16,7 @@ do
   rm -f diff.tmp
   echo "Checking $f $bf2file...\c"
   diff --strip-trailing-cr $f $bf2file > diff.tmp
+  echo "Checking diff..."
   diff -b diff.tmp $2/$diffImage
   exitCode=$?
   rm -f diff.tmp
