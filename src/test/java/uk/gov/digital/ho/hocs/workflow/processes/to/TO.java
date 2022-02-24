@@ -274,13 +274,17 @@ public class TO {
     }
 
     @Test
-    public void testTransferFromCCHTriage(){
+    public void testTransferToCCHTriage(){
         whenAtCallActivity(DATA_INPUT)
                 .deploy(rule);
 
         whenAtCallActivity(TRIAGE)
                 .thenReturn("BusAreaStatus", "Transferred",
                         "TROFTeamUUID", "b388a232-3f17-4f1e-8d86-30862b526d91",
+                        "TriageOutcome", SEND_TO_DRAFT)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "TriageOutcome", SEND_TO_DRAFT)
+                .thenReturn("BusAreaStatus", "Confirmed",
                         "TriageOutcome", SEND_TO_DRAFT)
                 .thenReturn("BusAreaStatus", "Confirmed",
                         "TriageOutcome", SEND_TO_DRAFT)
@@ -292,12 +296,22 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(DRAFT)
-                .alwaysReturn("BusAreaStatus", "Confirmed")
-                .alwaysReturn("DraftStatus", SEND_TO_QA)
+                .thenReturn("BusAreaStatus", "Transferred",
+                        "TROFTeamUUID", "b388a232-3f17-4f1e-8d86-30862b526d91",
+                        "DraftStatus", SEND_TO_QA)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "DraftStatus", SEND_TO_QA)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "DraftStatus", SEND_TO_QA)
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "No")
+                .thenReturn("BusAreaStatus", "Transferred",
+                        "TROFTeamUUID", "b388a232-3f17-4f1e-8d86-30862b526d91",
+                        "QaStatus", SEND_TO_DISPATCH)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "HomeSecInterest", "No",
+                        "QaStatus", SEND_TO_DISPATCH)
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -314,16 +328,16 @@ public class TO {
         verify(TOProcess, times(1))
                 .hasCompleted(DATA_INPUT);
 
-        verify(TOProcess, times(2))
+        verify(TOProcess, times(4))
                 .hasCompleted(TRIAGE);
 
-        verify(TOProcess, times(1))
+        verify(TOProcess, times(3))
                 .hasCompleted(CCH_RETURNS);
 
-        verify(TOProcess, times(1))
+        verify(TOProcess, times(3))
                 .hasCompleted(DRAFT);
 
-        verify(TOProcess, times(1))
+        verify(TOProcess, times(2))
                 .hasCompleted(QA);
 
         verify(TOProcess, times(1))
