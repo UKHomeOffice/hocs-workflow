@@ -24,6 +24,7 @@ import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
+import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -37,6 +38,7 @@ import static java.util.stream.Collectors.toList;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_CLOSE_ERROR;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_NOTE_FAILED;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES;
 
@@ -414,10 +416,13 @@ public class WorkflowService {
         camundaClient.removeProcess(stageUuid);
     }
 
-    public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, Map<String, String> request) {
+    public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, String caseDataType, Map<String, String> request) {
         log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
+        String msg = caseDataType != null ? NoteType.valueOf(caseDataType).getDefaultMessage() : NoteType.CASE_DATA.getDefaultMessage();
+
         camundaClient.updateTask(stageUUID, request);
         caseworkClient.updateCase(caseUUID, stageUUID, request);
+        caseworkClient.createCaseNote(caseUUID, caseDataType, msg);
         log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
     }
 

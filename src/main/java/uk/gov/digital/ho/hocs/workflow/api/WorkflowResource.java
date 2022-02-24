@@ -115,9 +115,13 @@ class WorkflowResource {
 
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PutMapping(value = "/case/{caseUUID}/stage/{stageUUID}/data")
-    public ResponseEntity<Void> updateCaseDataValues(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID,
-                                           @RequestBody Map<String, String> request) {
-        workflowService.updateCaseDataValues(caseUUID, stageUUID, request);
+    public ResponseEntity<Void> updateCaseDataValues(
+            @PathVariable UUID caseUUID,
+            @PathVariable UUID stageUUID,
+            @RequestParam(name = "type", required = false) String type,
+            @RequestBody Map<String, String> request
+    ) {
+        workflowService.updateCaseDataValues(caseUUID, stageUUID, type, request);
         return ResponseEntity.ok().build();
     }
 
