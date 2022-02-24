@@ -22,7 +22,7 @@ public class MigrateCaseResponseTest {
     }
 
     @Test
-    public void getCreateCaseResponseNull() {
+    public void getMigrateCaseResponseNull() {
 
         MigrateCaseResponse migrateCaseResponse = new MigrateCaseResponse(null, null);
 
