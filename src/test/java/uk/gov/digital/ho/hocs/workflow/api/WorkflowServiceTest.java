@@ -21,6 +21,7 @@ import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
+import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
@@ -186,6 +187,7 @@ public class WorkflowServiceTest {
     public void createDocument() {
         // given
         UUID caseUuid = UUID.randomUUID();
+        UUID userUUID = UUID.randomUUID();
         UUID actionDataItemUuid = UUID.randomUUID();
 
         final List<DocumentSummary> documentSummaries = List.of(
@@ -193,12 +195,13 @@ public class WorkflowServiceTest {
                 new DocumentSummary("displayName2", "type2", "url2")
         );
 
+        when(userPermissionsService.getUserId()).thenReturn(userUUID);
+
         // when
         workflowService.createDocument(caseUuid, actionDataItemUuid, documentSummaries);
 
         // then
-        verify(documentClient, times(1)).createDocument(caseUuid, actionDataItemUuid, "displayName1", "url1", "type1");
-        verify(documentClient, times(1)).createDocument(caseUuid, actionDataItemUuid, "displayName2", "url2", "type2");
+        verify(documentClient, times(2)).createDocument(eq(caseUuid),any(CreateCaseworkDocumentRequest.class));
     }
 
     @Test
