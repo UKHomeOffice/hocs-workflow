@@ -15,6 +15,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCase
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStagesResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
+import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
@@ -154,16 +155,21 @@ public class WorkflowService {
     }
 
     public void createDocument(UUID caseUUID, UUID actionDataItemUuid, List<DocumentSummary> documents) {
+
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                documentClient.createDocument(
+
+                CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
+                        document.getDisplayName(),
+                        document.getType(),
+                        document.getS3UntrustedUrl(),
                         caseUUID,
                         actionDataItemUuid,
-                        document.getDisplayName(),
-                        document.getS3UntrustedUrl(),
-                        document.getType()
+                        userPermissionsService.getUserId()
                 );
+
+                documentClient.createDocument(caseUUID, request);
             }
         }
 
@@ -172,12 +178,15 @@ public class WorkflowService {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                documentClient.createDocument(
-                        caseUUID,
+                CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
                         document.getDisplayName(),
+                        document.getType(),
                         document.getS3UntrustedUrl(),
-                        document.getType()
+                        caseUUID,
+                        null,
+                        userPermissionsService.getUserId()
                 );
+                documentClient.createDocument(caseUUID, request);
             }
         }
     }

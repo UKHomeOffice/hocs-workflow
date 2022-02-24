@@ -38,15 +38,20 @@ public class DocumentClientTest {
     public void createDocument() {
         // given
         UUID caseUuid = UUID.randomUUID();
+        UUID ownerUUID = UUID .randomUUID();
         String expectedUrl = String.format("/document");
 
-        // when
-        documentClient.createDocument(
-                caseUuid,
+        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
                 "displayName",
+                "type",
                 "fileLocation",
-                "type"
+                caseUuid,
+                null,
+                ownerUUID
         );
+
+        // when
+        documentClient.createDocument(caseUuid,request);
 
         // then
         ArgumentCaptor<CreateCaseworkDocumentRequest> argumentCaptor =
@@ -65,17 +70,21 @@ public class DocumentClientTest {
     public void createDocumentForAction() {
         // given
         UUID caseUuid = UUID.randomUUID();
+        UUID ownerUUID = UUID .randomUUID();
         UUID actionDataItemUuid = UUID.randomUUID();
         String expectedUrl = String.format("/document");
 
-        // when
-        documentClient.createDocument(
+        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
+                "displayName",
+                "type",
+                "fileLocation",
                 caseUuid,
                 actionDataItemUuid,
-                "displayName",
-                "fileLocation",
-                "type"
+                ownerUUID
         );
+
+        // when
+        documentClient.createDocument(caseUuid, request);
 
         // then
         ArgumentCaptor<CreateCaseworkDocumentRequest> argumentCaptor =
