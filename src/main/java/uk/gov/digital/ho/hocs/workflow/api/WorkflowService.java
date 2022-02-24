@@ -23,6 +23,7 @@ import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
+import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -408,18 +409,12 @@ public class WorkflowService {
 
     public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, String caseDataType, Map<String, String> request) {
         log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
+        String msg = caseDataType != null ? NoteType.valueOf(caseDataType).getDefaultMessage() : NoteType.CASE_DATA.getDefaultMessage();
+
         camundaClient.updateTask(stageUUID, request);
         caseworkClient.updateCase(caseUUID, stageUUID, request);
-        caseworkClient.createCaseNote(caseUUID, caseDataType, getCaseNoteText(caseDataType));
+        caseworkClient.createCaseNote(caseUUID, caseDataType, msg);
         log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
-    }
-
-    private String getCaseNoteText(String caseDataType) {
-        if ("EX_GRATIA_UPDATE".equals(caseDataType)) {
-            return "Ex-Gratia data updated";
-        } else {
-           return "Case data updated";
-        }
     }
 
     private boolean isCreationForCompWebformCase(String caseDataType, Map<String, String> receivedData) {

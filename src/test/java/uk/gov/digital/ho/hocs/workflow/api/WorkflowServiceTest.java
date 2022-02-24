@@ -778,6 +778,21 @@ public class WorkflowServiceTest {
         Mockito.verify(caseworkClient).updateStageTeam(caseUUID, UUID.fromString(stageUUID), oldTeam, null);
     }
 
+    @Test
+    public void updateCaseDataValues() {
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String caseDataType = "CASE_DATA";
+        Map<String, String> request = new HashMap<>();
+        String msg = "Case data updated";
+
+        workflowService.updateCaseDataValues(caseUUID, stageUUID, caseDataType, request);
+
+        verify(camundaClient).updateTask(stageUUID, request);
+        verify(caseworkClient).updateCase(caseUUID, stageUUID, request);
+        verify(caseworkClient).createCaseNote(caseUUID, caseDataType, msg);
+    }
+
     private void setupCloseCase() throws UnsupportedEncodingException {
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse();
         getCaseworkCaseDataResponse.setReference("caseref");
