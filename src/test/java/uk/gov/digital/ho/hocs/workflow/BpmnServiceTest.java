@@ -844,4 +844,41 @@ public class BpmnServiceTest {
         // THEN
         verify(caseworkClient, times(1)).createCaseNote(UUID.fromString(testCaseUUID), NoteType.ALLOCATE.toString(), expectedCaseNote);
     }
+
+    @Test
+    public void testShouldCreateMapAndCallCaseworkClientMapCaseData() {
+
+        // GIVEN
+        String varToMap1 = "varToMap1";
+        String mappedTo1 = "mappedTo1";
+        String varToMap2 = "varToMap2";
+        String mappedTo2 = "mappedTo2";
+
+        ArgumentCaptor<Map<String, String>> mapArgCapture = ArgumentCaptor.forClass(Map.class);
+
+        // WHEN
+        bpmnService.mapCaseData(caseUUID.toString(), varToMap1,mappedTo1,varToMap2,mappedTo2);
+
+        // THEN
+        verify(caseworkClient, times(1)).mapCaseData(eq(caseUUID),mapArgCapture.capture());
+
+        assertThat(mapArgCapture.getValue().keySet()).contains(varToMap1, varToMap2);
+        assertThat(mapArgCapture.getValue().get(varToMap1)).isEqualTo(mappedTo1);
+        assertThat(mapArgCapture.getValue().get(varToMap2)).isEqualTo(mappedTo2);
+    }
+
+    @Test(expected = ApplicationExceptions.InvalidMethodArgumentException.class)
+    public void testShouldThrowIfVarArgsAreOddNumber() {
+
+        // GIVEN
+        String varToMap1 = "varToMap1";
+        String mappedTo1 = "mappedTo1";
+        String varToMap2 = "varToMap2";
+
+        // WHEN
+        bpmnService.mapCaseData(caseUUID.toString(), varToMap1,mappedTo1,varToMap2);
+
+        // THEN -- Exception Test
+
+    }
 }
