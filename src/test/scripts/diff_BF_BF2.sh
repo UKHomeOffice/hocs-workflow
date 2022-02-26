@@ -1,3 +1,4 @@
+#!/bin/sh
 # create a diff image of the BF - BF2 diff
 
 function displayUsage() {

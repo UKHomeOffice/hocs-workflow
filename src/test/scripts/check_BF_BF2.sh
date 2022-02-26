@@ -1,3 +1,4 @@
+#!/bin/sh
 # $1 - BF file inc path
 # $2 - expected diffs directory
 

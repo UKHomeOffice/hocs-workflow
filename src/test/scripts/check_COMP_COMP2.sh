@@ -1,3 +1,4 @@
+#!/bin/sh
 # $1 - COMP file inc path
 # $2 - expected diffs directory
 
@@ -30,4 +31,3 @@ done
 
 # All good at this point
 exit 0
-

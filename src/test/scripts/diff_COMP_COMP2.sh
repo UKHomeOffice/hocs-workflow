@@ -1,3 +1,4 @@
+#!/bin/sh
 # create a diff image of the COMP - COMP2 diff
 
 function displayUsage() {
