@@ -1,3 +1,4 @@
+#!/bin/sh
 # $1 - BF file inc path
 # $2 - expected diffs directory
 
@@ -18,9 +19,9 @@ do
   ls bfdiff.tmp
   echo "Checking $f $bf2file...\c"
   # Create the new diff file
-  diff --strip-trailing-cr $f $bf2file > bfdiff.tmp
+  diff -bw $f $bf2file > bfdiff.tmp
   echo "Checking diff..."
-  diff -b bfdiff.tmp $2/$diffImage
+  diff -bw bfdiff.tmp $2/$diffImage
   exitCode=$?
   rm -f bfdiff.tmp
   if [ $exitCode -ne 0 ]; then
