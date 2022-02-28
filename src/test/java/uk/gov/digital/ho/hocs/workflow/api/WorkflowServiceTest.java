@@ -340,18 +340,20 @@ public class WorkflowServiceTest {
     @Test
     public void migrateCase() {
         String caseDataType = "BF";
-        LocalDate dateReceived = LocalDate.EPOCH;
-        List<DocumentSummary> documents =  new ArrayList<>();
-        UUID userUUID = UUID.randomUUID();
-        Map<String, String> receivedData = new HashMap<>();
-        MigrateCaseworkCaseResponse migrateCaseworkCaseResponse = new MigrateCaseworkCaseResponse(UUID.randomUUID(), null);
+        UUID fromCaseUUID = UUID.randomUUID();
+        UUID toCaseUUID = UUID.randomUUID();
+        Map<String, String> caseDataMap = new HashMap<>();
+        MigrateCaseworkCaseResponse migrateCaseworkCaseResponse = new MigrateCaseworkCaseResponse(toCaseUUID, caseDataMap);
 
-        when(caseworkClient.migrateCase(any(), any(), any(), any())).thenReturn(migrateCaseworkCaseResponse);
+        ArgumentCaptor<MigrateCaseworkCaseRequest> argumentCaptor = ArgumentCaptor.forClass(MigrateCaseworkCaseRequest.class);
+        when(caseworkClient.migrateCase(eq(fromCaseUUID), any(MigrateCaseworkCaseRequest.class))).thenReturn(migrateCaseworkCaseResponse);
 
-        MigrateCaseResponse output = workflowService.migrateCase(caseDataType, dateReceived, documents, userUUID,null, receivedData);
-        assertThat(output.getUuid()).isNotNull();
-        verify(camundaClient, times(1)).startCase(any(), any(), any());
-        verify(caseworkClient, times(0)).saveCorrespondent(any(), any(), any());
+        workflowService.migrateCase(caseDataType, fromCaseUUID);
+
+        verify(camundaClient, times(1)).startCase(toCaseUUID, caseDataType, caseDataMap);
+        verify(caseworkClient, times(1)).migrateCase(eq(fromCaseUUID), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getType()).isEqualTo(caseDataType);
+
     }
 
     @Test
