@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -12,10 +13,8 @@ import java.util.UUID;
 @Getter
 public class MigrateCaseworkCaseResponse {
 
-    @JsonProperty("uuid")
     private UUID uuid;
 
-    @JsonProperty("reference")
-    private String reference;
+    private Map<String, String> caseDataMap;
 
 }
