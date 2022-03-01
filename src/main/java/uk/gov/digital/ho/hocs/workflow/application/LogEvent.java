@@ -36,7 +36,8 @@ public enum LogEvent {
     REST_HELPER_GET_BAD_REQUEST,
     MIGRATION_EVENT,
     CASE_CLOSE_ERROR,
-    WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES;
+    WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES,
+    CASE_NOTE_FAILED;
     public static final String EVENT = "event_id";
     public static final String EXCEPTION = "exception";
 }

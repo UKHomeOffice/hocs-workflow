@@ -22,8 +22,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/BF_REGISTRATION.bpmn")
-public class BF_REGISTRATION {
+@Deployment(resources = "processes/BF2_REGISTRATION.bpmn")
+public class BF2_REGISTRATION {
 
     @Rule
     @ClassRule
@@ -54,44 +54,16 @@ public class BF_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Selection"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
-
         when(process.waitsAtUserTask("Validate_Complaint_Input"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD", "CompType", "Service")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD", "CompType", "Service")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
 
-        Scenario.run(process).startByKey("BF_REGISTRATION").execute();
+        Scenario.run(process).startByKey("BF2_REGISTRATION").execute();
 
         verify(bpmnService, times(2)).updatePrimaryCorrespondent(any(), any(), any());
-        verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage1"));
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
-        verify(process).hasCompleted("EndEvent_BF_Registration");
+        verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage2"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF2_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(process).hasCompleted("EndEvent_BF2_Registration");
     }
-
-    @Test
-    public void testMinorMisconduct(){
-        when(process.waitsAtUserTask("Validate_Correspondents"))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
-
-        when(process.waitsAtUserTask("Validate_Complainant"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
-
-        when(process.waitsAtUserTask("Validate_Complaint_Selection"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
-
-        when(process.waitsAtUserTask("Validate_Complaint_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
-
-        Scenario.run(process).startByKey("BF_REGISTRATION").execute();
-
-        verify(bpmnService, times(1)).updatePrimaryCorrespondent(any(), any(), any());
-        verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage1"));
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
-        verify(process).hasCompleted("EndEvent_BF_Registration");
-    }
-
 }

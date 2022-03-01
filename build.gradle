@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'jacoco'
-    id 'org.springframework.boot' version '2.6.3'
+    id 'org.springframework.boot' version '2.6.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
@@ -59,12 +59,12 @@ dependencies {
     implementation('commons-codec:commons-codec:1.15')
     implementation('org.apache.httpcomponents:httpclient:4.5.13')
 
-    implementation 'org.postgresql:postgresql:42.3.2'
+    implementation 'org.postgresql:postgresql:42.3.3'
 
     implementation 'org.projectlombok:lombok:1.18.22'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
-    annotationProcessor "org.springframework:spring-context-indexer:5.3.15"
+    annotationProcessor "org.springframework:spring-context-indexer:5.3.16"
 
     testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
 
@@ -166,9 +166,51 @@ task checkCOMPSnapshots {
 
 }
 
+task createBFSnapshots {
+
+    doLast {
+
+        def bfDir = "src/main/resources/processes";
+        FileTree bfFiles = fileTree(bfDir).matching {
+            include "BF_*.bpmn"
+            include "BF.bpmn"
+        }
+
+        bfFiles.visit(f -> {
+            exec {
+                commandLine 'src/test/scripts/diff_BF_BF2.sh', bfDir + "/" + f.name,
+                        'src/test/diffs'
+            }
+
+        }
+        )
+
+    }
+}
+
+task checkBFSnapshots {
+
+    doFirst {
+        def bfDiffs = "src/test/diffs"
+        def bfFiles = "src/main/resources/processes/BF_*.bpmn";
+
+        exec {
+            commandLine 'src/test/scripts/check_BF_BF2.sh', bfFiles, bfDiffs
+        }
+
+        bfFiles = "src/main/resources/processes/BF.bpmn";
+
+        exec {
+            commandLine 'src/test/scripts/check_BF_BF2.sh', bfFiles, bfDiffs
+        }
+    }
+
+}
+
 jar {
     enabled = false
 }
 
 check.dependsOn integrationTest
+test.dependsOn checkBFSnapshots
 test.dependsOn checkCOMPSnapshots

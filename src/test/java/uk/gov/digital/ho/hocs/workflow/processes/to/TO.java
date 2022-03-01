@@ -31,9 +31,9 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/TO_QA.bpmn",
         "processes/TO_CAMPAIGN.bpmn",
         "processes/TO_STOP_LIST.bpmn",
-        "processes/TO_HOME_SEC.bpmn",
         "processes/TO_DISPATCH.bpmn",
-        "processes/TO_EARLY_CLOSURE.bpmn"
+        "processes/TO_EARLY_CLOSURE.bpmn",
+        "processes/TO_CCH_RETURNS.bpmn"
 })
 public class TO {
 
@@ -45,8 +45,10 @@ public class TO {
     private static final String STOP_LIST = "TO_STOP_LIST";
     private static final String DRAFT = "TO_DRAFT";
     private static final String HOME_SEC = "TO_HOME_SEC";
+    private static final String HOME_SEC_INTEREST = "TO_HOME_SEC";
     private static final String DISPATCH = "TO_DISPATCH";
     private static final String EARLY_CLOSURE = "TO_EARLY_CLOSURE";
+    private static final String CCH_RETURNS = "TO_CCH_RETURNS";
 
     // SERVICE TASKS
     private static final String START = "TO_START";
@@ -60,8 +62,11 @@ public class TO {
     private static final String SEND_TO_QA = "SendToQA";
     private static final String SEND_TO_DISPATCH = "SendToDispatch";
     private static final String SEND_TO_STOP_LIST = "SendToStopList";
-    private static final String REJECT_DRAFT = "RejectDraft";
+    private static final String REJECT_DRAFT = "SendToDraft";
     private static final String CLOSE_CASE = "CloseCase";
+    private static final String TRANSFER_TO_CCH_RETURNS = "TransferToCCH";
+    private static final String CCH_RETURNS_CLOSE = "Closed";
+    private static final String CCH_RETURNS_TRANSFERRED = "Transferred";
 
 
     @Rule
@@ -99,7 +104,7 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "")
+                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -199,6 +204,160 @@ public class TO {
 
         verify(TOProcess, times(0))
                 .hasCompleted(DISPATCH);
+
+        // CASE COMPLETED
+        verify(bpmnService).completeCase(any());
+    }
+
+    @Test
+    public void TestCCHReturnsClose() {
+        whenAtCallActivity(DATA_INPUT)
+                .deploy(rule);
+
+        whenAtCallActivity(TRIAGE)
+                .alwaysReturn("BusAreaStatus", "Transferred")
+                .alwaysReturn("TROFTeamUUID", "b388a232-3f17-4f1e-8d86-30862b526d91")
+                .alwaysReturn("TriageOutcome", SEND_TO_DRAFT)
+                .deploy(rule);
+
+        whenAtCallActivity(EARLY_CLOSURE)
+                .deploy(rule);
+
+        whenAtCallActivity(CCH_RETURNS)
+                .alwaysReturn("BusAreaStatus", "Confirmed")
+                .alwaysReturn("CCHReturnsDirection", CCH_RETURNS_CLOSE)
+                .deploy(rule);
+
+        Scenario.run(TOProcess)
+                .startByKey("TO")
+                .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(START);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(DATA_INPUT);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(TRIAGE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(CCH_RETURNS);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(EARLY_CLOSURE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(COMPLETE_CASE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(END);
+
+        // NOT CALLED CHECK
+        verify(TOProcess, times(0))
+                .hasCompleted(CAMPAIGN);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(STOP_LIST);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(DRAFT);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(QA);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(DISPATCH);
+
+        // CASE COMPLETED
+        verify(bpmnService).completeCase(any());
+    }
+
+    @Test
+    public void testTransferToCCHTriage(){
+        whenAtCallActivity(DATA_INPUT)
+                .deploy(rule);
+
+        whenAtCallActivity(TRIAGE)
+                .thenReturn("BusAreaStatus", "Transferred",
+                        "TROFTeamUUID", "b388a232-3f17-4f1e-8d86-30862b526d91",
+                        "TriageOutcome", SEND_TO_DRAFT)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "TriageOutcome", SEND_TO_DRAFT)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "TriageOutcome", SEND_TO_DRAFT)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "TriageOutcome", SEND_TO_DRAFT)
+                .deploy(rule);
+
+        whenAtCallActivity(CCH_RETURNS)
+                .alwaysReturn("BusAreaStatus", "Confirmed")
+                .alwaysReturn("CCHReturnsDirection", CCH_RETURNS_TRANSFERRED)
+                .deploy(rule);
+
+        whenAtCallActivity(DRAFT)
+                .thenReturn("BusAreaStatus", "Transferred",
+                        "TROFTeamUUID", "b388a232-3f17-4f1e-8d86-30862b526d91",
+                        "DraftStatus", SEND_TO_QA)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "DraftStatus", SEND_TO_QA)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "DraftStatus", SEND_TO_QA)
+                .deploy(rule);
+
+        whenAtCallActivity(QA)
+                .thenReturn("BusAreaStatus", "Transferred",
+                        "TROFTeamUUID", "b388a232-3f17-4f1e-8d86-30862b526d91",
+                        "QaStatus", SEND_TO_DISPATCH)
+                .thenReturn("BusAreaStatus", "Confirmed",
+                        "HomeSecInterest", "No",
+                        "QaStatus", SEND_TO_DISPATCH)
+                .deploy(rule);
+
+        whenAtCallActivity(DISPATCH)
+                .alwaysReturn("DispatchStatus", "Dispatched")
+                .deploy(rule);
+
+        Scenario.run(TOProcess)
+                .startByKey("TO")
+                .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(START);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(DATA_INPUT);
+
+        verify(TOProcess, times(4))
+                .hasCompleted(TRIAGE);
+
+        verify(TOProcess, times(3))
+                .hasCompleted(CCH_RETURNS);
+
+        verify(TOProcess, times(3))
+                .hasCompleted(DRAFT);
+
+        verify(TOProcess, times(2))
+                .hasCompleted(QA);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(DISPATCH);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(COMPLETE_CASE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(END);
+
+        // NOT CALLED CHECK
+        verify(TOProcess, times(0))
+                .hasCompleted(CAMPAIGN);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(STOP_LIST);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(EARLY_CLOSURE);
 
         // CASE COMPLETED
         verify(bpmnService).completeCase(any());
@@ -348,7 +507,7 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .alwaysReturn("QaStatus", SEND_TO_DISPATCH)
-                .alwaysReturn("HomeSecInt", "Yes")
+                .alwaysReturn("HomeSecInterest", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity(HOME_SEC)
@@ -411,11 +570,13 @@ public class TO {
         whenAtCallActivity(TRIAGE)
                 .alwaysReturn("BusAreaStatus", "Confirmed")
                 .alwaysReturn("TriageOutcome", SEND_TO_DRAFT)
+                .alwaysReturn("HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DRAFT)
                 .alwaysReturn("BusAreaStatus", "Confirmed")
                 .alwaysReturn("DraftStatus", SEND_TO_DISPATCH)
+                .alwaysReturn("HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -499,19 +660,19 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", PUT_ON_CAMPAIGN
                 )
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .thenReturn(
-                        "HomeSecInt", "No",
+                        "HomeSecInterest", "No",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .deploy(rule);
@@ -619,19 +780,19 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_STOP_LIST
                 )
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .thenReturn(
-                        "HomeSecInt", "Yes",
+                        "HomeSecInterest", "Yes",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .thenReturn(
-                        "HomeSecInt", "No",
+                        "HomeSecInterest", "No",
                         "QaStatus", SEND_TO_DISPATCH
                 )
                 .deploy(rule);
@@ -728,7 +889,10 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .alwaysReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "")
+                .thenReturn(
+                        "BusAreaStatus", "Transferred"
+                )
+                .thenReturn("BusAreaStatus", "Confirmed","QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)
@@ -751,7 +915,7 @@ public class TO {
         verify(TOProcess, times(2))
                 .hasCompleted(DRAFT);
 
-        verify(TOProcess, times(1))
+        verify(TOProcess, times(2))
                 .hasCompleted(QA);
 
         verify(TOProcess, times(1))
@@ -797,8 +961,8 @@ public class TO {
 
         whenAtCallActivity(QA)
                 .thenReturn("QaStatus", SEND_TO_DRAFT)
-                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "Yes")
-                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "Yes")
+                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "Yes")
+                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity(HOME_SEC)
@@ -884,8 +1048,8 @@ public class TO {
                 .deploy(rule);
 
         whenAtCallActivity(QA)
-                .thenReturn("QaStatus", SEND_TO_TRIAGE)
-                .thenReturn("QaStatus", SEND_TO_DISPATCH, "HomeSecInt", "")
+                .thenReturn("BusAreaStatus", "Confirmed","QaStatus", SEND_TO_TRIAGE)
+                .thenReturn("BusAreaStatus", "Confirmed","QaStatus", SEND_TO_DISPATCH, "HomeSecInterest", "No")
                 .deploy(rule);
 
         whenAtCallActivity(DISPATCH)

@@ -17,6 +17,7 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCasework
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
+import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
@@ -25,6 +26,7 @@ import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
+import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -38,6 +40,7 @@ import static java.util.stream.Collectors.toList;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_CLOSE_ERROR;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_NOTE_FAILED;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES;
 
@@ -167,16 +170,21 @@ public class WorkflowService {
     }
 
     public void createDocument(UUID caseUUID, UUID actionDataItemUuid, List<DocumentSummary> documents) {
+
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                documentClient.createDocument(
+
+                CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
+                        document.getDisplayName(),
+                        document.getType(),
+                        document.getS3UntrustedUrl(),
                         caseUUID,
                         actionDataItemUuid,
-                        document.getDisplayName(),
-                        document.getS3UntrustedUrl(),
-                        document.getType()
+                        userPermissionsService.getUserId()
                 );
+
+                documentClient.createDocument(caseUUID, request);
             }
         }
 
@@ -185,12 +193,15 @@ public class WorkflowService {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                documentClient.createDocument(
-                        caseUUID,
+                CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
                         document.getDisplayName(),
+                        document.getType(),
                         document.getS3UntrustedUrl(),
-                        document.getType()
+                        caseUUID,
+                        null,
+                        userPermissionsService.getUserId()
                 );
+                documentClient.createDocument(caseUUID, request);
             }
         }
     }
@@ -418,10 +429,13 @@ public class WorkflowService {
         camundaClient.removeProcess(stageUuid);
     }
 
-    public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, Map<String, String> request) {
+    public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, String caseDataType, Map<String, String> request) {
         log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
+        String msg = caseDataType != null ? NoteType.valueOf(caseDataType).getDefaultMessage() : NoteType.CASE_DATA.getDefaultMessage();
+
         camundaClient.updateTask(stageUUID, request);
         caseworkClient.updateCase(caseUUID, stageUUID, request);
+        caseworkClient.createCaseNote(caseUUID, caseDataType, msg);
         log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
     }
 
