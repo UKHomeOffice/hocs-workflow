@@ -130,7 +130,7 @@ public class SecurityIntegrationTest {
 
         setUpAdminTeamLogic(caseUUID, false);
         when(userPermissionsService.getUserTeams()).thenReturn(Set.of(teamUUID));
-        when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.from(5));
+        when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.OWNER);
         when(workflowService.createCase(caseType, LocalDate.now(),new ArrayList<>(), userUUID, null, requestData)).thenReturn(new CreateCaseResponse(caseUUID,"CASE_REF"));
 
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
@@ -142,7 +142,7 @@ public class SecurityIntegrationTest {
     @Test
     public void shouldReturnUnauthorisedForCreateCaseWhenUserIsNotInGroup() {
         String caseType = "TRO";
-        when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.from(0));
+        when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.UNSET);
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest(caseType,LocalDate.now(), new HashMap<>(), new ArrayList<>(), null), headers);
         ResponseEntity<String> result = restTemplate.exchange( getBasePath()  + "/case", HttpMethod.POST, httpEntity, String.class);
@@ -153,7 +153,7 @@ public class SecurityIntegrationTest {
     public void shouldCreateCaseWhenUserInAdminTeam() {
         String caseType = "MIN";
 
-        when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.from(6));
+        when(userPermissionsService.getMaxAccessLevel(caseType)).thenReturn(AccessLevel.CASE_ADMIN);
 
         headers.add(RequestData.USER_ID_HEADER, userId.toString());
         HttpEntity<CreateCaseRequest> httpEntity = new HttpEntity<>(new CreateCaseRequest("MIN",LocalDate.now(), new HashMap<>(), new ArrayList<>(), null), headers);
