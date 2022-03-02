@@ -39,6 +39,7 @@ public class AccessLevelTest {
             switch (accessLevel) {
                 case UNSET:
                 case MIGRATE:
+                case RESTRICTED_OWNER:
                 case SUMMARY:
                 case READ:
                 case WRITE:
