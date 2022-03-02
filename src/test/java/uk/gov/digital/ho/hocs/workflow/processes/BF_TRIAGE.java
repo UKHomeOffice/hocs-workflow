@@ -45,6 +45,10 @@ public class BF_TRIAGE {
 
     @Test
     public void testHappyPath(){
+        when(process.waitsAtUserTask("Validate_Accept_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "BfTriageAccept", "Yes")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
+
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
@@ -59,7 +63,20 @@ public class BF_TRIAGE {
     }
 
     @Test
+    public void testTriageReject(){
+        when(process.waitsAtUserTask("Validate_Accept_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "BfTriageAccept", "No")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "No")));
+
+        Scenario.run(process).startByKey("BF_TRIAGE").execute();
+        verify(process).hasCompleted("EndEvent_BF_TRIAGE");
+    }
+
+    @Test
     public void testValidateContributionsBackThenComplete(){
+        when(process.waitsAtUserTask("Validate_Accept_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
+
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
@@ -74,6 +91,9 @@ public class BF_TRIAGE {
 
     @Test
     public void testCompleteComplaint(){
+        when(process.waitsAtUserTask("Validate_Accept_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
+
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
@@ -92,6 +112,9 @@ public class BF_TRIAGE {
 
     @Test
     public void testEscalate(){
+        when(process.waitsAtUserTask("Validate_Accept_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
+
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
