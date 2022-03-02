@@ -11,4 +11,6 @@ import static uk.gov.digital.ho.hocs.workflow.security.AccessLevel.UNSET;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Authorised {
     AccessLevel accessLevel() default UNSET;
+
+    AccessLevel[] permittedLowerLevels() default {};
 }
