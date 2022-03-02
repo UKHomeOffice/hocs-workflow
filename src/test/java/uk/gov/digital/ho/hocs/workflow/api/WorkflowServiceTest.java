@@ -340,6 +340,24 @@ public class WorkflowServiceTest {
         caseworkClient.getCorrespondentsForCase(caseUUID);
     }
 
+    @Test
+    public void migrateCase() {
+        String caseDataType = "BF";
+        UUID fromCaseUUID = UUID.randomUUID();
+        UUID toCaseUUID = UUID.randomUUID();
+        Map<String, String> caseDataMap = new HashMap<>();
+        MigrateCaseworkCaseResponse migrateCaseworkCaseResponse = new MigrateCaseworkCaseResponse(toCaseUUID, caseDataMap);
+
+        ArgumentCaptor<MigrateCaseworkCaseRequest> argumentCaptor = ArgumentCaptor.forClass(MigrateCaseworkCaseRequest.class);
+        when(caseworkClient.migrateCase(eq(fromCaseUUID), any(MigrateCaseworkCaseRequest.class))).thenReturn(migrateCaseworkCaseResponse);
+
+        workflowService.migrateCase(caseDataType, fromCaseUUID);
+
+        verify(camundaClient, times(1)).startCase(toCaseUUID, caseDataType, caseDataMap);
+        verify(caseworkClient, times(1)).migrateCase(eq(fromCaseUUID), argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getType()).isEqualTo(caseDataType);
+
+    }
 
     @Test
     public void getCreateCaseRequest_WhenEntitylistDocuments() {

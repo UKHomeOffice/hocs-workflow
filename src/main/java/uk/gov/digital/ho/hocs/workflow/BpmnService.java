@@ -103,6 +103,13 @@ public class BpmnService {
         }
     }
 
+    public void migrateCase(@NotNull String caseType, @NotNull String fromCaseUUID) {
+        UUID caseUuid = UUID.fromString(fromCaseUUID);
+        workflowService.migrateCase(caseType, caseUuid);
+
+        log.info("Migrating case for caseType {} from caseUUID {}", caseType, fromCaseUUID);
+    }
+
     /**
      * This method has now been deprecated, however as Camunda stores a stack of sub-processes to create as cases
      * enter a subprocess, this method needs to remain for completion of stages created, but not completed prior to this
