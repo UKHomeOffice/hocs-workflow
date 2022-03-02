@@ -40,6 +40,12 @@ public class CaseworkClient {
         return response;
     }
 
+    public MigrateCaseworkCaseResponse migrateCase(UUID caseUUID, MigrateCaseworkCaseRequest migrateCaseworkCaseRequest) {
+        MigrateCaseworkCaseResponse response = restHelper.post(serviceBaseURL, String.format("/case/%s/migrate", caseUUID), migrateCaseworkCaseRequest, MigrateCaseworkCaseResponse.class);
+        log.info("Migrated Case from {} to {}, {}", caseUUID, response.getUuid(), value(EVENT, CREATE_CASE_SUCCESS));
+        return response;
+    }
+
     public void updateCase(UUID caseUUID, UUID stageUUID, Map<String, String> data) {
         UpdateCaseworkCaseDataRequest request = new UpdateCaseworkCaseDataRequest(data);
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/data", caseUUID, stageUUID), request, Void.class);

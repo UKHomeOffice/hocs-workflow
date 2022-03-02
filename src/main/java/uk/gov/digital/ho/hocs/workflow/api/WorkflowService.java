@@ -13,6 +13,8 @@ import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkC
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStagesResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
@@ -136,6 +138,17 @@ public class WorkflowService {
             throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
+    }
+
+    public void migrateCase(String caseDataType, UUID fromCaseUUID) {
+
+        MigrateCaseworkCaseRequest migrateCaseworkCaseRequest = new MigrateCaseworkCaseRequest(caseDataType);
+
+        MigrateCaseworkCaseResponse caseResponse = caseworkClient.migrateCase(fromCaseUUID, migrateCaseworkCaseRequest);
+
+        UUID caseUUID = caseResponse.getUuid();
+        camundaClient.startCase(caseUUID, caseDataType, caseResponse.getCaseDataMap());
+
     }
 
     private CreateCaseworkCorrespondentRequest buildCorrespondentRequest(Map<String, String> data) {
