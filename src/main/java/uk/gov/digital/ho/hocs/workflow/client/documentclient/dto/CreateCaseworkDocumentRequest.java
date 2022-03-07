@@ -31,6 +31,4 @@ public class CreateCaseworkDocumentRequest {
 
     @JsonProperty("actionDataItemUuid")
     private UUID actionDataItemUuid;
-
-    private UUID uploadOwnerUUID;
 }

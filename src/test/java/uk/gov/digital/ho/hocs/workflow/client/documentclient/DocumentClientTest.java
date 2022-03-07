@@ -8,13 +8,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -38,7 +35,6 @@ public class DocumentClientTest {
     public void createDocument() {
         // given
         UUID caseUuid = UUID.randomUUID();
-        UUID ownerUUID = UUID .randomUUID();
         String expectedUrl = String.format("/document");
 
         CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
@@ -46,8 +42,7 @@ public class DocumentClientTest {
                 "type",
                 "fileLocation",
                 caseUuid,
-                null,
-                ownerUUID
+                null
         );
 
         // when
@@ -70,7 +65,6 @@ public class DocumentClientTest {
     public void createDocumentForAction() {
         // given
         UUID caseUuid = UUID.randomUUID();
-        UUID ownerUUID = UUID .randomUUID();
         UUID actionDataItemUuid = UUID.randomUUID();
         String expectedUrl = String.format("/document");
 
@@ -79,8 +73,7 @@ public class DocumentClientTest {
                 "type",
                 "fileLocation",
                 caseUuid,
-                actionDataItemUuid,
-                ownerUUID
+                actionDataItemUuid
         );
 
         // when
