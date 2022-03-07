@@ -37,7 +37,10 @@ public enum LogEvent {
     MIGRATION_EVENT,
     CASE_CLOSE_ERROR,
     WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES,
+    AUTH_FILTER_FAILURE,
+    AUTH_FILTER_SUCCESS,
     CASE_NOTE_FAILED;
+  
     public static final String EVENT = "event_id";
     public static final String EXCEPTION = "exception";
 }

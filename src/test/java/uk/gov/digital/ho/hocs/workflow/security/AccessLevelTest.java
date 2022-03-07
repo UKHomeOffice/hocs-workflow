@@ -18,7 +18,6 @@ public class AccessLevelTest {
         assertThat(WRITE.getLevel()).isEqualTo(5);
         assertThat(OWNER.getLevel()).isEqualTo(6);
         assertThat(CASE_ADMIN.getLevel()).isEqualTo(7);
-
     }
 
     @Test

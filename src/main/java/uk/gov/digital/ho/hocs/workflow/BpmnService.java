@@ -587,6 +587,13 @@ public class BpmnService {
         return caseworkClient.calculateDeadline(caseType, startDate, workingDays);
     }
 
+    public void mapCaseData(String caseUUIDString, String... argPairs) {
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+        Map<String, String> keyMappings = parseArgPairs(argPairs);
+
+        caseworkClient.mapCaseData(caseUUID, keyMappings);
+    }
+
     private NoteDetails fetchNoteDetails(String caseUUIDString, String allocationStageUUID) {
         String oldTeamName = infoClient.getTeam(caseworkClient.getStageTeam(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID))).getDisplayName();
         String caseworkStageType = caseworkClient.getStageType(UUID.fromString(caseUUIDString), UUID.fromString(allocationStageUUID));
