@@ -4,25 +4,6 @@
     <bpmn:startEvent id="StartEvent_BF">
       <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:callActivity id="CallActivity_BF_REGISTRATION" name="Registration" calledElement="STAGE">
-      <bpmn:extensionElements>
-        <camunda:in source="RegistrationUUID" target="StageUUID" />
-        <camunda:in sourceExpression="BF_REGISTRATION" target="StageWorkFlow" />
-        <camunda:in businessKey="#{execution.processBusinessKey}" />
-        <camunda:in variables="all" />
-        <camunda:out source="StageUUID" target="RegistrationUUID" />
-        <camunda:out source="DateReceived" target="DateReceived" />
-        <camunda:in sourceExpression="BF_REGISTRATION" target="StageType" />
-        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
-        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
-        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
-        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
-        <camunda:out source="CompType" target="CompType" />
-        <camunda:out source="Stage" target="Stage" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_1jkxh22</bpmn:incoming>
-      <bpmn:outgoing>Flow_08fga3p</bpmn:outgoing>
-    </bpmn:callActivity>
     <bpmn:endEvent id="EndEvent_BF">
       <bpmn:incoming>SequenceFlow_1y94fvq</bpmn:incoming>
     </bpmn:endEvent>
@@ -33,7 +14,6 @@
       <bpmn:outgoing>SequenceFlow_1y94fvq</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1y94fvq" sourceRef="ServiceTask_CompleteCase" targetRef="EndEvent_BF" />
-    <bpmn:sequenceFlow id="Flow_08fga3p" sourceRef="CallActivity_BF_REGISTRATION" targetRef="CallActivity_BF_TRIAGE" />
     <bpmn:callActivity id="CallActivity_BF_TRIAGE" name="Triage" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="TriageUUID" target="StageUUID" />
@@ -53,9 +33,9 @@
         <camunda:out source="CctTriageAccept" target="CctTriageAccept" />
         <camunda:out source="BFTriageResult" target="BFTriageResult" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_08fga3p</bpmn:incoming>
       <bpmn:incoming>Flow_106rzcp</bpmn:incoming>
       <bpmn:incoming>Flow_172krna</bpmn:incoming>
+      <bpmn:incoming>Flow_08fga3p</bpmn:incoming>
       <bpmn:outgoing>Flow_1xr2nd0</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="CallActivity_BF_SEND" name="SEND" calledElement="STAGE">
@@ -202,9 +182,37 @@
     <bpmn:sequenceFlow id="Flow_172krna" sourceRef="Gateway_1f4aohb" targetRef="CallActivity_BF_TRIAGE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BfQaResult == "RejectToTriage"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:callActivity id="CallActivity_BF_REGISTRATION" name="Registration" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="RegistrationUUID" target="StageUUID" />
+        <camunda:in sourceExpression="BF_REGISTRATION" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="RegistrationUUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="BF_REGISTRATION" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
+        <camunda:out source="CompType" target="CompType" />
+        <camunda:out source="Stage" target="Stage" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1jkxh22</bpmn:incoming>
+      <bpmn:outgoing>Flow_08fga3p</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_08fga3p" sourceRef="CallActivity_BF_REGISTRATION" targetRef="CallActivity_BF_TRIAGE" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BF">
+      <bpmndi:BPMNEdge id="Flow_172krna_di" bpmnElement="Flow_172krna">
+        <di:waypoint x="1145" y="310" />
+        <di:waypoint x="1230" y="310" />
+        <di:waypoint x="1230" y="510" />
+        <di:waypoint x="530" y="510" />
+        <di:waypoint x="530" y="210" />
+        <di:waypoint x="570" y="210" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0p2whb3_di" bpmnElement="Flow_0p2whb3">
         <di:waypoint x="1095" y="310" />
         <di:waypoint x="860" y="310" />
@@ -283,14 +291,6 @@
       <bpmndi:BPMNEdge id="SequenceFlow_1jkxh22_di" bpmnElement="SequenceFlow_1jkxh22">
         <di:waypoint x="218" y="191" />
         <di:waypoint x="340" y="191" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_172krna_di" bpmnElement="Flow_172krna">
-        <di:waypoint x="1145" y="310" />
-        <di:waypoint x="1230" y="310" />
-        <di:waypoint x="1230" y="510" />
-        <di:waypoint x="530" y="510" />
-        <di:waypoint x="530" y="210" />
-        <di:waypoint x="570" y="210" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_BF">
         <dc:Bounds x="182" y="173" width="36" height="36" />
