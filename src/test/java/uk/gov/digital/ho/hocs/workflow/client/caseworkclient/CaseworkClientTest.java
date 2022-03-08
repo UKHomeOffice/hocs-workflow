@@ -1,8 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.client.caseworkclient;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
-
-import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -248,6 +244,20 @@ public class CaseworkClientTest {
 
         // THEN
         verify(restHelper, times(1)).put(eq(caseServiceUrl), eq(resourcePath), any(), any());
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void testMapCaseData() {
+        // GIVEN
+        Map<String, String> varMap = new HashMap<>();
+        String expectedURI = String.format("/case/%s/data/map", caseUUID, stageUUID);
+
+        // WHEN
+        caseworkClient.mapCaseData(caseUUID, varMap);
+
+        // THEN
+        verify(restHelper).post(any(),eq(expectedURI), eq(varMap), eq(Void.class));
         verifyNoMoreInteractions(restHelper);
     }
 }
