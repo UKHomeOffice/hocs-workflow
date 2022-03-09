@@ -49,6 +49,8 @@ public class BF2_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("valid", false)))
                 .thenReturn(task -> task.complete(withVariables("valid", true)));
 
+        when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT"))).thenReturn(true);
+
         when(process.waitsAtUserTask("Validate_Complainant"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
@@ -62,6 +64,34 @@ public class BF2_REGISTRATION {
         Scenario.run(process).startByKey("BF2_REGISTRATION").execute();
 
         verify(bpmnService, times(2)).updatePrimaryCorrespondent(any(), any(), any());
+        verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage2"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF2_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(process).hasCompleted("EndEvent_BF2_Registration");
+    }
+
+    @Test
+    public void testNoPrimaryCorrespondents(){
+        when(process.waitsAtUserTask("Validate_Correspondents"))
+                .thenReturn(task -> task.complete(withVariables("valid", true)));
+
+        when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT")))
+                .thenReturn(false)
+                .thenReturn(true);
+
+        when(process.waitsAtUserTask("Validate_Invalid_Correspondents"))
+                .thenReturn(task -> task.complete(withVariables("valid", false)))
+                .thenReturn(task -> task.complete(withVariables("valid", true)));
+
+        when(process.waitsAtUserTask("Validate_Complainant"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(process.waitsAtUserTask("Validate_Complaint_Input"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
+
+        Scenario.run(process).startByKey("BF2_REGISTRATION").execute();
+
+        verify(process, times(2)).hasCompleted("hasPrimaryCorrespondents");
+        verify(process, times(2)).hasCompleted("Invalid_Correspondents");
         verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage2"));
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF2_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
         verify(process).hasCompleted("EndEvent_BF2_Registration");
