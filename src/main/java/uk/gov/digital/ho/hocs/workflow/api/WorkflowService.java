@@ -180,8 +180,7 @@ public class WorkflowService {
                         document.getType(),
                         document.getS3UntrustedUrl(),
                         caseUUID,
-                        actionDataItemUuid,
-                        userPermissionsService.getUserId()
+                        actionDataItemUuid
                 );
 
                 documentClient.createDocument(caseUUID, request);
@@ -198,8 +197,7 @@ public class WorkflowService {
                         document.getType(),
                         document.getS3UntrustedUrl(),
                         caseUUID,
-                        null,
-                        userPermissionsService.getUserId()
+                        null
                 );
                 documentClient.createDocument(caseUUID, request);
             }
