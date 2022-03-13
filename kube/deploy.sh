@@ -6,6 +6,12 @@ export KUBE_SERVER=${KUBE_SERVER}
 export KUBE_TOKEN=${KUBE_TOKEN}
 export VERSION=${VERSION}
 
+echo
+echo "Deploying hocs-workflow to ${ENVIRONMENT}"
+echo "Service version: ${VERSION}"
+echo
+
+
 if [[ ${KUBE_NAMESPACE} == *prod ]]
 then
     export MIN_REPLICAS="2"
