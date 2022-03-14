@@ -46,10 +46,11 @@ public class BF2_TRIAGE {
     public void testHappyPath(){
         when(process.waitsAtUserTask("Validate_Accept_Case"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "BfTriageAccept", "Yes")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(process.waitsAtUserTask("Validate_Contributions"))
