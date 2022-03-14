@@ -1,0 +1,20 @@
+name: 'SemVer - Tag the Commit'
+on:
+  pull_request:
+    types: [ closed ]
+
+jobs:
+  build:
+    name: SemVer Tag on PR Merge
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.base_ref == 'main'
+    steps:
+      - id: label
+        uses: UKHomeOffice/match-label-action@v1.0.0
+        with:
+          labels: minor,major,patch
+          mode: singular
+      - uses: UKHomeOffice/semver-tag-action@v1.0.0
+        with:
+          increment: ${{ steps.label.outputs.matchedLabels }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
