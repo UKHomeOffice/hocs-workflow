@@ -2,6 +2,12 @@
 kind: pipeline
 type: kubernetes
 name: build
+trigger:
+  event:
+    - push
+  branch:
+    exclude:
+      - main
 
 services:
   - name: postgres
@@ -11,11 +17,6 @@ services:
       POSTGRES_PASSWORD: dev
 
 steps:
-  - name: build project
-    image: quay.io/ukhomeofficedigital/openjdk11:v11.0.5_10
-    commands:
-      - ./gradlew assemble --no-daemon
-
   - name: test project
     image: quay.io/ukhomeofficedigital/openjdk11:v11.0.5_10
     environment:
@@ -29,9 +30,7 @@ steps:
       DB_HOST: postgres
       AWS_LOCAL_HOST: localstack
     commands:
-      - ./gradlew check --no-daemon  --stacktrace
-    depends_on:
-      - build project
+      - ./gradlew clean build --no-daemon
 
   - name: sonar scanner
     image: quay.io/ukhomeofficedigital/sonar-scanner:v4.6
@@ -47,60 +46,20 @@ steps:
       repo: quay.io/ukhomeofficedigital/hocs-workflow
       tags:
         - ${DRONE_COMMIT_SHA}
-        - branch-${DRONE_COMMIT_BRANCH/\//_}
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-    when:
-      branch:
-        exclude:
-          - main
-          - "dependabot*"
     depends_on:
       - test project
-
-  - name: build & push latest
-    image: plugins/docker
-    settings:
-      registry: quay.io
-      repo: quay.io/ukhomeofficedigital/hocs-workflow
-      tags:
-        - ${DRONE_COMMIT_SHA}
-        - latest
-    environment:
-      DOCKER_PASSWORD:
-        from_secret: QUAY_ROBOT_TOKEN
-      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-    when:
-      branch:
-        include:
-          - main
-    depends_on:
-      - test project
-
-trigger:
-  event:
-    - push
 
 ---
 kind: pipeline
 type: kubernetes
 name: deploy
-depends_on:
-  - build
 trigger:
   event:
-    exclude:
-      - pull_request
-      - tag
-
-services:
-  - name: docker
-    image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
-
-environment:
-  DOCKER_HOST: tcp://docker:2375
+    - promote
 
 steps:
   - name: fetch and checkout
@@ -109,91 +68,9 @@ steps:
       - git fetch --tags
       - git checkout $${VERSION}
 
-  - name: deploy to cs-dev
-    image: quay.io/ukhomeofficedigital/kd
-    commands:
-      - cd kube
-      - ./deploy.sh
-    environment:
-      ENVIRONMENT: cs-dev
-      KUBE_TOKEN:
-        from_secret: hocs_workflow_cs_dev
-      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-      VERSION: "${DRONE_COMMIT_SHA}"
-    depends_on:
-      - fetch and checkout
-    when:
-      branch:
-        - main
-      event:
-        - push
-
-  - name: deploy to wcs-dev
-    image: quay.io/ukhomeofficedigital/kd
-    commands:
-      - cd kube
-      - ./deploy.sh
-    environment:
-      ENVIRONMENT: wcs-dev
-      KUBE_TOKEN:
-        from_secret: hocs_workflow_wcs_dev
-      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-      VERSION: "${DRONE_COMMIT_SHA}"
-    depends_on:
-      - fetch and checkout
-    when:
-      branch:
-        - main
-      event:
-        - push
-
-  - name: wait for docker
-    image: docker
-    commands:
-      - n=0; until docker stats --no-stream; do echo "Waiting for Docker $n"; n=$((n +1)); sleep 1; done
-    when:
-      event:
-        - promote
-      target:
-        - release
-
-  - name: generate & tag build
-    image: quay.io/ukhomeofficedigital/hocs-version-bot
-    commands:
-      - >
-        /app/hocs-deploy
-        --dockerRepository=quay.io/ukhomeofficedigital
-        --environment=qa
-        --registryPassword=$${DOCKER_PASSWORD}
-        --registryUser=ukhomeofficedigital+hocs_quay_robot
-        --service=hocs-workflow
-        --serviceGitToken=$${GITHUB_TOKEN}
-        --sourceBuild=$${VERSION}
-        --version=$${SEMVER}
-        --versionRepo="https://gitlab.digital.homeoffice.gov.uk/hocs/hocs-versions.git"
-        --versionRepoServiceToken=$${GITLAB_TOKEN}
-    environment:
-      DOCKER_API_VERSION: 1.40
-      DOCKER_PASSWORD:
-        from_secret: QUAY_ROBOT_TOKEN
-      GITLAB_TOKEN:
-        from_secret: GITLAB_TOKEN
-      GITHUB_TOKEN:
-        from_secret: GITHUB_TOKEN
-    depends_on:
-      - wait for docker
-      - fetch and checkout
-    when:
-      event:
-        - promote
-      target:
-        - release
-
   - name: deploy to cs-qa
     image: quay.io/ukhomeofficedigital/kd
     commands:
-      - source version.txt
-      - echo $VERSION
       - cd kube
       - ./deploy.sh
     environment:
@@ -202,18 +79,14 @@ steps:
         from_secret: hocs_workflow_cs_qa
       KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     when:
-      event:
-        - promote
       target:
         - release
     depends_on:
-      - generate & tag build
+      - fetch and checkout
 
   - name: deploy to wcs-qa
     image: quay.io/ukhomeofficedigital/kd
     commands:
-      - source version.txt
-      - echo $VERSION
       - cd kube
       - ./deploy.sh
     environment:
@@ -222,12 +95,10 @@ steps:
         from_secret: hocs_workflow_wcs_qa
       KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     when:
-      event:
-        - promote
       target:
         - release
     depends_on:
-      - generate & tag build
+      - fetch and checkout
 
   - name: deploy to not prod
     image: quay.io/ukhomeofficedigital/kd
@@ -242,8 +113,6 @@ steps:
     depends_on:
       - fetch and checkout
     when:
-      event:
-        - promote
       target:
         exclude:
           - release
@@ -262,8 +131,103 @@ steps:
     depends_on:
       - fetch and checkout
     when:
-      event:
-        - promote
       target:
         include:
           - "*-prod"
+
+---
+kind: pipeline
+type: kubernetes
+name: build tag
+trigger:
+  event:
+    - tag
+  branch:
+    - main
+
+services:
+  - name: postgres
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: dev
+
+steps:
+  - name: test project
+    image: quay.io/ukhomeofficedigital/openjdk11:v11.0.5_10
+    environment:
+      SPRING_PROFILES_ACTIVE: "development, local"
+      DOCS_QUEUE_NAME: document-queue
+      DOCS_QUEUE_DLQ_NAME: document-queue-dlq
+      HOCS_URL: http://localhost:8080
+      HOCS_CASE_SERVICE: http://casework:8080
+      HOCS_DOCUMENT_SERVICE: http://documents:8080
+      HOCS_INFO_SERVICE: http://info:8080
+      DB_HOST: postgres
+      AWS_LOCAL_HOST: localstack
+    commands:
+      - ./gradlew clean build --no-daemon
+
+  - name: sonar scanner
+    image: quay.io/ukhomeofficedigital/sonar-scanner
+    commands:
+      - sonar-scanner -Dsonar.projectVersion="$(git rev-parse --abbrev-ref HEAD)"
+    depends_on:
+      - test project
+
+  - name: build & push
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/ukhomeofficedigital/hocs-workflow
+      tags:
+        - ${DRONE_TAG}
+        - ${DRONE_COMMIT_SHA}
+        - latest
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: QUAY_ROBOT_TOKEN
+      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    depends_on:
+      - test project
+
+---
+kind: pipeline
+type: kubernetes
+name: deploy tag
+trigger:
+  event:
+    - tag
+  branch:
+    - main
+depends_on:
+  - build tag
+
+steps:
+  - name: deploy to cs-dev
+    image: quay.io/ukhomeofficedigital/kd
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: cs-dev
+      KUBE_TOKEN:
+        from_secret: hocs_workflow_cs_dev
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      VERSION: "${DRONE_TAG}"
+    depends_on:
+      - clone
+
+  - name: deploy to wcs-dev
+    image: quay.io/ukhomeofficedigital/kd
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: wcs-dev
+      KUBE_TOKEN:
+        from_secret: hocs_workflow_wcs_dev
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      VERSION: "${DRONE_TAG}"
+    depends_on:
+      - clone
