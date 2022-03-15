@@ -80,6 +80,21 @@ public class BF_TRIAGE {
     }
 
     @Test
+    public void testTriageRejectToCCH(){
+        when(process.waitsAtUserTask("Validate_Accept_Case"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "No")));
+
+        when(process.waitsAtUserTask("Transfer_Case"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", true, "TransferType", "CCH", "CaseNote_TriageTransfer", "Reject note")));
+
+        Scenario.run(process).startByKey("BF_TRIAGE").execute();
+        verify(process).hasCompleted("EndEvent_BF_TRIAGE");
+        verify(process).hasCompleted("Save_Reject_Note");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject note"), eq("REJECT"));
+        verify(bpmnService).migrateCase(eq("COMP"), any());
+    }
+
+    @Test
     public void testValidateContributionsBackThenComplete(){
         when(process.waitsAtUserTask("Validate_Accept_Case"))
                 .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
