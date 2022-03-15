@@ -187,15 +187,12 @@ public class WorkflowServiceTest {
     public void createDocument() {
         // given
         UUID caseUuid = UUID.randomUUID();
-        UUID userUUID = UUID.randomUUID();
         UUID actionDataItemUuid = UUID.randomUUID();
 
         final List<DocumentSummary> documentSummaries = List.of(
                 new DocumentSummary("displayName1", "type1", "url1"),
                 new DocumentSummary("displayName2", "type2", "url2")
         );
-
-        when(userPermissionsService.getUserId()).thenReturn(userUUID);
 
         // when
         workflowService.createDocument(caseUuid, actionDataItemUuid, documentSummaries);

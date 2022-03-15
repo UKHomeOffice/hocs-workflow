@@ -32,15 +32,6 @@ public class DocumentClient {
         log.info("Created Document {}, Case {}", response, caseUUID, value(EVENT, DOCUMENT_CLIENT_CREATE_SUCCESS));
     }
 
-//    public void createDocument(
-//            UUID caseUUID,
-//            String displayName,
-//            String fileLocation,
-//            String type
-//    ) {
-//        createDocument(caseUUID, null, displayName, fileLocation, type);
-//    }
-
     public String getDocumentName(UUID documentUUID) {
         final String response = restHelper.get(serviceBaseURL, String.format("/document/%s/name", documentUUID), String.class);
         log.info("Get Document Name: {} for UUID {}", response, documentUUID);

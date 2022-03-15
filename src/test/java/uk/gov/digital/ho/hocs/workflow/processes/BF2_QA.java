@@ -53,9 +53,24 @@ public class BF2_QA {
     }
 
     @Test
-    public void testReject(){
+    public void testRejectToTriage(){
         when(process.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfQaResult", "Reject")));
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfQaResult", "RejectToTriage")));
+
+        when(process.waitsAtUserTask("Validate_Reject_reason"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        Scenario.run(process).startByKey("BF2_QA").execute();
+        verify(process).hasCompleted("Save_Reject_Note");
+        verify(process).hasCompleted("EndEvent_BF2_QA");
+    }
+
+    @Test
+    public void testRejectToDraft(){
+        when(process.waitsAtUserTask("Validate_Input"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfQaResult", "RejectToDraft")));
 
         when(process.waitsAtUserTask("Validate_Reject_reason"))
                 .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
