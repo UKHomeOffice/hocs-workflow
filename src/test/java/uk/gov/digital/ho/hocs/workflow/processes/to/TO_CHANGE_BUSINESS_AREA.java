@@ -38,6 +38,8 @@ public class TO_CHANGE_BUSINESS_AREA {
     private static final String ALLOCATE_TO_BF_TEAM   = "Activity_1iidtq7";
     private static final String ALLOCATE_TO_HMPO_TEAM = "Activity_18m7196";
     private static final String UPDATE_BUS_AREA_STATUS = "Activity_1t646w4";
+    private static final String CLEAR_REALLOCATION_NOTE = "Activity_0sgqe01";
+    private static final String SAVE_REALLOCATION_NOTE = "Activity_0vi156d";
 
     @Rule
     @ClassRule
@@ -71,6 +73,12 @@ public class TO_CHANGE_BUSINESS_AREA {
                 .execute();
 
         verify(TOProcess, times(1))
+                .hasCompleted(CLEAR_REALLOCATION_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(SAVE_REALLOCATION_NOTE);
+
+        verify(TOProcess, times(1))
                 .hasCompleted(TO_SELECT_BUSINESS_AREA);
 
         verify(TOProcess, times(1))
@@ -97,6 +105,12 @@ public class TO_CHANGE_BUSINESS_AREA {
         Scenario.run(TOProcess)
                 .startByKey("TO_CHANGE_BUSINESS_AREA")
                 .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(CLEAR_REALLOCATION_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(SAVE_REALLOCATION_NOTE);
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_SELECT_BUSINESS_AREA);
@@ -129,6 +143,12 @@ public class TO_CHANGE_BUSINESS_AREA {
                 .execute();
 
         verify(TOProcess, times(1))
+                .hasCompleted(CLEAR_REALLOCATION_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(SAVE_REALLOCATION_NOTE);
+
+        verify(TOProcess, times(1))
                 .hasCompleted(TO_SELECT_BUSINESS_AREA);
 
         verify(TOProcess, times(0))
@@ -157,6 +177,12 @@ public class TO_CHANGE_BUSINESS_AREA {
         Scenario.run(TOProcess)
                 .startByKey("TO_CHANGE_BUSINESS_AREA")
                 .execute();
+
+        verify(TOProcess, times(1))
+                .hasCompleted(CLEAR_REALLOCATION_NOTE);
+
+        verify(TOProcess, times(0))
+                .hasCompleted(SAVE_REALLOCATION_NOTE);
 
         verify(TOProcess, times(1))
                 .hasCompleted(TO_SELECT_BUSINESS_AREA);

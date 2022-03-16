@@ -1,0 +1,58 @@
+---
+kind: pipeline
+type: kubernetes
+name: validate k8
+trigger:
+  event:
+    - push
+  branch:
+    exclude:
+      - main
+
+# This pipeline ensures that any bash files don't contain any issues.
+#
+# This is then followed a dry running the deploy.sh with a not-prod and
+# prod environment set. DRY_RUN=true ensures they don't do anything.
+#
+# We're essentially checking that deploy.sh finishes with an exit code
+# of zero, which will only happen if all accessed environment variables
+# are defined correctly
+#
+# This Drone pipeline doesn't have access to actual kube tokens so there's
+# no danger of actually deploying anywhere
+
+steps:
+  - name: lint bash
+    image: koalaman/shellcheck-alpine
+    commands:
+      - shellcheck kube/*.sh
+    depends_on:
+      - clone
+
+  - name: dry-run kd dev
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    environment:
+      DRY_RUN: true
+      VERSION: test
+      ENVIRONMENT: wcs-dev
+      KUBE_TOKEN: test
+      KUBE_SERVER: test
+    commands:
+      - cd kube
+      - bash -x deploy.sh
+    depends_on:
+      - lint bash
+
+  - name: dry-run kd prod
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    environment:
+      DRY_RUN: true
+      VERSION: test
+      ENVIRONMENT: cs-prod
+      KUBE_TOKEN: test
+      KUBE_SERVER: test
+    commands:
+      - cd kube
+      - bash -x deploy.sh
+    depends_on:
+      - lint bash
