@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+  <bpmn:process id="POGR_REGISTRATION" isExecutable="true">
+    <bpmn:endEvent id="EndEvent_BusinessSelect">
+      <bpmn:incoming>Flow_0p2fc9m</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Screen_BusinessAreaSelect" name="Specify Business Area" camunda:formKey="POGR_BUSINESS_AREA">
+      <bpmn:incoming>Flow_0e5zero</bpmn:incoming>
+      <bpmn:incoming>Flow_1icrh8u</bpmn:incoming>
+      <bpmn:outgoing>Flow_1m6ppjm</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:startEvent id="StartEvent_BusinessSelect">
+      <bpmn:outgoing>Flow_0e5zero</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0e5zero" sourceRef="StartEvent_BusinessSelect" targetRef="Screen_BusinessAreaSelect" />
+    <bpmn:userTask id="Screen_Hmpo_DataInput" name="HMPO Data Input" camunda:formKey="POGR_HMPO_DATA_INPUT">
+      <bpmn:incoming>Flow_1smdms3</bpmn:incoming>
+      <bpmn:outgoing>Flow_08yg89l</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_02t74c2">
+      <bpmn:incoming>Flow_0z9w73r</bpmn:incoming>
+      <bpmn:outgoing>Flow_1smdms3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1dz65xk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1m6ppjm" sourceRef="Screen_BusinessAreaSelect" targetRef="Service_UpdateCaseDeadline" />
+    <bpmn:userTask id="Screen_Gro_DataInput" name="GRO Data Input" camunda:formKey="POGR_GRO_DATA_INPUT">
+      <bpmn:incoming>Flow_1dz65xk</bpmn:incoming>
+      <bpmn:outgoing>Flow_0b2rneo</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Service_UpdateCaseDeadline" name="Update Case Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, execution.getVariable(&#34;DeadlineDays&#34;))}" camunda:resultVariable="StageUUID">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="DeadlineDays">${ BusinessArea == 'GRO' ? 5 : 10 }</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1m6ppjm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0z9w73r</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_08yg89l" sourceRef="Screen_Hmpo_DataInput" targetRef="Gateway_0hpz69o" />
+    <bpmn:sequenceFlow id="Flow_0b2rneo" sourceRef="Screen_Gro_DataInput" targetRef="Gateway_0hpz69o" />
+    <bpmn:sequenceFlow id="Flow_1smdms3" sourceRef="Gateway_02t74c2" targetRef="Screen_Hmpo_DataInput">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ BusinessArea == "HMPO" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0z9w73r" sourceRef="Service_UpdateCaseDeadline" targetRef="Gateway_02t74c2" />
+    <bpmn:sequenceFlow id="Flow_1dz65xk" sourceRef="Gateway_02t74c2" targetRef="Screen_Gro_DataInput">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ BusinessArea == "GRO" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_0hpz69o" default="Flow_1icrh8u">
+      <bpmn:incoming>Flow_08yg89l</bpmn:incoming>
+      <bpmn:incoming>Flow_0b2rneo</bpmn:incoming>
+      <bpmn:outgoing>Flow_0p2fc9m</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1icrh8u</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0p2fc9m" sourceRef="Gateway_0hpz69o" targetRef="EndEvent_BusinessSelect">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1icrh8u" sourceRef="Gateway_0hpz69o" targetRef="Screen_BusinessAreaSelect" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_REGISTRATION">
+      <bpmndi:BPMNEdge id="Flow_1icrh8u_di" bpmnElement="Flow_1icrh8u">
+        <di:waypoint x="810" y="255" />
+        <di:waypoint x="810" y="80" />
+        <di:waypoint x="340" y="80" />
+        <di:waypoint x="340" y="239" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0p2fc9m_di" bpmnElement="Flow_0p2fc9m">
+        <di:waypoint x="835" y="280" />
+        <di:waypoint x="911" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dz65xk_di" bpmnElement="Flow_1dz65xk">
+        <di:waypoint x="590" y="304" />
+        <di:waypoint x="590" y="380" />
+        <di:waypoint x="630" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0z9w73r_di" bpmnElement="Flow_0z9w73r">
+        <di:waypoint x="530" y="279" />
+        <di:waypoint x="565" y="279" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1smdms3_di" bpmnElement="Flow_1smdms3">
+        <di:waypoint x="590" y="254" />
+        <di:waypoint x="590" y="170" />
+        <di:waypoint x="630" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b2rneo_di" bpmnElement="Flow_0b2rneo">
+        <di:waypoint x="680" y="340" />
+        <di:waypoint x="680" y="280" />
+        <di:waypoint x="785" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08yg89l_di" bpmnElement="Flow_08yg89l">
+        <di:waypoint x="680" y="210" />
+        <di:waypoint x="680" y="281" />
+        <di:waypoint x="786" y="281" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1m6ppjm_di" bpmnElement="Flow_1m6ppjm">
+        <di:waypoint x="390" y="279" />
+        <di:waypoint x="430" y="279" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0e5zero_di" bpmnElement="Flow_0e5zero">
+        <di:waypoint x="208" y="279" />
+        <di:waypoint x="290" y="279" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0qfkwvq_di" bpmnElement="Screen_BusinessAreaSelect">
+        <dc:Bounds x="290" y="239" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1q1dr52_di" bpmnElement="StartEvent_BusinessSelect">
+        <dc:Bounds x="172" y="261" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0j3nawz_di" bpmnElement="Screen_Hmpo_DataInput">
+        <dc:Bounds x="630" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_02t74c2_di" bpmnElement="Gateway_02t74c2" isMarkerVisible="true">
+        <dc:Bounds x="565" y="254" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0d914h5_di" bpmnElement="Screen_Gro_DataInput">
+        <dc:Bounds x="630" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qjd5b9_di" bpmnElement="Service_UpdateCaseDeadline">
+        <dc:Bounds x="430" y="239" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0hpz69o_di" bpmnElement="Gateway_0hpz69o" isMarkerVisible="true">
+        <dc:Bounds x="785" y="255" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_BusinessSelect">
+        <dc:Bounds x="911" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="797" y="92" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
