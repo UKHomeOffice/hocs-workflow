@@ -23,7 +23,6 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/POGR/POGR.bpmn",
-        "processes/POGR/POGR_REGISTRATION.bpmn",
         "processes/STAGE.bpmn"})
 public class POGR {
 
