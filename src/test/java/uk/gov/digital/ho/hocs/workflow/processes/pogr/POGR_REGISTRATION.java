@@ -30,7 +30,7 @@ public class POGR_REGISTRATION {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(0.1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -55,17 +55,23 @@ public class POGR_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "FORWARD")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
         Scenario.run(processScenario)
                 .startByKey("POGR_REGISTRATION")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
-        verify(processScenario, times(2)).hasCompleted("Screen_BusinessAreaSelect");
-        verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
+        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(2)).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
-        verify(bpmnService, times(2)).updateDeadlineDays(any(), any(), eq("10"));
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("10"));
     }
 
     @Test
@@ -77,18 +83,23 @@ public class POGR_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "FORWARD")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
         Scenario.run(processScenario)
                 .startByKey("POGR_REGISTRATION")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
-        verify(processScenario, times(2)).hasCompleted("Screen_BusinessAreaSelect");
-        verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
+        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(2)).hasCompleted("Screen_Gro_DataInput");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
-        verify(bpmnService, times(2)).updateDeadlineDays(any(), any(), eq("5"));
-
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
     }
 
     @Test
@@ -97,8 +108,10 @@ public class POGR_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
-        when(processScenario.waitsAtUserTask("Screen_Gro_DataInput"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")));
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "BACKWARD")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
 
         when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
@@ -110,13 +123,12 @@ public class POGR_REGISTRATION {
         verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
         verify(processScenario, times(2)).hasCompleted("Screen_BusinessAreaSelect");
         verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
-        verify(processScenario).hasCompleted("Screen_Gro_DataInput");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("10"));
     }
-
 
 }
