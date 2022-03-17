@@ -797,18 +797,45 @@ public class WorkflowServiceTest {
     }
 
     @Test
-    public void updateCaseDataValues() {
+    public void updateCaseDataValues_ActiveStages() {
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
         String caseDataType = "CASE_DATA";
         Map<String, String> request = new HashMap<>();
         String msg = "Case data updated";
 
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(new StageDto()));
+
         workflowService.updateCaseDataValues(caseUUID, stageUUID, caseDataType, request);
 
-        verify(camundaClient).updateTask(stageUUID, request);
-        verify(caseworkClient).updateCase(caseUUID, stageUUID, request);
-        verify(caseworkClient).createCaseNote(caseUUID, caseDataType, msg);
+        verify(caseworkClient, times(1)).getActiveStage(caseUUID);
+        verify(camundaClient, times(1)).updateTask(stageUUID, request);
+        verify(caseworkClient, times(1)).updateCase(caseUUID, stageUUID, request);
+        verify(caseworkClient, times(1)).createCaseNote(caseUUID, caseDataType, msg);
+
+        verifyNoMoreInteractions(caseworkClient, camundaClient);
+
+    }
+
+    @Test
+    public void updateCaseDataValues_NoActiveStages() {
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+        String caseDataType = "CASE_DATA";
+        Map<String, String> request = new HashMap<>();
+        String msg = "Case data updated";
+
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.empty());
+
+        workflowService.updateCaseDataValues(caseUUID, stageUUID, caseDataType, request);
+
+        verify(caseworkClient, times(1)).getActiveStage(caseUUID);
+        verify(caseworkClient, times(1)).updateCase(caseUUID, stageUUID, request);
+        verify(caseworkClient, times(1)).createCaseNote(caseUUID, caseDataType, msg);
+
+        verifyNoMoreInteractions(caseworkClient);
+
+        verifyNoInteractions(camundaClient);
     }
 
     private void setupCloseCase() throws UnsupportedEncodingException {
