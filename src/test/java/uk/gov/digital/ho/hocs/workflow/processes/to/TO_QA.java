@@ -112,6 +112,9 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(SAVE_CLOSE_CASE_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
     }
 
 
@@ -188,6 +191,9 @@ public class TO_QA {
         verify(TOProcess, times(0))
                 .hasCompleted(SAVE_CLOSE_CASE_NOTE);
 
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
+
     }
 
     @Test
@@ -232,6 +238,9 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(SAVE_CLOSE_CASE_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
     }
 
     @Test
@@ -276,6 +285,9 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(SAVE_CLOSE_CASE_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
     }
 
     @Test
@@ -317,6 +329,9 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(SAVE_CLOSE_CASE_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
     }
 
     @Test
@@ -360,5 +375,8 @@ public class TO_QA {
 
         verify(TOProcess, times(0))
                 .hasCompleted(TO_QA_REJECTION_NOTE);
+
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
     }
 }
