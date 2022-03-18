@@ -80,7 +80,7 @@ public class POGR_REGISTRATION {
     }
 
     @Test
-    public void testGroHappyPath() {
+    public void testHappyGroPath() {
         when(processScenario.waitsAtUserTask("Screen_BusinessAreaSelect"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO")));
 
@@ -91,6 +91,11 @@ public class POGR_REGISTRATION {
         when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")));
+
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")));
+
 
         whenAtCallActivity("COMPLAINT_CORRESPONDENT")
                 .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO")
@@ -106,8 +111,9 @@ public class POGR_REGISTRATION {
         verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
         verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("Screen_Gro_DataInput");
-        verify(processScenario, times(2)).hasCompleted("Screen_SendInterimLetter");
-
+        verify(processScenario, times(3)).hasCompleted("Screen_SendInterimLetter");
+        verify(processScenario, times(2)).hasCompleted("Screen_GroAllocateTeam");
+        verify(processScenario).hasCompleted("Service_SetGroTriageTeam");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
