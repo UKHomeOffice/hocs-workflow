@@ -101,7 +101,7 @@ public class COMPLAINT_CORRESPONDENT {
     }
 
     @Test
-    public void testPrimaryCorrespondentNotComplaint() {
+    public void testPrimaryCorrespondentNotComplainant() {
         when(processScenario.waitsAtUserTask("Screen_CorrespondentsInput"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
         when(processScenario.waitsAtUserTask("Screen_CorrespondentsInvalid"))
