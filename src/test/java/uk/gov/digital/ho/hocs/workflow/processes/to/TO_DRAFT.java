@@ -221,5 +221,8 @@ public class TO_DRAFT {
         verify(TOProcess, times(1))
                 .hasCompleted(SAVE_CLOSE_CASE_NOTE);
 
+        verify(TOProcess, times(1))
+                .hasCompleted(UPDATE_BUS_AREA_STATUS);
+
     }
 }
