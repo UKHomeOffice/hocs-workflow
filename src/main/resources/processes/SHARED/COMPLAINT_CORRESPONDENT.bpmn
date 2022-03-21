@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+  <bpmn:process id="COMPLAINT_CORRESPONDENT" isExecutable="true">
+    <bpmn:endEvent id="EndEvent_ComplaintCorrespondent">
+      <bpmn:incoming>Flow_155ejuv</bpmn:incoming>
+      <bpmn:incoming>Flow_0hl9l16</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="StartEvent_ComplaintCorrespondent">
+      <bpmn:outgoing>Flow_1t67pyh</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Screen_CorrespondentsInput" name="Correspondents Input" camunda:formKey="${ CORRESPONDENT_INPUT_SCREEN  }">
+      <bpmn:incoming>Flow_1t67pyh</bpmn:incoming>
+      <bpmn:incoming>Flow_15qp1ka</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kluyyd</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Service_UpdatePrimaryCorrespondent" name="Save Primary Correspondent" camunda:expression="${bpmnService.updatePrimaryCorrespondent(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;Correspondents&#34;))}">
+      <bpmn:incoming>Flow_1k1x2ck</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ug06zp</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Service_CaseHasPrimaryCorrespondentType" name="Validate Correspondents List" camunda:expression="${bpmnService.caseHasPrimaryCorrespondentType(execution.getVariable(&#34;CaseUUID&#34;),&#34;COMPLAINANT&#34;)}" camunda:resultVariable="validCorrespondents">
+      <bpmn:incoming>Flow_1ug06zp</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mxdajm</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_0ihr13k" default="Flow_09mzmrx">
+      <bpmn:incoming>Flow_0mxdajm</bpmn:incoming>
+      <bpmn:outgoing>Flow_09mzmrx</bpmn:outgoing>
+      <bpmn:outgoing>Flow_155ejuv</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Screen_CorrespondentsInvalid" name="Invalid Primary Correspondent" camunda:formKey="${ CORRESPONDENT_INVALID_SCREEN }">
+      <bpmn:incoming>Flow_09mzmrx</bpmn:incoming>
+      <bpmn:outgoing>Flow_15qp1ka</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1ug06zp" sourceRef="Service_UpdatePrimaryCorrespondent" targetRef="Service_CaseHasPrimaryCorrespondentType" />
+    <bpmn:sequenceFlow id="Flow_0mxdajm" sourceRef="Service_CaseHasPrimaryCorrespondentType" targetRef="Gateway_0ihr13k" />
+    <bpmn:sequenceFlow id="Flow_09mzmrx" sourceRef="Gateway_0ihr13k" targetRef="Screen_CorrespondentsInvalid" />
+    <bpmn:sequenceFlow id="Flow_15qp1ka" sourceRef="Screen_CorrespondentsInvalid" targetRef="Screen_CorrespondentsInput" />
+    <bpmn:sequenceFlow id="Flow_155ejuv" sourceRef="Gateway_0ihr13k" targetRef="EndEvent_ComplaintCorrespondent">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${validCorrespondents == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1t67pyh" sourceRef="StartEvent_ComplaintCorrespondent" targetRef="Screen_CorrespondentsInput" />
+    <bpmn:sequenceFlow id="Flow_1kluyyd" sourceRef="Screen_CorrespondentsInput" targetRef="Gateway_0gubl6c" />
+    <bpmn:exclusiveGateway id="Gateway_0gubl6c" default="Flow_0hl9l16">
+      <bpmn:incoming>Flow_1kluyyd</bpmn:incoming>
+      <bpmn:outgoing>Flow_1k1x2ck</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0hl9l16</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1k1x2ck" sourceRef="Gateway_0gubl6c" targetRef="Service_UpdatePrimaryCorrespondent">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0hl9l16" sourceRef="Gateway_0gubl6c" targetRef="EndEvent_ComplaintCorrespondent" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMPLAINT_CORRESPONDENT">
+      <bpmndi:BPMNEdge id="Flow_0hl9l16_di" bpmnElement="Flow_0hl9l16">
+        <di:waypoint x="400" y="165" />
+        <di:waypoint x="400" y="80" />
+        <di:waypoint x="880" y="80" />
+        <di:waypoint x="880" y="172" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1k1x2ck_di" bpmnElement="Flow_1k1x2ck">
+        <di:waypoint x="425" y="190" />
+        <di:waypoint x="470" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kluyyd_di" bpmnElement="Flow_1kluyyd">
+        <di:waypoint x="330" y="190" />
+        <di:waypoint x="375" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1t67pyh_di" bpmnElement="Flow_1t67pyh">
+        <di:waypoint x="188" y="190" />
+        <di:waypoint x="230" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_155ejuv_di" bpmnElement="Flow_155ejuv">
+        <di:waypoint x="795" y="190" />
+        <di:waypoint x="862" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15qp1ka_di" bpmnElement="Flow_15qp1ka">
+        <di:waypoint x="720" y="310" />
+        <di:waypoint x="280" y="310" />
+        <di:waypoint x="280" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09mzmrx_di" bpmnElement="Flow_09mzmrx">
+        <di:waypoint x="770" y="215" />
+        <di:waypoint x="770" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mxdajm_di" bpmnElement="Flow_0mxdajm">
+        <di:waypoint x="700" y="190" />
+        <di:waypoint x="745" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ug06zp_di" bpmnElement="Flow_1ug06zp">
+        <di:waypoint x="570" y="190" />
+        <di:waypoint x="600" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_ComplaintCorrespondent">
+        <dc:Bounds x="862" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="797" y="92" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1q1dr52_di" bpmnElement="StartEvent_ComplaintCorrespondent">
+        <dc:Bounds x="152" y="172" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1j2b0em_di" bpmnElement="Screen_CorrespondentsInput">
+        <dc:Bounds x="230" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_089a4hg_di" bpmnElement="Service_UpdatePrimaryCorrespondent">
+        <dc:Bounds x="470" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0k5u6dn_di" bpmnElement="Service_CaseHasPrimaryCorrespondentType">
+        <dc:Bounds x="600" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ihr13k_di" bpmnElement="Gateway_0ihr13k" isMarkerVisible="true">
+        <dc:Bounds x="745" y="165" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cathwz_di" bpmnElement="Screen_CorrespondentsInvalid">
+        <dc:Bounds x="720" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0gubl6c_di" bpmnElement="Gateway_0gubl6c" isMarkerVisible="true">
+        <dc:Bounds x="375" y="165" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

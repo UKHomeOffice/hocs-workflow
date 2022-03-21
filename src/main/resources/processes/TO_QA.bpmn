@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0f1wfnj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0f1wfnj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="TO_QA" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0flmj05</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="Event_0nlva02" name="End Stage">
-      <bpmn:incoming>Flow_15zn9g3</bpmn:incoming>
-      <bpmn:incoming>Flow_1tgyxfj</bpmn:incoming>
       <bpmn:incoming>Flow_1bhksxl</bpmn:incoming>
       <bpmn:incoming>Flow_1eovvna</bpmn:incoming>
     </bpmn:endEvent>
@@ -55,7 +53,7 @@
       <bpmn:outgoing>Flow_1dptjqe</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0rvjo1x" sourceRef="Activity_1e5czwh" targetRef="UPDATE_BUS_AREA_STATUS" />
-    <bpmn:sequenceFlow id="Flow_15zn9g3" sourceRef="Activity_0k5qv30" targetRef="Event_0nlva02" />
+    <bpmn:sequenceFlow id="Flow_15zn9g3" sourceRef="Activity_0k5qv30" targetRef="UPDATE_BUS_AREA_STATUS" />
     <bpmn:exclusiveGateway id="Gateway_1mpvidq" name="Direction?" default="Flow_06rqbxb">
       <bpmn:incoming>Flow_1dptjqe</bpmn:incoming>
       <bpmn:outgoing>Flow_06rqbxb</bpmn:outgoing>
@@ -73,7 +71,7 @@
     <bpmn:sequenceFlow id="Flow_0ni3gfo" name="SendToStopList" sourceRef="Gateway_0vour6f" targetRef="Activity_0rehwcp">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${QaStatus == "SendToStopList" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1tgyxfj" sourceRef="Activity_0xe7z8s" targetRef="Event_0nlva02" />
+    <bpmn:sequenceFlow id="Flow_1tgyxfj" sourceRef="Activity_0xe7z8s" targetRef="UPDATE_BUS_AREA_STATUS" />
     <bpmn:sequenceFlow id="Flow_13wetct" sourceRef="Activity_0extn6g" targetRef="Activity_1e5czwh" />
     <bpmn:serviceTask id="Activity_0extn6g" name="Clear Rejection Note" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;RejectionNote&#34;)}">
       <bpmn:incoming>Flow_0je25my</bpmn:incoming>
@@ -143,6 +141,8 @@
     <bpmn:serviceTask id="UPDATE_BUS_AREA_STATUS" name="Update Business Area Status: Confirmed" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;BusAreaStatus&#34;, &#34;Confirmed&#34;)}">
       <bpmn:incoming>Flow_0rvjo1x</bpmn:incoming>
       <bpmn:incoming>Flow_1mxikgo</bpmn:incoming>
+      <bpmn:incoming>Flow_1tgyxfj</bpmn:incoming>
+      <bpmn:incoming>Flow_15zn9g3</bpmn:incoming>
       <bpmn:outgoing>Flow_1eovvna</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1eovvna" sourceRef="UPDATE_BUS_AREA_STATUS" targetRef="Event_0nlva02" />
@@ -211,7 +211,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mxikgo_di" bpmnElement="Flow_1mxikgo">
         <di:waypoint x="1400" y="447" />
-        <di:waypoint x="1470" y="447" />
+        <di:waypoint x="1580" y="447" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tc8et8_di" bpmnElement="Flow_1tc8et8">
         <di:waypoint x="1100" y="447" />
@@ -233,8 +233,8 @@
         <di:waypoint x="1185" y="320" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1eovvna_di" bpmnElement="Flow_1eovvna">
-        <di:waypoint x="1570" y="447" />
-        <di:waypoint x="1622" y="447" />
+        <di:waypoint x="1680" y="447" />
+        <di:waypoint x="1732" y="447" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_00wjrub_di" bpmnElement="Flow_00wjrub">
         <di:waypoint x="555" y="447" />
@@ -242,8 +242,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1bhksxl_di" bpmnElement="Flow_1bhksxl">
         <di:waypoint x="1235" y="850" />
-        <di:waypoint x="1640" y="850" />
-        <di:waypoint x="1640" y="465" />
+        <di:waypoint x="1750" y="850" />
+        <di:waypoint x="1750" y="465" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tgrwo7_di" bpmnElement="Flow_0tgrwo7">
         <di:waypoint x="660" y="730" />
@@ -306,9 +306,10 @@
         <di:waypoint x="1470" y="580" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1tgyxfj_di" bpmnElement="Flow_1tgyxfj">
-        <di:waypoint x="1570" y="320" />
-        <di:waypoint x="1640" y="320" />
-        <di:waypoint x="1640" y="429" />
+        <di:waypoint x="1520" y="360" />
+        <di:waypoint x="1520" y="384" />
+        <di:waypoint x="1630" y="384" />
+        <di:waypoint x="1630" y="407" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ni3gfo_di" bpmnElement="Flow_0ni3gfo">
         <di:waypoint x="742" y="434" />
@@ -331,12 +332,14 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15zn9g3_di" bpmnElement="Flow_15zn9g3">
         <di:waypoint x="1570" y="690" />
-        <di:waypoint x="1640" y="690" />
-        <di:waypoint x="1640" y="465" />
+        <di:waypoint x="1660" y="690" />
+        <di:waypoint x="1660" y="490" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0rvjo1x_di" bpmnElement="Flow_0rvjo1x">
         <di:waypoint x="1520" y="540" />
-        <di:waypoint x="1520" y="487" />
+        <di:waypoint x="1520" y="514" />
+        <di:waypoint x="1630" y="514" />
+        <di:waypoint x="1630" y="487" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_06o8nsd_di" bpmnElement="Flow_06o8nsd">
         <di:waypoint x="1400" y="690" />
@@ -369,12 +372,6 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="429" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0nlva02_di" bpmnElement="Event_0nlva02">
-        <dc:Bounds x="1622" y="429" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1674" y="440" width="52" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_10cuzi3_di" bpmnElement="TO_QA_OUTCOME">
         <dc:Bounds x="250" y="407" width="100" height="80" />
@@ -436,9 +433,6 @@
           <dc:Bounds x="1145" y="873" width="50" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0e048yc_di" bpmnElement="UPDATE_BUS_AREA_STATUS">
-        <dc:Bounds x="1470" y="407" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0rehwcp_di" bpmnElement="Activity_0rehwcp">
         <dc:Bounds x="1000" y="280" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -459,6 +453,15 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1185" y="482" width="50" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0nlva02_di" bpmnElement="Event_0nlva02">
+        <dc:Bounds x="1732" y="429" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1784" y="440" width="52" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0e048yc_di" bpmnElement="UPDATE_BUS_AREA_STATUS">
+        <dc:Bounds x="1580" y="407" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

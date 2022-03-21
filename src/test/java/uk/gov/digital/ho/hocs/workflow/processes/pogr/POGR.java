@@ -21,7 +21,9 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/POGR/POGR.bpmn"})
+@Deployment(resources = {
+        "processes/POGR/POGR.bpmn",
+        "processes/STAGE.bpmn"})
 public class POGR {
 
     @Rule
@@ -43,12 +45,43 @@ public class POGR {
     }
 
     @Test
-    public void testHappyPath() {
+    public void testHappyHmpoPath() {
+        whenAtCallActivity("POGR_REGISTRATION")
+                .thenReturn("BusinessArea", "HMPO")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO")
+                .thenReturn("", "")
+                .deploy(rule);
+
         Scenario.run(processScenario)
                 .startByKey("POGR")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_POGR");
+        verify(processScenario).hasCompleted("CallActivity_RegistrationStage");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpo");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_POGR");
+    }
+
+    @Test
+    public void testHappyGroPath() {
+        whenAtCallActivity("POGR_REGISTRATION")
+                .thenReturn("BusinessArea", "GRO")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO")
+                .thenReturn("", "")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_POGR");
+        verify(processScenario).hasCompleted("CallActivity_RegistrationStage");
+        verify(processScenario).hasCompleted("CallActivity_PogrGro");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_POGR");
     }

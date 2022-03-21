@@ -431,7 +431,10 @@ public class WorkflowService {
         log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
         String msg = caseDataType != null ? NoteType.valueOf(caseDataType).getDefaultMessage() : NoteType.CASE_DATA.getDefaultMessage();
 
-        camundaClient.updateTask(stageUUID, request);
+        if (caseworkClient.getActiveStage(caseUUID).isPresent()) {
+            camundaClient.updateTask(stageUUID, request);
+        }
+
         caseworkClient.updateCase(caseUUID, stageUUID, request);
         caseworkClient.createCaseNote(caseUUID, caseDataType, msg);
         log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
