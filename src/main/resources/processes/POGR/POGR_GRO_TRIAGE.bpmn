@@ -1,43 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
   <bpmn:process id="POGR_GRO_TRIAGE" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_POGR">
-      <bpmn:outgoing>Flow_1ap3yp0</bpmn:outgoing>
+    <bpmn:startEvent id="StartEvent_POGR_GRO_TRIAGE">
+      <bpmn:outgoing>Flow_1h6zo9j</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:endEvent id="EndEvent_POGR">
-      <bpmn:incoming>Flow_1picyoq</bpmn:incoming>
+    <bpmn:endEvent id="Event_04tmesu">
+      <bpmn:incoming>Flow_1r9nfj7</bpmn:incoming>
+      <bpmn:incoming>Flow_0axdze3</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1ap3yp0" sourceRef="StartEvent_POGR" targetRef="Activity_0y5o65f" />
-    <bpmn:userTask id="Activity_0y5o65f" name="Specify Business Area Post Data Input" camunda:formKey="POGR_BUSINESS_AREA_POST_DATA_INPUT">
-      <bpmn:incoming>Flow_1ap3yp0</bpmn:incoming>
-      <bpmn:outgoing>Flow_1picyoq</bpmn:outgoing>
+    <bpmn:userTask id="Activity_1gr9vrr" name="Specify Business Area Post Data Input" camunda:formKey="POGR_BUSINESS_AREA_POST_DATA_INPUT">
+      <bpmn:incoming>Flow_1jv3ybg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r9nfj7</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1picyoq" sourceRef="Activity_0y5o65f" targetRef="EndEvent_POGR" />
+    <bpmn:exclusiveGateway id="Gateway_1lzp3ot">
+      <bpmn:incoming>Flow_11a74yg</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jv3ybg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0nli9lz</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0pml1a7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_0ie5w7n" name="Accept Case" camunda:formKey="POGR_GRO_TRIAGE_ACCEPT">
+      <bpmn:incoming>Flow_1h6zo9j</bpmn:incoming>
+      <bpmn:incoming>Flow_0nli9lz</bpmn:incoming>
+      <bpmn:outgoing>Flow_11a74yg</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_1u560h2" name="Transfer Case" camunda:formKey="POGR_GRO_TRIAGE_TRANSFER">
+      <bpmn:incoming>Flow_0pml1a7</bpmn:incoming>
+      <bpmn:outgoing>Flow_1s53jai</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_06synm6" name="Save Reject Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_TriageReject&#34;), &#34;REJECT&#34;)}">
+      <bpmn:incoming>Flow_1s53jai</bpmn:incoming>
+      <bpmn:outgoing>Flow_0axdze3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1h6zo9j" sourceRef="StartEvent_POGR_GRO_TRIAGE" targetRef="Activity_0ie5w7n" />
+    <bpmn:sequenceFlow id="Flow_1r9nfj7" sourceRef="Activity_1gr9vrr" targetRef="Event_04tmesu" />
+    <bpmn:sequenceFlow id="Flow_0axdze3" sourceRef="Activity_06synm6" targetRef="Event_04tmesu" />
+    <bpmn:sequenceFlow id="Flow_1jv3ybg" sourceRef="Gateway_1lzp3ot" targetRef="Activity_1gr9vrr">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" &amp;&amp; TriageAccept == "Accept" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_11a74yg" sourceRef="Activity_0ie5w7n" targetRef="Gateway_1lzp3ot" />
+    <bpmn:sequenceFlow id="Flow_0nli9lz" sourceRef="Gateway_1lzp3ot" targetRef="Activity_0ie5w7n">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0pml1a7" sourceRef="Gateway_1lzp3ot" targetRef="Activity_1u560h2">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" &amp;&amp; TriageAccept == "Reject" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1s53jai" sourceRef="Activity_1u560h2" targetRef="Activity_06synm6" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_GRO_TRIAGE">
-      <bpmndi:BPMNEdge id="Flow_1picyoq_di" bpmnElement="Flow_1picyoq">
-        <di:waypoint x="420" y="119" />
-        <di:waypoint x="532" y="119" />
+      <bpmndi:BPMNEdge id="Flow_1h6zo9j_di" bpmnElement="Flow_1h6zo9j">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="243" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ap3yp0_di" bpmnElement="Flow_1ap3yp0">
-        <di:waypoint x="215" y="119" />
-        <di:waypoint x="320" y="119" />
+      <bpmndi:BPMNEdge id="Flow_1r9nfj7_di" bpmnElement="Flow_1r9nfj7">
+        <di:waypoint x="603" y="120" />
+        <di:waypoint x="892" y="120" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_POGR">
-        <dc:Bounds x="179" y="101" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="172" y="144" width="50" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNEdge id="Flow_0axdze3_di" bpmnElement="Flow_0axdze3">
+        <di:waypoint x="860" y="251" />
+        <di:waypoint x="910" y="251" />
+        <di:waypoint x="910" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jv3ybg_di" bpmnElement="Flow_1jv3ybg">
+        <di:waypoint x="428" y="120" />
+        <di:waypoint x="503" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11a74yg_di" bpmnElement="Flow_11a74yg">
+        <di:waypoint x="343" y="120" />
+        <di:waypoint x="378" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nli9lz_di" bpmnElement="Flow_0nli9lz">
+        <di:waypoint x="403" y="145" />
+        <di:waypoint x="403" y="201" />
+        <di:waypoint x="293" y="201" />
+        <di:waypoint x="293" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pml1a7_di" bpmnElement="Flow_0pml1a7">
+        <di:waypoint x="423" y="125" />
+        <di:waypoint x="423" y="251" />
+        <di:waypoint x="503" y="251" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1s53jai_di" bpmnElement="Flow_1s53jai">
+        <di:waypoint x="603" y="251" />
+        <di:waypoint x="760" y="251" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0pid86l_di" bpmnElement="StartEvent_POGR_GRO_TRIAGE">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_POGR">
-        <dc:Bounds x="532" y="101" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="467" y="112" width="49" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_1gr9vrr_di" bpmnElement="Activity_1gr9vrr">
+        <dc:Bounds x="503" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0y5o65f_di" bpmnElement="Activity_0y5o65f">
-        <dc:Bounds x="320" y="79" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_1lzp3ot_di" bpmnElement="Gateway_1lzp3ot" isMarkerVisible="true">
+        <dc:Bounds x="378" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ie5w7n_di" bpmnElement="Activity_0ie5w7n">
+        <dc:Bounds x="243" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_04tmesu_di" bpmnElement="Event_04tmesu">
+        <dc:Bounds x="892" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_06synm6_di" bpmnElement="Activity_06synm6">
+        <dc:Bounds x="760" y="211" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1u560h2_di" bpmnElement="Activity_1u560h2">
+        <dc:Bounds x="503" y="211" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
