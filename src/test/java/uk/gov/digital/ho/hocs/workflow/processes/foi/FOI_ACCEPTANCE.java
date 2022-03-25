@@ -43,7 +43,6 @@ public class FOI_ACCEPTANCE {
     public static final String STAGE_UUID = UUID.randomUUID().toString();
     public static final String DRAFT_TEAM = UUID.randomUUID().toString();
     public static final String FOI_CASE_TYPE = "FOI";
-    public static final String ALLOCATE_TO_DRAFT_TEAM = "ALLOCATE_TO_DRAFT_TEAM";
     public static final String CLEAR_REJECTED = "CLEAR_REJECTED";
     public static final String SET_TO_REJECTED_BY_ACCEPTANCE = "SET_TO_REJECTED_BY_ACCEPTANCE";
     public static final String SET_ACCEPTANCE_DATE = "SET_ACCEPTANCE_DATE";
@@ -96,7 +95,6 @@ public class FOI_ACCEPTANCE {
         verify(processScenario, times(1)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(1)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM);
-        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times( 1)).hasCompleted(CLEAR_REJECTED);
     }
 
@@ -126,7 +124,6 @@ public class FOI_ACCEPTANCE {
         verify(processScenario, times(2)).hasCompleted(ACCEPT_OR_REJECT);
         verify(processScenario, times(2)).hasCompleted(SET_ACCEPTANCE_DATE);
         verify(processScenario, times(2)).hasCompleted(CHOOSE_DRAFT_TEAM);
-        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times( 1)).hasCompleted(CLEAR_REJECTED);
     }
 
@@ -154,7 +151,6 @@ public class FOI_ACCEPTANCE {
         verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM_NO_BACK);
         verify(processScenario, times(1)).hasCompleted(SET_ACCEPTED);
         verify(processScenario, times(1)).hasCompleted(SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED);
-        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times( 1)).hasCompleted(CLEAR_REJECTED);
     }
 
@@ -172,7 +168,6 @@ public class FOI_ACCEPTANCE {
                 )).execute();
 
         verify(processScenario, times(1)).hasCompleted(CHOOSE_DRAFT_TEAM_NO_BACK);
-        verify(processScenario, times(1)).hasCompleted(ALLOCATE_TO_DRAFT_TEAM);
         verify(processScenario, times(0)).hasCompleted(SET_ACCEPTANCE_DATE);
     }
 

@@ -15,7 +15,7 @@
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0eg5k1f" sourceRef="ACCEPT_OR_REJECT" targetRef="case_acceptance_status" />
     <bpmn:sequenceFlow id="Flow_0ax0fmd" sourceRef="CHOOSE_DRAFT_TEAM" targetRef="DIRECTION_CHECK" />
-    <bpmn:userTask id="CHOOSE_DRAFT_TEAM" name="Choose Drafting Team" camunda:formKey="FOI_ACCEPTANCE_DRAFT_TEAM_SELECTION">
+    <bpmn:userTask id="CHOOSE_DRAFT_TEAM" name="Choose Responsible Team" camunda:formKey="FOI_ACCEPTANCE_DRAFT_TEAM_SELECTION">
       <bpmn:incoming>Flow_1r680pp</bpmn:incoming>
       <bpmn:outgoing>Flow_0ax0fmd</bpmn:outgoing>
     </bpmn:userTask>
@@ -74,12 +74,6 @@
     <bpmn:sequenceFlow id="Flow_0tfq7wl" name="no" sourceRef="has_case_returned_from_draft_acceptance" targetRef="CHOOSE_DRAFT_TEAM_NO_BACK">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.getVariable('AcceptanceDate') != null}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1es0j8i" sourceRef="ALLOCATE_TO_DRAFT_TEAM" targetRef="CLEAR_REJECTED" />
-    <bpmn:serviceTask id="ALLOCATE_TO_DRAFT_TEAM" name="Allocate to draft team" camunda:expression="${DraftTeam}" camunda:resultVariable="AllocationTeamUUID">
-      <bpmn:incoming>Flow_0n3pmu4</bpmn:incoming>
-      <bpmn:incoming>Flow_014l0wj</bpmn:incoming>
-      <bpmn:outgoing>Flow_1es0j8i</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1r680pp" sourceRef="SET_ACCEPTANCE_DATE" targetRef="CHOOSE_DRAFT_TEAM" />
     <bpmn:serviceTask id="SET_ACCEPTANCE_DATE" name="Set Acceptance Date" camunda:expression="${now()}" camunda:resultVariable="AcceptanceDate">
       <bpmn:incoming>case_accepted</bpmn:incoming>
@@ -91,7 +85,8 @@
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0gorye6" sourceRef="SET_TO_REJECTED_BY_ACCEPTANCE" targetRef="END_FOI_ACCEPTANCE" />
     <bpmn:serviceTask id="CLEAR_REJECTED" name="Clear Rejected" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;Rejected&#34;)}">
-      <bpmn:incoming>Flow_1es0j8i</bpmn:incoming>
+      <bpmn:incoming>Flow_014l0wj</bpmn:incoming>
+      <bpmn:incoming>Flow_0n3pmu4</bpmn:incoming>
       <bpmn:outgoing>Flow_0qt4rdd</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0qt4rdd" sourceRef="CLEAR_REJECTED" targetRef="END_FOI_ACCEPTANCE" />
@@ -100,7 +95,7 @@
       <bpmn:outgoing>Flow_0n3pmu4</bpmn:outgoing>
       <bpmn:outgoing>Flow_1qyq8b4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0n3pmu4" sourceRef="DIRECTION_CHECK" targetRef="ALLOCATE_TO_DRAFT_TEAM" />
+    <bpmn:sequenceFlow id="Flow_0n3pmu4" sourceRef="DIRECTION_CHECK" targetRef="CLEAR_REJECTED" />
     <bpmn:sequenceFlow id="Flow_1qyq8b4" sourceRef="DIRECTION_CHECK" targetRef="ACCEPT_OR_REJECT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -108,12 +103,12 @@
       <bpmn:incoming>Flow_0vf1kiz</bpmn:incoming>
       <bpmn:outgoing>Flow_02cqwfu</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="CHOOSE_DRAFT_TEAM_NO_BACK" name="Choose Drafting Team No Back Button" camunda:formKey="FOI_ACCEPTANCE_DRAFT_TEAM_SELECTION_NO_BACK">
+    <bpmn:userTask id="CHOOSE_DRAFT_TEAM_NO_BACK" name="Choose Responsible Team No Back Button" camunda:formKey="FOI_ACCEPTANCE_DRAFT_TEAM_SELECTION_NO_BACK">
       <bpmn:incoming>Flow_0tfq7wl</bpmn:incoming>
       <bpmn:incoming>Flow_02cqwfu</bpmn:incoming>
       <bpmn:outgoing>Flow_014l0wj</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_014l0wj" sourceRef="CHOOSE_DRAFT_TEAM_NO_BACK" targetRef="ALLOCATE_TO_DRAFT_TEAM" />
+    <bpmn:sequenceFlow id="Flow_014l0wj" sourceRef="CHOOSE_DRAFT_TEAM_NO_BACK" targetRef="CLEAR_REJECTED" />
     <bpmn:sequenceFlow id="Flow_02cqwfu" sourceRef="SET_ACCEPTANCE_DATE_AFTER_DEADLINE_PASSED" targetRef="CHOOSE_DRAFT_TEAM_NO_BACK" />
     <bpmn:serviceTask id="SET_ACCEPTED" name="Set Accepted" camunda:expression="Y" camunda:resultVariable="AcceptCase">
       <bpmn:incoming>Flow_06i32v8</bpmn:incoming>
@@ -133,8 +128,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_014l0wj_di" bpmnElement="Flow_014l0wj">
         <di:waypoint x="1120" y="430" />
-        <di:waypoint x="1230" y="430" />
-        <di:waypoint x="1230" y="320" />
+        <di:waypoint x="1380" y="430" />
+        <di:waypoint x="1380" y="320" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1qyq8b4_di" bpmnElement="Flow_1qyq8b4" bioc:stroke="rgb(251, 140, 0)" bioc:fill="rgb(255, 224, 178)">
         <di:waypoint x="1120" y="255" />
@@ -144,7 +139,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0n3pmu4_di" bpmnElement="Flow_0n3pmu4">
         <di:waypoint x="1145" y="280" />
-        <di:waypoint x="1180" y="280" />
+        <di:waypoint x="1330" y="280" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qt4rdd_di" bpmnElement="Flow_0qt4rdd">
         <di:waypoint x="1430" y="280" />
@@ -158,10 +153,6 @@
       <bpmndi:BPMNEdge id="Flow_1r680pp_di" bpmnElement="Flow_1r680pp">
         <di:waypoint x="920" y="280" />
         <di:waypoint x="950" y="280" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1es0j8i_di" bpmnElement="Flow_1es0j8i">
-        <di:waypoint x="1280" y="280" />
-        <di:waypoint x="1330" y="280" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tfq7wl_di" bpmnElement="Flow_0tfq7wl">
         <di:waypoint x="290" y="305" />
@@ -267,9 +258,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="248" y="183" width="84" height="93" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_06r8uey_di" bpmnElement="ALLOCATE_TO_DRAFT_TEAM">
-        <dc:Bounds x="1180" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0oxvate_di" bpmnElement="SET_ACCEPTANCE_DATE">
         <dc:Bounds x="820" y="240" width="100" height="80" />
