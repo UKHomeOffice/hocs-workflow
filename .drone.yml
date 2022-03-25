@@ -144,6 +144,7 @@ trigger:
     - tag
   branch:
     - main
+    - support/*
 
 services:
   - name: postgres
@@ -168,7 +169,7 @@ steps:
     commands:
       - ./gradlew clean build --no-daemon
 
-  - name: build & push
+  - name: build & push tag main
     image: plugins/docker
     settings:
       registry: quay.io
@@ -183,6 +184,27 @@ steps:
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
     depends_on:
       - test project
+    when:
+      branch:
+        - main
+
+  - name: build & push tag
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/ukhomeofficedigital/hocs-workflow
+      tags:
+        - ${DRONE_TAG}
+        - ${DRONE_COMMIT_SHA}
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: QUAY_ROBOT_TOKEN
+      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    depends_on:
+      - test project
+    when:
+      branch:
+        - support/*
 
 ---
 kind: pipeline
