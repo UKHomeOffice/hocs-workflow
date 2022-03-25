@@ -18,7 +18,7 @@ services:
 
 steps:
   - name: test project
-    image: quay.io/ukhomeofficedigital/openjdk11:v11.0.5_10
+    image: quay.io/ukhomeofficedigital/hocs-base-image-build:1.0.2
     environment:
       SPRING_PROFILES_ACTIVE: "development, local"
       DOCS_QUEUE_NAME: document-queue
@@ -33,7 +33,7 @@ steps:
       - ./gradlew clean build --no-daemon
 
   - name: sonar scanner
-    image: quay.io/ukhomeofficedigital/sonar-scanner:v4.6
+    image: quay.io/ukhomeofficedigital/sonar-scanner
     commands:
       - sonar-scanner -Dsonar.projectVersion="$(git rev-parse --abbrev-ref HEAD)"
     depends_on:
@@ -154,7 +154,7 @@ services:
 
 steps:
   - name: test project
-    image: quay.io/ukhomeofficedigital/openjdk11:v11.0.5_10
+    image: quay.io/ukhomeofficedigital/hocs-base-image-build:1.0.2
     environment:
       SPRING_PROFILES_ACTIVE: "development, local"
       DOCS_QUEUE_NAME: document-queue
@@ -167,13 +167,6 @@ steps:
       AWS_LOCAL_HOST: localstack
     commands:
       - ./gradlew clean build --no-daemon
-
-  - name: sonar scanner
-    image: quay.io/ukhomeofficedigital/sonar-scanner
-    commands:
-      - sonar-scanner -Dsonar.projectVersion="$(git rev-parse --abbrev-ref HEAD)"
-    depends_on:
-      - test project
 
   - name: build & push
     image: plugins/docker

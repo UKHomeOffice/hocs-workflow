@@ -1,3 +1,4 @@
+#!/bin/sh
 # create a diff image of the COMP - COMP2 diff
 
 function displayUsage() {
@@ -36,5 +37,5 @@ fi
 
 diffImage=`echo "$(basename $1)-$(basename $comp2file).diff" | sed 's/\.bpmn//g'`
 
-diff --strip-trailing-cr $1 $comp2file > $2/$diffImage
+diff -bw $1 $comp2file > $2/$diffImage
 echo "Created $2/$diffImage"

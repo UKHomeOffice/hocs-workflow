@@ -1,3 +1,4 @@
+#!/bin/sh
 # create a diff image of the BF - BF2 diff
 
 function displayUsage() {
@@ -36,5 +37,5 @@ fi
 
 diffImage=`echo "$(basename $1)-$(basename $bf2file).diff" | sed 's/\.bpmn//g'`
 
-diff --strip-trailing-cr $1 $bf2file > $2/$diffImage
+diff -bw $1 $bf2file > $2/$diffImage
 echo "Created $2/$diffImage"
