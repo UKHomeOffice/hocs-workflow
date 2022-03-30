@@ -52,8 +52,9 @@ public class POGR_HMPO_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("TriageAccept", "")))
                 .thenReturn(task -> task.complete(withVariables("TriageAccept", "Accept")));
 
-        when(processScenario.waitsAtUserTask("Screen_BlankPage"))
-                .thenReturn(task -> task.complete(withVariables("TriageAccept", "Accept")));
+        when(processScenario.waitsAtUserTask("Screen_TriageInvestigation"))
+                .thenReturn(task -> task.complete(withVariables("InvestigationOutcome", "Pending")))
+                .thenReturn(task -> task.complete(withVariables("InvestigationOutcome", "Draft")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR_HMPO_TRIAGE")
@@ -61,7 +62,7 @@ public class POGR_HMPO_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_POGR_HMPO_TRIAGE");
         verify(processScenario, times(2)).hasCompleted("Screen_TriageAcceptCase");
-        verify(processScenario).hasCompleted("Screen_BlankPage");
+        verify(processScenario, times(2)).hasCompleted("Screen_TriageInvestigation");
         verify(processScenario).hasCompleted("EndEvent_POGR_HMPO_TRIAGE");
     }
 
