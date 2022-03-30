@@ -54,8 +54,10 @@ public class POGR_GRO_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("TriageAccept", "")))
                 .thenReturn(task -> task.complete(withVariables("TriageAccept", "Accept")));
 
-        when(processScenario.waitsAtUserTask("Screen_BlankPage"))
-                .thenReturn(task -> task.complete(withVariables("TriageAccept", "Accept")));
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("InvestigationOutcome", "Pending")
+                .thenReturn("InvestigationOutcome", "Draft")
+                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("POGR_GRO_TRIAGE")
@@ -63,7 +65,7 @@ public class POGR_GRO_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_POGR_GRO_TRIAGE");
         verify(processScenario, times(2)).hasCompleted("Screen_TriageAcceptCase");
-        verify(processScenario).hasCompleted("Screen_BlankPage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_TriageInvestigation");
         verify(processScenario).hasCompleted("EndEvent_POGR_GRO_TRIAGE");
     }
 
