@@ -1,13 +1,12 @@
-name: 'SemVer tag the commit'
+name: 'PR Checker'
 on:
   pull_request:
-    types: [ closed ]
+    types: [ labeled, unlabeled, opened, reopened, synchronize ]
 
 jobs:
   build:
-    name: SemVer tag the commit
+    name: PR Checker
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
     steps:
       - id: label
         uses: UKHomeOffice/match-label-action@v1.0.0
@@ -20,3 +19,4 @@ jobs:
           increment: ${{ steps.label.outputs.matchedLabels }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_use_head_tag: ${{ github.base_ref == 'main' }}
+          dry_run: true
