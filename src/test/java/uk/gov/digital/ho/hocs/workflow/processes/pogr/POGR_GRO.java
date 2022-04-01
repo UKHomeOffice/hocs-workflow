@@ -47,17 +47,23 @@ public class POGR_GRO {
     @Test
     public void testHappyPath() {
         whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("TriageAccept", "")
-                .thenReturn("TriageAccept", "Accept")
+                .thenReturn("InvestigationOutcome", "")
+                .thenReturn("InvestigationOutcome", "Draft")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DRAFT")
+                .thenReturn("DraftOutcome", "")
+                .thenReturn("DraftOutcome", "QA")
                 .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("POGR_GRO")
                 .execute();
 
-        verify(processScenario).hasCompleted("StartEvent_POGR_GRO");
+        verify(processScenario).hasCompleted("StartEvent_Gro");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroTriage");
-        verify(processScenario).hasCompleted("EndEvent_POGR_GRO");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
+        verify(processScenario).hasCompleted("EndEvent_GroDraftEnd");
     }
 
     @Test
@@ -70,9 +76,31 @@ public class POGR_GRO {
                 .startByKey("POGR_GRO")
                 .execute();
 
-        verify(processScenario).hasCompleted("StartEvent_POGR_GRO");
+        verify(processScenario).hasCompleted("StartEvent_Gro");
         verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
-        verify(processScenario).hasCompleted("EndEvent_POGR_GRO");
+        verify(processScenario).hasCompleted("EndEvent_GroTriageEnd");
+    }
+
+    @Test
+    public void testDraftReturnTriage() {
+        whenAtCallActivity("POGR_GRO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft")
+                .thenReturn("InvestigationOutcome", "Draft")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DRAFT")
+                .thenReturn("DraftOutcome", "ReturnInvestigation")
+                .thenReturn("DraftOutcome", "QA")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Gro");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
+        verify(processScenario).hasCompleted("EndEvent_GroDraftEnd");
     }
 
 }

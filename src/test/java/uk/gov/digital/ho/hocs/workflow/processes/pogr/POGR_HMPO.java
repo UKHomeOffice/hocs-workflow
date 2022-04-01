@@ -51,17 +51,23 @@ public class POGR_HMPO {
     @Test
     public void testHappyPath() {
         whenAtCallActivity("POGR_HMPO_TRIAGE")
-                .thenReturn("TriageAccept", "")
-                .thenReturn("TriageAccept", "Accept")
+                .thenReturn("InvestigationOutcome", "")
+                .thenReturn("InvestigationOutcome", "Draft")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DRAFT")
+                .thenReturn("DraftOutcome", "")
+                .thenReturn("DraftOutcome", "QA")
                 .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("POGR_HMPO")
                 .execute();
 
-        verify(processScenario).hasCompleted("StartEvent_POGR_HMPO");
+        verify(processScenario).hasCompleted("StartEvent_Hmpo");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoTriage");
-        verify(processScenario).hasCompleted("EndEvent_POGR_HMPO");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraftEnd");
     }
 
     @Test
@@ -74,9 +80,31 @@ public class POGR_HMPO {
                 .startByKey("POGR_HMPO")
                 .execute();
 
-        verify(processScenario).hasCompleted("StartEvent_POGR_HMPO");
+        verify(processScenario).hasCompleted("StartEvent_Hmpo");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoTriage");
-        verify(processScenario).hasCompleted("EndEvent_POGR_HMPO");
+        verify(processScenario).hasCompleted("EndEvent_HmpoTriageEnd");
+    }
+
+    @Test
+    public void testDraftReturnTriage() {
+        whenAtCallActivity("POGR_HMPO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft")
+                .thenReturn("InvestigationOutcome", "Draft")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DRAFT")
+                .thenReturn("DraftOutcome", "ReturnInvestigation")
+                .thenReturn("DraftOutcome", "QA")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Hmpo");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraftEnd");
     }
 
 }
