@@ -47,13 +47,13 @@ public class POGR_GRO {
     @Test
     public void testHappyPath() {
         whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "")
-                .thenReturn("InvestigationOutcome", "Draft")
+                .thenReturn("InvestigationOutcome", "", "CloseCaseTriage", "false")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
-                .thenReturn("DraftOutcome", "")
-                .thenReturn("DraftOutcome", "QA")
+                .thenReturn("DraftOutcome", "", "CloseCaseDraft", "false")
+                .thenReturn("DraftOutcome", "QA", "CloseCaseDraft", "false")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -63,13 +63,13 @@ public class POGR_GRO {
         verify(processScenario).hasCompleted("StartEvent_Gro");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroTriage");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
-        verify(processScenario).hasCompleted("EndEvent_GroDraftEnd");
+        verify(processScenario).hasCompleted("EndEvent_Gro");
     }
 
     @Test
     public void testTriageCloseCase() {
         whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("CloseCase", "true")
+                .thenReturn("CloseCaseTriage", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -84,12 +84,12 @@ public class POGR_GRO {
     @Test
     public void testDraftReturnTriage() {
         whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft")
-                .thenReturn("InvestigationOutcome", "Draft")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
-                .thenReturn("DraftOutcome", "ReturnInvestigation")
+                .thenReturn("DraftOutcome", "ReturnInvestigation", "CloseCaseDraft", "false")
                 .thenReturn("DraftOutcome", "QA")
                 .deploy(rule);
 
@@ -100,6 +100,26 @@ public class POGR_GRO {
         verify(processScenario).hasCompleted("StartEvent_Gro");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroTriage");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
+        verify(processScenario).hasCompleted("EndEvent_Gro");
+    }
+
+    @Test
+    public void testDraftCloseCase() {
+        whenAtCallActivity("POGR_GRO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DRAFT")
+                .thenReturn("CloseCaseDraft", "true")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Gro");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_GroDraftEnd");
     }
 

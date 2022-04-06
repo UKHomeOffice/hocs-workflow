@@ -62,4 +62,46 @@ public class POGR_GRO_DRAFT {
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 
+    @Test
+    public void testTelephoneResponse() {
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DraftOutcome", "TelephoneResponse")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("TelephoneResponse", "")
+                .thenReturn("TelephoneResponse", "Yes")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_GroDraft");
+        verify(processScenario).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario).hasCompleted("EndEvent_GroDraft");
+    }
+
+    @Test
+    public void testNotTelephoneResponse() {
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DraftOutcome", "TelephoneResponse")
+                .thenReturn("DraftOutcome", "QA")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("", "")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_GroDraft");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario).hasCompleted("EndEvent_GroDraft");
+    }
+
 }
