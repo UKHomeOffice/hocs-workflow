@@ -20,6 +20,7 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -57,6 +58,46 @@ public class POGR_HMPO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
+    }
+
+    @Test
+    public void testTelephoneResponse() {
+        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")));
+
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("TelephoneResponse", "")
+                .thenReturn("TelephoneResponse", "Yes")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
+        verify(processScenario).hasCompleted("Screen_DraftInput");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
+    }
+
+    @Test
+    public void testNotTelephoneResponse() {
+        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "QA")));
+
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("", "")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
+        verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
+        verify(processScenario).hasCompleted("CallActivity_TelephoneResponse");
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
 

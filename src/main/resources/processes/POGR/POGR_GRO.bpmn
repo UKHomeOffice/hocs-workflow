@@ -4,7 +4,7 @@
     <bpmn:startEvent id="StartEvent_Gro">
       <bpmn:outgoing>Flow_1twhwzx</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:endEvent id="EndEvent_GroDraftEnd">
+    <bpmn:endEvent id="EndEvent_Gro">
       <bpmn:incoming>Flow_1wp5g18</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1twhwzx" sourceRef="StartEvent_Gro" targetRef="CallActivity_PogrGroTriage" />
@@ -22,7 +22,7 @@
         <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
         <camunda:out source="Stage" target="Stage" />
         <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
-        <camunda:out source="CloseCase" target="CloseCase" />
+        <camunda:out source="CloseCaseTriage" target="CloseCaseTriage" />
         <camunda:out source="InvestigationOutcome" target="InvestigationOutcome" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1twhwzx</bpmn:incoming>
@@ -47,7 +47,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1pe6gam" sourceRef="Gateway_09u60iz" targetRef="CallActivity_PogrGroTriage" />
     <bpmn:sequenceFlow id="Flow_1tlv10i" sourceRef="Gateway_09u60iz" targetRef="EndEvent_GroTriageEnd">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ CloseCase == true }</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("CloseCaseTriage") == true }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_PogrGroDraft" name="Draft" calledElement="STAGE">
       <bpmn:extensionElements>
@@ -61,13 +61,13 @@
         <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
         <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
         <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
-        <camunda:out source="BusinessArea" target="BusinessArea" />
         <camunda:out source="Stage" target="Stage" />
         <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
         <camunda:out source="DraftOutcome" target="DraftOutcome" />
+        <camunda:out source="CloseCaseDraft" target="CloseCaseDraft" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1oaxdm7</bpmn:incoming>
-      <bpmn:incoming>Flow_0vt2qm6</bpmn:incoming>
+      <bpmn:incoming>Flow_02httl1</bpmn:incoming>
       <bpmn:outgoing>Flow_02fz0yv</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_02fz0yv" sourceRef="CallActivity_PogrGroDraft" targetRef="Gateway_1kt8g50" />
@@ -77,24 +77,49 @@
       <bpmn:outgoing>Flow_0vt2qm6</bpmn:outgoing>
       <bpmn:outgoing>Flow_17wam1l</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1wp5g18" sourceRef="Gateway_1kt8g50" targetRef="EndEvent_GroDraftEnd">
+    <bpmn:sequenceFlow id="Flow_1wp5g18" sourceRef="Gateway_1kt8g50" targetRef="EndEvent_Gro">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "QA" || DraftOutcome == "Dispatch" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:endEvent id="EndEvent_GroTriageEnd">
       <bpmn:incoming>Flow_1tlv10i</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0vt2qm6" sourceRef="Gateway_1kt8g50" targetRef="CallActivity_PogrGroDraft" />
+    <bpmn:sequenceFlow id="Flow_0vt2qm6" sourceRef="Gateway_1kt8g50" targetRef="Gateway_0m16v09" />
     <bpmn:sequenceFlow id="Flow_17wam1l" sourceRef="Gateway_1kt8g50" targetRef="CallActivity_PogrGroTriage">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "ReturnInvestigation" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_GroDraftEnd">
+      <bpmn:incoming>Flow_1ixm0bm</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gateway_0m16v09" default="Flow_02httl1">
+      <bpmn:incoming>Flow_0vt2qm6</bpmn:incoming>
+      <bpmn:outgoing>Flow_02httl1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ixm0bm</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_02httl1" sourceRef="Gateway_0m16v09" targetRef="CallActivity_PogrGroDraft" />
+    <bpmn:sequenceFlow id="Flow_1ixm0bm" sourceRef="Gateway_0m16v09" targetRef="EndEvent_GroDraftEnd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("CloseCaseDraft") == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_GRO">
-      <bpmndi:BPMNEdge id="Flow_0vt2qm6_di" bpmnElement="Flow_0vt2qm6">
-        <di:waypoint x="840" y="234" />
-        <di:waypoint x="840" y="150" />
+      <bpmndi:BPMNEdge id="Flow_1ixm0bm_di" bpmnElement="Flow_1ixm0bm">
+        <di:waypoint x="865" y="150" />
+        <di:waypoint x="942" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02httl1_di" bpmnElement="Flow_02httl1">
+        <di:waypoint x="815" y="150" />
         <di:waypoint x="700" y="150" />
         <di:waypoint x="700" y="219" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17wam1l_di" bpmnElement="Flow_17wam1l">
+        <di:waypoint x="840" y="284" />
+        <di:waypoint x="840" y="350" />
+        <di:waypoint x="330" y="350" />
+        <di:waypoint x="330" y="299" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vt2qm6_di" bpmnElement="Flow_0vt2qm6">
+        <di:waypoint x="840" y="234" />
+        <di:waypoint x="840" y="175" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1wp5g18_di" bpmnElement="Flow_1wp5g18">
         <di:waypoint x="865" y="259" />
@@ -129,19 +154,13 @@
         <di:waypoint x="215" y="259" />
         <di:waypoint x="280" y="259" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17wam1l_di" bpmnElement="Flow_17wam1l">
-        <di:waypoint x="840" y="284" />
-        <di:waypoint x="840" y="340" />
-        <di:waypoint x="330" y="340" />
-        <di:waypoint x="330" y="299" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Gro">
         <dc:Bounds x="179" y="241" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="172" y="254" width="50" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_GroDraftEnd">
+      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_Gro">
         <dc:Bounds x="942" y="241" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="477" y="222" width="49" height="14" />
@@ -153,17 +172,23 @@
       <bpmndi:BPMNShape id="Gateway_0tbhxzn_di" bpmnElement="Gateway_0tbhxzn" isMarkerVisible="true">
         <dc:Bounds x="455" y="234" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1kt8g50_di" bpmnElement="Gateway_1kt8g50" isMarkerVisible="true">
-        <dc:Bounds x="815" y="234" width="50" height="50" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_09u60iz_di" bpmnElement="Gateway_09u60iz" isMarkerVisible="true">
         <dc:Bounds x="455" y="125" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1aqe90x_di" bpmnElement="CallActivity_PogrGroDraft">
+        <dc:Bounds x="650" y="219" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1kt8g50_di" bpmnElement="Gateway_1kt8g50" isMarkerVisible="true">
+        <dc:Bounds x="815" y="234" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0p8afpi_di" bpmnElement="EndEvent_GroTriageEnd">
         <dc:Bounds x="562" y="132" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1aqe90x_di" bpmnElement="CallActivity_PogrGroDraft">
-        <dc:Bounds x="650" y="219" width="100" height="80" />
+      <bpmndi:BPMNShape id="Event_05ni17l_di" bpmnElement="EndEvent_GroDraftEnd">
+        <dc:Bounds x="942" y="132" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0m16v09_di" bpmnElement="Gateway_0m16v09" isMarkerVisible="true">
+        <dc:Bounds x="815" y="125" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
