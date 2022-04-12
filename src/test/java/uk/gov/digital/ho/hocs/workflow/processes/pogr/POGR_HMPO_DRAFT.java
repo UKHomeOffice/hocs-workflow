@@ -88,7 +88,7 @@ public class POGR_HMPO_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "QA")));
 
         whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
-                .thenReturn("", "")
+                .thenReturn("TelephoneResponse", "No")
                 .deploy(rule);
 
         Scenario.run(processScenario)
