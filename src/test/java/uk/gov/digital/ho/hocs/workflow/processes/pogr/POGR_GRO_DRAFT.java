@@ -91,7 +91,7 @@ public class POGR_GRO_DRAFT {
                 .deploy(rule);
 
         whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
-                .thenReturn("", "")
+                .thenReturn("TelephoneResponse", "No")
                 .deploy(rule);
 
         Scenario.run(processScenario)
