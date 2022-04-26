@@ -4,6 +4,8 @@ public interface WorkflowConstants {
 
     String VALID = "valid";
     String DIRECTION = "DIRECTION";
+    String FORWARD = "FORWARD";
+    String BACKWARD = "BACKWARD";
     String LAST_UPDATED_BY_USER = "LastUpdatedByUserUUID";
     String DATE_RECEIVED = "DateReceived";
     String CASE_REFERENCE = "CaseReference";
