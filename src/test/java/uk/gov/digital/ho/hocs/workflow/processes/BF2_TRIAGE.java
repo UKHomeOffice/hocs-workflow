@@ -19,8 +19,13 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.BACKWARD;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.DIRECTION;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.FORWARD;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.VALID;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/BF2_TRIAGE.bpmn")
