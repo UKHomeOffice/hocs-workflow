@@ -5,8 +5,7 @@
       <bpmn:incoming>Flow_0pawikq</bpmn:incoming>
       <bpmn:incoming>Flow_1bnsbkw</bpmn:incoming>
       <bpmn:incoming>Flow_1hvxas2</bpmn:incoming>
-      <bpmn:incoming>Flow_1jrcsfv</bpmn:incoming>
-      <bpmn:incoming>Flow_1iztslr</bpmn:incoming>
+      <bpmn:incoming>Flow_0yr3jad</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="Validate_Capture_Reason" name="Capture Reason" camunda:formKey="BF_TRIAGE_BUSAREA">
       <bpmn:incoming>Flow_09qcc5c</bpmn:incoming>
@@ -169,90 +168,51 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ valid == false }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="Transfer_Case" name="Transfer Case" camunda:formKey="BF_TRIAGE_TRANSFER">
-      <bpmn:incoming>Flow_1wx1rxx</bpmn:incoming>
       <bpmn:incoming>Flow_1u9ohta</bpmn:incoming>
+      <bpmn:incoming>Flow_1wx1rxx</bpmn:incoming>
       <bpmn:outgoing>Flow_1368jip</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_1h4oewh">
-      <bpmn:incoming>Flow_1qbqrsq</bpmn:incoming>
-      <bpmn:outgoing>Flow_1wx1rxx</bpmn:outgoing>
-      <bpmn:outgoing>Flow_16k1fp6</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
     <bpmn:serviceTask id="Save_Reject_Note" name="Save Reject Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_TriageTransfer&#34;), &#34;REJECT&#34;)}">
       <bpmn:incoming>Flow_16k1fp6</bpmn:incoming>
       <bpmn:outgoing>Flow_0yr3jad</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_1f7bvs6" name="Migrate to SMC case" camunda:expression="${bpmnService.migrateCase(&#34;SMC&#34;, execution.getVariable(&#34;CaseUUID&#34;))}">
-      <bpmn:incoming>Flow_0msvmdr</bpmn:incoming>
-      <bpmn:outgoing>Flow_1iztslr</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:exclusiveGateway id="Gateway_1mxfalb">
       <bpmn:incoming>Flow_1368jip</bpmn:incoming>
       <bpmn:outgoing>Flow_1qbqrsq</bpmn:outgoing>
       <bpmn:outgoing>Flow_1rinbe7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:exclusiveGateway id="Gateway_0b3l65u">
-      <bpmn:incoming>Flow_0yr3jad</bpmn:incoming>
-      <bpmn:outgoing>Flow_0msvmdr</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0qid09b</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Activity_07xdmbw" name="Migrate to COMP case" camunda:expression="${bpmnService.migrateCase(&#34;COMP&#34;, execution.getVariable(&#34;CaseUUID&#34;))}">
-      <bpmn:incoming>Flow_0qid09b</bpmn:incoming>
-      <bpmn:outgoing>Flow_1jrcsfv</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1wx1rxx" sourceRef="Gateway_1h4oewh" targetRef="Transfer_Case">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1368jip" sourceRef="Transfer_Case" targetRef="Gateway_1mxfalb" />
     <bpmn:sequenceFlow id="Flow_1qbqrsq" sourceRef="Gateway_1mxfalb" targetRef="Gateway_1h4oewh">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_16k1fp6" sourceRef="Gateway_1h4oewh" targetRef="Save_Reject_Note">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0yr3jad" sourceRef="Save_Reject_Note" targetRef="Gateway_0b3l65u" />
-    <bpmn:sequenceFlow id="Flow_0msvmdr" sourceRef="Gateway_0b3l65u" targetRef="Activity_1f7bvs6">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferType == "SMC"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0qid09b" sourceRef="Gateway_0b3l65u" targetRef="Activity_07xdmbw">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TransferType == "CCH"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0yr3jad" sourceRef="Save_Reject_Note" targetRef="EndEvent_BF_TRIAGE" />
     <bpmn:sequenceFlow id="Flow_1rinbe7" sourceRef="Gateway_1mxfalb" targetRef="Validate_Accept_Case">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1jrcsfv" sourceRef="Activity_07xdmbw" targetRef="EndEvent_BF_TRIAGE" />
-    <bpmn:sequenceFlow id="Flow_1iztslr" sourceRef="Activity_1f7bvs6" targetRef="EndEvent_BF_TRIAGE" />
+    <bpmn:exclusiveGateway id="Gateway_1h4oewh">
+      <bpmn:incoming>Flow_1qbqrsq</bpmn:incoming>
+      <bpmn:outgoing>Flow_16k1fp6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1wx1rxx</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_16k1fp6" sourceRef="Gateway_1h4oewh" targetRef="Save_Reject_Note">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1wx1rxx" sourceRef="Gateway_1h4oewh" targetRef="Transfer_Case">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BF_TRIAGE">
-      <bpmndi:BPMNEdge id="Flow_1iztslr_di" bpmnElement="Flow_1iztslr">
-        <di:waypoint x="1220" y="240" />
-        <di:waypoint x="1620" y="240" />
-        <di:waypoint x="1620" y="602" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1jrcsfv_di" bpmnElement="Flow_1jrcsfv">
-        <di:waypoint x="1220" y="120" />
-        <di:waypoint x="1620" y="120" />
-        <di:waypoint x="1620" y="602" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1rinbe7_di" bpmnElement="Flow_1rinbe7">
         <di:waypoint x="740" y="215" />
         <di:waypoint x="740" y="110" />
         <di:waypoint x="300" y="110" />
         <di:waypoint x="300" y="580" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0qid09b_di" bpmnElement="Flow_0qid09b">
-        <di:waypoint x="1050" y="215" />
-        <di:waypoint x="1050" y="120" />
-        <di:waypoint x="1120" y="120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0msvmdr_di" bpmnElement="Flow_0msvmdr">
-        <di:waypoint x="1075" y="240" />
-        <di:waypoint x="1120" y="240" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0yr3jad_di" bpmnElement="Flow_0yr3jad">
         <di:waypoint x="980" y="240" />
-        <di:waypoint x="1025" y="240" />
+        <di:waypoint x="1620" y="240" />
+        <di:waypoint x="1620" y="602" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_16k1fp6_di" bpmnElement="Flow_16k1fp6">
         <di:waypoint x="845" y="240" />
@@ -495,17 +455,8 @@
       <bpmndi:BPMNShape id="Activity_1mhnzym_di" bpmnElement="Save_Reject_Note">
         <dc:Bounds x="880" y="200" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1f7bvs6_di" bpmnElement="Activity_1f7bvs6">
-        <dc:Bounds x="1120" y="200" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1mxfalb_di" bpmnElement="Gateway_1mxfalb" isMarkerVisible="true">
         <dc:Bounds x="715" y="215" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0b3l65u_di" bpmnElement="Gateway_0b3l65u" isMarkerVisible="true">
-        <dc:Bounds x="1025" y="215" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_07xdmbw_di" bpmnElement="Activity_07xdmbw">
-        <dc:Bounds x="1120" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

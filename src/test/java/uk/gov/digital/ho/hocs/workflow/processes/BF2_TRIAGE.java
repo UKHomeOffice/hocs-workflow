@@ -17,8 +17,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.BACKWARD;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.DIRECTION;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.FORWARD;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.VALID;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/BF2_TRIAGE.bpmn")
@@ -45,18 +52,18 @@ public class BF2_TRIAGE {
     @Test
     public void testHappyPath(){
         when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
+                .thenReturn(task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes")))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
 
         when(process.waitsAtUserTask("Validate_Contributions"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "BFTriageResult", "Pending")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BFTriageResult", "Pending")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BFTriageResult", "Draft")));
+                .thenReturn(task -> task.complete(withVariables(VALID, false, "BFTriageResult", "Pending")))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Pending")))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Draft")));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process).hasCompleted("EndEvent_BF2_TRIAGE");
@@ -65,25 +72,32 @@ public class BF2_TRIAGE {
     @Test
     public void testTriageReject(){
         when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "BfTriageAccept", "No")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "No")));
+                .thenReturn(task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "No")))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "No")));
+
+        when(process.waitsAtUserTask("Transfer_Case"))
+                .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, FORWARD)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD, VALID, false)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, VALID, true, "CaseNote_TriageTransfer", "Reject note")));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
-        verify(process).hasCompleted("EndEvent_BF2_TRIAGE");
+        verify(process, times(1)).hasCompleted("EndEvent_BF2_TRIAGE");
+        verify(process, times(1)).hasCompleted("Save_Reject_Note");
+        verify(bpmnService, times(1)).updateAllocationNote(any(), any(), eq("Reject note"), eq("REJECT"));
     }
 
     @Test
     public void testValidateContributionsBackThenComplete(){
         when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
 
         when(process.waitsAtUserTask("Validate_Contributions"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BFTriageResult", "Draft")));
+                .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Draft")));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process).hasCompleted("EndEvent_BF2_TRIAGE");
@@ -92,19 +106,19 @@ public class BF2_TRIAGE {
     @Test
     public void testCompleteComplaint(){
         when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
 
         when(process.waitsAtUserTask("Validate_Contributions"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BFTriageResult", "Complete")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BFTriageResult", "Complete")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Complete")))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Complete")));
 
         when(process.waitsAtUserTask("Validate_Complete_Reason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, FORWARD)))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process).hasCompleted("EndEvent_BF2_TRIAGE");
@@ -113,18 +127,18 @@ public class BF2_TRIAGE {
     @Test
     public void testEscalate(){
         when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfTriageAccept", "Yes")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
 
         when(process.waitsAtUserTask("Validate_Contributions"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BFTriageResult", "Escalate")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Escalate")));
 
         when(process.waitsAtUserTask("Validate_Escalate"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "BFTriageResult", "Pending")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(VALID, false, "BFTriageResult", "Pending")))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process).hasCompleted("Save_Note");
