@@ -70,7 +70,7 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testTriageReject(){
+    public void testTriageOfflineTransfer(){
         when(process.waitsAtUserTask("Validate_Accept_Case"))
                 .thenReturn(task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "No")))
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "No")));
@@ -82,8 +82,8 @@ public class BF2_TRIAGE {
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(1)).hasCompleted("EndEvent_BF2_TRIAGE");
-        verify(process, times(1)).hasCompleted("Save_Reject_Note");
-        verify(bpmnService, times(1)).updateAllocationNote(any(), any(), eq("Reject note"), eq("REJECT"));
+        verify(process, times(1)).hasCompleted("Save_Offline_Case_Transfer_Note");
+        verify(bpmnService, times(1)).updateAllocationNote(any(), any(), eq("Reject note"), eq("OFFLINE_CASE_TRANSFER"));
     }
 
     @Test
