@@ -67,24 +67,16 @@ public class BpmnService {
         UUID userUUID = StringUtils.hasText(allocatedUserId) ? UUID.fromString(allocatedUserId) : null;
 
         String resultStageUUID;
+        UUID stageUUID = null;
 
         if (StringUtils.hasText(stageUUIDString)) {
-
-            UUID stageUUID = UUID.fromString(stageUUIDString);
-            RecreateCaseworkStageRequest recreateStageRequest = new RecreateCaseworkStageRequest(stageUUID, stageTypeString, teamUUID, userUUID);
-
-            log.debug("Stage {} already exists for case {}, recreating stage {}", stageTypeString, caseUUID, recreateStageRequest);
-            caseworkClient.recreateStage(caseUUID, recreateStageRequest);
-            resultStageUUID = stageUUIDString;
-            log.info("Updated Stage {} for Case {}", stageUUID, caseUUID);
-
-        } else {
-
-            CreateCaseworkStageRequest stageRequest = new CreateCaseworkStageRequest(stageTypeString, teamUUID, userUUID, allocationType);
-            log.debug("Creating new stage {} for case {}", stageRequest, caseUUIDString);
-            resultStageUUID = caseworkClient.createStage(caseUUID, stageRequest).toString();
-            log.info("Created Stage {} for Case {}", resultStageUUID, caseUUID);
+            stageUUID= UUID.fromString(stageUUIDString);
         }
+
+        CreateCaseworkStageRequest stageRequest = new CreateCaseworkStageRequest(stageTypeString, stageUUID, teamUUID, userUUID, allocationType);
+        log.debug("Creating new stage {} for case {}", stageRequest, caseUUIDString);
+        resultStageUUID = caseworkClient.createStage(caseUUID, stageRequest).toString();
+        log.info("Created Stage {} for Case {}", resultStageUUID, caseUUID);
 
         return resultStageUUID;
     }

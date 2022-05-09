@@ -126,11 +126,6 @@ public class CaseworkClient {
         return response.getUuid();
     }
 
-    public void recreateStage(UUID caseUUID, RecreateCaseworkStageRequest recreateStageRequest) {
-        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/recreate", caseUUID, recreateStageRequest.getStageUUID()), recreateStageRequest, Void.class);
-        log.info("Recreated Stage: {} for Case {}", recreateStageRequest, caseUUID);
-    }
-
     public UUID updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {
         UpdateCaseworkStageTeamRequest request = new UpdateCaseworkStageTeamRequest(caseUUID, stageUUID, teamUUID, allocationType);
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/team", caseUUID, stageUUID), request, Void.class);
