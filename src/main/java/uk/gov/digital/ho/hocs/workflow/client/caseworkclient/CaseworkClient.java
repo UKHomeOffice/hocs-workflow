@@ -144,6 +144,7 @@ public class CaseworkClient {
         return response.getUuid();
     }
 
+    @Deprecated(forRemoval = true)
     public void recreateStage(UUID caseUUID, RecreateCaseworkStageRequest recreateStageRequest) {
         restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/recreate", caseUUID, recreateStageRequest.getStageUUID()), recreateStageRequest, Void.class);
         log.info("Recreated Stage: {} for Case {}", recreateStageRequest, caseUUID);
