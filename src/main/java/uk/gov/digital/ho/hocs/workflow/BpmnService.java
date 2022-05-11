@@ -30,6 +30,9 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+
 
 @Service
 @Slf4j
@@ -61,7 +64,7 @@ public class BpmnService {
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String allocationType, String allocationTeamString, String allocatedUserId) {
 
         UUID caseUUID = UUID.fromString(caseUUIDString);
-        log.debug("Creating or Updating Stage {} for case {}", stageTypeString, caseUUIDString);
+        log.debug("Creating or Updating Stage {} for case {}", stageTypeString, caseUUIDString, value(EVENT, STAGE_CREATION_STARTED));
 
         UUID teamUUID = StringUtils.hasText(allocationTeamString) ? UUID.fromString(allocationTeamString) : null;
         UUID userUUID = StringUtils.hasText(allocatedUserId) ? UUID.fromString(allocatedUserId) : null;
@@ -74,9 +77,8 @@ public class BpmnService {
         }
 
         CreateCaseworkStageRequest stageRequest = new CreateCaseworkStageRequest(stageTypeString, stageUUID, teamUUID, userUUID, allocationType);
-        log.debug("Creating new stage {} for case {}", stageRequest, caseUUIDString);
         resultStageUUID = caseworkClient.createStage(caseUUID, stageRequest).toString();
-        log.info("Created Stage {} for Case {}", resultStageUUID, caseUUID);
+        log.info("Created Stage {} for Case {}", resultStageUUID, caseUUID, value(EVENT, STAGE_CREATION_SUCCESS));
 
         return resultStageUUID;
     }
