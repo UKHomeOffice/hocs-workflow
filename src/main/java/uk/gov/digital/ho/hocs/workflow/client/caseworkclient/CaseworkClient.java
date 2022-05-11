@@ -7,11 +7,29 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseNoteRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkStageRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkStageResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStagesResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.RecreateCaseworkStageRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkCaseDataRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkStageTeamRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkStageUserRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkTeamStageTextRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateCaseworkTeamStageTextResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateDeadlineForStagesRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.UpdateStageDeadlineRequest;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -124,6 +142,11 @@ public class CaseworkClient {
         CreateCaseworkStageResponse response = restHelper.post(serviceBaseURL, String.format("/case/%s/stage", caseUUID), request, CreateCaseworkStageResponse.class);
         log.info("Created Stage: {} for Case {}", response.getUuid(), caseUUID);
         return response.getUuid();
+    }
+
+    public void recreateStage(UUID caseUUID, RecreateCaseworkStageRequest recreateStageRequest) {
+        restHelper.put(serviceBaseURL, String.format("/case/%s/stage/%s/recreate", caseUUID, recreateStageRequest.getStageUUID()), recreateStageRequest, Void.class);
+        log.info("Recreated Stage: {} for Case {}", recreateStageRequest, caseUUID);
     }
 
     public UUID updateStageTeam(UUID caseUUID, UUID stageUUID, UUID teamUUID, String allocationType) {
