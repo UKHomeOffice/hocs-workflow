@@ -15,6 +15,9 @@ public class CreateCaseworkStageRequest {
     @JsonProperty("type")
     private String type;
 
+    @JsonProperty("stageUUID")
+    private UUID stageUUIDForRecreation;
+
     @JsonProperty("teamUUID")
     private UUID teamUUID;
 

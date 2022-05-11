@@ -588,35 +588,6 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shouldRecreateStage() {
-        String stageType = "testStageType";
-        String allocationType = "testAllocationType";
-        UUID allocationTeam = UUID.randomUUID();
-        UUID allocatedUserId = UUID.randomUUID();
-
-
-        String resultUUID = bpmnService.createStage(caseUUID.toString(), stageUUID.toString(), stageType, allocationType, allocationTeam.toString(), allocatedUserId.toString());
-
-        assertThat(resultUUID).isEqualTo(stageUUID.toString());
-        verify(caseworkClient).recreateStage(eq(caseUUID), any(RecreateCaseworkStageRequest.class));
-        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
-    }
-
-    @Test
-    public void shouldRecreateStage_NoUserUUIDProvided() {
-        String stageType = "testStageType";
-        String allocationType = "testAllocationType";
-        UUID allocationTeam = UUID.randomUUID();
-
-        String resultUUID = bpmnService.createStage(caseUUID.toString(), stageUUID.toString(), stageType, allocationType, allocationTeam.toString(), null);
-
-        assertThat(resultUUID).isEqualTo(stageUUID.toString());
-        verify(caseworkClient).recreateStage(eq(caseUUID), any(RecreateCaseworkStageRequest.class));
-        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
-
-    }
-
-    @Test
     public void updateCount_nullValue() {
         String variableName = "testVariableName";
         int additive = 1;

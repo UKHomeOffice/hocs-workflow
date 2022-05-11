@@ -9,6 +9,7 @@ import lombok.ToString;
 
 import java.util.UUID;
 
+@Deprecated(forRemoval = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
