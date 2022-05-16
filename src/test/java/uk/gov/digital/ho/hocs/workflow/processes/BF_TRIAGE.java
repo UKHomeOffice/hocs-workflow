@@ -57,10 +57,6 @@ public class BF_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, BACKWARD)))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
-
-        when(process.waitsAtUserTask("Validate_Contributions"))
                 .thenReturn(task -> task.complete(withVariables(VALID, false, "BFTriageResult", "Pending")))
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Pending")))
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Draft")));
@@ -92,10 +88,6 @@ public class BF_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
-
-        when(process.waitsAtUserTask("Validate_Contributions"))
                 .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, BACKWARD)))
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Draft")));
 
@@ -109,9 +101,6 @@ public class BF_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
-
-        when(process.waitsAtUserTask("Validate_Contributions"))
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Complete")))
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Complete")));
 
@@ -130,10 +119,7 @@ public class BF_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
         when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
-
-        when(process.waitsAtUserTask("Validate_Contributions"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Escalate")));
+                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD, "BFTriageResult", "Escalate")));
 
         when(process.waitsAtUserTask("Validate_Escalate"))
                 .thenReturn(task -> task.complete(withVariables(VALID, false, "BFTriageResult", "Pending")))
