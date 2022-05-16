@@ -51,15 +51,14 @@ public class BF2 {
     @Test
     public void testHappyPath() {
         whenAtCallActivity("BF2_REGISTRATION")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_TRIAGE")
-                .thenReturn("valid", "true", "BFTriageResult", "Draft")
+                .thenReturn("BFTriageResult", "Draft", "BfTriageAccept", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_DRAFT")
-                .thenReturn("valid", "true", "BfDraftResult", "QA")
+                .thenReturn("BfDraftResult", "QA")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_QA")
@@ -67,7 +66,6 @@ public class BF2 {
                 .deploy(rule);
 
         whenAtCallActivity("BF2_SEND")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -89,21 +87,20 @@ public class BF2 {
     @Test
     public void testEscalate() {
         whenAtCallActivity("BF2_REGISTRATION")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_TRIAGE")
-                .thenReturn("valid", "true", "BFTriageResult", "Escalate")
-                .thenReturn("valid", "true", "BFTriageResult", "Escalate")
+                .thenReturn( "BFTriageResult", "Escalate", "BfTriageAccept", "Yes")
+                .thenReturn( "BFTriageResult", "Escalate", "BfTriageAccept", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_ESCALATE")
-                .thenReturn("valid", "true", "BfEscalationResult", "SendToTriage")
-                .thenReturn("valid", "true", "BfEscalationResult", "SendToDraft")
+                .thenReturn( "BfEscalationResult", "SendToTriage")
+                .thenReturn( "BfEscalationResult", "SendToDraft")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_DRAFT")
-                .thenReturn("valid", "true", "BfDraftResult", "QA")
+                .thenReturn("BfDraftResult", "QA")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_QA")
@@ -111,7 +108,6 @@ public class BF2 {
                 .deploy(rule);
 
         whenAtCallActivity("BF2_SEND")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -132,23 +128,21 @@ public class BF2 {
     @Test
     public void testQA() {
         whenAtCallActivity("BF2_REGISTRATION")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_TRIAGE")
-                .thenReturn("valid", "true", "BFTriageResult", "Draft")
+                .thenReturn("BFTriageResult", "Draft", "BfTriageAccept", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_QA")
-                .thenReturn("valid", "true", "BfQaResult", "Accept")
+                .thenReturn("BfQaResult", "Accept")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_DRAFT")
-                .thenReturn("valid", "true", "BfDraftResult", "QA")
+                .thenReturn("BfDraftResult", "QA")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_SEND")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -168,11 +162,10 @@ public class BF2 {
     @Test
     public void testTriageComplete() {
         whenAtCallActivity("BF2_REGISTRATION")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         whenAtCallActivity("BF2_TRIAGE")
-                .thenReturn("valid", "true", "BFTriageResult", "Complete")
+                .thenReturn("BFTriageResult", "Complete", "BfTriageAccept", "Yes")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -186,4 +179,23 @@ public class BF2 {
         verify(processScenario).hasCompleted("EndEvent_BF2");
     }
 
+    @Test
+    public void testOfflineTransfer() {
+        whenAtCallActivity("BF2_REGISTRATION")
+                .deploy(rule);
+
+        whenAtCallActivity("BF2_TRIAGE")
+                .thenReturn("BfTriageAccept", "No")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("BF2")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF2");
+        verify(processScenario).hasCompleted("CallActivity_BF2_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_BF2_TRIAGE");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF2");
+    }
 }
