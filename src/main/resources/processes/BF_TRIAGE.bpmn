@@ -191,8 +191,8 @@
     <bpmn:sequenceFlow id="Flow_090vjkj" name="No" sourceRef="Gateway_0pwhoxo" targetRef="Gateway_0mav3nh">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BFTriageResult != "Complete"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1iabpn0" sourceRef="Activity_0krydsc" targetRef="Gateway_0tf16js" />
-    <bpmn:serviceTask id="Activity_0krydsc" name="Calculate Payment Offer Totals" camunda:expression="${bpmnService.calculateTotals(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;BF_TOTAL_PAYMENT_OFFER&#34;)}">
+    <bpmn:sequenceFlow id="Flow_1iabpn0" sourceRef="CALCULATE_TOTAL_PAYMENT" targetRef="Gateway_0tf16js" />
+    <bpmn:serviceTask id="CALCULATE_TOTAL_PAYMENT" name="Calculate Payment Offer Totals" camunda:expression="${bpmnService.calculateTotals(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;BF_TOTAL_PAYMENT_OFFER&#34;)}">
       <bpmn:incoming>Flow_1rvj6q7</bpmn:incoming>
       <bpmn:incoming>Flow_0pac256</bpmn:incoming>
       <bpmn:incoming>Flow_1cnnymc</bpmn:incoming>
@@ -203,14 +203,14 @@
       <bpmn:outgoing>Flow_0j3inrp</bpmn:outgoing>
       <bpmn:outgoing>Flow_15hu0g2</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0j3inrp" name="No" sourceRef="Gateway_0mav3nh" targetRef="Activity_1hzlu73">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ "No".equals(PaymentTypeConsolatory) &amp;&amp; "No".equals(PaymentTypeExGratia) }</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0j3inrp" name="No" sourceRef="Gateway_0mav3nh" targetRef="CLEAR_PAYMENT_VALS">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ !"Yes".equals(PaymentTypeConsolatory) &amp;&amp; !"Yes".equals(PaymentTypeExGratia) }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_15hu0g2" name="Yes" sourceRef="Gateway_0mav3nh" targetRef="Gateway_0a5g615">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ "Yes".equals(PaymentTypeConsolatory) || "Yes".equals(PaymentTypeExGratia) }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0lgnzwm" sourceRef="Activity_1hzlu73" targetRef="Gateway_0tf16js" />
-    <bpmn:serviceTask id="Activity_1hzlu73" name="Clear Payment Values" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;TotalOfferSentToComplainant&#34;, &#34;ConsolatoryOfferSentToComplainant&#34;, &#34;ExGratiaOfferSentToComplainant&#34;)}">
+    <bpmn:sequenceFlow id="Flow_0lgnzwm" sourceRef="CLEAR_PAYMENT_VALS" targetRef="Gateway_0tf16js" />
+    <bpmn:serviceTask id="CLEAR_PAYMENT_VALS" name="Clear Payment Values" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;TotalOfferSentToComplainant&#34;, &#34;ConsolatoryOfferSentToComplainant&#34;, &#34;ExGratiaOfferSentToComplainant&#34;)}">
       <bpmn:incoming>Flow_0j3inrp</bpmn:incoming>
       <bpmn:outgoing>Flow_0lgnzwm</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -227,25 +227,25 @@
       <bpmn:outgoing>Flow_1rvj6q7</bpmn:outgoing>
       <bpmn:outgoing>Flow_00fuf4i</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1rvj6q7" name="Yes" sourceRef="Gateway_0pdtuba" targetRef="Activity_0krydsc">
+    <bpmn:sequenceFlow id="Flow_1rvj6q7" name="Yes" sourceRef="Gateway_0pdtuba" targetRef="CALCULATE_TOTAL_PAYMENT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ "Yes".equals(PaymentTypeExGratia) }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="Activity_01y39l6" name="Clear Consolatory Payment Offer Value" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;ConsolatoryOfferSentToComplainant&#34;)}">
+    <bpmn:serviceTask id="CLEAR_CONSOL_VAL" name="Clear Consolatory Payment Offer Value" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;ConsolatoryOfferSentToComplainant&#34;)}">
       <bpmn:incoming>Flow_0dl1z3h</bpmn:incoming>
       <bpmn:outgoing>Flow_1cnnymc</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_1sc4n31" name="Clear Ex-Gratia Payment Offer Value" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;ExGratiaOfferSentToComplainant&#34;)}">
+    <bpmn:serviceTask id="CLEAR_EXGRATIA_VAL" name="Clear Ex-Gratia Payment Offer Value" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, &#34;ExGratiaOfferSentToComplainant&#34;)}">
       <bpmn:incoming>Flow_00fuf4i</bpmn:incoming>
       <bpmn:outgoing>Flow_0pac256</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0dl1z3h" name="No" sourceRef="Gateway_0a5g615" targetRef="Activity_01y39l6">
+    <bpmn:sequenceFlow id="Flow_0dl1z3h" name="No" sourceRef="Gateway_0a5g615" targetRef="CLEAR_CONSOL_VAL">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ "No".equals(PaymentTypeConsolatory) }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_00fuf4i" name="No" sourceRef="Gateway_0pdtuba" targetRef="Activity_1sc4n31">
+    <bpmn:sequenceFlow id="Flow_00fuf4i" name="No" sourceRef="Gateway_0pdtuba" targetRef="CLEAR_EXGRATIA_VAL">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ "No".equals(PaymentTypeExGratia) }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0pac256" sourceRef="Activity_1sc4n31" targetRef="Activity_0krydsc" />
-    <bpmn:sequenceFlow id="Flow_1cnnymc" sourceRef="Activity_01y39l6" targetRef="Activity_0krydsc" />
+    <bpmn:sequenceFlow id="Flow_0pac256" sourceRef="CLEAR_EXGRATIA_VAL" targetRef="CALCULATE_TOTAL_PAYMENT" />
+    <bpmn:sequenceFlow id="Flow_1cnnymc" sourceRef="CLEAR_CONSOL_VAL" targetRef="CALCULATE_TOTAL_PAYMENT" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BF_TRIAGE">
@@ -537,7 +537,7 @@
       <bpmndi:BPMNShape id="Gateway_05ok60y_di" bpmnElement="Gateway_05ok60y" isMarkerVisible="true">
         <dc:Bounds x="1485" y="415" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0t10w0i_di" bpmnElement="Activity_0krydsc">
+      <bpmndi:BPMNShape id="Activity_0t10w0i_di" bpmnElement="CALCULATE_TOTAL_PAYMENT">
         <dc:Bounds x="1270" y="883" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0drd59m_di" bpmnElement="Gateway_0drd59m" isMarkerVisible="true">
@@ -558,7 +558,7 @@
       <bpmndi:BPMNShape id="Activity_13taydb_di" bpmnElement="Activity_13taydb">
         <dc:Bounds x="1580" y="1000" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0cgphdc_di" bpmnElement="Activity_1hzlu73">
+      <bpmndi:BPMNShape id="Activity_0cgphdc_di" bpmnElement="CLEAR_PAYMENT_VALS">
         <dc:Bounds x="1080" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0pdtuba_di" bpmnElement="Gateway_0pdtuba" isMarkerVisible="true">
@@ -573,10 +573,10 @@
           <dc:Bounds x="816" y="700" width="68" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ezmc9t_di" bpmnElement="Activity_01y39l6">
+      <bpmndi:BPMNShape id="Activity_0ezmc9t_di" bpmnElement="CLEAR_CONSOL_VAL">
         <dc:Bounds x="1080" y="680" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0hcqj37_di" bpmnElement="Activity_1sc4n31">
+      <bpmndi:BPMNShape id="Activity_0hcqj37_di" bpmnElement="CLEAR_EXGRATIA_VAL">
         <dc:Bounds x="1080" y="780" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0pwhoxo_di" bpmnElement="Gateway_0pwhoxo" isMarkerVisible="true">
