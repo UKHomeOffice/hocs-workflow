@@ -51,19 +51,17 @@ public class BF {
     @Test
     public void testHappyPath() {
         whenAtCallActivity("BF_REGISTRATION")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
-                .thenReturn("valid", "true", "BFTriageResult", "Draft")
+                .thenReturn( "BFTriageResult", "Draft", "BfTriageAccept", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
-                .thenReturn("valid", "true", "BfDraftResult", "Send")
+                .thenReturn( "BfDraftResult", "Send")
                 .deploy(rule);
 
         whenAtCallActivity("BF_SEND")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -84,25 +82,23 @@ public class BF {
     @Test
     public void testEscalate() {
         whenAtCallActivity("BF_REGISTRATION")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
-                .thenReturn("valid", "true", "BFTriageResult", "Escalate")
-                .thenReturn("valid", "true", "BFTriageResult", "Escalate")
+                .thenReturn( "BFTriageResult", "Escalate", "BfTriageAccept", "Yes")
+                .thenReturn( "BFTriageResult", "Escalate", "BfTriageAccept", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity("BF_ESCALATE")
-                .thenReturn("valid", "true", "BfEscalationResult", "SendToTriage")
-                .thenReturn("valid", "true", "BfEscalationResult", "SendToDraft")
+                .thenReturn("BfEscalationResult", "SendToTriage")
+                .thenReturn("BfEscalationResult", "SendToDraft")
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
-                .thenReturn("valid", "true", "BfDraftResult", "Send")
+                .thenReturn( "BfDraftResult", "Send")
                 .deploy(rule);
 
         whenAtCallActivity("BF_SEND")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -122,23 +118,21 @@ public class BF {
     @Test
     public void testQA() {
         whenAtCallActivity("BF_REGISTRATION")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
-                .thenReturn("valid", "true", "BFTriageResult", "Draft")
+                .thenReturn( "BFTriageResult", "Draft", "BfTriageAccept", "Yes")
                 .deploy(rule);
 
         whenAtCallActivity("BF_QA")
-                .thenReturn("valid", "true", "BfQaResult", "Accept")
+                .thenReturn( "BfQaResult", "Accept")
                 .deploy(rule);
 
         whenAtCallActivity("BF_DRAFT")
-                .thenReturn("valid", "true", "BfDraftResult", "QA")
+                .thenReturn( "BfDraftResult", "QA")
                 .deploy(rule);
 
         whenAtCallActivity("BF_SEND")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -158,11 +152,10 @@ public class BF {
     @Test
     public void testTriageComplete() {
         whenAtCallActivity("BF_REGISTRATION")
-                .thenReturn("valid", "true")
                 .deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE")
-                .thenReturn("valid", "true", "BFTriageResult", "Complete")
+                .thenReturn("BFTriageResult", "Complete", "BfTriageAccept", "Yes")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -176,4 +169,23 @@ public class BF {
         verify(processScenario).hasCompleted("EndEvent_BF");
     }
 
+    @Test
+    public void testOfflineTransfer() {
+        whenAtCallActivity("BF_REGISTRATION")
+                .deploy(rule);
+
+        whenAtCallActivity("BF_TRIAGE")
+                .thenReturn("BfTriageAccept", "No")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("BF")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF");
+        verify(processScenario).hasCompleted("CallActivity_BF_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_BF_TRIAGE");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF");
+    }
 }
