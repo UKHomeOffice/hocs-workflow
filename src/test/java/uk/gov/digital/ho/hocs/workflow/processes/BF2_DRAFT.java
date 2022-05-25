@@ -66,4 +66,19 @@ public class BF2_DRAFT {
         verify(process).hasCompleted("Save_Note");
         verify(process).hasCompleted("EndEvent_BF2_DRAFT");
     }
+
+    @Test
+    public void testReject(){
+        when(process.waitsAtUserTask("Validate_Input"))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "BfDraftResult", "Reject")));
+
+        when(process.waitsAtUserTask("Validate_Reject"))
+                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        Scenario.run(process).startByKey("BF2_DRAFT").execute();
+        verify(process).hasCompleted("Save_Rejection_Note");
+        verify(process).hasCompleted("EndEvent_BF2_DRAFT");
+    }
 }
