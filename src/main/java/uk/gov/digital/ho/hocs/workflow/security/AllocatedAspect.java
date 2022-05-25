@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.NonMigrationEnvCondition;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 
 import java.util.Set;
 import java.util.UUID;
@@ -23,6 +24,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 public class AllocatedAspect {
 
     private CaseworkClient caseworkClient;
+    private InfoClient infoClient;
     private UserPermissionsService userService;
 
     @Around("@annotation(allocated)")
@@ -82,9 +84,12 @@ public class AllocatedAspect {
     }
 
     private boolean proceedIfUserTeamIsAdminForCaseType(UUID caseUUID) {
-        String stageType = caseworkClient.getCase(caseUUID).getType();
+        String shortCode = caseUUID.toString().substring(34);
+        var caseDatatype = infoClient.getCaseTypeByShortCode(shortCode);
+        if(caseDatatype == null) {
+            return false;
+        }
         Set<String> caseTypesForCaseTypeAdmin = userService.getCaseTypesIfUserTeamIsCaseTypeAdmin();
-        return caseTypesForCaseTypeAdmin.contains(stageType);
+        return caseTypesForCaseTypeAdmin.contains(caseDatatype.getDisplayName());
     }
 }
-
