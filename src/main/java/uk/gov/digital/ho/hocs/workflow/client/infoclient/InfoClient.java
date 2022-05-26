@@ -69,13 +69,6 @@ public class InfoClient {
         return teams;
     }
 
-    @Cacheable(value = "InfoClientGetStageType", unless = "#result == null", key = "#stageTypeUUID")
-    public StageTypeDto getStageType(UUID stageTypeUUID) {
-        StageTypeDto response = restHelper.get(serviceBaseURL, String.format("/stageType/%s", stageTypeUUID), StageTypeDto.class);
-        log.info("Got Stage Type stageTypeUID {}", response.getShortCode(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
-        return response;
-    }
-
     @Cacheable(value = "InfoClientGetAllStageTypes", unless = "#result.size() == 0")
     public Set<StageTypeDto> getAllStageTypes() {
         Set<StageTypeDto> response = restHelper.get(serviceBaseURL,"/stageType",
