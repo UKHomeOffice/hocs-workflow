@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
+import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.DocumentDto;
 
 import java.util.UUID;
 
@@ -33,8 +34,7 @@ public class DocumentClient {
     }
 
     public String getDocumentName(UUID documentUUID) {
-        final String response = restHelper.get(serviceBaseURL, String.format("/document/%s/name", documentUUID), String.class);
-        log.info("Get Document Name: {} for UUID {}", response, documentUUID);
-        return response;
+        DocumentDto documentDto = restHelper.get(serviceBaseURL, String.format("/document/%s", documentUUID), DocumentDto.class);
+        return documentDto.getDisplayName();
     }
 }
