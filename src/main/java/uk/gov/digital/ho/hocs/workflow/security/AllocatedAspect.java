@@ -90,6 +90,6 @@ public class AllocatedAspect {
             return false;
         }
         Set<String> caseTypesForCaseTypeAdmin = userService.getCaseTypesIfUserTeamIsCaseTypeAdmin();
-        return caseTypesForCaseTypeAdmin.contains(caseDatatype.getDisplayName());
+        return caseTypesForCaseTypeAdmin.contains(caseDatatype.getDisplayCode());
     }
 }
