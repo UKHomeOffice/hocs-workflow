@@ -43,13 +43,18 @@ public class AllocatedAspect {
         }
 
         switch (allocated.allocatedTo()) {
-            case USER -> verifyAllocatedToUser(caseUUID, stageUUID);
-            case TEAM -> verifyAllocatedToTeam(caseUUID, stageUUID);
-            case TEAM_USER -> {
+            case USER:
+                verifyAllocatedToUser(caseUUID, stageUUID);
+                break;
+            case TEAM:
+                verifyAllocatedToTeam(caseUUID, stageUUID);
+                break;
+            case TEAM_USER:
                 verifyAllocatedToTeam(caseUUID, stageUUID);
                 verifyAllocatedToUser(caseUUID, stageUUID);
-            }
-            default -> throw new SecurityExceptions.PermissionCheckException("Invalid Allocation type", SECURITY_PARSE_ERROR);
+                break;
+            default:
+                throw new SecurityExceptions.PermissionCheckException("Invalid Allocation type", SECURITY_PARSE_ERROR);
         }
 
         return joinPoint.proceed();
