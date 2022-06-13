@@ -90,14 +90,15 @@ public class AuthorisationAspect {
 
     AccessLevel getAccessRequestAccessLevel() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
         if(requestAttributes == null) {
-            throw new SecurityExceptions.PermissionCheckException("Null requestAttributes", SECURITY_PARSE_ERROR);
+            throw new SecurityExceptions.PermissionCheckException("Null Request attributes ", SECURITY_PARSE_ERROR);
         }
 
-        String method = requestAttributes.getRequest().getMethod();
+        var method = requestAttributes.getRequest().getMethod();
         return switch (method) {
             case "GET" -> AccessLevel.SUMMARY;
-            case "POST", "PUT", "DELETE" -> AccessLevel.WRITE;
+            case "POST", "PUT", "DELETE", "PATCH" -> AccessLevel.WRITE;
             default -> throw new SecurityExceptions.PermissionCheckException("Unknown access request type " + method, SECURITY_PARSE_ERROR);
         };
     }
