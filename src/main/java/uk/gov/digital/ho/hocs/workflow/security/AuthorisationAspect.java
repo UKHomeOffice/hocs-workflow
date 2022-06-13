@@ -96,11 +96,17 @@ public class AuthorisationAspect {
         }
 
         var method = requestAttributes.getRequest().getMethod();
-        return switch (method) {
-            case "GET" -> AccessLevel.SUMMARY;
-            case "POST", "PUT", "DELETE", "PATCH" -> AccessLevel.WRITE;
-            default -> throw new SecurityExceptions.PermissionCheckException("Unknown access request type " + method, SECURITY_PARSE_ERROR);
-        };
+        switch (method) {
+            case "GET":
+                return AccessLevel.SUMMARY;
+            case "POST":
+            case "PUT":
+            case "DELETE":
+            case "PATCH":
+                return AccessLevel.WRITE;
+            default:
+                throw new SecurityExceptions.PermissionCheckException("Unknown access request type " + method, SECURITY_PARSE_ERROR);
+        }
     }
 
     private AccessLevel getRequiredAccessLevel(Authorised authorised) {
