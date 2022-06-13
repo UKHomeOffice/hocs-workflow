@@ -57,7 +57,6 @@ public class AuthorisationAspectTest {
     public void setup() {
 
         when(userService.getMaxAccessLevel(any())).thenReturn(AccessLevel.OWNER);
-        when(userService.getUserId()).thenReturn(UUID.randomUUID());
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setMethod("GET");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));

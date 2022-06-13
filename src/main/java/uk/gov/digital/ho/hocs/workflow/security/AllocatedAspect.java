@@ -1,7 +1,6 @@
 package uk.gov.digital.ho.hocs.workflow.security;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,7 +18,6 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 @Aspect
 @Component
 @AllArgsConstructor
-@Slf4j
 @Conditional(value = {NonMigrationEnvCondition.class})
 public class AllocatedAspect {
 
@@ -29,38 +27,32 @@ public class AllocatedAspect {
 
     @Around("@annotation(allocated)")
     public Object validateUserAccess(ProceedingJoinPoint joinPoint, Allocated allocated) throws Throwable {
-        UUID caseUUID;
-        UUID stageUUID;
-        if (joinPoint.getArgs().length >= 2) {
-            if (joinPoint.getArgs()[0] instanceof UUID && joinPoint.getArgs()[1] instanceof UUID) {
-                caseUUID = (UUID) joinPoint.getArgs()[0];
-                stageUUID = (UUID) joinPoint.getArgs()[1];
-            } else {
-                throw new SecurityExceptions.PermissionCheckException("Unable parse method parameters (allocated) for type " + joinPoint.getArgs()[1].getClass().getName(), SECURITY_PARSE_ERROR);
-            }
-        } else {
+        if (joinPoint.getArgs().length < 2) {
             throw new SecurityExceptions.PermissionCheckException("Unable to check permission of method without stage UUID parameter", SECURITY_PARSE_ERROR);
         }
 
-        log.info("Checking allocation permissions for user {} and case type {}", userService.getUserId().toString(), caseUUID.toString());
+        if (!(joinPoint.getArgs()[0] instanceof UUID caseUUID &&
+                joinPoint.getArgs()[1] instanceof UUID stageUUID)) {
+            throw new SecurityExceptions.PermissionCheckException(
+                    "Unable parse method parameters (allocated) for types ["
+                    + joinPoint.getArgs()[0].getClass().getName() + ","
+                    + joinPoint.getArgs()[1].getClass().getName() + "]"
+                    , SECURITY_PARSE_ERROR
+            );
+        }
 
         if (proceedIfUserTeamIsAdminForCaseType(caseUUID)) {
             return joinPoint.proceed();
         }
 
         switch (allocated.allocatedTo()) {
-            case USER:
-                verifyAllocatedToUser(caseUUID, stageUUID);
-                break;
-            case TEAM:
-                verifyAllocatedToTeam(caseUUID, stageUUID);
-                break;
-            case TEAM_USER:
+            case USER -> verifyAllocatedToUser(caseUUID, stageUUID);
+            case TEAM -> verifyAllocatedToTeam(caseUUID, stageUUID);
+            case TEAM_USER -> {
                 verifyAllocatedToTeam(caseUUID, stageUUID);
                 verifyAllocatedToUser(caseUUID, stageUUID);
-                break;
-            default:
-                throw new SecurityExceptions.PermissionCheckException("Invalid Allocation type", SECURITY_PARSE_ERROR);
+            }
+            default -> throw new SecurityExceptions.PermissionCheckException("Invalid Allocation type", SECURITY_PARSE_ERROR);
         }
 
         return joinPoint.proceed();

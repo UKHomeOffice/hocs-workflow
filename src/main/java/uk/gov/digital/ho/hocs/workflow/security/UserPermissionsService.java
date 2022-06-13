@@ -1,14 +1,17 @@
 package uk.gov.digital.ho.hocs.workflow.security;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.PermissionDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import java.nio.BufferUnderflowException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAUTHORISED;
 
@@ -16,10 +19,9 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.SECURITY_UNAU
 @Slf4j
 public class UserPermissionsService {
 
-    private RequestData requestData;
-    private InfoClient infoClient;
+    private final RequestData requestData;
+    private final InfoClient infoClient;
 
-    @Autowired
     public UserPermissionsService(RequestData requestData, InfoClient infoClient) {
         this.requestData = requestData;
         this.infoClient = infoClient;
@@ -30,29 +32,20 @@ public class UserPermissionsService {
     }
 
     public AccessLevel getMaxAccessLevel(String caseType) {
-        Set<PermissionDto> permissionDtos = getUserPermission();
-        Optional<PermissionDto> maxPermission = permissionDtos.stream()
-                .filter(e-> e.getCaseTypeCode().equals(caseType))
-                .max(Comparator.comparing(e -> e.getAccessLevel()));
 
-        maxPermission.ifPresent(p -> log.info("Max permission case type: {}, permission: {}", p.getCaseTypeCode(), p.getAccessLevel().toString()));
-        return maxPermission.orElseThrow(
-                () -> new SecurityExceptions.PermissionCheckException("No permissions found for case type", SECURITY_UNAUTHORISED)
-        ).getAccessLevel();
+        return getUserPermission().stream()
+                .filter(permission-> permission.getCaseTypeCode().equals(caseType))
+                .map(PermissionDto::getAccessLevel)
+                .max(Comparator.comparing(AccessLevel::getLevel))
+                .orElseThrow(() -> new SecurityExceptions.PermissionCheckException("No permissions found for case type", SECURITY_UNAUTHORISED));
     }
-
 
     public Set<UUID> getUserTeams() {
         String[] groups = requestData.groupsArray();
-        Set<UUID> userTeams = Arrays.stream(groups)
-                .map(group -> getUUIDFromBase64(group))
+        return Arrays.stream(groups)
+                .map(this::getUUIDFromBase64)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        if(log.isDebugEnabled()) {
-            userTeams.forEach(t -> log.debug("User team: {}", t));
-        }
-        log.info("Found {} User teams", userTeams.size());
-        return userTeams;
     }
 
     public boolean isUserOnTeam(UUID teamUUID) {
@@ -60,26 +53,19 @@ public class UserPermissionsService {
     }
 
     public Set<String> getUserCaseTypes() {
-        Set<String> userCaseTypes = getUserPermission().stream()
-                .map(p -> p.getCaseTypeCode())
+        return getUserPermission().stream()
+                .map(PermissionDto::getCaseTypeCode)
                 .collect(Collectors.toSet());
-        if(log.isDebugEnabled()) {
-            userCaseTypes.forEach(c -> log.debug("User case type: {}", c));
-        }
-        log.info("Found {} User case types", userCaseTypes.size());
-        return userCaseTypes;
     }
 
     Set<PermissionDto> getUserPermission() {
         Set<TeamDto> teamDtos = infoClient.getTeams();
         Set<UUID> userTeams = getUserTeams();
-        Set<PermissionDto> set = teamDtos.stream()
+
+        return teamDtos.stream()
                 .filter(t -> userTeams.contains(t.getUuid()))
                 .flatMap(t -> t.getPermissionDtos().stream())
                 .collect(Collectors.toSet());
-        log.info("{} User permissions", set.size());
-
-        return set;
     }
 
     public Set<String> getCaseTypesIfUserTeamIsCaseTypeAdmin() {

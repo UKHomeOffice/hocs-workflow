@@ -14,8 +14,8 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,11 +38,11 @@ public class AllocatedAspectTest {
 
     private AllocatedAspect aspect;
 
-    private UUID stageUUID = UUID.randomUUID();
-    private UUID caseUUID = UUID.randomUUID();
+    private final UUID stageUUID = UUID.randomUUID();
+    private final UUID caseUUID = UUID.randomUUID();
 
-    private UUID userId = UUID.randomUUID();
-    private UUID teamId = UUID.randomUUID();
+    private final UUID userId = UUID.randomUUID();
+    private final UUID teamId = UUID.randomUUID();
 
     @Mock
     private ProceedingJoinPoint proceedingJoinPoint;
@@ -69,7 +69,7 @@ public class AllocatedAspectTest {
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
 
         verify(caseworkClient, times(1)).getStageUser(caseUUID, stageUUID);
-        verify(userService, times(2)).getUserId();
+        verify(userService, times(1)).getUserId();
         verify(proceedingJoinPoint, atLeast(1)).getArgs();
     }
 
@@ -82,14 +82,12 @@ public class AllocatedAspectTest {
         when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
-        when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
-        when(userService.getUserId()).thenReturn(userId);
-        aspect = new AllocatedAspect(caseworkClient,infoClient, userService);
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(List.of(teamId)));
+        aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
 
         verify(userService, times(1)).getUserTeams();
         verify(caseworkClient, times(1)).getStageTeam(caseUUID,stageUUID);
-        verify(userService, times(1)).getUserId();
         verify(proceedingJoinPoint, atLeast(1)).getArgs();
     }
 
@@ -117,8 +115,7 @@ public class AllocatedAspectTest {
         when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
-        when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
-        when(userService.getUserId()).thenReturn(userId);
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(List.of(teamId)));
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
         verify(proceedingJoinPoint, times(1)).proceed();
@@ -132,11 +129,11 @@ public class AllocatedAspectTest {
         Object[] args = new Object[2];
         args[0] = caseUUID;
         args[1] = stageUUID;
-        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
-        when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(List.of(teamId)));
         when(userService.getUserId()).thenReturn(userId);
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
@@ -153,10 +150,10 @@ public class AllocatedAspectTest {
         args[0] = caseUUID;
 
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
-        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
         when(userService.getUserId()).thenReturn(UUID.randomUUID());
-        when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(List.of(teamId)));
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
@@ -173,9 +170,8 @@ public class AllocatedAspectTest {
 
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
-        when(userService.getUserTeams()).thenReturn(new HashSet<UUID>(){{UUID.randomUUID();}});
-        when(userService.getUserId()).thenReturn(userId);
-        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(){{UUID.randomUUID();}});
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
         verify(proceedingJoinPoint, never()).proceed();
@@ -207,8 +203,7 @@ public class AllocatedAspectTest {
 
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
-        when(userService.getUserTeams()).thenReturn(new HashSet<UUID>(){{UUID.randomUUID();}});
-        when(userService.getUserId()).thenReturn(userId);
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(){{UUID.randomUUID();}});
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
         verify(proceedingJoinPoint, never()).proceed();
@@ -239,7 +234,6 @@ public class AllocatedAspectTest {
         when(userService.getCaseTypesIfUserTeamIsCaseTypeAdmin()).thenReturn(adminForCaseTypes);
         when(infoClient.getCaseTypeByShortCode(any())).thenReturn(new CaseDataType("ABC", "Z1"));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
-        when(userService.getUserId()).thenReturn(userId);
 
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
@@ -258,8 +252,7 @@ public class AllocatedAspectTest {
         when(infoClient.getCaseTypeByShortCode(any())).thenReturn(new CaseDataType("ABC", "Z1"));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
-        when(userService.getUserTeams()).thenReturn(new HashSet<UUID>(){{UUID.randomUUID();}});
-        when(userService.getUserId()).thenReturn(userId);
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(){{UUID.randomUUID();}});
 
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
@@ -268,7 +261,6 @@ public class AllocatedAspectTest {
 
     @Test
     public void shouldProceedIfTeamNotAdminForCaseTypeButTeamIsAllocatedToCase() throws Throwable {
-        String caseType = "SOME_CASE_TYPE";
         Set<String> adminForCaseTypes = Set.of("SOME_OTHER_CASE_TYPE");
 
         Object[] args = new Object[2];
@@ -277,11 +269,11 @@ public class AllocatedAspectTest {
 
         when(userService.getCaseTypesIfUserTeamIsCaseTypeAdmin()).thenReturn(adminForCaseTypes);
         when(infoClient.getCaseTypeByShortCode(any())).thenReturn(new CaseDataType("ABC", "Z1"));
-        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);;
+        when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);
         when(caseworkClient.getStageUser(caseUUID, stageUUID)).thenReturn(userId);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
-        when(userService.getUserTeams()).thenReturn(new HashSet<>(Arrays.asList(teamId)));
+        when(userService.getUserTeams()).thenReturn(new HashSet<>(List.of(teamId)));
         when(userService.getUserId()).thenReturn(userId);
 
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
