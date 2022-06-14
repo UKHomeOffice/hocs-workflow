@@ -70,13 +70,13 @@ public class POGR_REGISTRATION {
 
         verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
         verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
-        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
         verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario, times(2)).hasCompleted("Screen_SendInterimLetter");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("10"));
+        verify(bpmnService, times(2)).updateDeadlineDays(any(), any(), eq("10"));
     }
 
     @Test
@@ -98,9 +98,9 @@ public class POGR_REGISTRATION {
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DIRECTION", "BACKWARD", "BusinessArea", "GRO")
-                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")
-                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")
+                .thenReturn("DIRECTION", "BACKWARD", "BusinessArea", "GRO", "ComplaintPriority", "", "ComplaintChannel", "")
+                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE", "ComplaintPriority", "", "ComplaintChannel", "Email")
+                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE", "ComplaintPriority", "", "ComplaintChannel", "Email")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -109,7 +109,7 @@ public class POGR_REGISTRATION {
 
         verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
         verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
-        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
         verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("CallActivity_Gro_DataInput");
         verify(processScenario, times(3)).hasCompleted("Screen_SendInterimLetter");
@@ -117,7 +117,7 @@ public class POGR_REGISTRATION {
         verify(processScenario).hasCompleted("Service_SetGroTriageTeam");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
+        verify(bpmnService, times(2)).updateDeadlineDays(any(), any(), eq("5"));
     }
 
     @Test
@@ -143,13 +143,12 @@ public class POGR_REGISTRATION {
 
         verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
         verify(processScenario, times(2)).hasCompleted("Screen_BusinessAreaSelect");
-        verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
         verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario).hasCompleted("Screen_SendInterimLetter");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("10"));
     }
 
@@ -182,14 +181,67 @@ public class POGR_REGISTRATION {
 
         verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
         verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
-        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
         verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario, times(2)).hasCompleted("Screen_SendInterimLetter");
         verify(processScenario).hasCompleted("Screen_BusinessAreaSelectPostDataInput");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
+        verify(bpmnService, times(2)).updateDeadlineDays(any(), any(), eq("10"));
+    }
+
+    @Test
+    public void testDeadlineSetToTenDaysForGroPostChannel() {
+        when(processScenario.waitsAtUserTask("Screen_BusinessAreaSelect"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO")));
+
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")));
+
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")));
+
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE", "ComplaintPriority", "", "ComplaintChannel", "Post")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_REGISTRATION")
+                .execute();
+
+        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
         verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("10"));
     }
 
+    @Test
+    public void testDeadlineSetToOneDayForGroPriority() {
+        when(processScenario.waitsAtUserTask("Screen_BusinessAreaSelect"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO")));
+
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")));
+
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE")));
+
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE", "ComplaintPriority", "Yes", "ComplaintChannel", "Post")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_REGISTRATION")
+                .execute();
+
+        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("1"));
+    }
 }
