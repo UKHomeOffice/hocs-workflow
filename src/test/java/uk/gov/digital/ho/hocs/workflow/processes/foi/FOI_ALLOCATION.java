@@ -26,7 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/FOI_ALLOCATION.bpmn"})
+@Deployment(resources = {"processes/FOI/FOI_ALLOCATION.bpmn"})
 public class FOI_ALLOCATION {
 
     public static final String CHOOSE_FOI_HUB = "Activity_0egyc0f";

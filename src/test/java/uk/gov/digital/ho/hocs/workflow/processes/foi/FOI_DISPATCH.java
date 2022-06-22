@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/FOI_DISPATCH.bpmn"})
+        "processes/FOI/FOI_DISPATCH.bpmn"})
 public class FOI_DISPATCH {
 
     public static final String DISPATCH_CONFIRMATION = "DISPATCH_CONFIRMATION";

@@ -29,7 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/FOI_ACCEPTANCE.bpmn"})
+@Deployment(resources = {"processes/FOI/FOI_ACCEPTANCE.bpmn"})
 public class FOI_ACCEPTANCE {
 
     public static final String ACCEPT_OR_REJECT = "ACCEPT_OR_REJECT";

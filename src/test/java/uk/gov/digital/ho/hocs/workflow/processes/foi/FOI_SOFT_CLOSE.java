@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/FOI_SOFT_CLOSE.bpmn"})
+        "processes/FOI/FOI_SOFT_CLOSE.bpmn"})
 public class FOI_SOFT_CLOSE {
 
     public static final String SOFT_CLOSE = "SOFT_CLOSE";

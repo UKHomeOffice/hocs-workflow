@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = { "processes/SHARED/COMPLAINT_CORRESPONDENT.bpmn" })
+@Deployment(resources = { "processes/COMPLAINT_CORRESPONDENT.bpmn" })
 public class COMPLAINT_CORRESPONDENT {
 
     @Rule

@@ -26,7 +26,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/TO_QA.bpmn"
+        "processes/TO/TO_QA.bpmn"
 })
 public class TO_QA {
 

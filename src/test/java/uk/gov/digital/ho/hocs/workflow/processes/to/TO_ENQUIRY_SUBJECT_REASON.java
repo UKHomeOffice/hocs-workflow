@@ -20,7 +20,7 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/TO_ENQUIRY_SUBJECT_REASON.bpmn"})
+@Deployment(resources = {"processes/TO/TO_ENQUIRY_SUBJECT_REASON.bpmn"})
 public class TO_ENQUIRY_SUBJECT_REASON {
 
     // COMMON GATEWAY OUTCOMES

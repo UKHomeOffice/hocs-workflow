@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/TO_DISPATCH.bpmn"
+        "processes/TO/TO_DISPATCH.bpmn"
 })
 public class TO_DISPATCH {
 
