@@ -20,7 +20,7 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = "processes/MTS_DATA_INPUT.bpmn")
+@Deployment(resources = "processes/MTS/MTS_DATA_INPUT.bpmn")
 public class MTS_DATA_INPUT {
 
     public static final String SET_PRIMARY_CORRESPONDENT_SCREEN = "ServiceTask_1j8d7km";

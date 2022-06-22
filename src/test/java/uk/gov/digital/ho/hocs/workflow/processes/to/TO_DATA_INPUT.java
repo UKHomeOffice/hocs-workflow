@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/TO_DATA_INPUT.bpmn"})
+@Deployment(resources = {"processes/TO/TO_DATA_INPUT.bpmn"})
 public class TO_DATA_INPUT {
 
     // ACTIVITIES and USER TASKS

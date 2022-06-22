@@ -22,7 +22,7 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/FOI_DRAFT.bpmn"})
+@Deployment(resources = {"processes/FOI/FOI_DRAFT.bpmn"})
 public class FOI_DRAFT {
 
     public static final String PROCESS_KEY = "FOI_DRAFT";

@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/TO_CHANGE_BUSINESS_AREA.bpmn"})
+@Deployment(resources = {"processes/TO/TO_CHANGE_BUSINESS_AREA.bpmn"})
 public class TO_CHANGE_BUSINESS_AREA {
 
     // COMMON GATEWAY OUTCOMES

@@ -25,8 +25,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/MTS.bpmn",
-        "processes/MTS_DATA_INPUT.bpmn",
+        "processes/MTS/MTS.bpmn",
+        "processes/MTS/MTS_DATA_INPUT.bpmn",
         "processes/STAGE.bpmn"
 })
 public class MTS {

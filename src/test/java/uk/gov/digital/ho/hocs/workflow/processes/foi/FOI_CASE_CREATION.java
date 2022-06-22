@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/FOI_CASE_CREATION.bpmn"})
+        "processes/FOI/FOI_CASE_CREATION.bpmn"})
 public class FOI_CASE_CREATION {
 
     public static final String ALLOCATE_TO_CASE_CREATOR = "ALLOCATE_TO_CASE_CREATOR";

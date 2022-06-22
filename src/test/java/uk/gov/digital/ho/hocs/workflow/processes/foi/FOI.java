@@ -20,14 +20,14 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/STAGE.bpmn",
-        "processes/FOI.bpmn",
-        "processes/FOI_CASE_CREATION.bpmn",
-        "processes/FOI_ALLOCATION.bpmn",
-        "processes/FOI_ACCEPTANCE.bpmn",
-        "processes/FOI_APPROVAL.bpmn",
-        "processes/FOI_DRAFT.bpmn",
-        "processes/FOI_DISPATCH.bpmn",
-        "processes/FOI_SOFT_CLOSE.bpmn"
+        "processes/FOI/FOI.bpmn",
+        "processes/FOI/FOI_CASE_CREATION.bpmn",
+        "processes/FOI/FOI_ALLOCATION.bpmn",
+        "processes/FOI/FOI_ACCEPTANCE.bpmn",
+        "processes/FOI/FOI_APPROVAL.bpmn",
+        "processes/FOI/FOI_DRAFT.bpmn",
+        "processes/FOI/FOI_DISPATCH.bpmn",
+        "processes/FOI/FOI_SOFT_CLOSE.bpmn"
 })
 public class FOI {
 

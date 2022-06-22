@@ -22,9 +22,9 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/TO_STOP_LIST.bpmn",
-        "processes/TO_ENQUIRY_SUBJECT_REASON.bpmn",
-        "processes/TO_CHANGE_BUSINESS_AREA.bpmn"
+        "processes/TO/TO_STOP_LIST.bpmn",
+        "processes/TO/TO_ENQUIRY_SUBJECT_REASON.bpmn",
+        "processes/TO/TO_CHANGE_BUSINESS_AREA.bpmn"
 })
 public class TO_STOP_LIST {
 

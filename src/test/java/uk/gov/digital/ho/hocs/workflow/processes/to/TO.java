@@ -25,15 +25,15 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/STAGE.bpmn",
-        "processes/TO.bpmn",
-        "processes/TO_TRIAGE.bpmn",
-        "processes/TO_DRAFT.bpmn",
-        "processes/TO_QA.bpmn",
-        "processes/TO_CAMPAIGN.bpmn",
-        "processes/TO_STOP_LIST.bpmn",
-        "processes/TO_DISPATCH.bpmn",
-        "processes/TO_EARLY_CLOSURE.bpmn",
-        "processes/TO_CCH_RETURNS.bpmn"
+        "processes/TO/TO.bpmn",
+        "processes/TO/TO_TRIAGE.bpmn",
+        "processes/TO/TO_DRAFT.bpmn",
+        "processes/TO/TO_QA.bpmn",
+        "processes/TO/TO_CAMPAIGN.bpmn",
+        "processes/TO/TO_STOP_LIST.bpmn",
+        "processes/TO/TO_DISPATCH.bpmn",
+        "processes/TO/TO_EARLY_CLOSURE.bpmn",
+        "processes/TO/TO_CCH_RETURNS.bpmn"
 })
 public class TO {
 
