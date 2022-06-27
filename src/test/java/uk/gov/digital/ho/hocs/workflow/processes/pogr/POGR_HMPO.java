@@ -27,7 +27,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/POGR/POGR_HMPO.bpmn",
-        "processes/STAGE.bpmn" })
+        "processes/STAGE_WITH_USER.bpmn" })
 public class POGR_HMPO {
 
     @Rule
@@ -60,8 +60,12 @@ public class POGR_HMPO {
                 .thenReturn("DraftOutcome", "QA", "CloseCaseDraft", "false")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_HMPO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
         Scenario.run(processScenario)
-                .startByKey("POGR_HMPO")
+                .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
@@ -97,8 +101,12 @@ public class POGR_HMPO {
                 .thenReturn("DraftOutcome", "QA", "CloseCaseDraft", "false")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_HMPO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
         Scenario.run(processScenario)
-                .startByKey("POGR_HMPO")
+                .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
@@ -118,13 +126,39 @@ public class POGR_HMPO {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("POGR_HMPO")
+                .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoTriage");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("EndEvent_HmpoDraftEnd");
+    }
+
+    @Test
+    public void testQaReject() {
+        whenAtCallActivity("POGR_HMPO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DRAFT")
+                .thenReturn("DraftOutcome", "QA")
+                .thenReturn("DraftOutcome", "Dispatch")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_QA")
+                .thenReturn("QaOutcome", "Reject", "reallocate", "true")
+                .deploy(rule);
+
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Hmpo");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoQa");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
     }
 
 }

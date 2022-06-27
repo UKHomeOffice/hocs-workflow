@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -23,7 +24,7 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/POGR/POGR_GRO.bpmn",
-        "processes/STAGE.bpmn" })
+        "processes/STAGE_WITH_USER.bpmn" })
 public class POGR_GRO {
 
     @Rule
@@ -56,8 +57,12 @@ public class POGR_GRO {
                 .thenReturn("DraftOutcome", "QA", "CloseCaseDraft", "false")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_GRO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
         Scenario.run(processScenario)
-                .startByKey("POGR_GRO")
+                .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
@@ -93,8 +98,12 @@ public class POGR_GRO {
                 .thenReturn("DraftOutcome", "QA")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_GRO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
         Scenario.run(processScenario)
-                .startByKey("POGR_GRO")
+                .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
@@ -114,13 +123,39 @@ public class POGR_GRO {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("POGR_GRO")
+                .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
         verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
         verify(processScenario).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_GroDraftEnd");
+    }
+
+    @Test
+    public void testQaReject() {
+        whenAtCallActivity("POGR_GRO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DRAFT")
+                .thenReturn("DraftOutcome", "QA")
+                .thenReturn("DraftOutcome", "Dispatch")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_QA")
+                .thenReturn("QaOutcome", "Reject", "reallocate", "true")
+                .deploy(rule);
+
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Gro");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroQa");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
     }
 
 }
