@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1bmu0jv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="POGR_HMPO_QA" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0hx9kki</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Screen_QaInput" name="QA Input" camunda:formKey="POGR_HMPO_QA">
+      <bpmn:incoming>Flow_0hx9kki</bpmn:incoming>
+      <bpmn:incoming>Flow_0jb4m6c</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pwdx7x</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_HmpoQa">
+      <bpmn:incoming>Flow_1kj23lr</bpmn:incoming>
+      <bpmn:incoming>Flow_1or5tap</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0hx9kki" sourceRef="StartEvent_1" targetRef="Screen_QaInput" />
+    <bpmn:sequenceFlow id="Flow_0pwdx7x" sourceRef="Screen_QaInput" targetRef="Gateway_1vqwokd" />
+    <bpmn:userTask id="Screen_QaReject" name="QA Reject" camunda:formKey="POGR_HMPO_QA_REJECT">
+      <bpmn:incoming>Flow_1i3xtop</bpmn:incoming>
+      <bpmn:incoming>Flow_1by1qtd</bpmn:incoming>
+      <bpmn:outgoing>Flow_1sfe0xs</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1vqwokd" default="Flow_1kj23lr">
+      <bpmn:incoming>Flow_0pwdx7x</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kj23lr</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1i3xtop</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1kj23lr" sourceRef="Gateway_1vqwokd" targetRef="EndEvent_HmpoQa" />
+    <bpmn:sequenceFlow id="Flow_1i3xtop" sourceRef="Gateway_1vqwokd" targetRef="Screen_QaReject">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ QaOutcome == "Reject" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1sfe0xs" sourceRef="Screen_QaReject" targetRef="Gateway_15t72bz" />
+    <bpmn:serviceTask id="Service_UpdateAllocationNote_Reject" name="Save Reject Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_QaReject&#34;), &#34;REJECT&#34;)}">
+      <bpmn:incoming>Flow_1vxg2p7</bpmn:incoming>
+      <bpmn:outgoing>Flow_1or5tap</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1or5tap" sourceRef="Service_UpdateAllocationNote_Reject" targetRef="EndEvent_HmpoQa" />
+    <bpmn:exclusiveGateway id="Gateway_15t72bz" default="Flow_1by1qtd">
+      <bpmn:incoming>Flow_1sfe0xs</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vxg2p7</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1by1qtd</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0jb4m6c</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1vxg2p7" sourceRef="Gateway_15t72bz" targetRef="Service_UpdateAllocationNote_Reject">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1by1qtd" sourceRef="Gateway_15t72bz" targetRef="Screen_QaReject" />
+    <bpmn:sequenceFlow id="Flow_0jb4m6c" sourceRef="Gateway_15t72bz" targetRef="Screen_QaInput">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_HMPO_QA">
+      <bpmndi:BPMNEdge id="Flow_1by1qtd_di" bpmnElement="Flow_1by1qtd" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="590" y="265" />
+        <di:waypoint x="590" y="330" />
+        <di:waypoint x="460" y="330" />
+        <di:waypoint x="460" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vxg2p7_di" bpmnElement="Flow_1vxg2p7">
+        <di:waypoint x="615" y="240" />
+        <di:waypoint x="670" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1or5tap_di" bpmnElement="Flow_1or5tap">
+        <di:waypoint x="770" y="240" />
+        <di:waypoint x="820" y="240" />
+        <di:waypoint x="820" y="135" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1sfe0xs_di" bpmnElement="Flow_1sfe0xs">
+        <di:waypoint x="510" y="240" />
+        <di:waypoint x="565" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1i3xtop_di" bpmnElement="Flow_1i3xtop">
+        <di:waypoint x="460" y="142" />
+        <di:waypoint x="460" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kj23lr_di" bpmnElement="Flow_1kj23lr">
+        <di:waypoint x="485" y="117" />
+        <di:waypoint x="802" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pwdx7x_di" bpmnElement="Flow_0pwdx7x">
+        <di:waypoint x="390" y="117" />
+        <di:waypoint x="435" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hx9kki_di" bpmnElement="Flow_0hx9kki">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="290" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jb4m6c_di" bpmnElement="Flow_0jb4m6c">
+        <di:waypoint x="590" y="265" />
+        <di:waypoint x="590" y="370" />
+        <di:waypoint x="340" y="370" />
+        <di:waypoint x="340" y="157" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04xzd8j_di" bpmnElement="Screen_QaInput">
+        <dc:Bounds x="290" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_10rc1v1_di" bpmnElement="EndEvent_HmpoQa">
+        <dc:Bounds x="802" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1vqwokd_di" bpmnElement="Gateway_1vqwokd" isMarkerVisible="true">
+        <dc:Bounds x="435" y="92" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ka1mk2_di" bpmnElement="Screen_QaReject">
+        <dc:Bounds x="410" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_15t72bz_di" bpmnElement="Gateway_15t72bz" isMarkerVisible="true">
+        <dc:Bounds x="565" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19qycdi_di" bpmnElement="Service_UpdateAllocationNote_Reject">
+        <dc:Bounds x="670" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
