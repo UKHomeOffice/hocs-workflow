@@ -69,6 +69,7 @@ public class POGR_GRO_DRAFT {
                 .deploy(rule);
 
         whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("TelephoneResponse", "", "DIRECTION", "Backward")
                 .thenReturn("TelephoneResponse", "")
                 .thenReturn("TelephoneResponse", "Yes")
                 .deploy(rule);
@@ -79,7 +80,7 @@ public class POGR_GRO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario).hasCompleted("CallActivity_DraftInput");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_TelephoneResponse");
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 
