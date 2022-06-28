@@ -67,6 +67,7 @@ public class POGR_HMPO_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")));
 
         whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("TelephoneResponse", "", "DIRECTION", "Backward")
                 .thenReturn("TelephoneResponse", "")
                 .thenReturn("TelephoneResponse", "Yes")
                 .deploy(rule);
@@ -77,7 +78,7 @@ public class POGR_HMPO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario).hasCompleted("Screen_DraftInput");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_TelephoneResponse");
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
 
