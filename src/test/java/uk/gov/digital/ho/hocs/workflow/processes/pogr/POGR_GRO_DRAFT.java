@@ -28,6 +28,9 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 })
 public class POGR_GRO_DRAFT {
 
+    public static final String REJECT_INVESTIGATION = "Activity_0jgtbme";
+    public static final String SAVE_REJECTION_NOTE = "Activity_136hbub";
+
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
@@ -104,5 +107,29 @@ public class POGR_GRO_DRAFT {
         verify(processScenario).hasCompleted("CallActivity_TelephoneResponse");
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
+
+    @Test
+    public void testRejectionPath() {
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DraftOutcome", "ReturnInvestigation")
+                .thenReturn("DraftOutcome", "ReturnInvestigation")
+                .deploy(rule);
+
+        when(processScenario.waitsAtUserTask(REJECT_INVESTIGATION))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_GroDraft");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario, times(2)).hasCompleted(REJECT_INVESTIGATION);
+        verify(processScenario, times(1)).hasCompleted(SAVE_REJECTION_NOTE);
+        verify(processScenario).hasCompleted("EndEvent_GroDraft");
+    }
+
+
 
 }
