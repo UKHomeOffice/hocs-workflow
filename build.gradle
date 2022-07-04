@@ -43,7 +43,7 @@ dependencies {
 
     implementation "org.projectlombok:lombok:${lombokVersion}"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.springframework:spring-context-indexer:5.3.21"
 
     testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: "${lombokVersion}"
@@ -59,38 +59,10 @@ dependencies {
     testImplementation('com.h2database:h2')
 }
 
-sourceSets {
-    test {
-        resources.srcDir 'src/main/resources'
-    }
-
-    integrationTest {
-        java.srcDir 'src/integration-test/java'
-        resources.srcDir 'src/integration-test/resources'
-        compileClasspath += main.output + test.output
-        runtimeClasspath += main.output + test.output
-    }
-}
-
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestRuntimeOnly.extendsFrom testRuntime
-}
-
 test {
     maxHeapSize = "1024m"
-}
-
-task integrationTest(type: Test) {
-    description = 'Runs integration tests.'
-    group = 'verification'
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    shouldRunAfter test
 }
 
 jar {
     enabled = false
 }
-
-check.dependsOn integrationTest

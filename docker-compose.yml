@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
 
@@ -16,45 +16,22 @@ services:
       - /var/lib/postgresql
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:0.14.3
     ports:
-      - "9000:8080"
-      - "4572:4572"
-      - "4576:4576"
-      - "4575:4575"
+      - "4566:4566"
     networks:
-      - hocs-network
+      hocs-network:
+        aliases:
+          - localhost.localstack.cloud
     environment:
       HOSTNAME_EXTERNAL: localstack
       DEFAULT_REGION: eu-west-2
-      SERVICES: sns,sqs,s3
-
-  aws_cli:
-    image: garland/aws-cli-docker
-    networks:
-      - hocs-network
-    command:
-      - /bin/sh
-      - -c
-      - |
-        aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name audit-queue
-        aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name audit-queue-dlq
-        aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name search-queue
-        aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name search-queue-dlq
-        aws --endpoint-url=http://localstack:4575 sns create-topic --name hocs-audit-topic
-        aws --endpoint-url=http://localstack:4575 sns subscribe --topic-arn arn:aws:sns:eu-west-2:123456789012:hocs-audit-topic --protocol sqs --notification-endpoint arn:aws:sns:eu-west-2:123456789012:audit-queue
-        aws --endpoint-url=http://localstack:4575 sns subscribe --topic-arn arn:aws:sns:eu-west-2:123456789012:hocs-audit-topic --protocol sqs --notification-endpoint arn:aws:sns:eu-west-2:123456789012:search-queue
-        aws --endpoint-url=http://localstack:4575 sns list-subscriptions
-        aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name document-queue
-        aws --endpoint-url=http://localstack:4576 sqs create-queue --queue-name document-queue-dlq
-        aws --endpoint-url=http://localstack:4572 s3 mb s3://untrusted-bucket
-        aws --endpoint-url=http://localstack:4572 s3 mb s3://trusted-bucket
-    environment:
-      AWS_ACCESS_KEY_ID: UNSET
-      AWS_SECRET_ACCESS_KEY: UNSET
-      AWS_DEFAULT_REGION: 'eu-west-2'
-    depends_on:
-      - localstack
+      SERVICES: sqs,sns,es,s3
+      OPENSEARCH_ENDPOINT_STRATEGY: "path"
+      LOCALSTACK_HOSTNAME: "localhost.localstack.cloud"
+      SQS_PROVIDER: "elasticmq"
+    volumes:
+      - ./ci/localstack:/docker-entrypoint-initaws.d
 
 networks:
   hocs-network:

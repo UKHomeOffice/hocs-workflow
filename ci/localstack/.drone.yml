@@ -1,0 +1,18 @@
+---
+kind: pipeline
+type: kubernetes
+name: lint elastic_mapping
+trigger:
+  event:
+    - push
+  branch:
+    exclude:
+      - main
+
+steps:
+  - name: json lint
+    image: registry.gitlab.com/pipeline-components/jsonlint:0.14.0
+    commands:
+      - |
+        find . -not -path './.git/*' -name '*.json' -type f -print0 |
+        parallel --will-cite -k -0 -n1 jsonlint -q

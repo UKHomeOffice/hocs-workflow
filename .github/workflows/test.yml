@@ -1,0 +1,28 @@
+name: 'Test'
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+jobs:
+  test:
+    name: 'Unit and Integration Tests'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Start infrastructure
+        run: docker-compose up -d localstack postgres
+
+      - name: Wait for infrastructure
+        run: ./ci/wait-for-infrastructure.sh
+        shell: bash
+
+      - name: Run tests
+        run: ./gradlew clean build --no-daemon
