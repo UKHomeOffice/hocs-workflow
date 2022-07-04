@@ -1,0 +1,72 @@
+name: 'Docker Build Tag'
+on:
+  pull_request:
+    types: [ closed ]
+
+jobs:
+  publish:
+    name: 'Main Publish'
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'skip-release') == false
+    steps:
+      - name: Parse the SemVer label
+        id: label
+        uses: UKHomeOffice/match-label-action@v1
+        with:
+          labels: minor,major,patch
+          mode: singular
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Login to Quay.io
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_ROBOT_USER_NAME }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+
+      - name: Calculate SemVer increment
+        id: increment
+        uses: UKHomeOffice/semver-tag-action@v2
+        with:
+          increment: ${{ steps.label.outputs.matchedLabels }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_use_head_tag: ${{ github.base_ref == 'main' }}
+          dry_run: true
+
+      - name: Calculate metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: quay.io/ukhomeofficedigital/hocs-workflow
+          tags: |
+            type=raw,value=${{steps.increment.outputs.version}}
+            type=raw,value=latest,enable=${{ github.base_ref == 'main' }}
+
+      - name: Build container
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Tag repository with SemVer
+        uses: UKHomeOffice/semver-tag-action@v2
+        with:
+          tag: ${{steps.increment.outputs.version}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_use_head_tag: ${{ github.base_ref == 'main' }}
+
+      - name: Post failure to Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.19.0
+        if: ${{ failure() && steps.*.conclusion == 'failure' }}
+        with:
+          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+          slack-message: "GitHub Action failure: ${{github.repository}}\nRun: ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}\nOriginating PR: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
