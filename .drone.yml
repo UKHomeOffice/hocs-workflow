@@ -9,28 +9,7 @@ trigger:
     exclude:
       - main
 
-services:
-  - name: postgres
-    image: postgres:14-alpine
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: dev
-
 steps:
-  - name: test project
-    image: quay.io/ukhomeofficedigital/hocs-base-image-build:1.0.5
-    environment:
-      SPRING_PROFILES_ACTIVE: "development, local"
-      DOCS_QUEUE_NAME: document-queue
-      DOCS_QUEUE_DLQ_NAME: document-queue-dlq
-      HOCS_URL: http://localhost:8080
-      HOCS_CASE_SERVICE: http://casework:8080
-      HOCS_DOCUMENT_SERVICE: http://documents:8080
-      HOCS_INFO_SERVICE: http://info:8080
-      DB_HOST: postgres
-      AWS_LOCAL_HOST: localstack
-    commands:
-      - ./gradlew clean build --no-daemon
 
   - name: build & push
     image: plugins/docker
@@ -139,28 +118,7 @@ trigger:
     - main
     - support/*
 
-services:
-  - name: postgres
-    image: postgres:14-alpine
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: dev
-
 steps:
-  - name: test project
-    image: quay.io/ukhomeofficedigital/hocs-base-image-build:1.0.5
-    environment:
-      SPRING_PROFILES_ACTIVE: "development, local"
-      DOCS_QUEUE_NAME: document-queue
-      DOCS_QUEUE_DLQ_NAME: document-queue-dlq
-      HOCS_URL: http://localhost:8080
-      HOCS_CASE_SERVICE: http://casework:8080
-      HOCS_DOCUMENT_SERVICE: http://documents:8080
-      HOCS_INFO_SERVICE: http://info:8080
-      DB_HOST: postgres
-      AWS_LOCAL_HOST: localstack
-    commands:
-      - ./gradlew clean build --no-daemon
 
   - name: build & push tag main
     image: plugins/docker
@@ -176,7 +134,7 @@ steps:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
     depends_on:
-      - test project
+      - clone
     when:
       branch:
         - main
@@ -194,7 +152,7 @@ steps:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
     depends_on:
-      - test project
+      - clone
     when:
       branch:
         - support/*
