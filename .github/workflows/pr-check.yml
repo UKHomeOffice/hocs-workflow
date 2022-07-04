@@ -4,19 +4,5 @@ on:
     types: [ labeled, unlabeled, opened, reopened, synchronize ]
 
 jobs:
-  build:
-    name: PR Checker
-    runs-on: ubuntu-latest
-    steps:
-      - id: label
-        uses: UKHomeOffice/match-label-action@v1
-        with:
-          labels: minor,major,patch,skip-release
-          mode: singular
-      - uses: UKHomeOffice/semver-tag-action@v2
-        if: contains(steps.label.outputs.matchedLabels, 'skip-release') == false
-        with:
-          increment: ${{ steps.label.outputs.matchedLabels }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_use_head_tag: ${{ github.base_ref == 'main' }}
-          dry_run: true
+  check:
+    uses: UKHomeOffice/hocs-ci-infrastructure/.github/workflows/pr-check.yml@v1
