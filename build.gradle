@@ -1,8 +1,5 @@
-import org.gradle.api.JavaVersion
-
 plugins {
     id 'java'
-    id 'jacoco'
     id 'org.springframework.boot' version '2.7.1'
     id 'io.spring.dependency-management' version '1.0.12.RELEASE'
 }
@@ -80,28 +77,8 @@ configurations {
     integrationTestRuntimeOnly.extendsFrom testRuntime
 }
 
-plugins.withType(JacocoPlugin) {
-    tasks["test"].finalizedBy 'jacocoTestReport'
-}
-
 test {
     maxHeapSize = "1024m"
-    finalizedBy jacocoTestReport // report is always generated after tests run
-}
-
-jacoco {
-    toolVersion = "0.8.8"
-}
-
-jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
-    reports {
-        xml.required = true
-        html.required = false
-        csv.required = false
-        //for XML
-        xml.destination file("${buildDir}/reports/jacoco.xml")
-    }
 }
 
 task integrationTest(type: Test) {
