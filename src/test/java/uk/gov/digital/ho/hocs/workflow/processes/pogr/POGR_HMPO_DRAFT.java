@@ -112,6 +112,7 @@ public class POGR_HMPO_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "ReturnInvestigation")));
 
         when(processScenario.waitsAtUserTask(REJECT_INVESTIGATION))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","UNKNOWN")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
 
@@ -121,7 +122,7 @@ public class POGR_HMPO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
-        verify(processScenario, times(2)).hasCompleted(REJECT_INVESTIGATION);
+        verify(processScenario, times(3)).hasCompleted(REJECT_INVESTIGATION);
         verify(processScenario, times(1)).hasCompleted(SAVE_REJECTION_NOTE);
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
