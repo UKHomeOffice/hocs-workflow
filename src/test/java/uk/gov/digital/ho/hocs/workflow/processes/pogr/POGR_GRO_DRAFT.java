@@ -88,10 +88,12 @@ public class POGR_GRO_DRAFT {
     public void testNotTelephoneResponse() {
         whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
                 .thenReturn("DraftOutcome", "TelephoneResponse")
+                .thenReturn("DraftOutcome", "TelephoneResponse")
                 .thenReturn("DraftOutcome", "QA")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("DIRECTION", "BACKWARD")
                 .thenReturn("TelephoneResponse", "No")
                 .deploy(rule);
 
@@ -100,8 +102,8 @@ public class POGR_GRO_DRAFT {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
-        verify(processScenario).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 

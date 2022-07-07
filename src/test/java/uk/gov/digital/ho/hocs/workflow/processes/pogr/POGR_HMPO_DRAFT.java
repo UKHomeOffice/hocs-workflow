@@ -86,9 +86,11 @@ public class POGR_HMPO_DRAFT {
     public void testNotTelephoneResponse() {
         when(processScenario.waitsAtUserTask("Screen_DraftInput"))
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")))
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "QA")));
 
         whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("DIRECTION", "BACKWARD")
                 .thenReturn("TelephoneResponse", "No")
                 .deploy(rule);
 
@@ -97,8 +99,8 @@ public class POGR_HMPO_DRAFT {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
-        verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
-        verify(processScenario).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario, times(3)).hasCompleted("Screen_DraftInput");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
 
