@@ -68,7 +68,7 @@ public class POGR_TELEPHONE_RESPONSE {
     @Test
     public void testNonTelephone() {
         when(processScenario.waitsAtUserTask("Screen_TelephoneResponse"))
-                .thenReturn(TaskDelegate::complete);
+                .thenReturn(task -> task.complete(withVariables("TelephoneResponse", "No", "TelephoneResponseCaseNote", "Test")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR_TELEPHONE_RESPONSE")
@@ -76,10 +76,10 @@ public class POGR_TELEPHONE_RESPONSE {
 
         verify(processScenario).hasCompleted("StartEvent_TelephoneResponse");
         verify(processScenario).hasCompleted("Screen_TelephoneResponse");
+        verify(processScenario).hasCompleted("Service_TelephoneCreateCaseNote");
         verify(processScenario).hasCompleted("EndEvent_TelephoneResponse");
 
-        verify(processScenario, times(0)).hasCompleted("Service_TelephoneCreateCaseNote");
-        verify(bpmnService, times(0)).createCaseNote(any(), any(), any());
+        verify(bpmnService).createCaseNote(any(), eq("Test"), eq("PHONECALL"));
     }
 
 }
