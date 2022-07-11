@@ -79,6 +79,8 @@ public class POGR_GRO_QA {
         verify(processScenario, times(2)).hasCompleted("Screen_QaInput");
         verify(processScenario, times(3)).hasCompleted("Screen_QaReject");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+        verify(processScenario).hasCompleted("Service_UpdateRejectedValue");
+        verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By QA"));
         verify(processScenario).hasCompleted("EndEvent_GroQa");
     }
 }
