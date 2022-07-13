@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0">
   <bpmn:process id="POGR_HMPO" isExecutable="true">
     <bpmn:startEvent id="StartEvent_Hmpo">
       <bpmn:outgoing>Flow_1m1w4pf</bpmn:outgoing>
@@ -99,7 +99,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1tfrnhg" sourceRef="Gateway_0fbkujt" targetRef="CallActivity_PogrHmpoDraft" />
     <bpmn:endEvent id="EndEvent_Hmpo">
-      <bpmn:incoming>Flow_1xvf5wx</bpmn:incoming>
+      <bpmn:incoming>Flow_09ux94z</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1rjw8ef" sourceRef="Gateway_08mh27j" targetRef="CallActivity_PogrHmpoQa">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "QA" }</bpmn:conditionExpression>
@@ -132,13 +132,37 @@
       <bpmn:outgoing>Flow_1xvf5wx</bpmn:outgoing>
       <bpmn:outgoing>Flow_0lq3kwv</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1xvf5wx" sourceRef="Gateway_1wmv5rn" targetRef="EndEvent_Hmpo">
+    <bpmn:sequenceFlow id="Flow_1xvf5wx" sourceRef="Gateway_1wmv5rn" targetRef="CallActivity_0ht2mbu">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ QaOutcome == "Accept" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0lq3kwv" sourceRef="Gateway_1wmv5rn" targetRef="CallActivity_PogrHmpoDraft" />
+    <bpmn:callActivity id="CallActivity_0ht2mbu" name="Dispatch" calledElement="STAGE_WITH_USER">
+      <bpmn:extensionElements>
+        <camunda:in sourceExpression="POGR_HMPO_DISPATCH" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:in sourceExpression="POGR_HMPO_DISPATCH" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
+        <camunda:out source="BusinessArea" target="BusinessArea" />
+        <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="DispatchOutcome" target="DispatchOutcome" />
+        <camunda:out source="LastUpdatedByUserUUID" target="QAUserUUID" />
+        <camunda:in source="DispatchUserUUID" target="AllocatedUserUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1xvf5wx</bpmn:incoming>
+      <bpmn:outgoing>Flow_09ux94z</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_09ux94z" sourceRef="CallActivity_0ht2mbu" targetRef="EndEvent_Hmpo" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_HMPO">
+      <bpmndi:BPMNEdge id="Flow_09ux94z_di" bpmnElement="Flow_09ux94z">
+        <di:waypoint x="1270" y="189" />
+        <di:waypoint x="1332" y="189" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0lq3kwv_di" bpmnElement="Flow_0lq3kwv">
         <di:waypoint x="1090" y="214" />
         <di:waypoint x="1090" y="310" />
@@ -147,7 +171,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1xvf5wx_di" bpmnElement="Flow_1xvf5wx">
         <di:waypoint x="1115" y="189" />
-        <di:waypoint x="1162" y="189" />
+        <di:waypoint x="1170" y="189" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1del5l1_di" bpmnElement="Flow_1del5l1">
         <di:waypoint x="776" y="180" />
@@ -219,6 +243,12 @@
           <dc:Bounds x="172" y="144" width="50" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_HmpoDraftEnd">
+        <dc:Bounds x="842" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="467" y="112" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1kj7g9i_di" bpmnElement="CallActivity_PogrHmpoTriage">
         <dc:Bounds x="270" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -228,23 +258,20 @@
       <bpmndi:BPMNShape id="Gateway_0i7bw1a_di" bpmnElement="Gateway_0i7bw1a" isMarkerVisible="true">
         <dc:Bounds x="415" y="55" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0y5jpxb_di" bpmnElement="EndEvent_HmpoTriageEnd">
-        <dc:Bounds x="512" y="62" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_150iolg_di" bpmnElement="CallActivity_PogrHmpoDraft">
         <dc:Bounds x="590" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0fbkujt_di" bpmnElement="Gateway_0fbkujt" isMarkerVisible="true">
-        <dc:Bounds x="735" y="55" width="50" height="50" />
+      <bpmndi:BPMNShape id="Event_0y5jpxb_di" bpmnElement="EndEvent_HmpoTriageEnd">
+        <dc:Bounds x="512" y="62" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_08mh27j_di" bpmnElement="Gateway_08mh27j" isMarkerVisible="true">
         <dc:Bounds x="735" y="164" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_HmpoDraftEnd">
-        <dc:Bounds x="842" y="62" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="467" y="112" width="49" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Gateway_0fbkujt_di" bpmnElement="Gateway_0fbkujt" isMarkerVisible="true">
+        <dc:Bounds x="735" y="55" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0wby6am_di" bpmnElement="EndEvent_Hmpo">
+        <dc:Bounds x="1332" y="171" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_09g92t3_di" bpmnElement="CallActivity_PogrHmpoQa">
         <dc:Bounds x="910" y="149" width="100" height="80" />
@@ -252,8 +279,8 @@
       <bpmndi:BPMNShape id="Gateway_1wmv5rn_di" bpmnElement="Gateway_1wmv5rn" isMarkerVisible="true">
         <dc:Bounds x="1065" y="164" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0wby6am_di" bpmnElement="EndEvent_Hmpo">
-        <dc:Bounds x="1162" y="171" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_0ht2mbu_di" bpmnElement="CallActivity_0ht2mbu">
+        <dc:Bounds x="1170" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

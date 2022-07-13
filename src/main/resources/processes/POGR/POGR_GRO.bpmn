@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0">
   <bpmn:process id="POGR_GRO" isExecutable="true">
     <bpmn:startEvent id="StartEvent_Gro">
       <bpmn:outgoing>Flow_1twhwzx</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="EndEvent_Gro">
-      <bpmn:incoming>Flow_0a3i2m9</bpmn:incoming>
+      <bpmn:incoming>Flow_19hatch</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1twhwzx" sourceRef="StartEvent_Gro" targetRef="CallActivity_PogrGroTriage" />
     <bpmn:callActivity id="CallActivity_PogrGroTriage" name="Triage" calledElement="STAGE_WITH_USER">
@@ -131,10 +131,29 @@
       <bpmn:outgoing>Flow_1g1jsaz</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_09crvpm" sourceRef="CallActivity_PogrGroQa" targetRef="Gateway_1vzae9d" />
-    <bpmn:sequenceFlow id="Flow_0a3i2m9" sourceRef="Gateway_1vzae9d" targetRef="EndEvent_Gro">
+    <bpmn:sequenceFlow id="Flow_0a3i2m9" sourceRef="Gateway_1vzae9d" targetRef="CallActivity_1q6p9vf">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ QaOutcome == "Accept" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1g1jsaz" sourceRef="Gateway_1vzae9d" targetRef="CallActivity_PogrGroDraft" />
+    <bpmn:callActivity id="CallActivity_1q6p9vf" name="Dispatch" calledElement="STAGE_WITH_USER">
+      <bpmn:extensionElements>
+        <camunda:in sourceExpression="POGR_GRO_QA" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:in sourceExpression="POGR_GRO_QA" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="BusinessArea" target="BusinessArea" />
+        <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="QaOutcome" target="QaOutcome" />
+        <camunda:out source="LastUpdatedByUserUUID" target="QAUserUUID" />
+        <camunda:in source="QAUserUUID" target="AllocatedUserUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0a3i2m9</bpmn:incoming>
+      <bpmn:outgoing>Flow_19hatch</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_19hatch" sourceRef="CallActivity_1q6p9vf" targetRef="EndEvent_Gro" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_GRO">
@@ -146,7 +165,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0a3i2m9_di" bpmnElement="Flow_0a3i2m9">
         <di:waypoint x="1125" y="259" />
-        <di:waypoint x="1172" y="259" />
+        <di:waypoint x="1180" y="259" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_09crvpm_di" bpmnElement="Flow_09crvpm">
         <di:waypoint x="1030" y="259" />
@@ -209,16 +228,14 @@
         <di:waypoint x="215" y="259" />
         <di:waypoint x="280" y="259" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19hatch_di" bpmnElement="Flow_19hatch">
+        <di:waypoint x="1280" y="259" />
+        <di:waypoint x="1332" y="259" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Gro">
         <dc:Bounds x="179" y="241" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="172" y="254" width="50" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_Gro">
-        <dc:Bounds x="1172" y="241" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="477" y="222" width="49" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0aric96_di" bpmnElement="CallActivity_PogrGroTriage">
@@ -250,6 +267,15 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1vzae9d_di" bpmnElement="Gateway_1vzae9d" isMarkerVisible="true">
         <dc:Bounds x="1075" y="234" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_Gro">
+        <dc:Bounds x="1332" y="241" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="477" y="222" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1q6p9vf_di" bpmnElement="CallActivity_1q6p9vf">
+        <dc:Bounds x="1180" y="219" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
