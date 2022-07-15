@@ -17,6 +17,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,6 +29,9 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
         "processes/POGR/POGR_GRO_DRAFT.bpmn"
 })
 public class POGR_GRO_DRAFT {
+
+    public static final String REJECT_INVESTIGATION = "Activity_0jgtbme";
+    public static final String SAVE_REJECTION_NOTE = "Activity_136hbub";
 
     @Rule
     @ClassRule
@@ -59,6 +64,8 @@ public class POGR_GRO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 
@@ -81,6 +88,8 @@ public class POGR_GRO_DRAFT {
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario).hasCompleted("CallActivity_DraftInput");
         verify(processScenario, times(3)).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 
@@ -88,10 +97,12 @@ public class POGR_GRO_DRAFT {
     public void testNotTelephoneResponse() {
         whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
                 .thenReturn("DraftOutcome", "TelephoneResponse")
+                .thenReturn("DraftOutcome", "TelephoneResponse")
                 .thenReturn("DraftOutcome", "QA")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("DIRECTION", "BACKWARD")
                 .thenReturn("TelephoneResponse", "No")
                 .deploy(rule);
 
@@ -100,9 +111,38 @@ public class POGR_GRO_DRAFT {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
-        verify(processScenario).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
+
+    @Test
+    public void testRejectionPath() {
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DraftOutcome", "ReturnInvestigation")
+                .thenReturn("DraftOutcome", "ReturnInvestigation")
+                .deploy(rule);
+
+        when(processScenario.waitsAtUserTask(REJECT_INVESTIGATION))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","UNKNOWN")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_GroDraft");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario, times(3)).hasCompleted(REJECT_INVESTIGATION);
+        verify(processScenario, times(1)).hasCompleted(SAVE_REJECTION_NOTE);
+        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
+        verify(processScenario).hasCompleted("EndEvent_GroDraft");
+    }
+
+
 
 }

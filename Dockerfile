@@ -1,15 +1,17 @@
-FROM quay.io/ukhomeofficedigital/hocs-base-image as builder
+FROM quay.io/ukhomeofficedigital/hocs-base-image-build as builder
 
-COPY build/libs/hocs-workflow.jar ./
-COPY scripts/run.sh ./
+USER root
 
-RUN java -Djarmode=layertools -jar hocs-workflow.jar extract
+COPY . .
+RUN ./gradlew clean assemble --no-daemon
+
+RUN java -Djarmode=layertools -jar ./build/libs/hocs-workflow.jar extract
 
 FROM quay.io/ukhomeofficedigital/hocs-base-image
 
-COPY --from=builder --chown=user_hocs:group_hocs /app/run.sh ./
-COPY --from=builder --chown=user_hocs:group_hocs /app/spring-boot-loader/ ./
-COPY --from=builder --chown=user_hocs:group_hocs /app/dependencies/ ./
-COPY --from=builder --chown=user_hocs:group_hocs /app/application/ ./
+COPY --from=builder --chown=user_hocs:group_hocs ./scripts/run.sh ./
+COPY --from=builder --chown=user_hocs:group_hocs ./spring-boot-loader/ ./
+COPY --from=builder --chown=user_hocs:group_hocs ./dependencies/ ./
+COPY --from=builder --chown=user_hocs:group_hocs ./application/ ./
 
 CMD ["sh", "/app/run.sh"]
