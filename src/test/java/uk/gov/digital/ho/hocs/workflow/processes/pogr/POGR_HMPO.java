@@ -64,6 +64,9 @@ public class POGR_HMPO {
                 .thenReturn("QaOutcome", "Accept")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_HMPO_DISPATCH")
+                .deploy(rule);
+
         Scenario.run(processScenario)
                 .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
                 .execute();
@@ -150,6 +153,8 @@ public class POGR_HMPO {
                 .thenReturn("QaOutcome", "Reject", "reallocate", "true")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_HMPO_DISPATCH")
+                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
@@ -159,6 +164,35 @@ public class POGR_HMPO {
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoTriage");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoQa");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
+    }
+
+    @Test
+    public void testQaBypassStraightToDispatch() {
+        whenAtCallActivity("POGR_HMPO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DRAFT")
+                .thenReturn("DraftOutcome", "QA")
+                .thenReturn("DraftOutcome", "Dispatch")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DISPATCH")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Hmpo");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoQa");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoDraft");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoDispatch");
     }
 
 }

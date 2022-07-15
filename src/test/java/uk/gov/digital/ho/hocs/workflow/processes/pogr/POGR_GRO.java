@@ -61,6 +61,9 @@ public class POGR_GRO {
                 .thenReturn("QaOutcome", "Accept")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_GRO_DISPATCH")
+                .deploy(rule);
+
         Scenario.run(processScenario)
                 .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
                 .execute();
@@ -147,6 +150,8 @@ public class POGR_GRO {
                 .thenReturn("QaOutcome", "Reject", "reallocate", "true")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_GRO_DISPATCH")
+                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
@@ -156,6 +161,34 @@ public class POGR_GRO {
         verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
         verify(processScenario).hasCompleted("CallActivity_PogrGroQa");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
+    }
+
+    @Test
+    public void testQaBypassStraightToDispatch() {
+        whenAtCallActivity("POGR_GRO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DRAFT")
+                .thenReturn("DraftOutcome", "Dispatch")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DISPATCH")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Gro");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDraft");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDispatch");
+        verify(processScenario).hasCompleted("EndEvent_Gro");
     }
 
 }
