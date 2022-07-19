@@ -24,7 +24,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/POGR/POGR_GRO.bpmn",
-        "processes/STAGE_WITH_USER.bpmn" })
+        "processes/STAGE_WITH_USER.bpmn",
+        "processes/STAGE.bpmn" })
 public class POGR_GRO {
 
     @Rule
@@ -188,6 +189,72 @@ public class POGR_GRO {
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroTriage");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDispatch");
+        verify(processScenario).hasCompleted("EndEvent_Gro");
+    }
+
+    @Test
+    public void testTriageEscalate() {
+        whenAtCallActivity("POGR_GRO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Escalate")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_ESCALATE")
+                .thenReturn("EscalationOutcome", "Triage")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DRAFT")
+                .thenReturn("DraftOutcome", "QA", "CloseCaseDraft", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DISPATCH")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Gro");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroEscalate");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDraft");
+        verify(processScenario).hasCompleted("EndEvent_Gro");
+    }
+
+    @Test
+    public void testDraftEscalate() {
+        whenAtCallActivity("POGR_GRO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_ESCALATE")
+                .thenReturn("EscalationOutcome", "Draft")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DRAFT")
+                .thenReturn("DraftOutcome", "Escalate")
+                .thenReturn("DraftOutcome", "QA", "CloseCaseDraft", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DISPATCH")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Gro");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroEscalate");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_Gro");
     }
 

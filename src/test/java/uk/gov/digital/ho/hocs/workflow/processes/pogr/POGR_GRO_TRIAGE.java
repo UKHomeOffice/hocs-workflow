@@ -116,4 +116,27 @@ public class POGR_GRO_TRIAGE {
 
     }
 
+    @Test
+    public void testTriageEscalate() {
+        when(processScenario.waitsAtUserTask("Screen_TriageAcceptCase"))
+                .thenReturn(task -> task.complete(withVariables("TriageAccept", "Accept")));
+
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("InvestigationOutcome", "Escalate")
+                .thenReturn("InvestigationOutcome", "Escalate")
+                .deploy(rule);
+
+        when(processScenario.waitsAtUserTask("Screen_GroEscalateScreen"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_TRIAGE")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_POGR_GRO_TRIAGE");
+        verify(processScenario, times(2)).hasCompleted("Screen_GroEscalateScreen");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_TriageInvestigation");
+        verify(processScenario).hasCompleted("EndEvent_POGR_GRO_TRIAGE");
+    }
 }
