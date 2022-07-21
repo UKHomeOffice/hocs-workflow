@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0">
   <bpmn:process id="POGR_GRO_TRIAGE" isExecutable="true">
     <bpmn:startEvent id="StartEvent_POGR_GRO_TRIAGE">
       <bpmn:outgoing>Flow_1h6zo9j</bpmn:outgoing>
@@ -8,6 +8,7 @@
       <bpmn:incoming>Flow_0314kt6</bpmn:incoming>
       <bpmn:incoming>Flow_0tttfv8</bpmn:incoming>
       <bpmn:incoming>Flow_0uku0is</bpmn:incoming>
+      <bpmn:incoming>Flow_1qnmcaz</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="Gateway_1lzp3ot" default="Flow_08bv7tf">
       <bpmn:incoming>Flow_11a74yg</bpmn:incoming>
@@ -80,6 +81,7 @@
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1jv3ybg</bpmn:incoming>
       <bpmn:incoming>Flow_189kbx5</bpmn:incoming>
+      <bpmn:incoming>Flow_0rkth41</bpmn:incoming>
       <bpmn:outgoing>Flow_136xlj8</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_136xlj8" sourceRef="CallActivity_TriageInvestigation" targetRef="Gateway_1lljo1c" />
@@ -87,115 +89,171 @@
       <bpmn:incoming>Flow_136xlj8</bpmn:incoming>
       <bpmn:outgoing>Flow_0uku0is</bpmn:outgoing>
       <bpmn:outgoing>Flow_189kbx5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ers6km</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0uku0is" sourceRef="Gateway_1lljo1c" targetRef="EndEvent_POGR_GRO_TRIAGE">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ InvestigationOutcome == "Draft" || InvestigationOutcome == "Escalate" || InvestigationOutcome == "Complete" }</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ InvestigationOutcome == "Draft" || InvestigationOutcome == "Complete" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_189kbx5" sourceRef="Gateway_1lljo1c" targetRef="CallActivity_TriageInvestigation" />
+    <bpmn:serviceTask id="Activity_EscalateCaseNote" name="Save Escalate Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_TriageEscalate&#34;), &#34;SEND_TO_WORKFLOW_MANAGER&#34;)}">
+      <bpmn:incoming>Flow_0ct6pmb</bpmn:incoming>
+      <bpmn:outgoing>Flow_1qnmcaz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Screen_GroEscalateScreen" name="Escalate Case" camunda:formKey="POGR_GRO_TRIAGE_ESCALATE">
+      <bpmn:incoming>Flow_1ers6km</bpmn:incoming>
+      <bpmn:outgoing>Flow_1yal554</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1lo7l2i" default="Flow_0rkth41">
+      <bpmn:incoming>Flow_1yal554</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ct6pmb</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0rkth41</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0ct6pmb" sourceRef="Gateway_1lo7l2i" targetRef="Activity_EscalateCaseNote">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1yal554" sourceRef="Screen_GroEscalateScreen" targetRef="Gateway_1lo7l2i" />
+    <bpmn:sequenceFlow id="Flow_1ers6km" sourceRef="Gateway_1lljo1c" targetRef="Screen_GroEscalateScreen">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ InvestigationOutcome == "Escalate" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1qnmcaz" sourceRef="Activity_EscalateCaseNote" targetRef="EndEvent_POGR_GRO_TRIAGE" />
+    <bpmn:sequenceFlow id="Flow_0rkth41" sourceRef="Gateway_1lo7l2i" targetRef="CallActivity_TriageInvestigation" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_GRO_TRIAGE">
-      <bpmndi:BPMNEdge id="Flow_189kbx5_di" bpmnElement="Flow_189kbx5">
-        <di:waypoint x="750" y="155" />
-        <di:waypoint x="750" y="80" />
+      <bpmndi:BPMNEdge id="Flow_0rkth41_di" bpmnElement="Flow_0rkth41">
+        <di:waypoint x="940" y="145" />
+        <di:waypoint x="940" y="80" />
         <di:waypoint x="630" y="80" />
-        <di:waypoint x="630" y="140" />
+        <di:waypoint x="630" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qnmcaz_di" bpmnElement="Flow_1qnmcaz">
+        <di:waypoint x="1100" y="170" />
+        <di:waypoint x="1150" y="170" />
+        <di:waypoint x="1150" y="252" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ers6km_di" bpmnElement="Flow_1ers6km">
+        <di:waypoint x="750" y="245" />
+        <di:waypoint x="750" y="170" />
+        <di:waypoint x="780" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yal554_di" bpmnElement="Flow_1yal554">
+        <di:waypoint x="880" y="170" />
+        <di:waypoint x="915" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ct6pmb_di" bpmnElement="Flow_0ct6pmb">
+        <di:waypoint x="965" y="170" />
+        <di:waypoint x="1000" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_189kbx5_di" bpmnElement="Flow_189kbx5">
+        <di:waypoint x="750" y="245" />
+        <di:waypoint x="750" y="170" />
+        <di:waypoint x="630" y="170" />
+        <di:waypoint x="630" y="230" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0uku0is_di" bpmnElement="Flow_0uku0is">
-        <di:waypoint x="775" y="180" />
-        <di:waypoint x="952" y="180" />
+        <di:waypoint x="775" y="270" />
+        <di:waypoint x="1132" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_136xlj8_di" bpmnElement="Flow_136xlj8">
-        <di:waypoint x="680" y="180" />
-        <di:waypoint x="725" y="180" />
+        <di:waypoint x="680" y="270" />
+        <di:waypoint x="725" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08bv7tf_di" bpmnElement="Flow_08bv7tf">
-        <di:waypoint x="403" y="155" />
-        <di:waypoint x="403" y="80" />
-        <di:waypoint x="293" y="80" />
-        <di:waypoint x="293" y="140" />
+        <di:waypoint x="403" y="245" />
+        <di:waypoint x="403" y="170" />
+        <di:waypoint x="293" y="170" />
+        <di:waypoint x="293" y="230" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0sfm1n3_di" bpmnElement="Flow_0sfm1n3">
-        <di:waypoint x="510" y="336" />
-        <di:waypoint x="510" y="390" />
-        <di:waypoint x="293" y="390" />
-        <di:waypoint x="293" y="220" />
+        <di:waypoint x="510" y="426" />
+        <di:waypoint x="510" y="480" />
+        <di:waypoint x="293" y="480" />
+        <di:waypoint x="293" y="310" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tyht9a_di" bpmnElement="Flow_0tyht9a">
-        <di:waypoint x="535" y="311" />
-        <di:waypoint x="580" y="311" />
+        <di:waypoint x="535" y="401" />
+        <di:waypoint x="580" y="401" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0tttfv8_di" bpmnElement="Flow_0tttfv8">
-        <di:waypoint x="750" y="336" />
-        <di:waypoint x="750" y="390" />
-        <di:waypoint x="970" y="390" />
-        <di:waypoint x="970" y="198" />
+        <di:waypoint x="750" y="426" />
+        <di:waypoint x="750" y="480" />
+        <di:waypoint x="1150" y="480" />
+        <di:waypoint x="1150" y="288" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1wq5pys_di" bpmnElement="Flow_1wq5pys">
-        <di:waypoint x="775" y="311" />
-        <di:waypoint x="810" y="311" />
+        <di:waypoint x="775" y="401" />
+        <di:waypoint x="810" y="401" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0314kt6_di" bpmnElement="Flow_0314kt6">
-        <di:waypoint x="910" y="311" />
-        <di:waypoint x="970" y="311" />
-        <di:waypoint x="970" y="198" />
+        <di:waypoint x="910" y="401" />
+        <di:waypoint x="1150" y="401" />
+        <di:waypoint x="1150" y="288" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1s53jai_di" bpmnElement="Flow_1s53jai">
-        <di:waypoint x="453" y="311" />
-        <di:waypoint x="485" y="311" />
+        <di:waypoint x="453" y="401" />
+        <di:waypoint x="485" y="401" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0pml1a7_di" bpmnElement="Flow_0pml1a7">
-        <di:waypoint x="403" y="205" />
-        <di:waypoint x="403" y="271" />
+        <di:waypoint x="403" y="295" />
+        <di:waypoint x="403" y="361" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_11a74yg_di" bpmnElement="Flow_11a74yg">
-        <di:waypoint x="343" y="180" />
-        <di:waypoint x="378" y="180" />
+        <di:waypoint x="343" y="270" />
+        <di:waypoint x="378" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1jv3ybg_di" bpmnElement="Flow_1jv3ybg">
-        <di:waypoint x="428" y="180" />
-        <di:waypoint x="580" y="180" />
+        <di:waypoint x="428" y="270" />
+        <di:waypoint x="580" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0axdze3_di" bpmnElement="Flow_0axdze3">
-        <di:waypoint x="680" y="311" />
-        <di:waypoint x="725" y="311" />
+        <di:waypoint x="680" y="401" />
+        <di:waypoint x="725" y="401" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1h6zo9j_di" bpmnElement="Flow_1h6zo9j">
-        <di:waypoint x="188" y="180" />
-        <di:waypoint x="243" y="180" />
+        <di:waypoint x="188" y="270" />
+        <di:waypoint x="243" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0pid86l_di" bpmnElement="StartEvent_POGR_GRO_TRIAGE">
-        <dc:Bounds x="152" y="162" width="36" height="36" />
+        <dc:Bounds x="152" y="252" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_04tmesu_di" bpmnElement="EndEvent_POGR_GRO_TRIAGE">
-        <dc:Bounds x="952" y="162" width="36" height="36" />
+        <dc:Bounds x="1132" y="252" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1lzp3ot_di" bpmnElement="Gateway_1lzp3ot" isMarkerVisible="true">
-        <dc:Bounds x="378" y="155" width="50" height="50" />
+        <dc:Bounds x="378" y="245" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0ie5w7n_di" bpmnElement="Screen_TriageAcceptCase">
-        <dc:Bounds x="243" y="140" width="100" height="80" />
+        <dc:Bounds x="243" y="230" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1u560h2_di" bpmnElement="Screen_GroTransferScreen">
-        <dc:Bounds x="353" y="271" width="100" height="80" />
+        <dc:Bounds x="353" y="361" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_06synm6_di" bpmnElement="Activity_CloseCaseNote">
-        <dc:Bounds x="580" y="271" width="100" height="80" />
+        <dc:Bounds x="580" y="361" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_023rcf1_di" bpmnElement="Activity_UpdateTriageTeam">
-        <dc:Bounds x="810" y="271" width="100" height="80" />
+        <dc:Bounds x="810" y="361" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1pqstvp_di" bpmnElement="Gateway_1pqstvp" isMarkerVisible="true">
-        <dc:Bounds x="725" y="286" width="50" height="50" />
+        <dc:Bounds x="725" y="376" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_13l1v6m_di" bpmnElement="Gateway_13l1v6m" isMarkerVisible="true">
-        <dc:Bounds x="485" y="286" width="50" height="50" />
+        <dc:Bounds x="485" y="376" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0h0rhw7_di" bpmnElement="CallActivity_TriageInvestigation">
-        <dc:Bounds x="580" y="140" width="100" height="80" />
+        <dc:Bounds x="580" y="230" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1lljo1c_di" bpmnElement="Gateway_1lljo1c" isMarkerVisible="true">
-        <dc:Bounds x="725" y="155" width="50" height="50" />
+        <dc:Bounds x="725" y="245" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1e9copy_di" bpmnElement="Activity_EscalateCaseNote">
+        <dc:Bounds x="1000" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1nequox_di" bpmnElement="Screen_GroEscalateScreen">
+        <dc:Bounds x="780" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1lo7l2i_di" bpmnElement="Gateway_1lo7l2i" isMarkerVisible="true">
+        <dc:Bounds x="915" y="145" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

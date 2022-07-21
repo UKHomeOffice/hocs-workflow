@@ -143,6 +143,26 @@ public class POGR_GRO_DRAFT {
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 
+    @Test
+    public void testEscalationPath() {
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DraftOutcome", "Escalate")
+                .thenReturn("DraftOutcome", "Escalate")
+                .deploy(rule);
 
+        when(processScenario.waitsAtUserTask("Screen_GroEscalateScreen"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","UNKNOWN")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_GroDraft");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario, times(1)).hasCompleted("Activity_EscalateCaseNote");
+        verify(processScenario).hasCompleted("EndEvent_GroDraft");
+    }
 
 }

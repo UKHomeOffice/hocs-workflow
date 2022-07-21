@@ -140,6 +140,25 @@ public class POGR_HMPO_DRAFT {
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
 
+    @Test
+    public void testEscalationPath() {
+        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "Escalate")))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "Escalate")));
 
+        when(processScenario.waitsAtUserTask("Screen_HmpoEscalateScreen"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","UNKNOWN")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
+        verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
+        verify(processScenario, times(1)).hasCompleted("Activity_EscalateCaseNote");
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
+    }
 
 }

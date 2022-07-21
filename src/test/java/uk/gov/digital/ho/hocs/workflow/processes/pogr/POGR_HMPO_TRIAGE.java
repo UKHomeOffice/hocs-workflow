@@ -81,4 +81,27 @@ public class POGR_HMPO_TRIAGE {
         verify(processScenario).hasCompleted("EndEvent_POGR_HMPO_TRIAGE");
     }
 
+    @Test
+    public void testTriageEscalate() {
+        when(processScenario.waitsAtUserTask("Screen_TriageAcceptCase"))
+                .thenReturn(task -> task.complete(withVariables("TriageAccept", "Accept")));
+
+        when(processScenario.waitsAtUserTask("Screen_TriageInvestigation"))
+                .thenReturn(task -> task.complete(withVariables("InvestigationOutcome", "Escalate")))
+                .thenReturn(task -> task.complete(withVariables("InvestigationOutcome", "Escalate")));
+
+        when(processScenario.waitsAtUserTask("Screen_HmpoEscalateScreen"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO_TRIAGE")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_POGR_HMPO_TRIAGE");
+        verify(processScenario, times(2)).hasCompleted("Screen_HmpoEscalateScreen");
+        verify(processScenario, times(2)).hasCompleted("Screen_TriageInvestigation");
+        verify(processScenario).hasCompleted("EndEvent_POGR_HMPO_TRIAGE");
+    }
+
 }

@@ -27,7 +27,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
         "processes/POGR/POGR_HMPO.bpmn",
-        "processes/STAGE_WITH_USER.bpmn" })
+        "processes/STAGE_WITH_USER.bpmn",
+        "processes/STAGE.bpmn" })
 public class POGR_HMPO {
 
     @Rule
@@ -193,6 +194,72 @@ public class POGR_HMPO {
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoQa");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoDispatch");
+    }
+
+    @Test
+    public void testTriageEscalate() {
+        whenAtCallActivity("POGR_HMPO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Escalate")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_ESCALATE")
+                .thenReturn("EscalationOutcome", "Triage")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DRAFT")
+                .thenReturn("DraftOutcome", "QA", "CloseCaseDraft", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DISPATCH")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Hmpo");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoEscalate");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoDraft");
+        verify(processScenario).hasCompleted("EndEvent_Hmpo");
+    }
+
+    @Test
+    public void testDraftEscalate() {
+        whenAtCallActivity("POGR_HMPO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_ESCALATE")
+                .thenReturn("EscalationOutcome", "Draft")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DRAFT")
+                .thenReturn("DraftOutcome", "Escalate")
+                .thenReturn("DraftOutcome", "QA", "CloseCaseDraft", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_QA")
+                .thenReturn("QaOutcome", "Accept")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DISPATCH")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Hmpo");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoEscalate");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
+        verify(processScenario).hasCompleted("EndEvent_Hmpo");
     }
 
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.2.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0">
   <bpmn:process id="POGR_HMPO" isExecutable="true">
     <bpmn:startEvent id="StartEvent_Hmpo">
       <bpmn:outgoing>Flow_1m1w4pf</bpmn:outgoing>
@@ -29,6 +29,7 @@
       <bpmn:incoming>Flow_1m1w4pf</bpmn:incoming>
       <bpmn:incoming>Flow_08g22s9</bpmn:incoming>
       <bpmn:incoming>Flow_1wpf0yz</bpmn:incoming>
+      <bpmn:incoming>Flow_0b35gdf</bpmn:incoming>
       <bpmn:outgoing>Flow_0mp9wnv</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_0mp9wnv" sourceRef="CallActivity_PogrHmpoTriage" targetRef="Gateway_0ph73vq" />
@@ -36,6 +37,7 @@
       <bpmn:incoming>Flow_0mp9wnv</bpmn:incoming>
       <bpmn:outgoing>Flow_080khuu</bpmn:outgoing>
       <bpmn:outgoing>Flow_1lew7z0</bpmn:outgoing>
+      <bpmn:outgoing>Flow_05c2dd5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_080khuu" sourceRef="Gateway_0ph73vq" targetRef="CallActivity_PogrHmpoDraft">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ InvestigationOutcome == "Draft" }</bpmn:conditionExpression>
@@ -71,6 +73,7 @@
       <bpmn:incoming>Flow_080khuu</bpmn:incoming>
       <bpmn:incoming>Flow_1tfrnhg</bpmn:incoming>
       <bpmn:incoming>Flow_0lq3kwv</bpmn:incoming>
+      <bpmn:incoming>Flow_14sxnho</bpmn:incoming>
       <bpmn:outgoing>Flow_1oz5xon</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1oz5xon" sourceRef="CallActivity_PogrHmpoDraft" targetRef="Gateway_08mh27j" />
@@ -83,6 +86,7 @@
       <bpmn:outgoing>Flow_1wpf0yz</bpmn:outgoing>
       <bpmn:outgoing>Flow_1rjw8ef</bpmn:outgoing>
       <bpmn:outgoing>Flow_1del5l1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_00yq97a</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0obo8w9" sourceRef="Gateway_0fbkujt" targetRef="EndEvent_HmpoDraftEnd">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("CloseCaseDraft") == true }</bpmn:conditionExpression>
@@ -156,6 +160,39 @@
       <bpmn:outgoing>Flow_09ux94z</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_09ux94z" sourceRef="CallActivity_PogrHmpoDispatch" targetRef="EndEvent_Hmpo" />
+    <bpmn:callActivity id="CallActivity_PogrHmpoEscalate" name="Escalate" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in sourceExpression="POGR_HMPO_ESCALATE" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="TriageUUID" />
+        <camunda:in sourceExpression="POGR_HMPO_ESCALATE" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="EscalationOutcome" target="EscalationOutcome" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05c2dd5</bpmn:incoming>
+      <bpmn:incoming>Flow_00yq97a</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vchjhj</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_157w6qt" default="Flow_0b35gdf">
+      <bpmn:incoming>Flow_1vchjhj</bpmn:incoming>
+      <bpmn:outgoing>Flow_14sxnho</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0b35gdf</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1vchjhj" sourceRef="CallActivity_PogrHmpoEscalate" targetRef="Gateway_157w6qt" />
+    <bpmn:sequenceFlow id="Flow_05c2dd5" sourceRef="Gateway_0ph73vq" targetRef="CallActivity_PogrHmpoEscalate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ InvestigationOutcome == "Escalate" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_00yq97a" sourceRef="Gateway_08mh27j" targetRef="CallActivity_PogrHmpoEscalate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "Escalate" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_14sxnho" sourceRef="Gateway_157w6qt" targetRef="CallActivity_PogrHmpoDraft">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ EscalationOutcome == "Draft" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0b35gdf" sourceRef="Gateway_157w6qt" targetRef="CallActivity_PogrHmpoTriage" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_HMPO">
@@ -197,8 +234,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1wpf0yz_di" bpmnElement="Flow_1wpf0yz">
         <di:waypoint x="760" y="214" />
-        <di:waypoint x="760" y="270" />
-        <di:waypoint x="320" y="270" />
+        <di:waypoint x="760" y="550" />
+        <di:waypoint x="320" y="550" />
         <di:waypoint x="320" y="229" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="545" y="296" width="62" height="27" />
@@ -240,6 +277,30 @@
       <bpmndi:BPMNEdge id="Flow_1m1w4pf_di" bpmnElement="Flow_1m1w4pf">
         <di:waypoint x="215" y="189" />
         <di:waypoint x="270" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vchjhj_di" bpmnElement="Flow_1vchjhj">
+        <di:waypoint x="550" y="400" />
+        <di:waypoint x="550" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05c2dd5_di" bpmnElement="Flow_05c2dd5">
+        <di:waypoint x="440" y="214" />
+        <di:waypoint x="440" y="360" />
+        <di:waypoint x="500" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00yq97a_di" bpmnElement="Flow_00yq97a">
+        <di:waypoint x="760" y="214" />
+        <di:waypoint x="760" y="360" />
+        <di:waypoint x="600" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14sxnho_di" bpmnElement="Flow_14sxnho">
+        <di:waypoint x="575" y="470" />
+        <di:waypoint x="640" y="470" />
+        <di:waypoint x="640" y="229" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b35gdf_di" bpmnElement="Flow_0b35gdf">
+        <di:waypoint x="525" y="470" />
+        <di:waypoint x="320" y="470" />
+        <di:waypoint x="320" y="229" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Hmpo">
         <dc:Bounds x="179" y="171" width="36" height="36" />
@@ -285,6 +346,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0ht2mbu_di" bpmnElement="CallActivity_PogrHmpoDispatch">
         <dc:Bounds x="1170" y="149" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mndufl_di" bpmnElement="CallActivity_PogrHmpoEscalate">
+        <dc:Bounds x="500" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_157w6qt_di" bpmnElement="Gateway_157w6qt" isMarkerVisible="true">
+        <dc:Bounds x="525" y="445" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
