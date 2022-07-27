@@ -145,12 +145,13 @@ public class POGR_GRO_DRAFT {
 
     @Test
     public void testCloseCaseAtDraftStage() {
-        whenAtCallActivity("POGR_GRO_DRAFT_CLOSE_CASE")
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DraftOutcome", "CloseCase")
                 .thenReturn("DraftOutcome", "CloseCase")
                 .deploy(rule);
 
         when(processScenario.waitsAtUserTask("UserActivity_CloseCase"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
 
         Scenario.run(processScenario)
@@ -159,11 +160,10 @@ public class POGR_GRO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
-        verify(processScenario, times(3)).hasCompleted("CloseCase");
-        verify(processScenario, times(1)).hasCompleted("ServiceTask_SaveCloseNote");
+        verify(processScenario, times(2)).hasCompleted("UserActivity_CloseCase");
+        verify(processScenario).hasCompleted("ServiceTask_SaveCloseNote");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
-        verify(bpmnService).blankCaseValues(any(), any(), eq("Closed"));
+        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("Closed"));
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
-
 }

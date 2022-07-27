@@ -161,4 +161,23 @@ public class POGR_HMPO {
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
     }
 
+    @Test
+    public void testDraftOutComeCloseCase() {
+        whenAtCallActivity("POGR_HMPO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_HMPO_DRAFT")
+                .thenReturn("DraftOutcome", "CloseCase")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Hmpo");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoDraft");
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraftEnd");
+    }
 }

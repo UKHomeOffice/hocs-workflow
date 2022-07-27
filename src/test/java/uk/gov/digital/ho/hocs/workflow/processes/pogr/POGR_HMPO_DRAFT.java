@@ -141,5 +141,28 @@ public class POGR_HMPO_DRAFT {
     }
 
 
+    @Test
+    public void testCloseCaseAtDraftStage() {
+        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "CloseCase")))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "CloseCase")));
+
+        when(processScenario.waitsAtUserTask("UserActivity_CloseCase"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
+        verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
+        verify(processScenario, times(2)).hasCompleted("UserActivity_CloseCase");
+        //verify(processScenario, times(1)).hasCompleted("ServiceTask_SaveCloseNote");
+        verify(processScenario).hasCompleted("ServiceTask_SaveCloseNote");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("Closed"));
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
+    }
 
 }

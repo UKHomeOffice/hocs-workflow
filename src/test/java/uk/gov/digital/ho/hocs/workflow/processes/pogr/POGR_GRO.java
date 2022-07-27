@@ -158,4 +158,23 @@ public class POGR_GRO {
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
     }
 
+    @Test
+    public void testDraftOutComeCloseCase() {
+        whenAtCallActivity("POGR_GRO_TRIAGE")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_DRAFT")
+                .thenReturn("DraftOutcome", "CloseCase")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO", withVariables("LastUpdatedByUserUUID", "userUUID"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Gro");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroDraft");
+        verify(processScenario).hasCompleted("EndEvent_GroDraftEnd");
+    }
 }
