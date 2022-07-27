@@ -143,6 +143,27 @@ public class POGR_GRO_DRAFT {
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 
+    @Test
+    public void testCloseCaseAtDraftStage() {
+        whenAtCallActivity("POGR_GRO_DRAFT_CLOSE_CASE")
+                .thenReturn("DraftOutcome", "CloseCase")
+                .deploy(rule);
 
+        when(processScenario.waitsAtUserTask("UserActivity_CloseCase"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_GroDraft");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
+        verify(processScenario, times(3)).hasCompleted("CloseCase");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_SaveCloseNote");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("Closed"));
+        verify(processScenario).hasCompleted("EndEvent_GroDraft");
+    }
 
 }
