@@ -77,7 +77,7 @@ public class POGR_HMPO_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_POGR_HMPO_TRIAGE");
         verify(processScenario).hasCompleted("Screen_TriageAcceptCase");
-        verify(processScenario).hasCompleted("Activity_CloseCaseNote");
+        verify(processScenario).hasCompleted("Activity_RejectCaseNote");
         verify(processScenario).hasCompleted("EndEvent_POGR_HMPO_TRIAGE");
     }
 

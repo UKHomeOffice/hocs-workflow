@@ -70,7 +70,7 @@ public class POGR_GRO_TRIAGE {
     }
 
     @Test
-    public void testTriageExternalCloseCase() {
+    public void testTriageExternalRejection() {
         when(processScenario.waitsAtUserTask("Screen_TriageAcceptCase"))
                 .thenReturn(task -> task.complete(withVariables("TriageAccept", "Reject")));
 
@@ -85,15 +85,15 @@ public class POGR_GRO_TRIAGE {
         verify(processScenario).hasCompleted("StartEvent_POGR_GRO_TRIAGE");
         verify(processScenario, times(2)).hasCompleted("Screen_TriageAcceptCase");
         verify(processScenario, times(2)).hasCompleted("Screen_GroTransferScreen");
-        verify(processScenario).hasCompleted("Activity_CloseCaseNote");
+        verify(processScenario).hasCompleted("Activity_RejectCaseNote");
         verify(processScenario).hasCompleted("EndEvent_POGR_GRO_TRIAGE");
 
         verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
-        verify(bpmnService, times(0)).updateTeamByStageAndTexts(any(), any(), eq("POGR_GRO_TRIAGE"), any(), any());
+        verify(bpmnService, times(0)).updateTeamByStageAndTexts(any(), any(), eq("POGR_GRO_TRIAGE"), any(), any(), any());
     }
 
     @Test
-    public void testTriageInternalCloseCase() {
+    public void testTriageInternalRejection() {
         when(processScenario.waitsAtUserTask("Screen_TriageAcceptCase"))
                 .thenReturn(task -> task.complete(withVariables("TriageAccept", "Reject")));
 
@@ -108,12 +108,11 @@ public class POGR_GRO_TRIAGE {
         verify(processScenario).hasCompleted("StartEvent_POGR_GRO_TRIAGE");
         verify(processScenario, times(2)).hasCompleted("Screen_TriageAcceptCase");
         verify(processScenario, times(2)).hasCompleted("Screen_GroTransferScreen");
-        verify(processScenario).hasCompleted("Activity_CloseCaseNote");
+        verify(processScenario).hasCompleted("Activity_RejectCaseNote");
         verify(processScenario).hasCompleted("EndEvent_POGR_GRO_TRIAGE");
 
         verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("POGR_GRO_TRIAGE"), any(), any(), any());
-
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("POGR_GRO_TRIAGE"), eq("DraftTeamUUID"), eq("DraftTeamName"), eq("TriageRejectGroInvestigatingTeamSelection"));
     }
 
     @Test
