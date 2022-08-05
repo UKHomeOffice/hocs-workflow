@@ -25,6 +25,7 @@ import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkD
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.helper.SchemaDtoBuilder;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 
 import java.io.UnsupportedEncodingException;
@@ -518,7 +519,7 @@ public class WorkflowServiceTest {
         FieldDto fieldDtoA = FieldDtoBuilder.aFieldDto().withName(nameA).withComponent(componentA).withProps(propertyA).build();
         FieldDto fieldDtoB = FieldDtoBuilder.aFieldDto().withName(nameB).withComponent(componentB).withProps(propertyB).build();
 
-        SchemaDto schemaDto = SchemaDtoBuilder.aSchemaDto().withFields(List.of(fieldDtoA, fieldDtoB)).build();
+        SchemaDto schemaDto = new SchemaDtoBuilder().withFields(List.of(fieldDtoA, fieldDtoB)).build();
 
         when(caseworkClient.getFullCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
         when(caseworkClient.getAllStagesForCase(caseUUID)).thenReturn(allStagesForCaseResponse);
@@ -582,11 +583,11 @@ public class WorkflowServiceTest {
 
         FieldDto fieldDtoA = FieldDtoBuilder.aFieldDto().withName(nameA).withComponent(componentA).withProps(propertyA).build();
         FieldDto fieldDtoB = FieldDtoBuilder.aFieldDto().withName(nameB).withComponent(componentB).withProps(propertyB).build();
-        SchemaDto schemaDto1 = SchemaDtoBuilder.aSchemaDto().withFields(List.of(fieldDtoA, fieldDtoB)).withStageType(stageType1).build();
+        SchemaDto schemaDto1 = new SchemaDtoBuilder().withFields(List.of(fieldDtoA, fieldDtoB)).withStageType(stageType1).build();
 
         FieldDto fieldDto1 = FieldDtoBuilder.aFieldDto().withName(nameA).withComponent(componentA).withProps(propertyA).build();
         FieldDto fieldDto2 = FieldDtoBuilder.aFieldDto().withName(nameB).withComponent(componentB).withProps(propertyB).build();
-        SchemaDto schemaDto2 = SchemaDtoBuilder.aSchemaDto().withFields(List.of(fieldDto1, fieldDto2)).withStageType(stageType2).build();
+        SchemaDto schemaDto2 = new SchemaDtoBuilder().withFields(List.of(fieldDto1, fieldDto2)).withStageType(stageType2).build();
 
         List<SchemaDto> schemaDtos = new ArrayList<SchemaDto>();
         schemaDtos.add(schemaDto1);
@@ -753,14 +754,14 @@ public class WorkflowServiceTest {
         SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), secondaryActionName, secondaryActionLabel, secondaryActionComponent, secondaryActionValidation, new HashMap<>());
         List<SecondaryActionDto> secondaryActions = new ArrayList<>();
         secondaryActions.add(secondaryActionDto);
-        return new SchemaDto(UUID.randomUUID(), "schema-stage-type", "schema-type", schemaTitle, schemaDefaultActionLabel, false, fields, secondaryActions, schemaDtoProps, schemaDtoValidation);
+        return new SchemaDto(UUID.randomUUID(), "schema-stage-type", "schema-type", schemaTitle, schemaDefaultActionLabel, false, fields, secondaryActions, schemaDtoProps, schemaDtoValidation, null);
     }
 
     private List<SchemaDto> setupTestSchemas() {
 
         Map<String, Object> props = Map.of("entity", "document");
         List<FieldDto> fieldDtos = List.of(new FieldDto(null, testFieldName, null, "entity-list", null, props, true, true, null));
-        SchemaDto schemaDto = new SchemaDto(UUID.randomUUID(), null, null, null, null, true, fieldDtos, null, null, null);
+        SchemaDto schemaDto = new SchemaDto(UUID.randomUUID(), null, null, null, null, true, fieldDtos, null, null, null, null);
         return List.of(schemaDto);
     }
 
