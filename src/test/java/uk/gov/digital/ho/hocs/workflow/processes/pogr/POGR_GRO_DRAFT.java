@@ -185,7 +185,7 @@ public class POGR_GRO_DRAFT {
         verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
         verify(processScenario, times(3)).hasCompleted("UserActivity_CloseCase");
         verify(processScenario).hasCompleted("ServiceTask_SaveCloseNote");
-        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("Closed"));
+        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("CLOSE"));
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 
