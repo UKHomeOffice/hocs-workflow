@@ -27,4 +27,7 @@ public class HocsSchema {
     @JsonProperty("validation")
     public Object validation;
 
+    @JsonProperty("summary")
+    public Object summary;
+
 }

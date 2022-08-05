@@ -1,5 +1,10 @@
-package uk.gov.digital.ho.hocs.workflow.api.dto;
+package uk.gov.digital.ho.hocs.workflow.helper;
 
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SecondaryActionDto;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,12 +19,10 @@ public final class SchemaDtoBuilder {
     private List<SecondaryActionDto> secondaryActions;
     private Object props;
     private Object validation;
+    private List<Object> summary;
 
-    private SchemaDtoBuilder() {
-    }
-
-    public static SchemaDtoBuilder aSchemaDto() {
-        return new SchemaDtoBuilder();
+    public SchemaDtoBuilder() {
+        this.summary = new ArrayList<>();
     }
 
     public SchemaDtoBuilder withUuid(UUID uuid) {
@@ -72,7 +75,12 @@ public final class SchemaDtoBuilder {
         return this;
     }
 
+    public SchemaDtoBuilder withSummary(Object summary) {
+        this.summary.add(summary);
+        return this;
+    }
+
     public SchemaDto build() {
-        return new SchemaDto(uuid, stageType, type, title, defaultActionLabel, active, fields, secondaryActions, props, validation);
+        return new SchemaDto(uuid, stageType, type, title, defaultActionLabel, active, fields, secondaryActions, props, validation, summary);
     }
 }
