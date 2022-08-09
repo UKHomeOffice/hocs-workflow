@@ -1,25 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0aeu35q" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0aeu35q" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="POGR2_REGISTRATION" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_1">
+    <bpmn:startEvent id="StartEvent_Registration">
       <bpmn:outgoing>Flow_17ddm3l</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:endEvent id="Event_0fcuasc">
-      <bpmn:incoming>Flow_17ddm3l</bpmn:incoming>
+    <bpmn:endEvent id="EndEvent_Registration">
+      <bpmn:incoming>Flow_1dp9rgt</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_17ddm3l" sourceRef="StartEvent_1" targetRef="Event_0fcuasc" />
+    <bpmn:sequenceFlow id="Flow_17ddm3l" sourceRef="StartEvent_Registration" targetRef="CallActivity_CorrespondentInput" />
+    <bpmn:callActivity id="CallActivity_CorrespondentInput" name="Correspondent Input" calledElement="COMPLAINT_CORRESPONDENT">
+      <bpmn:extensionElements>
+        <camunda:out source="DIRECTION" target="DIRECTION" />
+        <camunda:in source="CaseUUID" target="CaseUUID" />
+        <camunda:in sourceExpression="POGR_CORRESPONDENT_INVALID" target="CORRESPONDENT_INVALID_SCREEN" local="true" />
+        <camunda:in sourceExpression="POGR_CORRESPONDENT_INPUT" target="CORRESPONDENT_INPUT_SCREEN" local="true" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_17ddm3l</bpmn:incoming>
+      <bpmn:incoming>Flow_1ewyqq1</bpmn:incoming>
+      <bpmn:outgoing>Flow_17czlpm</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_17czlpm" sourceRef="CallActivity_CorrespondentInput" targetRef="Gateway_15t7pkv" />
+    <bpmn:exclusiveGateway id="Gateway_15t7pkv" default="Flow_1ewyqq1">
+      <bpmn:incoming>Flow_17czlpm</bpmn:incoming>
+      <bpmn:outgoing>Flow_1dp9rgt</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ewyqq1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1dp9rgt" sourceRef="Gateway_15t7pkv" targetRef="EndEvent_Registration">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1ewyqq1" sourceRef="Gateway_15t7pkv" targetRef="CallActivity_CorrespondentInput" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR2_REGISTRATION">
       <bpmndi:BPMNEdge id="Flow_17ddm3l_di" bpmnElement="Flow_17ddm3l">
-        <di:waypoint x="215" y="97" />
-        <di:waypoint x="412" y="97" />
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="179" y="79" width="36" height="36" />
+      <bpmndi:BPMNEdge id="Flow_17czlpm_di" bpmnElement="Flow_17czlpm">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="425" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dp9rgt_di" bpmnElement="Flow_1dp9rgt">
+        <di:waypoint x="475" y="177" />
+        <di:waypoint x="532" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ewyqq1_di" bpmnElement="Flow_1ewyqq1">
+        <di:waypoint x="450" y="152" />
+        <di:waypoint x="450" y="80" />
+        <di:waypoint x="320" y="80" />
+        <di:waypoint x="320" y="137" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Registration">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0fcuasc_di" bpmnElement="Event_0fcuasc">
-        <dc:Bounds x="412" y="79" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_1b4n9mh_di" bpmnElement="CallActivity_CorrespondentInput">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0fcuasc_di" bpmnElement="EndEvent_Registration">
+        <dc:Bounds x="532" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_15t7pkv_di" bpmnElement="Gateway_15t7pkv" isMarkerVisible="true">
+        <dc:Bounds x="425" y="152" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
