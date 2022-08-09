@@ -121,59 +121,23 @@ public class POGR_REGISTRATION {
     }
 
     @Test
-    public void testSwapBetweenBusinessAreas() {
-        when(processScenario.waitsAtUserTask("Screen_BusinessAreaSelect"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "GRO")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
-
-        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
-                .thenReturn("DIRECTION", "BACKWARD", "BusinessArea", "GRO")
-                .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "HMPO")
-                .deploy(rule);
-
-        when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
-
-        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")));
-
-        Scenario.run(processScenario)
-                .startByKey("POGR_REGISTRATION")
-                .execute();
-
-        verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
-        verify(processScenario, times(2)).hasCompleted("Screen_BusinessAreaSelect");
-        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
-        verify(processScenario).hasCompleted("Screen_Hmpo_DataInput");
-        verify(processScenario).hasCompleted("Screen_SendInterimLetter");
-        verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
-
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("10"));
-    }
-
-    @Test
     public void testBackwardAfterDataInputSubmission() {
         when(processScenario.waitsAtUserTask("Screen_BusinessAreaSelect"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
         whenAtCallActivity("COMPLAINT_CORRESPONDENT")
                 .thenReturn("DIRECTION", "FORWARD","BusinessArea", "HMPO")
-                .thenReturn("DIRECTION", "BACKWARD","BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")
-                .thenReturn("DIRECTION", "FORWARD","BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")
+                .thenReturn("DIRECTION", "FORWARD","BusinessArea", "HMPO")
                 .deploy(rule);
 
         when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")));
-
-        when(processScenario.waitsAtUserTask("Screen_BusinessAreaSelectPostDataInput"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
         when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR_REGISTRATION")
@@ -182,10 +146,9 @@ public class POGR_REGISTRATION {
         verify(processScenario).hasCompleted("StartEvent_BusinessSelect");
         verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
         verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
-        verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario, times(2)).hasCompleted("Screen_SendInterimLetter");
-        verify(processScenario).hasCompleted("Screen_BusinessAreaSelectPostDataInput");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
         verify(bpmnService, times(2)).updateDeadlineDays(any(), any(), eq("10"));
