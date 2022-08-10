@@ -238,7 +238,6 @@ public class BF_TRIAGE {
                         VALID, true,
                         "BFTriageResult", "Draft",
                         PAYMENT_TYPE_CONSOLATORY, YES,
-                        PAYMENT_TYPE_EXGRATIA, NO,
                         PAYMENT_REQUESTED, NO
                 )));
 
@@ -263,7 +262,6 @@ public class BF_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables(
                         VALID, true,
                         "BFTriageResult", "Draft",
-                        PAYMENT_TYPE_CONSOLATORY, NO,
                         PAYMENT_TYPE_EXGRATIA, YES,
                         PAYMENT_REQUESTED, NO
                 )));
