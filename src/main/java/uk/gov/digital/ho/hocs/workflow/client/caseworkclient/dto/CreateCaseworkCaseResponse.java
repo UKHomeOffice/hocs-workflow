@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -17,5 +18,8 @@ public class CreateCaseworkCaseResponse {
 
     @JsonProperty("reference")
     private String reference;
+
+    @JsonProperty("data")
+    private Map<String, String> data;
 
 }
