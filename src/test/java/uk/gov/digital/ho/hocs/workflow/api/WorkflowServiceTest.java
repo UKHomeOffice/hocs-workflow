@@ -360,7 +360,6 @@ public class WorkflowServiceTest {
 
 
         when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
-        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(new StageDto(UUID.randomUUID(), "RANDOM_STAGE", UUID.randomUUID())));
 
         CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID, null, receivedData);
         assertThat(output.getUuid()).isNotNull();
