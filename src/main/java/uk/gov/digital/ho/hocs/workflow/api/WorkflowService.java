@@ -81,49 +81,29 @@ public class WorkflowService {
 
     public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
+        Map<String, String> seedData = new HashMap<>(receivedData);
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
-        Map<String, String> caseData = new HashMap<>();
-        caseData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
-        caseData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+        if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)
+                && receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
+            seedData = new HashMap<>();
+            correspondentRequest = buildCorrespondentRequest(receivedData);
 
-        if (receivedData != null) {
-            // If FOI and we have a name we have correspondent details attached to the case creation reques
-            if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)
-                    && receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
-                correspondentRequest = buildCorrespondentRequest(receivedData);
-
-                caseData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
-                caseData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
-                caseData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
-                caseData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
-            } else if (isCreationForCompWebformCase(caseDataType, receivedData)) {
-                caseData.putAll(receivedData);
-            }
+            seedData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
+            seedData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
+            seedData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
+            seedData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
         }
 
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, caseData, dateReceived, fromCaseUUID);
+        seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
+        seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
+
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, seedData, dateReceived, fromCaseUUID);
+        seedData.putAll(caseResponse.getData());
         UUID caseUUID = caseResponse.getUuid();
 
         if (caseUUID != null) {
-            // Add Documents to the case
-            createDocument(caseUUID, null, documents);
-
-            // Start a new camunda workflow (caseUUID is the business key).
-            Map<String, String> seedData = new HashMap<>();
-            if (receivedData != null) {
-                if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)) {
-                    seedData.put(WorkflowConstants.KIMU_DATE_RECEIVED, receivedData.get(WorkflowConstants.KIMU_DATE_RECEIVED));
-                    seedData.put(WorkflowConstants.TOPICS, receivedData.get(WorkflowConstants.TOPICS));
-                    seedData.put(WorkflowConstants.REQUEST_QUESTION, receivedData.get(WorkflowConstants.REQUEST_QUESTION));
-                    seedData.put(WorkflowConstants.ORIGINAL_CHANNEL, receivedData.get(WorkflowConstants.ORIGINAL_CHANNEL));
-                } else if (isCreationForCompWebformCase(caseDataType, receivedData)) {
-                    seedData.putAll(receivedData);
-                }
-            }
             seedData.put(WorkflowConstants.CASE_REFERENCE, caseResponse.getReference());
-            seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
-            seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
             camundaClient.startCase(caseUUID, caseDataType, seedData);
             //Create correspondent
@@ -133,6 +113,8 @@ public class WorkflowService {
                 caseworkClient.saveCorrespondent(caseUUID, stageUUID, correspondentRequest);
             }
 
+            // Add Documents to the case
+            createDocument(caseUUID, null, documents);
         } else {
             log.error("Failed to start case, invalid caseUUID!, event: {}", value(EVENT, CASE_STARTED_FAILURE));
             throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);

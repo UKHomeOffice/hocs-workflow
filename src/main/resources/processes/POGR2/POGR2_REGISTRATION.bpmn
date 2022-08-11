@@ -7,7 +7,7 @@
     <bpmn:endEvent id="EndEvent_Registration">
       <bpmn:incoming>Flow_1dp9rgt</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_17ddm3l" sourceRef="StartEvent_Registration" targetRef="CallActivity_CorrespondentInput" />
+    <bpmn:sequenceFlow id="Flow_17ddm3l" sourceRef="StartEvent_Registration" targetRef="Gateway_0lsdwh4" />
     <bpmn:callActivity id="CallActivity_CorrespondentInput" name="Correspondent Input" calledElement="COMPLAINT_CORRESPONDENT">
       <bpmn:extensionElements>
         <camunda:out source="DIRECTION" target="DIRECTION" />
@@ -16,8 +16,9 @@
         <camunda:in sourceExpression="POGR_CORRESPONDENT_INPUT" target="CORRESPONDENT_INPUT_SCREEN" local="true" />
         <camunda:in businessKey="#{execution.processBusinessKey}" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_17ddm3l</bpmn:incoming>
       <bpmn:incoming>Flow_1ewyqq1</bpmn:incoming>
+      <bpmn:incoming>Flow_0ibcf36</bpmn:incoming>
+      <bpmn:incoming>Flow_031lyvl</bpmn:incoming>
       <bpmn:outgoing>Flow_17czlpm</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_17czlpm" sourceRef="CallActivity_CorrespondentInput" targetRef="Gateway_15t7pkv" />
@@ -30,38 +31,77 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1ewyqq1" sourceRef="Gateway_15t7pkv" targetRef="CallActivity_CorrespondentInput" />
+    <bpmn:exclusiveGateway id="Gateway_0lsdwh4" default="Flow_0ibcf36">
+      <bpmn:incoming>Flow_17ddm3l</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ibcf36</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0qcvooo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0ibcf36" sourceRef="Gateway_0lsdwh4" targetRef="CallActivity_CorrespondentInput" />
+    <bpmn:serviceTask id="Service_UpdateCaseDeadline" name="Update Case Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, execution.getVariable(&#34;DeadlineDays&#34;))}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="DeadlineDays">${ ComplaintPriority == "Yes" ? 1 : (ComplaintChannel == 'Post' ? 10 : 5) }</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0qcvooo</bpmn:incoming>
+      <bpmn:outgoing>Flow_031lyvl</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0qcvooo" sourceRef="Gateway_0lsdwh4" targetRef="Service_UpdateCaseDeadline">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ BusinessArea == "GRO" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_031lyvl" sourceRef="Service_UpdateCaseDeadline" targetRef="CallActivity_CorrespondentInput" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR2_REGISTRATION">
-      <bpmndi:BPMNEdge id="Flow_17ddm3l_di" bpmnElement="Flow_17ddm3l">
-        <di:waypoint x="215" y="177" />
-        <di:waypoint x="270" y="177" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17czlpm_di" bpmnElement="Flow_17czlpm">
-        <di:waypoint x="370" y="177" />
-        <di:waypoint x="425" y="177" />
+      <bpmndi:BPMNEdge id="Flow_1ewyqq1_di" bpmnElement="Flow_1ewyqq1">
+        <di:waypoint x="640" y="152" />
+        <di:waypoint x="640" y="80" />
+        <di:waypoint x="510" y="80" />
+        <di:waypoint x="510" y="137" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1dp9rgt_di" bpmnElement="Flow_1dp9rgt">
-        <di:waypoint x="475" y="177" />
-        <di:waypoint x="532" y="177" />
+        <di:waypoint x="665" y="177" />
+        <di:waypoint x="722" y="177" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ewyqq1_di" bpmnElement="Flow_1ewyqq1">
-        <di:waypoint x="450" y="152" />
-        <di:waypoint x="450" y="80" />
-        <di:waypoint x="320" y="80" />
-        <di:waypoint x="320" y="137" />
+      <bpmndi:BPMNEdge id="Flow_17czlpm_di" bpmnElement="Flow_17czlpm">
+        <di:waypoint x="560" y="177" />
+        <di:waypoint x="615" y="177" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Registration">
-        <dc:Bounds x="179" y="159" width="36" height="36" />
+      <bpmndi:BPMNEdge id="Flow_17ddm3l_di" bpmnElement="Flow_17ddm3l">
+        <di:waypoint x="188" y="177" />
+        <di:waypoint x="235" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ibcf36_di" bpmnElement="Flow_0ibcf36">
+        <di:waypoint x="285" y="177" />
+        <di:waypoint x="460" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qcvooo_di" bpmnElement="Flow_0qcvooo">
+        <di:waypoint x="260" y="152" />
+        <di:waypoint x="260" y="80" />
+        <di:waypoint x="330" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_031lyvl_di" bpmnElement="Flow_031lyvl">
+        <di:waypoint x="430" y="80" />
+        <di:waypoint x="510" y="80" />
+        <di:waypoint x="510" y="137" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0fcuasc_di" bpmnElement="EndEvent_Registration">
+        <dc:Bounds x="722" y="159" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1b4n9mh_di" bpmnElement="CallActivity_CorrespondentInput">
-        <dc:Bounds x="270" y="137" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0fcuasc_di" bpmnElement="EndEvent_Registration">
-        <dc:Bounds x="532" y="159" width="36" height="36" />
+        <dc:Bounds x="460" y="137" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_15t7pkv_di" bpmnElement="Gateway_15t7pkv" isMarkerVisible="true">
-        <dc:Bounds x="425" y="152" width="50" height="50" />
+        <dc:Bounds x="615" y="152" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Registration">
+        <dc:Bounds x="152" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_001nhlo_di" bpmnElement="Service_UpdateCaseDeadline">
+        <dc:Bounds x="330" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0lsdwh4_di" bpmnElement="Gateway_0lsdwh4" isMarkerVisible="true">
+        <dc:Bounds x="235" y="152" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

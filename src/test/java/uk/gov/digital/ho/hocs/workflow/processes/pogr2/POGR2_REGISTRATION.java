@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
-
+import java.util.Map;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -54,10 +54,11 @@ public class POGR2_REGISTRATION {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("POGR2_REGISTRATION")
+                .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "HMPO"))
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
+        verify(bpmnService, times(0)).updateDeadlineDays(any(), any(), any());
         verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
@@ -70,11 +71,38 @@ public class POGR2_REGISTRATION {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("POGR2_REGISTRATION")
+                .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "No"))
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
         verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
+        verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("5"));
         verify(processScenario).hasCompleted("EndEvent_Registration");
+    }
+
+    @Test
+    public void testDeadlineSetToTenDaysForGroPostChannel() {
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO","ComplaintChannel", "Post", "ComplaintPriority", "No"))
+                .execute();
+
+        verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("10"));
+    }
+
+    @Test
+    public void testDeadlineSetToOneDayForGroPriority() {
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "Yes"))
+                .execute();
+
+        verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("1"));
     }
 }

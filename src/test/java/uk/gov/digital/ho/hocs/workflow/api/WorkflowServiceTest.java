@@ -66,8 +66,9 @@ public class WorkflowServiceTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> caseDateArgumentCaptor;
+
     @Captor
-    ArgumentCaptor<Map<String, String>> seedDateArgumentCaptor;
+    ArgumentCaptor<Map<String, String>> seedDataArgumentCaptor;
 
     @Spy
     @InjectMocks
@@ -151,7 +152,7 @@ public class WorkflowServiceTest {
         List<DocumentSummary> documents =  new ArrayList<>();
         UUID userUUID = UUID.randomUUID();
         Map<String, String> receivedData = new HashMap<>();
-        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(UUID.randomUUID(), null);
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(UUID.randomUUID(), null, Map.of());
 
         when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
 
@@ -171,17 +172,17 @@ public class WorkflowServiceTest {
                 WorkflowConstants.CHANNEL, WorkflowConstants.CHANNEL_COMP_WEBFORM,
                 WorkflowConstants.CHANNEL_COMP_ORIGINATEDFROM, WorkflowConstants.CHANNEL_COMP_WEBFORM
                 );
-        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(UUID.randomUUID(), null);
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(UUID.randomUUID(), null, Map.of());
 
         when(caseworkClient.createCase(any(), caseDateArgumentCaptor.capture(), any(), any())).thenReturn(createCaseworkCaseResponse);
 
         CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID,null, receivedData);
         assertThat(output.getUuid()).isNotNull();
-        verify(camundaClient, times(1)).startCase(any(), any(), seedDateArgumentCaptor.capture());
+        verify(camundaClient, times(1)).startCase(any(), any(), seedDataArgumentCaptor.capture());
         verify(caseworkClient, times(0)).saveCorrespondent(any(), any(), any());
         
-        assertThat(seedDateArgumentCaptor.getValue()).containsAllEntriesOf(receivedData);
-        assertThat(seedDateArgumentCaptor.getValue()).containsAllEntriesOf(receivedData);
+        assertThat(seedDataArgumentCaptor.getValue()).containsAllEntriesOf(receivedData);
+        assertThat(seedDataArgumentCaptor.getValue()).containsAllEntriesOf(receivedData);
     }
 
     @Test
@@ -220,7 +221,7 @@ public class WorkflowServiceTest {
         receivedData.put("Email", expectedEmail);
         receivedData.put("Country", expectedCountry);
         receivedData.put("Reference", expectedReference);
-        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null);
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null, Map.of());
 
         when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
         when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(new StageDto(UUID.randomUUID(), "RANDOM_STAGE",UUID.randomUUID())));
@@ -263,7 +264,7 @@ public class WorkflowServiceTest {
         receivedData.put("Email", expectedEmail);
         receivedData.put("Country", expectedCountry);
         receivedData.put("Reference", expectedReference);
-        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null);
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null, Map.of());
 
 
         when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
@@ -315,7 +316,7 @@ public class WorkflowServiceTest {
         receivedData.put("Email", expectedEmail);
         receivedData.put("Country", expectedCountry);
         receivedData.put("Reference", expectedReference);
-        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null);
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null, Map.of());
 
 
         when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
@@ -336,6 +337,36 @@ public class WorkflowServiceTest {
         assertThat(argumentCaptor.getValue().getCountry()).isEqualTo(expectedCountry);
         assertThat(argumentCaptor.getValue().getReference()).isEqualTo(expectedReference);
         caseworkClient.getCorrespondentsForCase(caseUUID);
+    }
+
+    @Test
+    public void createCase_withCaseData() {
+
+        String data1 = "data1";
+        String data2 = "data2";
+
+        String caseDataType = "CASE";
+        LocalDate dateReceived = LocalDate.EPOCH;
+        List<DocumentSummary> documents =  new ArrayList<>();
+        UUID userUUID = UUID.randomUUID();
+        UUID caseUUID = UUID.randomUUID();
+        Map<String, String> receivedData = new HashMap<>();
+        Map<String, String> caseData = Map.of(
+                "data1", data1,
+                "data2", data2
+        );
+
+        CreateCaseworkCaseResponse createCaseworkCaseResponse = new CreateCaseworkCaseResponse(caseUUID, null, caseData);
+
+
+        when(caseworkClient.createCase(any(), any(), any(), any())).thenReturn(createCaseworkCaseResponse);
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(new StageDto(UUID.randomUUID(), "RANDOM_STAGE", UUID.randomUUID())));
+
+        CreateCaseResponse output = workflowService.createCase(caseDataType, dateReceived, documents, userUUID, null, receivedData);
+        assertThat(output.getUuid()).isNotNull();
+        verify(camundaClient, times(1)).startCase(any(), any(), seedDataArgumentCaptor.capture());
+        assertThat(seedDataArgumentCaptor.getValue().get("data1")).isEqualTo(data1);
+        assertThat(seedDataArgumentCaptor.getValue().get("data2")).isEqualTo(data2);
     }
 
     @Test
