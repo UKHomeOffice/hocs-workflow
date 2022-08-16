@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1tdwq6o" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1tdwq6o" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="TO_TRIAGE" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_0kz1sg6</bpmn:outgoing>
@@ -12,7 +12,6 @@
     <bpmn:sequenceFlow id="Flow_0zdp6uz" sourceRef="TO_TRIAGE_INPUT" targetRef="Gateway_0s7u97z" />
     <bpmn:userTask id="TO_TRIAGE_INPUT" name="Triage Input" camunda:formKey="TO_TRIAGE_INPUT">
       <bpmn:incoming>Flow_0kz1sg6</bpmn:incoming>
-      <bpmn:incoming>Flow_1j79bjh</bpmn:incoming>
       <bpmn:incoming>Flow_0ntzqf5</bpmn:incoming>
       <bpmn:incoming>Flow_14zjslb</bpmn:incoming>
       <bpmn:incoming>Flow_0peimap</bpmn:incoming>
@@ -22,17 +21,12 @@
     <bpmn:exclusiveGateway id="Gateway_0s7u97z" name="Direction?" default="Flow_1mnjs4r">
       <bpmn:incoming>Flow_0zdp6uz</bpmn:incoming>
       <bpmn:outgoing>Flow_1mnjs4r</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0wcnp7k</bpmn:outgoing>
       <bpmn:outgoing>Flow_09rav8l</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1mnjs4r" sourceRef="Gateway_0s7u97z" targetRef="Gateway_079x9ii" />
-    <bpmn:sequenceFlow id="Flow_0wcnp7k" name="SetEnquiry" sourceRef="Gateway_0s7u97z" targetRef="TO_ENQUIRY_SUBJECT_REASON">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "SetEnquiry" }</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_09rav8l" name="ChangeBusArea" sourceRef="Gateway_0s7u97z" targetRef="TO_CHANGE_BUSINESS_AREA">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "ChangeBusinessArea" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1j79bjh" sourceRef="TO_ENQUIRY_SUBJECT_REASON" targetRef="TO_TRIAGE_INPUT" />
     <bpmn:serviceTask id="Activity_0y2w7dl" name="Update Business Area Status: Confirmed" camunda:expression="${bpmnService.updateValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;BusAreaStatus&#34;, &#34;Confirmed&#34;)}">
       <bpmn:incoming>Flow_00jy4fp</bpmn:incoming>
       <bpmn:incoming>Flow_07sgk52</bpmn:incoming>
@@ -41,14 +35,6 @@
       <bpmn:outgoing>Flow_0r7vqzv</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0r7vqzv" sourceRef="Activity_0y2w7dl" targetRef="Event_1hc57ub" />
-    <bpmn:callActivity id="TO_ENQUIRY_SUBJECT_REASON" name="Set Enquiry Subject &#38; Reason" calledElement="TO_ENQUIRY_SUBJECT_REASON">
-      <bpmn:extensionElements>
-        <camunda:in source="CaseUUID" target="CaseUUID" />
-        <camunda:in businessKey="#{execution.processBusinessKey}" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0wcnp7k</bpmn:incoming>
-      <bpmn:outgoing>Flow_1j79bjh</bpmn:outgoing>
-    </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_0ntzqf5" name="Save" sourceRef="Gateway_079x9ii" targetRef="TO_TRIAGE_INPUT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ TriageOutcome == "Save" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -257,26 +243,12 @@
         <di:waypoint x="1580" y="437" />
         <di:waypoint x="1622" y="437" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1j79bjh_di" bpmnElement="Flow_1j79bjh">
-        <di:waypoint x="430" y="690" />
-        <di:waypoint x="290" y="690" />
-        <di:waypoint x="290" y="437" />
-        <di:waypoint x="340" y="437" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_09rav8l_di" bpmnElement="Flow_09rav8l">
         <di:waypoint x="663" y="449" />
         <di:waypoint x="820" y="600" />
         <di:waypoint x="820" y="650" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="769" y="533" width="81" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0wcnp7k_di" bpmnElement="Flow_0wcnp7k">
-        <di:waypoint x="637" y="449" />
-        <di:waypoint x="480" y="600" />
-        <di:waypoint x="480" y="650" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="493" y="516" width="54" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mnjs4r_di" bpmnElement="Flow_1mnjs4r">
@@ -314,9 +286,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0y2w7dl_di" bpmnElement="Activity_0y2w7dl">
         <dc:Bounds x="1480" y="397" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_12sc3gh_di" bpmnElement="TO_ENQUIRY_SUBJECT_REASON">
-        <dc:Bounds x="430" y="650" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_079x9ii_di" bpmnElement="Gateway_079x9ii" isMarkerVisible="true">
         <dc:Bounds x="815" y="412" width="50" height="50" />
