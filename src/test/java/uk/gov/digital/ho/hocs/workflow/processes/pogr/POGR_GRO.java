@@ -48,9 +48,9 @@ public class POGR_GRO {
 
     @Test
     public void testHappyPath() {
-        whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "", "CloseCaseTriage", "false")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_GRO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "", "CloseCaseInvestigation", "false")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
@@ -70,15 +70,15 @@ public class POGR_GRO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroInvestigation");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_Gro");
     }
 
     @Test
-    public void testTriageCloseCase() {
-        whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("CloseCaseTriage", "true")
+    public void testInvestigationCloseCase() {
+        whenAtCallActivity("POGR_GRO_INVESTIGATION")
+                .thenReturn("CloseCaseInvestigation", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -86,15 +86,15 @@ public class POGR_GRO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
-        verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
-        verify(processScenario).hasCompleted("EndEvent_GroTriageEnd");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroInvestigation");
+        verify(processScenario).hasCompleted("EndEvent_GroInvestigationEnd");
     }
 
     @Test
-    public void testDraftReturnTriage() {
-        whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+    public void testDraftReturnInvestigation() {
+        whenAtCallActivity("POGR_GRO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
@@ -111,15 +111,15 @@ public class POGR_GRO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroInvestigation");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_Gro");
     }
 
     @Test
     public void testDraftCloseCase() {
-        whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_GRO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
@@ -131,15 +131,15 @@ public class POGR_GRO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
-        verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroInvestigation");
         verify(processScenario).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_GroDraftEnd");
     }
 
     @Test
     public void testQaReject() {
-        whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_GRO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
@@ -159,15 +159,15 @@ public class POGR_GRO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
-        verify(processScenario).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroInvestigation");
         verify(processScenario).hasCompleted("CallActivity_PogrGroQa");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
     }
 
     @Test
     public void testQaBypassStraightToDispatch() {
-        whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_GRO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
@@ -186,21 +186,21 @@ public class POGR_GRO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroInvestigation");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDispatch");
         verify(processScenario).hasCompleted("EndEvent_Gro");
     }
 
     @Test
-    public void testTriageEscalate() {
-        whenAtCallActivity("POGR_GRO_TRIAGE")
+    public void testInvestigationEscalate() {
+        whenAtCallActivity("POGR_GRO_INVESTIGATION")
                 .thenReturn("InvestigationOutcome", "Escalate")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_ESCALATE")
-                .thenReturn("EscalationOutcome", "Triage")
+                .thenReturn("EscalationOutcome", "Investigation")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
@@ -219,7 +219,7 @@ public class POGR_GRO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroInvestigation");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroEscalate");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_Gro");
@@ -227,8 +227,8 @@ public class POGR_GRO {
 
     @Test
     public void testDraftEscalate() {
-        whenAtCallActivity("POGR_GRO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_GRO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_ESCALATE")
@@ -252,7 +252,7 @@ public class POGR_GRO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroInvestigation");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroEscalate");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_Gro");
