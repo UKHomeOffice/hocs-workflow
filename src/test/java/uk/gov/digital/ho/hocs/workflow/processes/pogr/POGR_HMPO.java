@@ -51,9 +51,9 @@ public class POGR_HMPO {
 
     @Test
     public void testHappyPath() {
-        whenAtCallActivity("POGR_HMPO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "", "CloseCaseTriage", "false")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_HMPO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "", "CloseCaseInvestigation", "false")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_DRAFT")
@@ -73,15 +73,15 @@ public class POGR_HMPO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoInvestigation");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("EndEvent_Hmpo");
     }
 
     @Test
-    public void testTriageCloseCase() {
-        whenAtCallActivity("POGR_HMPO_TRIAGE")
-                .thenReturn("CloseCaseTriage", "true")
+    public void testInvestigationCloseCase() {
+        whenAtCallActivity("POGR_HMPO_INVESTIGATION")
+                .thenReturn("CloseCaseInvestigation", "true")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -89,15 +89,15 @@ public class POGR_HMPO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
-        verify(processScenario).hasCompleted("CallActivity_PogrHmpoTriage");
-        verify(processScenario).hasCompleted("EndEvent_HmpoTriageEnd");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoInvestigation");
+        verify(processScenario).hasCompleted("EndEvent_HmpoInvestigationEnd");
     }
 
     @Test
-    public void testDraftReturnTriage() {
-        whenAtCallActivity("POGR_HMPO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+    public void testDraftReturnInvestigation() {
+        whenAtCallActivity("POGR_HMPO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_DRAFT")
@@ -114,15 +114,15 @@ public class POGR_HMPO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoInvestigation");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("EndEvent_Hmpo");
     }
 
     @Test
     public void testDraftCloseCase() {
-        whenAtCallActivity("POGR_HMPO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_HMPO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_DRAFT")
@@ -134,15 +134,15 @@ public class POGR_HMPO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
-        verify(processScenario).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoInvestigation");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("EndEvent_HmpoDraftEnd");
     }
 
     @Test
     public void testQaReject() {
-        whenAtCallActivity("POGR_HMPO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_HMPO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_DRAFT")
@@ -162,15 +162,15 @@ public class POGR_HMPO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
-        verify(processScenario).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoInvestigation");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoQa");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
     }
 
     @Test
     public void testQaBypassStraightToDispatch() {
-        whenAtCallActivity("POGR_HMPO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_HMPO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_DRAFT")
@@ -190,21 +190,21 @@ public class POGR_HMPO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoInvestigation");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoQa");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoDispatch");
     }
 
     @Test
-    public void testTriageEscalate() {
-        whenAtCallActivity("POGR_HMPO_TRIAGE")
+    public void testInvestigationEscalate() {
+        whenAtCallActivity("POGR_HMPO_INVESTIGATION")
                 .thenReturn("InvestigationOutcome", "Escalate")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_ESCALATE")
-                .thenReturn("EscalationOutcome", "Triage")
+                .thenReturn("EscalationOutcome", "Investigation")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_DRAFT")
@@ -223,7 +223,7 @@ public class POGR_HMPO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoInvestigation");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoEscalate");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("EndEvent_Hmpo");
@@ -231,8 +231,8 @@ public class POGR_HMPO {
 
     @Test
     public void testDraftEscalate() {
-        whenAtCallActivity("POGR_HMPO_TRIAGE")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseTriage", "false")
+        whenAtCallActivity("POGR_HMPO_INVESTIGATION")
+                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_ESCALATE")
@@ -256,7 +256,7 @@ public class POGR_HMPO {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoTriage");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoInvestigation");
         verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoEscalate");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("EndEvent_Hmpo");
