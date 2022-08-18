@@ -81,7 +81,7 @@ public class POGR_HMPO {
     @Test
     public void testInvestigationCloseCase() {
         whenAtCallActivity("POGR_HMPO_INVESTIGATION")
-                .thenReturn("CloseCaseInvestigation", "true")
+                .thenReturn("CloseCase", Boolean.toString(true))
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -122,11 +122,11 @@ public class POGR_HMPO {
     @Test
     public void testDraftCloseCase() {
         whenAtCallActivity("POGR_HMPO_INVESTIGATION")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
+                .thenReturn("InvestigationOutcome", "Draft")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_DRAFT")
-                .thenReturn("CloseCaseDraft", "true")
+                .thenReturn("CloseCase", Boolean.toString(true))
                 .deploy(rule);
 
         Scenario.run(processScenario)

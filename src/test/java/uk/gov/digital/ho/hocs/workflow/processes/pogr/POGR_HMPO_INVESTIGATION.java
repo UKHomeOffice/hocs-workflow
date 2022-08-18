@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -108,6 +109,29 @@ public class POGR_HMPO_INVESTIGATION {
         verify(processScenario).hasCompleted("EndEvent_POGR_HMPO_INVESTIGATION");
 
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Test"), eq("SEND_TO_WORKFLOW_MANAGER"));
+    }
+
+    @Test
+    public void testCloseCase() {
+        when(processScenario.waitsAtUserTask("Screen_InvestigationAcceptCase"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "InvestigationAccept", "Accept")));
+
+        when(processScenario.waitsAtUserTask("Screen_Investigation"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","InvestigationOutcome", "Complete")));
+
+        whenAtCallActivity("POGR_CLOSE_CASE")
+                .thenReturn("CloseCase", Boolean.toString(false))
+                .thenReturn("CloseCase", Boolean.toString(true))
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_HMPO_INVESTIGATION")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_POGR_HMPO_INVESTIGATION");
+        verify(processScenario, times(2)).hasCompleted("Screen_Investigation");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_InvestigationCloseCase");
+        verify(processScenario).hasCompleted("EndEvent_POGR_HMPO_INVESTIGATION");
     }
 
 }

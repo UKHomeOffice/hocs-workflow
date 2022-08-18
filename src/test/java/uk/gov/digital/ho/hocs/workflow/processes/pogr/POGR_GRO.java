@@ -78,7 +78,7 @@ public class POGR_GRO {
     @Test
     public void testInvestigationCloseCase() {
         whenAtCallActivity("POGR_GRO_INVESTIGATION")
-                .thenReturn("CloseCaseInvestigation", "true")
+                .thenReturn("CloseCase", Boolean.toString(true))
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -119,11 +119,11 @@ public class POGR_GRO {
     @Test
     public void testDraftCloseCase() {
         whenAtCallActivity("POGR_GRO_INVESTIGATION")
-                .thenReturn("InvestigationOutcome", "Draft", "CloseCaseInvestigation", "false")
+                .thenReturn("InvestigationOutcome", "Draft")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DRAFT")
-                .thenReturn("CloseCaseDraft", "true")
+                .thenReturn("CloseCase", Boolean.toString(true))
                 .deploy(rule);
 
         Scenario.run(processScenario)
