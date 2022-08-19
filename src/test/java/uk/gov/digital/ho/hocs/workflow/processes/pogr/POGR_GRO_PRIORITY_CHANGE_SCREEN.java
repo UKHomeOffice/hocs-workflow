@@ -82,7 +82,7 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
     @Test
     public void testChangedPriorityNoPath() {
         when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "", "ChangedPriority", "true")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", "Yes"))
@@ -99,7 +99,7 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
     @Test
     public void testChangedPriorityYesPath() {
         when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "Yes", "ChangedPriority", "true")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "Yes")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", ""))
@@ -111,5 +111,56 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
         verify(processScenario).hasCompleted("EndEvent_0");
 
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("1"));
+    }
+
+    @Test
+    public void testChangedChannelPostPath() {
+        when(processScenario.waitsAtUserTask("Screen"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintChannel", "Post")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintChannel", ""))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_0");
+        verify(processScenario).hasCompleted("Screen");
+        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario).hasCompleted("EndEvent_0");
+
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("10"));
+    }
+
+    @Test
+    public void testChangedChannelOtherPath() {
+        when(processScenario.waitsAtUserTask("Screen"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintChannel", "Other")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintChannel", ""))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_0");
+        verify(processScenario).hasCompleted("Screen");
+        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario).hasCompleted("EndEvent_0");
+
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
+    }
+
+    @Test
+    public void testNoChange() {
+        when(processScenario.waitsAtUserTask("Screen"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "Yes", "ComplaintChannel", "Post")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", "Yes", "ComplaintChannel", "Post"))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_0");
+        verify(processScenario).hasCompleted("Screen");
+        verify(processScenario, times(0)).hasCompleted("Service_UpdateCaseDeadline");
+        verify(processScenario).hasCompleted("EndEvent_0");
+
+        verify(bpmnService, times(0)).updateDeadlineDays(any(), any(), any());
     }
 }
