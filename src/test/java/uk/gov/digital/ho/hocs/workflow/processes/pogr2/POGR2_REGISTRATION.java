@@ -64,7 +64,6 @@ public class POGR2_REGISTRATION {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
-        verify(bpmnService, times(0)).updateDeadlineDays(any(), any(), any());
         verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario).hasCompleted("EndEvent_Registration");
@@ -75,6 +74,13 @@ public class POGR2_REGISTRATION {
         whenAtCallActivity("COMPLAINT_CORRESPONDENT")
                 .thenReturn("DIRECTION", "BACKWARD")
                 .thenReturn("DIRECTION", "FORWARD")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DIRECTION", "")
+                .thenReturn("DIRECTION", "BACKWARD")
+                .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -82,14 +88,20 @@ public class POGR2_REGISTRATION {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
-        verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("5"));
+        verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
+        verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_Gro_DataInput");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
 
     @Test
     public void testDeadlineSetToTenDaysForGroPostChannel() {
         whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
                 .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
 
@@ -103,6 +115,10 @@ public class POGR2_REGISTRATION {
     @Test
     public void testDeadlineSetToOneDayForGroPriority() {
         whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
                 .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
 
