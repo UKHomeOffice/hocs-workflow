@@ -52,6 +52,7 @@ public class POGR_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
         when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "", "BusinessArea", "HMPO")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO", "XPogrPostDataInput", "TRUE")));
 
@@ -72,7 +73,7 @@ public class POGR_REGISTRATION {
         verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
         verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
         verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
-        verify(processScenario, times(3)).hasCompleted("Screen_Hmpo_DataInput");
+        verify(processScenario, times(4)).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario, times(2)).hasCompleted("Screen_SendInterimLetter");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
 
@@ -98,6 +99,7 @@ public class POGR_REGISTRATION {
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DIRECTION", "", "BusinessArea", "GRO", "ComplaintPriority", "", "ComplaintChannel", "")
                 .thenReturn("DIRECTION", "BACKWARD", "BusinessArea", "GRO", "ComplaintPriority", "", "ComplaintChannel", "")
                 .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE", "ComplaintPriority", "", "ComplaintChannel", "Email")
                 .thenReturn("DIRECTION", "FORWARD", "BusinessArea", "GRO", "XPogrPostDataInput", "TRUE", "ComplaintPriority", "", "ComplaintChannel", "Email")
@@ -111,7 +113,7 @@ public class POGR_REGISTRATION {
         verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
         verify(processScenario, times(2)).hasCompleted("Service_UpdateCaseDeadline");
         verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
-        verify(processScenario, times(3)).hasCompleted("CallActivity_Gro_DataInput");
+        verify(processScenario, times(4)).hasCompleted("CallActivity_Gro_DataInput");
         verify(processScenario, times(3)).hasCompleted("Screen_SendInterimLetter");
         verify(processScenario, times(2)).hasCompleted("Screen_GroAllocateTeam");
         verify(processScenario).hasCompleted("Service_SetGroTriageTeam");

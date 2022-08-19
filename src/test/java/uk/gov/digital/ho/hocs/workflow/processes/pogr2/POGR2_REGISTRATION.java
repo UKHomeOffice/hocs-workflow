@@ -49,9 +49,15 @@ public class POGR2_REGISTRATION {
     @Test
     public void testHmpoHappyPath() {
         whenAtCallActivity("COMPLAINT_CORRESPONDENT")
-                .thenReturn("DIRECTION", "BACKWARD")
+                .thenReturn("DIRECTION", "")
+                .thenReturn("DIRECTION", "FORWARD")
                 .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
+
+        when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "", "BusinessArea", "HMPO")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "HMPO"))
@@ -59,7 +65,8 @@ public class POGR2_REGISTRATION {
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
         verify(bpmnService, times(0)).updateDeadlineDays(any(), any(), any());
-        verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
+        verify(processScenario, times(3)).hasCompleted("Screen_Hmpo_DataInput");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
 

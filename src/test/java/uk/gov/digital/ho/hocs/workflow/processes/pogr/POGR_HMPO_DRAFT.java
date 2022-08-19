@@ -167,10 +167,10 @@ public class POGR_HMPO_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "CloseCase")))
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "CloseCase")));
 
-        when(processScenario.waitsAtUserTask("UserActivity_CloseCase"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+        whenAtCallActivity("POGR_CLOSE_CASE")
+                .thenReturn("CloseCase", Boolean.toString(false))
+                .thenReturn("CloseCase", Boolean.toString(true))
+                .deploy(rule);
 
         Scenario.run(processScenario)
                 .startByKey("POGR_HMPO_DRAFT")
@@ -178,9 +178,7 @@ public class POGR_HMPO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
-        verify(processScenario, times(3)).hasCompleted("UserActivity_CloseCase");
-        verify(processScenario).hasCompleted("ServiceTask_SaveCloseNote");
-        verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("CLOSE"));
+        verify(processScenario, times(2)).hasCompleted("CallActivity_InvestigationCloseCase");
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
 
