@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_13upkgq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_13upkgq" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="POGR2" isExecutable="true">
     <bpmn:startEvent id="StartEvent_POGR2">
       <bpmn:outgoing>Flow_0c8wdx7</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:endEvent id="EndEvent_POGR2">
-      <bpmn:incoming>Flow_0vbkq83</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0c8wdx7" sourceRef="StartEvent_POGR2" targetRef="CallActivity_RegistrationStage" />
     <bpmn:callActivity id="CallActivity_RegistrationStage" name="Registration" calledElement="STAGE">
       <bpmn:extensionElements>
@@ -28,40 +25,107 @@
         <camunda:in source="BusinessArea" target="BusinessArea" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0c8wdx7</bpmn:incoming>
-      <bpmn:outgoing>Flow_0g71sdp</bpmn:outgoing>
+      <bpmn:outgoing>Flow_10bbmrb</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_0g71sdp" sourceRef="CallActivity_RegistrationStage" targetRef="ServiceTask_CompleteCase" />
+    <bpmn:endEvent id="EndEvent_POGR2" name="End Case">
+      <bpmn:incoming>Flow_0v5rzlu</bpmn:incoming>
+    </bpmn:endEvent>
     <bpmn:serviceTask id="ServiceTask_CompleteCase" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
-      <bpmn:incoming>Flow_0g71sdp</bpmn:incoming>
-      <bpmn:outgoing>Flow_0vbkq83</bpmn:outgoing>
+      <bpmn:incoming>Flow_0goula5</bpmn:incoming>
+      <bpmn:incoming>Flow_1jfz8tn</bpmn:incoming>
+      <bpmn:outgoing>Flow_0v5rzlu</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0vbkq83" sourceRef="ServiceTask_CompleteCase" targetRef="EndEvent_POGR2" />
+    <bpmn:callActivity id="CallActivity_PogrHmpo" name="HMPO" calledElement="POGR2_HMPO">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0tbzsse</bpmn:incoming>
+      <bpmn:outgoing>Flow_0goula5</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_1eiolt1">
+      <bpmn:incoming>Flow_10bbmrb</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tbzsse</bpmn:outgoing>
+      <bpmn:outgoing>Flow_05kcm78</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="CallActivity_PogrGro" name="GRO" calledElement="POGR2_GRO">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05kcm78</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jfz8tn</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_0v5rzlu" sourceRef="ServiceTask_CompleteCase" targetRef="EndEvent_POGR2" />
+    <bpmn:sequenceFlow id="Flow_0goula5" sourceRef="CallActivity_PogrHmpo" targetRef="ServiceTask_CompleteCase" />
+    <bpmn:sequenceFlow id="Flow_1jfz8tn" sourceRef="CallActivity_PogrGro" targetRef="ServiceTask_CompleteCase" />
+    <bpmn:sequenceFlow id="Flow_0tbzsse" sourceRef="Gateway_1eiolt1" targetRef="CallActivity_PogrHmpo">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("BusinessArea") == "HMPO" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_05kcm78" sourceRef="Gateway_1eiolt1" targetRef="CallActivity_PogrGro">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("BusinessArea") == "GRO" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_10bbmrb" sourceRef="CallActivity_RegistrationStage" targetRef="Gateway_1eiolt1" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR2">
-      <bpmndi:BPMNEdge id="Flow_0g71sdp_di" bpmnElement="Flow_0g71sdp">
-        <di:waypoint x="350" y="97" />
-        <di:waypoint x="390" y="97" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0c8wdx7_di" bpmnElement="Flow_0c8wdx7">
-        <di:waypoint x="188" y="97" />
-        <di:waypoint x="250" y="97" />
+        <di:waypoint x="188" y="197" />
+        <di:waypoint x="250" y="197" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0vbkq83_di" bpmnElement="Flow_0vbkq83">
-        <di:waypoint x="490" y="97" />
-        <di:waypoint x="532" y="97" />
+      <bpmndi:BPMNEdge id="Flow_10bbmrb_di" bpmnElement="Flow_10bbmrb">
+        <di:waypoint x="350" y="197" />
+        <di:waypoint x="405" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0v5rzlu_di" bpmnElement="Flow_0v5rzlu">
+        <di:waypoint x="760" y="197" />
+        <di:waypoint x="802" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0goula5_di" bpmnElement="Flow_0goula5">
+        <di:waypoint x="570" y="118" />
+        <di:waypoint x="609" y="118" />
+        <di:waypoint x="609" y="197" />
+        <di:waypoint x="660" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jfz8tn_di" bpmnElement="Flow_1jfz8tn">
+        <di:waypoint x="570" y="288" />
+        <di:waypoint x="609" y="288" />
+        <di:waypoint x="609" y="197" />
+        <di:waypoint x="660" y="197" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tbzsse_di" bpmnElement="Flow_0tbzsse">
+        <di:waypoint x="430" y="172" />
+        <di:waypoint x="430" y="118" />
+        <di:waypoint x="470" y="118" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05kcm78_di" bpmnElement="Flow_05kcm78">
+        <di:waypoint x="430" y="222" />
+        <di:waypoint x="430" y="288" />
+        <di:waypoint x="470" y="288" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_POGR2">
-        <dc:Bounds x="152" y="79" width="36" height="36" />
+        <dc:Bounds x="152" y="179" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0inploq_di" bpmnElement="CallActivity_RegistrationStage">
-        <dc:Bounds x="250" y="57" width="100" height="80" />
+        <dc:Bounds x="250" y="157" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0cuim7o_di" bpmnElement="ServiceTask_CompleteCase">
-        <dc:Bounds x="390" y="57" width="100" height="80" />
+      <bpmndi:BPMNShape id="Event_1ne9y4u_di" bpmnElement="EndEvent_POGR2">
+        <dc:Bounds x="802" y="179" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="847" y="190" width="49" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0gpzas7_di" bpmnElement="EndEvent_POGR2">
-        <dc:Bounds x="532" y="79" width="36" height="36" />
+      <bpmndi:BPMNShape id="Activity_1a1ch11_di" bpmnElement="ServiceTask_CompleteCase">
+        <dc:Bounds x="660" y="157" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1eiolt1_di" bpmnElement="Gateway_1eiolt1" isMarkerVisible="true">
+        <dc:Bounds x="405" y="172" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bwtx8f_di" bpmnElement="CallActivity_PogrHmpo">
+        <dc:Bounds x="470" y="78" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15wpte0_di" bpmnElement="CallActivity_PogrGro">
+        <dc:Bounds x="470" y="248" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

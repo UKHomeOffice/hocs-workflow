@@ -27,7 +27,7 @@ public class POGR2 {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(0.1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -46,7 +46,10 @@ public class POGR2 {
     @Test
     public void testHappyHmpoPath() {
         whenAtCallActivity("POGR2_REGISTRATION")
-                .thenReturn("", "")
+                .thenReturn("BusinessArea", "HMPO")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR2_HMPO")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -55,6 +58,7 @@ public class POGR2 {
 
         verify(processScenario).hasCompleted("StartEvent_POGR2");
         verify(processScenario).hasCompleted("CallActivity_RegistrationStage");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpo");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_POGR2");
     }
@@ -62,7 +66,10 @@ public class POGR2 {
     @Test
     public void testHappyGroPath() {
         whenAtCallActivity("POGR2_REGISTRATION")
-                .thenReturn("", "")
+                .thenReturn("BusinessArea", "GRO")
+                .deploy(rule);
+
+        whenAtCallActivity("POGR2_GRO")
                 .deploy(rule);
 
         Scenario.run(processScenario)
@@ -71,6 +78,7 @@ public class POGR2 {
 
         verify(processScenario).hasCompleted("StartEvent_POGR2");
         verify(processScenario).hasCompleted("CallActivity_RegistrationStage");
+        verify(processScenario).hasCompleted("CallActivity_PogrGro");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_POGR2");
     }
