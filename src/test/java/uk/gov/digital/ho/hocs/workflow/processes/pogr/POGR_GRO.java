@@ -3,8 +3,8 @@ package uk.gov.digital.ho.hocs.workflow.processes.pogr;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
 import org.junit.Before;
@@ -148,7 +148,8 @@ public class POGR_GRO {
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_QA")
-                .thenReturn("QaOutcome", "Reject", "reallocate", "true")
+                .thenReturn("QaOutcome", "")
+                .thenReturn("QaOutcome", "Reject")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_DISPATCH")
@@ -160,7 +161,7 @@ public class POGR_GRO {
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
         verify(processScenario).hasCompleted("CallActivity_PogrGroInvestigation");
-        verify(processScenario).hasCompleted("CallActivity_PogrGroQa");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroQa");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroDraft");
     }
 
@@ -200,6 +201,7 @@ public class POGR_GRO {
                 .deploy(rule);
 
         whenAtCallActivity("POGR_GRO_ESCALATE")
+                .thenReturn("EscalationOutcome", "")
                 .thenReturn("EscalationOutcome", "Investigation")
                 .deploy(rule);
 
@@ -220,8 +222,8 @@ public class POGR_GRO {
 
         verify(processScenario).hasCompleted("StartEvent_Gro");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroInvestigation");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroEscalate");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrGroDraft");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrGroEscalate");
+        verify(processScenario).hasCompleted("CallActivity_PogrGroDraft");
         verify(processScenario).hasCompleted("EndEvent_Gro");
     }
 

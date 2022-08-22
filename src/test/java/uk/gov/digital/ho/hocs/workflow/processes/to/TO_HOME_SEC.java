@@ -3,8 +3,8 @@ package uk.gov.digital.ho.hocs.workflow.processes.to;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
 import org.junit.Before;
@@ -17,8 +17,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.mockito.Mockito.*;
-import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -88,7 +89,7 @@ public class TO_HOME_SEC {
                 .hasCompleted(CLEAR_REJ_NOTE);
 
         verify(TOProcess, times(2))
-               .hasCompleted(UPDATE_APPROVAL_Approved);
+                .hasCompleted(UPDATE_APPROVAL_Approved);
 
         verify(TOProcess, times(0))
                 .hasCompleted(UPDATE_APPROVAL_STOP_LIST_DecisionNotYetMade);
@@ -255,8 +256,8 @@ public class TO_HOME_SEC {
                 .thenReturn(task -> task.complete(withVariables(HOME_SEC_STATUS, SEND_TO_TRIAGE, DIRECTION, FORWARD)));
 
         when(TOProcess.waitsAtUserTask(TO_CASE_REJECTED))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,BACKWARD)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD)));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_HOME_SEC")

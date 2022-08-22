@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+  <bpmn:process id="POGR2_HMPO" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_Hmpo">
+      <bpmn:outgoing>Flow_1m1w4pf</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_HmpoDraftEnd">
+      <bpmn:incoming>Flow_0obo8w9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1m1w4pf" sourceRef="StartEvent_Hmpo" targetRef="CallActivity_PogrHmpoInvestigation" />
+    <bpmn:callActivity id="CallActivity_PogrHmpoInvestigation" name="Investigation" calledElement="STAGE_WITH_USER">
+      <bpmn:extensionElements>
+        <camunda:in source="InvestigationUUID" target="StageUUID" />
+        <camunda:in sourceExpression="POGR2_HMPO_INVESTIGATION" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="InvestigationUUID" />
+        <camunda:in sourceExpression="POGR2_HMPO_INVESTIGATION" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="BusinessArea" target="BusinessArea" />
+        <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="InvestigationOutcome" target="InvestigationOutcome" />
+        <camunda:out source="CloseCase" target="CloseCase" />
+        <camunda:out source="LastUpdatedByUserUUID" target="DraftUserUUID" />
+        <camunda:in source="DraftUserUUID" target="AllocatedUserUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1m1w4pf</bpmn:incoming>
+      <bpmn:incoming>Flow_08g22s9</bpmn:incoming>
+      <bpmn:incoming>Flow_0ajdefo</bpmn:incoming>
+      <bpmn:incoming>Flow_1wpf0yz</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mp9wnv</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_0mp9wnv" sourceRef="CallActivity_PogrHmpoInvestigation" targetRef="Gateway_0ph73vq" />
+    <bpmn:exclusiveGateway id="Gateway_0ph73vq" default="Flow_1lew7z0">
+      <bpmn:incoming>Flow_0mp9wnv</bpmn:incoming>
+      <bpmn:outgoing>Flow_080khuu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1lew7z0</bpmn:outgoing>
+      <bpmn:outgoing>Flow_05c2dd5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_080khuu" sourceRef="Gateway_0ph73vq" targetRef="CallActivity_PogrHmpoDraft">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ InvestigationOutcome == "Draft" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1lew7z0" sourceRef="Gateway_0ph73vq" targetRef="Gateway_0i7bw1a" />
+    <bpmn:exclusiveGateway id="Gateway_0i7bw1a" default="Flow_08g22s9">
+      <bpmn:incoming>Flow_1lew7z0</bpmn:incoming>
+      <bpmn:outgoing>Flow_10j7han</bpmn:outgoing>
+      <bpmn:outgoing>Flow_08g22s9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_10j7han" sourceRef="Gateway_0i7bw1a" targetRef="EndEvent_HmpoInvestigationEnd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("CloseCase") == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_08g22s9" sourceRef="Gateway_0i7bw1a" targetRef="CallActivity_PogrHmpoInvestigation" />
+    <bpmn:callActivity id="CallActivity_PogrHmpoDraft" name="Draft" calledElement="STAGE_WITH_USER">
+      <bpmn:extensionElements>
+        <camunda:in source="DraftUUID" target="StageUUID" />
+        <camunda:in sourceExpression="POGR2_HMPO_DRAFT" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="DraftUUID" />
+        <camunda:in sourceExpression="POGR2_HMPO_DRAFT" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="BusinessArea" target="BusinessArea" />
+        <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="DraftOutcome" target="DraftOutcome" />
+        <camunda:out source="CloseCase" target="CloseCase" />
+        <camunda:in source="DraftUserUUID" target="AllocatedUserUUID" />
+        <camunda:out source="LastUpdatedByUserUUID" target="DraftUserUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_080khuu</bpmn:incoming>
+      <bpmn:incoming>Flow_1tfrnhg</bpmn:incoming>
+      <bpmn:incoming>Flow_14sxnho</bpmn:incoming>
+      <bpmn:incoming>Flow_0aq2fgr</bpmn:incoming>
+      <bpmn:outgoing>Flow_1oz5xon</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1oz5xon" sourceRef="CallActivity_PogrHmpoDraft" targetRef="Gateway_08mh27j" />
+    <bpmn:endEvent id="EndEvent_HmpoInvestigationEnd">
+      <bpmn:incoming>Flow_10j7han</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gateway_08mh27j" default="Flow_1skjq0z">
+      <bpmn:incoming>Flow_1oz5xon</bpmn:incoming>
+      <bpmn:outgoing>Flow_1skjq0z</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1wpf0yz</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1rjw8ef</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1del5l1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_10qxg85</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0obo8w9" sourceRef="Gateway_0fbkujt" targetRef="EndEvent_HmpoDraftEnd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("CloseCase") == true }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1skjq0z" sourceRef="Gateway_08mh27j" targetRef="Gateway_0fbkujt" />
+    <bpmn:sequenceFlow id="Flow_1wpf0yz" sourceRef="Gateway_08mh27j" targetRef="CallActivity_PogrHmpoInvestigation">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "ReturnInvestigation" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_0fbkujt" default="Flow_1tfrnhg">
+      <bpmn:incoming>Flow_1skjq0z</bpmn:incoming>
+      <bpmn:outgoing>Flow_1tfrnhg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0obo8w9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1tfrnhg" sourceRef="Gateway_0fbkujt" targetRef="CallActivity_PogrHmpoDraft" />
+    <bpmn:endEvent id="EndEvent_Hmpo">
+      <bpmn:incoming>Flow_09ux94z</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1rjw8ef" sourceRef="Gateway_08mh27j" targetRef="CallActivity_PogrHmpoQa">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "QA" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:callActivity id="CallActivity_PogrHmpoQa" name="QA" calledElement="STAGE_WITH_USER">
+      <bpmn:extensionElements>
+        <camunda:in sourceExpression="POGR2_HMPO_QA" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:in sourceExpression="POGR2_HMPO_QA" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
+        <camunda:out source="BusinessArea" target="BusinessArea" />
+        <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="QaOutcome" target="QaOutcome" />
+        <camunda:out source="LastUpdatedByUserUUID" target="QAUserUUID" />
+        <camunda:in source="QAUserUUID" target="AllocatedUserUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1rjw8ef</bpmn:incoming>
+      <bpmn:incoming>Flow_0lq3kwv</bpmn:incoming>
+      <bpmn:outgoing>Flow_11v7vw9</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_11v7vw9" sourceRef="CallActivity_PogrHmpoQa" targetRef="Gateway_1wmv5rn" />
+    <bpmn:sequenceFlow id="Flow_1del5l1" name="Dispatch" sourceRef="Gateway_08mh27j" targetRef="CallActivity_PogrHmpoDispatch">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "Dispatch" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_1wmv5rn" default="Flow_0lq3kwv">
+      <bpmn:incoming>Flow_11v7vw9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xvf5wx</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0lq3kwv</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0aq2fgr</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1xvf5wx" sourceRef="Gateway_1wmv5rn" targetRef="CallActivity_PogrHmpoDispatch">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ QaOutcome == "Accept" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0lq3kwv" sourceRef="Gateway_1wmv5rn" targetRef="CallActivity_PogrHmpoQa" />
+    <bpmn:callActivity id="CallActivity_PogrHmpoDispatch" name="Dispatch" calledElement="STAGE_WITH_USER">
+      <bpmn:extensionElements>
+        <camunda:in sourceExpression="POGR2_HMPO_DISPATCH" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:in sourceExpression="POGR2_HMPO_DISPATCH" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
+        <camunda:out source="BusinessArea" target="BusinessArea" />
+        <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="DispatchOutcome" target="DispatchOutcome" />
+        <camunda:out source="LastUpdatedByUserUUID" target="DispatchUserUUID" />
+        <camunda:in source="DispatchUserUUID" target="AllocatedUserUUID" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1xvf5wx</bpmn:incoming>
+      <bpmn:incoming>Flow_1del5l1</bpmn:incoming>
+      <bpmn:outgoing>Flow_09ux94z</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_09ux94z" sourceRef="CallActivity_PogrHmpoDispatch" targetRef="EndEvent_Hmpo" />
+    <bpmn:callActivity id="CallActivity_PogrHmpoEscalate" name="Escalate" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="EscalationUUID" target="StageUUID" />
+        <camunda:in sourceExpression="POGR2_HMPO_ESCALATE" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="EscalationUUID" />
+        <camunda:in sourceExpression="POGR2_HMPO_ESCALATE" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="Stage" target="Stage" />
+        <camunda:out source="EscalationOutcome" target="EscalationOutcome" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05c2dd5</bpmn:incoming>
+      <bpmn:incoming>Flow_0b35gdf</bpmn:incoming>
+      <bpmn:incoming>Flow_10qxg85</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vchjhj</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_157w6qt" default="Flow_0b35gdf">
+      <bpmn:incoming>Flow_1vchjhj</bpmn:incoming>
+      <bpmn:outgoing>Flow_14sxnho</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0b35gdf</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ajdefo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1vchjhj" sourceRef="CallActivity_PogrHmpoEscalate" targetRef="Gateway_157w6qt" />
+    <bpmn:sequenceFlow id="Flow_05c2dd5" sourceRef="Gateway_0ph73vq" targetRef="CallActivity_PogrHmpoEscalate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ InvestigationOutcome == "Escalate" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_14sxnho" sourceRef="Gateway_157w6qt" targetRef="CallActivity_PogrHmpoDraft">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ EscalationOutcome == "Draft" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0b35gdf" sourceRef="Gateway_157w6qt" targetRef="CallActivity_PogrHmpoEscalate" />
+    <bpmn:sequenceFlow id="Flow_0ajdefo" sourceRef="Gateway_157w6qt" targetRef="CallActivity_PogrHmpoInvestigation">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ EscalationOutcome == "Investigation" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0aq2fgr" sourceRef="Gateway_1wmv5rn" targetRef="CallActivity_PogrHmpoDraft">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ QaOutcome == "Reject" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_10qxg85" sourceRef="Gateway_08mh27j" targetRef="CallActivity_PogrHmpoEscalate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "Escalate" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR2_HMPO">
+      <bpmndi:BPMNEdge id="Flow_0aq2fgr_di" bpmnElement="Flow_0aq2fgr" bioc:stroke="#fb8c00" color:border-color="#fb8c00">
+        <di:waypoint x="1150" y="214" />
+        <di:waypoint x="1150" y="310" />
+        <di:waypoint x="640" y="310" />
+        <di:waypoint x="640" y="229" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ajdefo_di" bpmnElement="Flow_0ajdefo">
+        <di:waypoint x="920" y="425" />
+        <di:waypoint x="920" y="540" />
+        <di:waypoint x="320" y="540" />
+        <di:waypoint x="320" y="229" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b35gdf_di" bpmnElement="Flow_0b35gdf" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="920" y="425" />
+        <di:waypoint x="920" y="490" />
+        <di:waypoint x="760" y="490" />
+        <di:waypoint x="760" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14sxnho_di" bpmnElement="Flow_14sxnho" bioc:stroke="#fb8c00" color:border-color="#fb8c00">
+        <di:waypoint x="920" y="375" />
+        <di:waypoint x="920" y="310" />
+        <di:waypoint x="640" y="310" />
+        <di:waypoint x="640" y="229" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05c2dd5_di" bpmnElement="Flow_05c2dd5">
+        <di:waypoint x="440" y="214" />
+        <di:waypoint x="440" y="400" />
+        <di:waypoint x="710" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vchjhj_di" bpmnElement="Flow_1vchjhj">
+        <di:waypoint x="810" y="400" />
+        <di:waypoint x="895" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09ux94z_di" bpmnElement="Flow_09ux94z">
+        <di:waypoint x="1330" y="189" />
+        <di:waypoint x="1392" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lq3kwv_di" bpmnElement="Flow_0lq3kwv" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="1150" y="164" />
+        <di:waypoint x="1150" y="80" />
+        <di:waypoint x="1020" y="80" />
+        <di:waypoint x="1020" y="149" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xvf5wx_di" bpmnElement="Flow_1xvf5wx">
+        <di:waypoint x="1175" y="189" />
+        <di:waypoint x="1230" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1del5l1_di" bpmnElement="Flow_1del5l1">
+        <di:waypoint x="772" y="202" />
+        <di:waypoint x="850" y="280" />
+        <di:waypoint x="1280" y="280" />
+        <di:waypoint x="1280" y="229" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1044" y="262" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11v7vw9_di" bpmnElement="Flow_11v7vw9">
+        <di:waypoint x="1070" y="189" />
+        <di:waypoint x="1125" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1rjw8ef_di" bpmnElement="Flow_1rjw8ef">
+        <di:waypoint x="785" y="189" />
+        <di:waypoint x="970" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tfrnhg_di" bpmnElement="Flow_1tfrnhg" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="735" y="80" />
+        <di:waypoint x="640" y="80" />
+        <di:waypoint x="640" y="149" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wpf0yz_di" bpmnElement="Flow_1wpf0yz" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="760" y="214" />
+        <di:waypoint x="760" y="280" />
+        <di:waypoint x="320" y="280" />
+        <di:waypoint x="320" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="545" y="296" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1skjq0z_di" bpmnElement="Flow_1skjq0z" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="760" y="164" />
+        <di:waypoint x="760" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0obo8w9_di" bpmnElement="Flow_0obo8w9">
+        <di:waypoint x="785" y="80" />
+        <di:waypoint x="842" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1oz5xon_di" bpmnElement="Flow_1oz5xon">
+        <di:waypoint x="690" y="189" />
+        <di:waypoint x="735" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08g22s9_di" bpmnElement="Flow_08g22s9" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="415" y="80" />
+        <di:waypoint x="320" y="80" />
+        <di:waypoint x="320" y="149" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10j7han_di" bpmnElement="Flow_10j7han">
+        <di:waypoint x="465" y="80" />
+        <di:waypoint x="512" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lew7z0_di" bpmnElement="Flow_1lew7z0" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="440" y="164" />
+        <di:waypoint x="440" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_080khuu_di" bpmnElement="Flow_080khuu">
+        <di:waypoint x="465" y="189" />
+        <di:waypoint x="590" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mp9wnv_di" bpmnElement="Flow_0mp9wnv">
+        <di:waypoint x="370" y="189" />
+        <di:waypoint x="415" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1m1w4pf_di" bpmnElement="Flow_1m1w4pf">
+        <di:waypoint x="215" y="189" />
+        <di:waypoint x="270" y="189" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10qxg85_di" bpmnElement="Flow_10qxg85">
+        <di:waypoint x="760" y="214" />
+        <di:waypoint x="760" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Hmpo">
+        <dc:Bounds x="179" y="171" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="172" y="144" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_HmpoDraftEnd">
+        <dc:Bounds x="842" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="467" y="112" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1kj7g9i_di" bpmnElement="CallActivity_PogrHmpoInvestigation">
+        <dc:Bounds x="270" y="149" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0ph73vq_di" bpmnElement="Gateway_0ph73vq" isMarkerVisible="true">
+        <dc:Bounds x="415" y="164" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0i7bw1a_di" bpmnElement="Gateway_0i7bw1a" isMarkerVisible="true">
+        <dc:Bounds x="415" y="55" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_150iolg_di" bpmnElement="CallActivity_PogrHmpoDraft">
+        <dc:Bounds x="590" y="149" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0y5jpxb_di" bpmnElement="EndEvent_HmpoInvestigationEnd">
+        <dc:Bounds x="512" y="62" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_08mh27j_di" bpmnElement="Gateway_08mh27j" isMarkerVisible="true">
+        <dc:Bounds x="735" y="164" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0fbkujt_di" bpmnElement="Gateway_0fbkujt" isMarkerVisible="true">
+        <dc:Bounds x="735" y="55" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0wby6am_di" bpmnElement="EndEvent_Hmpo">
+        <dc:Bounds x="1392" y="171" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09g92t3_di" bpmnElement="CallActivity_PogrHmpoQa">
+        <dc:Bounds x="970" y="149" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1wmv5rn_di" bpmnElement="Gateway_1wmv5rn" isMarkerVisible="true">
+        <dc:Bounds x="1125" y="164" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ht2mbu_di" bpmnElement="CallActivity_PogrHmpoDispatch">
+        <dc:Bounds x="1230" y="149" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0mndufl_di" bpmnElement="CallActivity_PogrHmpoEscalate">
+        <dc:Bounds x="710" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_157w6qt_di" bpmnElement="Gateway_157w6qt" isMarkerVisible="true">
+        <dc:Bounds x="895" y="375" width="50" height="50" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

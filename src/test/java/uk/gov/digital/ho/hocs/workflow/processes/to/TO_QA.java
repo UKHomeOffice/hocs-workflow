@@ -3,12 +3,10 @@ package uk.gov.digital.ho.hocs.workflow.processes.to;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
-import org.camunda.bpm.model.bpmn.impl.instance.To;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
-import org.camunda.bpm.scenario.delegate.TaskDelegate;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -16,12 +14,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.core.io.support.PropertySourceFactory;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
-import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.task;
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -79,7 +77,7 @@ public class TO_QA {
 
         when(TOProcess.waitsAtUserTask(TO_QA_OUTCOME))
                 .thenReturn(task -> task.complete(withVariables(QA_STATUS, "Save", DIRECTION, FORWARD)))
-                .thenReturn(task -> task.complete(withVariables(QA_STATUS,"SendToDispatch", DIRECTION, FORWARD)));
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, "SendToDispatch", DIRECTION, FORWARD)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_QA")
@@ -154,7 +152,7 @@ public class TO_QA {
     @Test
     public void testRejectSendToDraft() {
         when(TOProcess.waitsAtUserTask(TO_QA_OUTCOME))
-                .thenReturn(task -> task.complete(withVariables(QA_STATUS,"SendToDraft", DIRECTION, FORWARD)));
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, "SendToDraft", DIRECTION, FORWARD)));
 
         when(TOProcess.waitsAtUserTask(TO_QA_REJECTION_NOTE))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD)));
@@ -200,11 +198,11 @@ public class TO_QA {
     public void testRejectSendToTriageGoBackSentToTriage() {
 
         when(TOProcess.waitsAtUserTask(TO_QA_OUTCOME))
-                .thenReturn(task -> task.complete(withVariables(QA_STATUS,"SendToDraft", DIRECTION, FORWARD)))
-                .thenReturn(task -> task.complete(withVariables(QA_STATUS,"SendToTriage", DIRECTION, FORWARD)));
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, "SendToDraft", DIRECTION, FORWARD)))
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, "SendToTriage", DIRECTION, FORWARD)));
 
         when(TOProcess.waitsAtUserTask(TO_QA_REJECTION_NOTE))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD)))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD)));
 
         Scenario.run(TOProcess)
@@ -246,10 +244,10 @@ public class TO_QA {
     @Test
     public void testPutOnStopList() {
         when(TOProcess.waitsAtUserTask(TO_QA_OUTCOME))
-                .thenReturn(task -> task.complete(withVariables(QA_STATUS,"SendToStopList", DIRECTION, FORWARD)));
+                .thenReturn(task -> task.complete(withVariables(QA_STATUS, "SendToStopList", DIRECTION, FORWARD)));
 
         when(TOProcess.waitsAtUserTask(TO_GET_STOP_LIST))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,"FORWARD")));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, "FORWARD")));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_QA")
@@ -296,7 +294,7 @@ public class TO_QA {
                 .thenReturn(task -> task.complete(withVariables(QA_STATUS, PUT_ON_CAMPAIGN, DIRECTION, FORWARD)));
 
         when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE)).thenReturn(
-                task -> task.complete(withVariables(DIRECTION,FORWARD)));
+                task -> task.complete(withVariables(DIRECTION, FORWARD)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_QA")
@@ -341,8 +339,8 @@ public class TO_QA {
                 .thenReturn(task -> task.complete(withVariables(QA_STATUS, CLOSE_CASE, DIRECTION, FORWARD)));
 
         when(TOProcess.waitsAtUserTask(TO_CLOSE_CASE))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,BACKWARD)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD)));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD)))
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_QA")

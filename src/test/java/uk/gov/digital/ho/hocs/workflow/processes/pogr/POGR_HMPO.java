@@ -3,8 +3,8 @@ package uk.gov.digital.ho.hocs.workflow.processes.pogr;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
 import org.junit.Before;
@@ -151,7 +151,8 @@ public class POGR_HMPO {
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_QA")
-                .thenReturn("QaOutcome", "Reject", "reallocate", "true")
+                .thenReturn("QaOutcome", "")
+                .thenReturn("QaOutcome", "Reject")
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_DISPATCH")
@@ -163,7 +164,7 @@ public class POGR_HMPO {
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
         verify(processScenario).hasCompleted("CallActivity_PogrHmpoInvestigation");
-        verify(processScenario).hasCompleted("CallActivity_PogrHmpoQa");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoQa");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoDraft");
     }
 
@@ -204,6 +205,7 @@ public class POGR_HMPO {
                 .deploy(rule);
 
         whenAtCallActivity("POGR_HMPO_ESCALATE")
+                .thenReturn("EscalationOutcome", "")
                 .thenReturn("EscalationOutcome", "Investigation")
                 .deploy(rule);
 
@@ -224,8 +226,8 @@ public class POGR_HMPO {
 
         verify(processScenario).hasCompleted("StartEvent_Hmpo");
         verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoInvestigation");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoEscalate");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_PogrHmpoDraft");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PogrHmpoEscalate");
+        verify(processScenario).hasCompleted("CallActivity_PogrHmpoDraft");
         verify(processScenario).hasCompleted("EndEvent_Hmpo");
     }
 
