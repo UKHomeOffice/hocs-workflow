@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.camunda.bpm.extension.mockito.ProcessExpressions.registerCallActivityMock;
+import static org.camunda.community.mockito.ProcessExpressions.registerCallActivityMock;
 
 /**
  * A wrapper class to simplify workflow testing
