@@ -55,6 +55,7 @@ public class POGR_REGISTRATION {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
         when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "", "BusinessArea", "HMPO")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
@@ -72,7 +73,7 @@ public class POGR_REGISTRATION {
         verify(processScenario).hasCompleted("Screen_BusinessAreaSelect");
         verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(4)).hasCompleted("Screen_Hmpo_DataInput");
-        verify(processScenario, times(2)).hasCompleted("Screen_SendInterimLetter");
+        verify(processScenario, times(3)).hasCompleted("Screen_SendInterimLetter");
         verify(processScenario).hasCompleted("EndEvent_BusinessSelect");
     }
 
