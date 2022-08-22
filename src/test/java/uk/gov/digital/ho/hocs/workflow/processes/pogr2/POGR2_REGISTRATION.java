@@ -89,6 +89,12 @@ public class POGR2_REGISTRATION {
                 .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DIRECTION", "")
+                .thenReturn("DIRECTION", "BACKWARD")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
         when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
