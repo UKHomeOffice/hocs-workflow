@@ -3,8 +3,8 @@ package uk.gov.digital.ho.hocs.workflow.processes.to;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
 import org.junit.Before;
@@ -35,7 +35,7 @@ public class TO_CHANGE_BUSINESS_AREA {
     // USER AND SERVICE TASKS
     private static final String TO_SELECT_BUSINESS_AREA = "TO_SELECT_BUSINESS_AREA";
     private static final String ALLOCATE_TO_UKVI_TEAM = "Activity_0cvzfw5";
-    private static final String ALLOCATE_TO_BF_TEAM   = "Activity_1iidtq7";
+    private static final String ALLOCATE_TO_BF_TEAM = "Activity_1iidtq7";
     private static final String ALLOCATE_TO_HMPO_TEAM = "Activity_18m7196";
     private static final String UPDATE_BUS_AREA_STATUS = "Activity_1t646w4";
     private static final String CLEAR_REALLOCATION_NOTE = "Activity_0sgqe01";

@@ -36,14 +36,14 @@ public class MPAMCommonTests {
     }
 
     void whenUpdateEnquirySubjectReason_thenShouldContinue(String mpamFlow, String coreVariable, String endEvent,
-                                                                     ProcessScenario processScenario, BpmnService bpmnService) {
+                                                           ProcessScenario processScenario, BpmnService bpmnService) {
         when(processScenario.waitsAtUserTask("Validate_UserInput"))
                 .thenReturn(task -> task.complete(withVariables(
                         "valid", true,
                         "DIRECTION", "UpdateEnquirySubject")))
                 .thenReturn(task -> task.complete(withVariables(
-                    "valid", true,
-                    coreVariable, "TEST_COMPLETE",
+                        "valid", true,
+                        coreVariable, "TEST_COMPLETE",
                         "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)

@@ -3,8 +3,8 @@ package uk.gov.digital.ho.hocs.workflow.processes.mpam;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
 import org.junit.Before;
@@ -17,7 +17,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM/MPAM_UPDATE_ENQUIRY_SUBJECT_REASON.bpmn")
@@ -142,7 +144,7 @@ public class MPAMUpdateEnquirySubjectReason {
                 .thenReturn(task -> task.complete(withVariables(
                         "DIRECTION", "FORWARD",
                         "valid", "true",
-                            "EnquiryReason", "EuNationalComplianceMeasures")));
+                        "EnquiryReason", "EuNationalComplianceMeasures")));
 
         when(processScenario.waitsAtUserTask(EU_NATIONAL_DETAILS_ENQUIRY_REASON_ACTIVITY))
                 .thenReturn(task -> task.complete(withVariables(
