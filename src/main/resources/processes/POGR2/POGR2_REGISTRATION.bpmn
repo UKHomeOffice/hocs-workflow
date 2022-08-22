@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0aeu35q" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0aeu35q" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="POGR2_REGISTRATION" isExecutable="true">
     <bpmn:startEvent id="StartEvent_Registration">
       <bpmn:outgoing>Flow_17ddm3l</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="EndEvent_Registration">
-      <bpmn:incoming>Flow_0mxrovz</bpmn:incoming>
-      <bpmn:incoming>Flow_1ha9e39</bpmn:incoming>
+      <bpmn:incoming>Flow_0kf1dty</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_17ddm3l" sourceRef="StartEvent_Registration" targetRef="Gateway_0lsdwh4" />
     <bpmn:callActivity id="CallActivity_CorrespondentInput" name="Correspondent Input" calledElement="COMPLAINT_CORRESPONDENT">
@@ -55,6 +54,7 @@
     <bpmn:sequenceFlow id="Flow_031lyvl" sourceRef="Service_UpdateCaseDeadline" targetRef="CallActivity_CorrespondentInput" />
     <bpmn:exclusiveGateway id="Gateway_099nz4n">
       <bpmn:incoming>Flow_1dp9rgt</bpmn:incoming>
+      <bpmn:incoming>Flow_1nymf0g</bpmn:incoming>
       <bpmn:outgoing>Flow_0krxe4d</bpmn:outgoing>
       <bpmn:outgoing>Flow_13k64kh</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -101,22 +101,64 @@
       <bpmn:incoming>Flow_1yzfsaq</bpmn:incoming>
       <bpmn:outgoing>Flow_0ek0241</bpmn:outgoing>
       <bpmn:outgoing>Flow_03nfg12</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1ha9e39</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1yg0s84</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0ek0241" sourceRef="Gateway_04ml221" targetRef="CallActivity_Gro_DataInput" />
     <bpmn:sequenceFlow id="Flow_1yzfsaq" sourceRef="CallActivity_Gro_DataInput" targetRef="Gateway_04ml221" />
     <bpmn:sequenceFlow id="Flow_03nfg12" sourceRef="Gateway_04ml221" targetRef="CallActivity_CorrespondentInput">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0mxrovz" sourceRef="Gateway_06bqxq7" targetRef="EndEvent_Registration">
+    <bpmn:sequenceFlow id="Flow_0mxrovz" sourceRef="Gateway_06bqxq7" targetRef="Screen_SendInterimLetter">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1ha9e39" sourceRef="Gateway_04ml221" targetRef="EndEvent_Registration">
+    <bpmn:userTask id="Screen_SendInterimLetter" name="Send Interim Letter" camunda:formKey="POGR2_SEND_INTERIM_LETTER">
+      <bpmn:incoming>Flow_0mxrovz</bpmn:incoming>
+      <bpmn:incoming>Flow_1yg0s84</bpmn:incoming>
+      <bpmn:incoming>Flow_1dm16r6</bpmn:incoming>
+      <bpmn:outgoing>Flow_0vhqv5v</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0vhqv5v" sourceRef="Screen_SendInterimLetter" targetRef="Gateway_1igerq7" />
+    <bpmn:sequenceFlow id="Flow_1yg0s84" sourceRef="Gateway_04ml221" targetRef="Screen_SendInterimLetter">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_1igerq7" default="Flow_1dm16r6">
+      <bpmn:incoming>Flow_0vhqv5v</bpmn:incoming>
+      <bpmn:outgoing>Flow_0kf1dty</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1nymf0g</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1dm16r6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0kf1dty" sourceRef="Gateway_1igerq7" targetRef="EndEvent_Registration">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1nymf0g" sourceRef="Gateway_1igerq7" targetRef="Gateway_099nz4n">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1dm16r6" sourceRef="Gateway_1igerq7" targetRef="Screen_SendInterimLetter" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR2_REGISTRATION">
+      <bpmndi:BPMNEdge id="Flow_0mxrovz_di" bpmnElement="Flow_0mxrovz">
+        <di:waypoint x="1035" y="160" />
+        <di:waypoint x="1080" y="160" />
+        <di:waypoint x="1080" y="277" />
+        <di:waypoint x="1160" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03nfg12_di" bpmnElement="Flow_03nfg12" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="1010" y="415" />
+        <di:waypoint x="1010" y="470" />
+        <di:waypoint x="570" y="470" />
+        <di:waypoint x="570" y="317" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yzfsaq_di" bpmnElement="Flow_1yzfsaq">
+        <di:waypoint x="940" y="390" />
+        <di:waypoint x="985" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ek0241_di" bpmnElement="Flow_0ek0241" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="1010" y="365" />
+        <di:waypoint x="1010" y="310" />
+        <di:waypoint x="890" y="310" />
+        <di:waypoint x="890" y="350" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0550y29_di" bpmnElement="Flow_0550y29" bioc:stroke="#43a047" color:border-color="#43a047">
         <di:waypoint x="1010" y="135" />
         <di:waypoint x="1010" y="80" />
@@ -176,42 +218,35 @@
         <di:waypoint x="188" y="277" />
         <di:waypoint x="255" y="277" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0ek0241_di" bpmnElement="Flow_0ek0241" bioc:stroke="#e53935" color:border-color="#e53935">
-        <di:waypoint x="1010" y="365" />
-        <di:waypoint x="1010" y="310" />
-        <di:waypoint x="890" y="310" />
-        <di:waypoint x="890" y="350" />
+      <bpmndi:BPMNEdge id="Flow_0vhqv5v_di" bpmnElement="Flow_0vhqv5v">
+        <di:waypoint x="1260" y="277" />
+        <di:waypoint x="1315" y="277" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1yzfsaq_di" bpmnElement="Flow_1yzfsaq">
-        <di:waypoint x="940" y="390" />
-        <di:waypoint x="985" y="390" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_03nfg12_di" bpmnElement="Flow_03nfg12" bioc:stroke="#43a047" color:border-color="#43a047">
-        <di:waypoint x="1010" y="415" />
-        <di:waypoint x="1010" y="470" />
-        <di:waypoint x="570" y="470" />
-        <di:waypoint x="570" y="317" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0mxrovz_di" bpmnElement="Flow_0mxrovz">
-        <di:waypoint x="1035" y="160" />
-        <di:waypoint x="1080" y="160" />
-        <di:waypoint x="1080" y="277" />
-        <di:waypoint x="1162" y="277" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ha9e39_di" bpmnElement="Flow_1ha9e39">
+      <bpmndi:BPMNEdge id="Flow_1yg0s84_di" bpmnElement="Flow_1yg0s84">
         <di:waypoint x="1035" y="390" />
         <di:waypoint x="1080" y="390" />
         <di:waypoint x="1080" y="277" />
-        <di:waypoint x="1162" y="277" />
+        <di:waypoint x="1160" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kf1dty_di" bpmnElement="Flow_0kf1dty">
+        <di:waypoint x="1365" y="277" />
+        <di:waypoint x="1432" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nymf0g_di" bpmnElement="Flow_1nymf0g" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="1340" y="302" />
+        <di:waypoint x="1340" y="520" />
+        <di:waypoint x="730" y="520" />
+        <di:waypoint x="730" y="330" />
+        <di:waypoint x="768" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dm16r6_di" bpmnElement="Flow_1dm16r6" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="1340" y="252" />
+        <di:waypoint x="1340" y="200" />
+        <di:waypoint x="1210" y="200" />
+        <di:waypoint x="1210" y="237" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Registration">
         <dc:Bounds x="152" y="259" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0lsdwh4_di" bpmnElement="Gateway_0lsdwh4" isMarkerVisible="true">
-        <dc:Bounds x="255" y="252" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_001nhlo_di" bpmnElement="Service_UpdateCaseDeadline">
-        <dc:Bounds x="330" y="120" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1b4n9mh_di" bpmnElement="CallActivity_CorrespondentInput">
         <dc:Bounds x="520" y="237" width="100" height="80" />
@@ -219,23 +254,35 @@
       <bpmndi:BPMNShape id="Gateway_15t7pkv_di" bpmnElement="Gateway_15t7pkv" isMarkerVisible="true">
         <dc:Bounds x="665" y="252" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0lsdwh4_di" bpmnElement="Gateway_0lsdwh4" isMarkerVisible="true">
+        <dc:Bounds x="255" y="252" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_001nhlo_di" bpmnElement="Service_UpdateCaseDeadline">
+        <dc:Bounds x="330" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_099nz4n_di" bpmnElement="Gateway_099nz4n" isMarkerVisible="true">
         <dc:Bounds x="755" y="252" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0kukxqw_di" bpmnElement="Screen_Hmpo_DataInput">
         <dc:Bounds x="840" y="120" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_13krck3_di" bpmnElement="CallActivity_Gro_DataInput">
-        <dc:Bounds x="840" y="350" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_06bqxq7_di" bpmnElement="Gateway_06bqxq7" isMarkerVisible="true">
         <dc:Bounds x="985" y="135" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_13krck3_di" bpmnElement="CallActivity_Gro_DataInput">
+        <dc:Bounds x="840" y="350" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_04ml221_di" bpmnElement="Gateway_04ml221" isMarkerVisible="true">
         <dc:Bounds x="985" y="365" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1eo02ia_di" bpmnElement="Screen_SendInterimLetter">
+        <dc:Bounds x="1160" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0fcuasc_di" bpmnElement="EndEvent_Registration">
-        <dc:Bounds x="1162" y="259" width="36" height="36" />
+        <dc:Bounds x="1432" y="259" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1igerq7_di" bpmnElement="Gateway_1igerq7" isMarkerVisible="true">
+        <dc:Bounds x="1315" y="252" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

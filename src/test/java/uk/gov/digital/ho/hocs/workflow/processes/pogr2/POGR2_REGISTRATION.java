@@ -55,6 +55,11 @@ public class POGR2_REGISTRATION {
                 .deploy(rule);
 
         when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "", "BusinessArea", "HMPO")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
@@ -65,7 +70,8 @@ public class POGR2_REGISTRATION {
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
         verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
-        verify(processScenario, times(3)).hasCompleted("Screen_Hmpo_DataInput");
+        verify(processScenario, times(4)).hasCompleted("Screen_Hmpo_DataInput");
+        verify(processScenario, times(3)).hasCompleted("Screen_SendInterimLetter");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
 
@@ -83,6 +89,15 @@ public class POGR2_REGISTRATION {
                 .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
 
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
+                .thenReturn("DIRECTION", "")
+                .thenReturn("DIRECTION", "BACKWARD")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
+
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
         Scenario.run(processScenario)
                 .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "No"))
                 .execute();
@@ -92,6 +107,7 @@ public class POGR2_REGISTRATION {
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
         verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("CallActivity_Gro_DataInput");
+        verify(processScenario, times(1)).hasCompleted("Screen_SendInterimLetter");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
 
@@ -104,6 +120,9 @@ public class POGR2_REGISTRATION {
         whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
                 .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
+
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO","ComplaintChannel", "Post", "ComplaintPriority", "No"))
@@ -121,6 +140,9 @@ public class POGR2_REGISTRATION {
         whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
                 .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
+
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "Yes"))
