@@ -3,11 +3,10 @@ package uk.gov.digital.ho.hocs.workflow.processes.to;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
-import org.camunda.bpm.scenario.delegate.TaskDelegate;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -18,7 +17,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -62,8 +63,8 @@ public class TO_DISPATCH {
     public void testSaveOnceThenCompleteCase() {
 
         when(TOProcess.waitsAtUserTask(TO_DISPATCH_FINAL_RESPONSE))
-                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,SAVE)))
-                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,DISPATCHED)));
+                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS, SAVE)))
+                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS, DISPATCHED)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_DISPATCH")
@@ -81,8 +82,8 @@ public class TO_DISPATCH {
     public void testSaveOnceThenPutOnCampaignWithDefaultFlow() {
 
         when(TOProcess.waitsAtUserTask(TO_DISPATCH_FINAL_RESPONSE))
-                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,SAVE)))
-                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,CAMPAIGN)));
+                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS, SAVE)))
+                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS, CAMPAIGN)));
 
         when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE))
                 .thenReturn(taskDelegate -> taskDelegate.complete(withVariables(DIRECTION, FORWARD)));
@@ -100,8 +101,8 @@ public class TO_DISPATCH {
     public void testSaveOnceThenPutOnCampaignBackAndComplete() {
 
         when(TOProcess.waitsAtUserTask(TO_DISPATCH_FINAL_RESPONSE))
-                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,CAMPAIGN)))
-                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,DISPATCHED)));
+                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS, CAMPAIGN)))
+                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS, DISPATCHED)));
 
         when(TOProcess.waitsAtUserTask(TO_GET_CAMPAIGN_TYPE))
                 .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD)));
@@ -119,11 +120,11 @@ public class TO_DISPATCH {
     public void testSaveOnceThenSendToStopList() {
 
         when(TOProcess.waitsAtUserTask(TO_DISPATCH_FINAL_RESPONSE))
-                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,SAVE)))
-                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS,STOP_LIST)));
+                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS, SAVE)))
+                .thenReturn(task -> task.complete(withVariables(DISPATCH_STATUS, STOP_LIST)));
 
         when(TOProcess.waitsAtUserTask(TO_GET_STOP_LIST))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION,FORWARD)));
+                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD)));
 
         Scenario.run(TOProcess)
                 .startByKey("TO_DISPATCH")

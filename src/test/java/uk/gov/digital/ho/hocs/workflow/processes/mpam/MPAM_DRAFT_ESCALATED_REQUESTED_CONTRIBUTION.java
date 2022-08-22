@@ -2,8 +2,8 @@ package uk.gov.digital.ho.hocs.workflow.processes.mpam;
 
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRule;
-import org.camunda.bpm.extension.process_test_coverage.junit.rules.TestCoverageProcessEngineRuleBuilder;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
 import org.junit.Before;
@@ -16,7 +16,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/MPAM/MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION.bpmn")
@@ -71,7 +77,7 @@ public class MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION {
         verify(mpamProcess, times(1))
                 .hasCompleted(DRAFT_UNALLOCATE_CASE_SCREEN);
 
-         verifyNoMoreInteractions(bpmnService);
+        verifyNoMoreInteractions(bpmnService);
     }
 
     @Test
@@ -177,7 +183,7 @@ public class MPAM_DRAFT_ESCALATED_REQUESTED_CONTRIBUTION {
         verify(mpamProcess, never())
                 .hasCompleted(DRAFT_UNALLOCATE_CASE_SCREEN);
 
-         verifyNoMoreInteractions(bpmnService);
+        verifyNoMoreInteractions(bpmnService);
     }
 
     @Test
