@@ -68,19 +68,23 @@
     <bpmn:sequenceFlow id="Flow_0m8fo58" sourceRef="Gateway_0bct3y6" targetRef="EndEvent_BusinessSelect" />
     <bpmn:userTask id="Screen_GroAllocateTeam" name="Allocate to GRO Team" camunda:formKey="POGR_GRO_ALLOCATE_TEAM">
       <bpmn:incoming>Flow_1i93l05</bpmn:incoming>
+      <bpmn:incoming>Flow_18s3iab</bpmn:incoming>
       <bpmn:outgoing>Flow_0l90vyi</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_0l90vyi" sourceRef="Screen_GroAllocateTeam" targetRef="Gateway_1pmc3bt" />
     <bpmn:sequenceFlow id="Flow_1i93l05" sourceRef="Gateway_0bct3y6" targetRef="Screen_GroAllocateTeam">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ BusinessArea == "GRO" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_1pmc3bt" default="Flow_0q1lw66">
+    <bpmn:exclusiveGateway id="Gateway_1pmc3bt" default="Flow_18s3iab">
       <bpmn:incoming>Flow_0l90vyi</bpmn:incoming>
       <bpmn:outgoing>Flow_0q1lw66</bpmn:outgoing>
       <bpmn:outgoing>Flow_1cib5mq</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18s3iab</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0q1lw66" sourceRef="Gateway_1pmc3bt" targetRef="Screen_SendInterimLetter" />
-    <bpmn:serviceTask id="Service_SetGroTriageTeam" name="Update Triage Team" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;POGR_GRO_INVESTIGATION&#34;,&#34;DraftTeamUUID&#34;,&#34;DraftTeamName&#34;,&#34;GroInvestigatingTeamSelection&#34;)}">
+    <bpmn:sequenceFlow id="Flow_0q1lw66" sourceRef="Gateway_1pmc3bt" targetRef="Screen_SendInterimLetter">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Service_SetGroTriageTeam" name="Update Investigation Team" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;POGR_GRO_INVESTIGATION&#34;,&#34;DraftTeamUUID&#34;,&#34;DraftTeamName&#34;,&#34;GroInvestigatingTeamSelection&#34;)}">
       <bpmn:incoming>Flow_1cib5mq</bpmn:incoming>
       <bpmn:outgoing>Flow_1fzpw0q</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -143,9 +147,16 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1mf7ooh" sourceRef="Gateway_17gsdwh" targetRef="Screen_SendInterimLetter" />
+    <bpmn:sequenceFlow id="Flow_18s3iab" sourceRef="Gateway_1pmc3bt" targetRef="Screen_GroAllocateTeam" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_REGISTRATION">
+      <bpmndi:BPMNEdge id="Flow_1mf7ooh_di" bpmnElement="Flow_1mf7ooh" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="1300" y="236" />
+        <di:waypoint x="1300" y="170" />
+        <di:waypoint x="1180" y="170" />
+        <di:waypoint x="1180" y="221" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1r4xwis_di" bpmnElement="Flow_1r4xwis">
         <di:waypoint x="1015" y="150" />
         <di:waypoint x="1060" y="150" />
@@ -223,8 +234,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0q1lw66_di" bpmnElement="Flow_0q1lw66" bioc:stroke="#43a047" color:border-color="#43a047">
         <di:waypoint x="1530" y="125" />
-        <di:waypoint x="1530" y="80" />
-        <di:waypoint x="1180" y="80" />
+        <di:waypoint x="1530" y="40" />
+        <di:waypoint x="1180" y="40" />
         <di:waypoint x="1180" y="221" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i93l05_di" bpmnElement="Flow_1i93l05">
@@ -264,11 +275,11 @@
         <di:waypoint x="188" y="259" />
         <di:waypoint x="250" y="259" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1mf7ooh_di" bpmnElement="Flow_1mf7ooh" bioc:stroke="#e53935" color:border-color="#e53935">
-        <di:waypoint x="1300" y="236" />
-        <di:waypoint x="1300" y="170" />
-        <di:waypoint x="1180" y="170" />
-        <di:waypoint x="1180" y="221" />
+      <bpmndi:BPMNEdge id="Flow_18s3iab_di" bpmnElement="Flow_18s3iab" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="1530" y="125" />
+        <di:waypoint x="1530" y="70" />
+        <di:waypoint x="1410" y="70" />
+        <di:waypoint x="1410" y="110" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_0h34pj4_di" bpmnElement="EndEvent_BusinessSelect">
         <dc:Bounds x="1712" y="244" width="36" height="36" />
