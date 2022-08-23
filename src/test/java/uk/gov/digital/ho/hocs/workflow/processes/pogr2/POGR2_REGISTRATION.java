@@ -98,6 +98,11 @@ public class POGR2_REGISTRATION {
         when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
         Scenario.run(processScenario)
                 .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "No"))
                 .execute();
@@ -107,7 +112,8 @@ public class POGR2_REGISTRATION {
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("5"));
         verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("CallActivity_Gro_DataInput");
-        verify(processScenario, times(1)).hasCompleted("Screen_SendInterimLetter");
+        verify(processScenario, times(2)).hasCompleted("Screen_SendInterimLetter");
+        verify(processScenario, times(3)).hasCompleted("Screen_GroAllocateTeam");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
 
@@ -122,6 +128,9 @@ public class POGR2_REGISTRATION {
                 .deploy(rule);
 
         when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
@@ -140,6 +149,9 @@ public class POGR2_REGISTRATION {
         whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
                 .thenReturn("DIRECTION", "FORWARD")
                 .deploy(rule);
+
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
