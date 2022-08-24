@@ -1,12 +1,12 @@
-package uk.gov.digital.ho.hocs.workflow.processes.pogr;
+package uk.gov.digital.ho.hocs.workflow.processes.pogr2;
 
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
-import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -17,15 +17,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/POGR/POGR_GRO_DISPATCH.bpmn"
+        "processes/POGR2/POGR2_GRO_DISPATCH.bpmn"
 })
-public class POGR_GRO_DISPATCH {
+public class POGR2_GRO_DISPATCH {
 
     @Rule
     @ClassRule
@@ -52,7 +52,7 @@ public class POGR_GRO_DISPATCH {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DISPATCH")
+                .startByKey("POGR2_GRO_DISPATCH")
                 .execute();
 
         verify(processScenario, times(2)).hasCompleted("Screen_Dispatch");
