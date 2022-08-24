@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -61,6 +62,50 @@ public class POGR2_HMPO_DRAFT {
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
         verify(processScenario).hasCompleted("Service_ClearRejectedValue");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
+    }
+
+    @Test
+    public void testTelephoneResponse() {
+        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")));
+
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("TelephoneResponse", "", "DIRECTION", "Backward")
+                .thenReturn("TelephoneResponse", "")
+                .thenReturn("TelephoneResponse", "Yes")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR2_HMPO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
+        verify(processScenario).hasCompleted("Screen_DraftInput");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_TelephoneResponse");
+        verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
+    }
+
+    @Test
+    public void testNotTelephoneResponse() {
+        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")))
+                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "QA")));
+
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
+                .thenReturn("DIRECTION", "BACKWARD")
+                .thenReturn("TelephoneResponse", "No")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("POGR2_HMPO_DRAFT")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
+        verify(processScenario, times(3)).hasCompleted("Screen_DraftInput");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }

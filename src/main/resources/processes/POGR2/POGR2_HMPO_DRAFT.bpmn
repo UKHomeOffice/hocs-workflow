@@ -7,6 +7,7 @@
     <bpmn:endEvent id="EndEvent_HmpoDraft">
       <bpmn:incoming>Flow_0gjqjjw</bpmn:incoming>
       <bpmn:incoming>Flow_0hjtflt</bpmn:incoming>
+      <bpmn:incoming>Flow_0ry59ei</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0wep40c" sourceRef="StartEvent_HmpoDraft" targetRef="Screen_DraftInput" />
     <bpmn:userTask id="Screen_DraftInput" name="Draft" camunda:formKey="POGR2_HMPO_DRAFT">
@@ -15,6 +16,7 @@
       <bpmn:incoming>Flow_0r0xfoj</bpmn:incoming>
       <bpmn:incoming>Flow_1y7hy3e</bpmn:incoming>
       <bpmn:incoming>Flow_0wep40c</bpmn:incoming>
+      <bpmn:incoming>Flow_10pnmhu</bpmn:incoming>
       <bpmn:outgoing>Flow_0gepzbc</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_0s6alky" default="Flow_1v9sur0">
@@ -24,6 +26,7 @@
       <bpmn:outgoing>Flow_03nprpd</bpmn:outgoing>
       <bpmn:outgoing>Flow_0rl2jzk</bpmn:outgoing>
       <bpmn:outgoing>Flow_14mqiuh</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1escco2</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:userTask id="Screen_RejectDraft" name="Reject Draft" camunda:formKey="POGR2_HMPO_DRAFT_REJECT">
       <bpmn:incoming>Flow_03nprpd</bpmn:incoming>
@@ -113,6 +116,36 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("CloseCase") == true }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0hjtflt" sourceRef="Service_ClearRejectedValue" targetRef="EndEvent_HmpoDraft" />
+    <bpmn:callActivity id="CallActivity_TelephoneResponse" name="Telephone Response" calledElement="POGR_TELEPHONE_RESPONSE">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+        <camunda:inputOutput>
+          <camunda:outputParameter name="CloseCase">${ execution.getVariable("TelephoneResponse") == "Yes" }</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_05sm5oi</bpmn:incoming>
+      <bpmn:incoming>Flow_1escco2</bpmn:incoming>
+      <bpmn:outgoing>Flow_14wwrkh</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_1f85oy7" default="Flow_05sm5oi">
+      <bpmn:incoming>Flow_14wwrkh</bpmn:incoming>
+      <bpmn:outgoing>Flow_05sm5oi</bpmn:outgoing>
+      <bpmn:outgoing>Flow_10pnmhu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ry59ei</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_05sm5oi" sourceRef="Gateway_1f85oy7" targetRef="CallActivity_TelephoneResponse" />
+    <bpmn:sequenceFlow id="Flow_14wwrkh" sourceRef="CallActivity_TelephoneResponse" targetRef="Gateway_1f85oy7" />
+    <bpmn:sequenceFlow id="Flow_10pnmhu" sourceRef="Gateway_1f85oy7" targetRef="Screen_DraftInput">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("TelephoneResponse") == "No" || execution.getVariable("DIRECTION") == "BACKWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0ry59ei" sourceRef="Gateway_1f85oy7" targetRef="EndEvent_HmpoDraft">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("TelephoneResponse") == "Yes" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1escco2" sourceRef="Gateway_0s6alky" targetRef="CallActivity_TelephoneResponse">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "TelephoneResponse" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR2_HMPO_DRAFT">
@@ -120,7 +153,7 @@
         <di:waypoint x="188" y="530" />
         <di:waypoint x="250" y="530" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1v9sur0_di" bpmnElement="Flow_1v9sur0" bioc:stroke="#43a047" color:border-color="#43a047">
+      <bpmndi:BPMNEdge id="Flow_1v9sur0_di" bpmnElement="Flow_1v9sur0" bioc:stroke="#e53935" color:border-color="#e53935">
         <di:waypoint x="440" y="505" />
         <di:waypoint x="440" y="440" />
         <di:waypoint x="300" y="440" />
@@ -222,6 +255,32 @@
         <di:waypoint x="880" y="530" />
         <di:waypoint x="942" y="530" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10pnmhu_di" bpmnElement="Flow_10pnmhu" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="700" y="845" />
+        <di:waypoint x="700" y="930" />
+        <di:waypoint x="300" y="930" />
+        <di:waypoint x="300" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05sm5oi_di" bpmnElement="Flow_05sm5oi" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="700" y="845" />
+        <di:waypoint x="700" y="900" />
+        <di:waypoint x="580" y="900" />
+        <di:waypoint x="580" y="860" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14wwrkh_di" bpmnElement="Flow_14wwrkh">
+        <di:waypoint x="630" y="820" />
+        <di:waypoint x="675" y="820" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ry59ei_di" bpmnElement="Flow_0ry59ei">
+        <di:waypoint x="725" y="820" />
+        <di:waypoint x="960" y="820" />
+        <di:waypoint x="960" y="548" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1escco2_di" bpmnElement="Flow_1escco2" bioc:stroke="#1e88e5" color:border-color="#1e88e5">
+        <di:waypoint x="440" y="555" />
+        <di:waypoint x="440" y="820" />
+        <di:waypoint x="530" y="820" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1cbwmdq_di" bpmnElement="Screen_DraftInput">
         <dc:Bounds x="250" y="490" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -260,6 +319,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0pid86l_di" bpmnElement="StartEvent_HmpoDraft">
         <dc:Bounds x="152" y="512" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0frkyqj_di" bpmnElement="CallActivity_TelephoneResponse">
+        <dc:Bounds x="530" y="780" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1f85oy7_di" bpmnElement="Gateway_1f85oy7" isMarkerVisible="true">
+        <dc:Bounds x="675" y="795" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
