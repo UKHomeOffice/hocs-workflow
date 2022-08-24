@@ -47,14 +47,15 @@ public class POGR_HMPO_DISPATCH {
 
     @Test
     public void testHappyPath() {
-        when(processScenario.waitsAtUserTask("Screen_Dispatch_Input"))
-                .thenReturn(task -> task.complete(withVariables("DispatchOutcome", "Upheld")));
+        when(processScenario.waitsAtUserTask("Screen_Dispatch"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR_HMPO_DISPATCH")
                 .execute();
 
-        verify(processScenario).hasCompleted("EndEvent_HmpoQa");
+        verify(processScenario, times(2)).hasCompleted("Screen_Dispatch");
     }
 
 }
