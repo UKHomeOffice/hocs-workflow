@@ -62,18 +62,18 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_16vml3u" sourceRef="CallActivity_TelephoneResponse" targetRef="Gateway_08xe206" />
     <bpmn:sequenceFlow id="Flow_0byso2g" sourceRef="Gateway_08xe206" targetRef="CallActivity_TelephoneResponse" />
-    <bpmn:sequenceFlow id="Flow_1kznzqo" sourceRef="Gateway_08xe206" targetRef="Activity_EscalateCaseNote">
+    <bpmn:sequenceFlow id="Flow_1kznzqo" sourceRef="Gateway_08xe206" targetRef="Service_EscalateCaseNote">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("TelephoneResponse") == "Yes" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0ns4v5z" sourceRef="Gateway_08xe206" targetRef="CallActivity_DraftInput">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("TelephoneResponse") == "No" || execution.getVariable("DIRECTION") == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:userTask id="Activity_0jgtbme" name="Reject Investigation" camunda:formKey="POGR_GRO_DRAFT_REJECT_CASE">
+    <bpmn:userTask id="Screen_RejectDraft" name="Reject Draft" camunda:formKey="POGR_GRO_DRAFT_REJECT">
       <bpmn:incoming>Flow_00pg6c9</bpmn:incoming>
       <bpmn:incoming>Flow_0g56u93</bpmn:incoming>
       <bpmn:outgoing>Flow_0z2lyc6</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:serviceTask id="Activity_136hbub" name="Save Reject Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;HMPODraftRejectionNote&#34;), &#34;REJECT&#34;)}">
+    <bpmn:serviceTask id="Service_RejectCaseNote" name="Save Reject Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;HMPODraftRejectionNote&#34;), &#34;REJECT&#34;)}">
       <bpmn:incoming>Flow_0kkts0c</bpmn:incoming>
       <bpmn:outgoing>Flow_1hvp81g</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -83,18 +83,18 @@
       <bpmn:outgoing>Flow_1alycf6</bpmn:outgoing>
       <bpmn:outgoing>Flow_0g56u93</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0z2lyc6" sourceRef="Activity_0jgtbme" targetRef="Gateway_0t2n8w2" />
-    <bpmn:sequenceFlow id="Flow_0kkts0c" sourceRef="Gateway_0t2n8w2" targetRef="Activity_136hbub">
+    <bpmn:sequenceFlow id="Flow_0z2lyc6" sourceRef="Screen_RejectDraft" targetRef="Gateway_0t2n8w2" />
+    <bpmn:sequenceFlow id="Flow_0kkts0c" sourceRef="Gateway_0t2n8w2" targetRef="Service_RejectCaseNote">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_00pg6c9" sourceRef="Gateway_08v35xh" targetRef="Activity_0jgtbme">
+    <bpmn:sequenceFlow id="Flow_00pg6c9" sourceRef="Gateway_08v35xh" targetRef="Screen_RejectDraft">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "ReturnInvestigation" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1hvp81g" sourceRef="Activity_136hbub" targetRef="Service_ClearRejectedValue" />
+    <bpmn:sequenceFlow id="Flow_1hvp81g" sourceRef="Service_RejectCaseNote" targetRef="Service_ClearRejectedValue" />
     <bpmn:sequenceFlow id="Flow_1alycf6" name="Back" sourceRef="Gateway_0t2n8w2" targetRef="CallActivity_DraftInput">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0g56u93" sourceRef="Gateway_0t2n8w2" targetRef="Activity_0jgtbme" />
+    <bpmn:sequenceFlow id="Flow_0g56u93" sourceRef="Gateway_0t2n8w2" targetRef="Screen_RejectDraft" />
     <bpmn:serviceTask id="Service_ClearRejectedValue" name="Clear Rejected Value" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;Rejected&#34;)}">
       <bpmn:incoming>Flow_1hvp81g</bpmn:incoming>
       <bpmn:incoming>Flow_0a0dqco</bpmn:incoming>
@@ -102,7 +102,7 @@
       <bpmn:outgoing>Flow_0up4ekv</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0up4ekv" sourceRef="Service_ClearRejectedValue" targetRef="EndEvent_GroDraft" />
-    <bpmn:serviceTask id="Activity_EscalateCaseNote" name="Save Escalate Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_DraftEscalate&#34;), &#34;SEND_TO_WORKFLOW_MANAGER&#34;)}">
+    <bpmn:serviceTask id="Service_EscalateCaseNote" name="Save Escalate Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_DraftEscalate&#34;), &#34;SEND_TO_WORKFLOW_MANAGER&#34;)}">
       <bpmn:incoming>Flow_17wfeam</bpmn:incoming>
       <bpmn:incoming>Flow_1kznzqo</bpmn:incoming>
       <bpmn:outgoing>Flow_04iljh6</bpmn:outgoing>
@@ -118,7 +118,7 @@
       <bpmn:outgoing>Flow_1gxs75o</bpmn:outgoing>
       <bpmn:outgoing>Flow_17vcb2a</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_17wfeam" sourceRef="Gateway_1cv8193" targetRef="Activity_EscalateCaseNote">
+    <bpmn:sequenceFlow id="Flow_17wfeam" sourceRef="Gateway_1cv8193" targetRef="Service_EscalateCaseNote">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1gxs75o" sourceRef="Gateway_1cv8193" targetRef="Screen_GroEscalateScreen" />
@@ -129,7 +129,7 @@
     <bpmn:sequenceFlow id="Flow_1phqvhd" sourceRef="Gateway_08v35xh" targetRef="Screen_GroEscalateScreen">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "Escalate" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0aj553t" sourceRef="Gateway_08v35xh" targetRef="CallActivity_InvestigationCloseCase">
+    <bpmn:sequenceFlow id="Flow_0aj553t" sourceRef="Gateway_08v35xh" targetRef="CallActivity_DraftCloseCase">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "CloseCase" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0ub6sm6" default="Flow_0yxyh71">
@@ -137,13 +137,13 @@
       <bpmn:outgoing>Flow_0yxyh71</bpmn:outgoing>
       <bpmn:outgoing>Flow_1keqymi</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1mus1jl" sourceRef="CallActivity_InvestigationCloseCase" targetRef="Gateway_0ub6sm6" />
+    <bpmn:sequenceFlow id="Flow_1mus1jl" sourceRef="CallActivity_DraftCloseCase" targetRef="Gateway_0ub6sm6" />
     <bpmn:sequenceFlow id="Flow_0yxyh71" name="Back" sourceRef="Gateway_0ub6sm6" targetRef="CallActivity_DraftInput" />
     <bpmn:sequenceFlow id="Flow_1keqymi" sourceRef="Gateway_0ub6sm6" targetRef="EndEvent_GroDraft">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("CloseCase") == true }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_04iljh6" sourceRef="Activity_EscalateCaseNote" targetRef="Service_ClearRejectedValue" />
-    <bpmn:callActivity id="CallActivity_InvestigationCloseCase" name="Close Case" calledElement="POGR_CLOSE_CASE">
+    <bpmn:sequenceFlow id="Flow_04iljh6" sourceRef="Service_EscalateCaseNote" targetRef="Service_ClearRejectedValue" />
+    <bpmn:callActivity id="CallActivity_DraftCloseCase" name="Close Case" calledElement="POGR_CLOSE_CASE">
       <bpmn:extensionElements>
         <camunda:in variables="all" />
         <camunda:out variables="all" />
@@ -155,6 +155,10 @@
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR_GRO_DRAFT">
+      <bpmndi:BPMNEdge id="Flow_04iljh6_di" bpmnElement="Flow_04iljh6">
+        <di:waypoint x="910" y="580" />
+        <di:waypoint x="910" y="510" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1keqymi_di" bpmnElement="Flow_1keqymi">
         <di:waypoint x="765" y="180" />
         <di:waypoint x="1040" y="180" />
@@ -283,10 +287,6 @@
         <di:waypoint x="188" y="470" />
         <di:waypoint x="270" y="470" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_04iljh6_di" bpmnElement="Flow_04iljh6">
-        <di:waypoint x="910" y="580" />
-        <di:waypoint x="910" y="510" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0pid86l_di" bpmnElement="StartEvent_GroDraft">
         <dc:Bounds x="152" y="452" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -299,10 +299,16 @@
       <bpmndi:BPMNShape id="Gateway_08v35xh_di" bpmnElement="Gateway_08v35xh" isMarkerVisible="true">
         <dc:Bounds x="435" y="445" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0jgtbme_di" bpmnElement="Activity_0jgtbme">
+      <bpmndi:BPMNShape id="Activity_0rwnxsw_di" bpmnElement="CallActivity_TelephoneResponse">
+        <dc:Bounds x="550" y="740" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_08xe206_di" bpmnElement="Gateway_08xe206" isMarkerVisible="true">
+        <dc:Bounds x="715" y="755" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jgtbme_di" bpmnElement="Screen_RejectDraft">
         <dc:Bounds x="550" y="300" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_136hbub_di" bpmnElement="Activity_136hbub">
+      <bpmndi:BPMNShape id="Activity_136hbub_di" bpmnElement="Service_RejectCaseNote">
         <dc:Bounds x="860" y="300" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0t2n8w2_di" bpmnElement="Gateway_0t2n8w2" isMarkerVisible="true">
@@ -311,7 +317,7 @@
       <bpmndi:BPMNShape id="Activity_110jlph_di" bpmnElement="Service_ClearRejectedValue">
         <dc:Bounds x="860" y="430" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0rubqkn_di" bpmnElement="Activity_EscalateCaseNote">
+      <bpmndi:BPMNShape id="Activity_0rubqkn_di" bpmnElement="Service_EscalateCaseNote">
         <dc:Bounds x="860" y="580" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1elpke3_di" bpmnElement="Screen_GroEscalateScreen">
@@ -320,16 +326,10 @@
       <bpmndi:BPMNShape id="Gateway_1cv8193_di" bpmnElement="Gateway_1cv8193" isMarkerVisible="true">
         <dc:Bounds x="715" y="595" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0rwnxsw_di" bpmnElement="CallActivity_TelephoneResponse">
-        <dc:Bounds x="550" y="740" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_08xe206_di" bpmnElement="Gateway_08xe206" isMarkerVisible="true">
-        <dc:Bounds x="715" y="755" width="50" height="50" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0ub6sm6_di" bpmnElement="Gateway_0ub6sm6" isMarkerVisible="true">
         <dc:Bounds x="715" y="155" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0luhfne_di" bpmnElement="CallActivity_InvestigationCloseCase">
+      <bpmndi:BPMNShape id="Activity_0luhfne_di" bpmnElement="CallActivity_DraftCloseCase">
         <dc:Bounds x="550" y="140" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

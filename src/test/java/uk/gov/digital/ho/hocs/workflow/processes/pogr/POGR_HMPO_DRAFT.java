@@ -30,9 +30,6 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 })
 public class POGR_HMPO_DRAFT {
 
-    public static final String REJECT_INVESTIGATION = "Activity_0tx4s0b";
-    public static final String SAVE_REJECTION_NOTE = "Activity_0iuutst";
-
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
@@ -121,7 +118,7 @@ public class POGR_HMPO_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "ReturnInvestigation")))
                 .thenReturn(task -> task.complete(withVariables("DraftOutcome", "ReturnInvestigation")));
 
-        when(processScenario.waitsAtUserTask(REJECT_INVESTIGATION))
+        when(processScenario.waitsAtUserTask("Screen_RejectDraft"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION","UNKNOWN")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
@@ -132,9 +129,8 @@ public class POGR_HMPO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
-        verify(processScenario, times(3)).hasCompleted(REJECT_INVESTIGATION);
-        verify(processScenario, times(1)).hasCompleted(SAVE_REJECTION_NOTE);
-        verify(processScenario, times(1)).hasCompleted(SAVE_REJECTION_NOTE);
+        verify(processScenario, times(3)).hasCompleted("Screen_RejectDraft");
+        verify(processScenario).hasCompleted("Service_RejectCaseNote");
         verify(processScenario).hasCompleted("Service_ClearRejectedValue");
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
@@ -157,7 +153,7 @@ public class POGR_HMPO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
-        verify(processScenario, times(1)).hasCompleted("Activity_EscalateCaseNote");
+        verify(processScenario, times(1)).hasCompleted("Service_EscalateCaseNote");
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
 
@@ -178,7 +174,7 @@ public class POGR_HMPO_DRAFT {
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_InvestigationCloseCase");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_DraftCloseCase");
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
 

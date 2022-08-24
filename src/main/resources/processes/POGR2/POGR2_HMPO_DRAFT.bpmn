@@ -1,25 +1,265 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="Definitions_0pru6n5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
   <bpmn:process id="POGR2_HMPO_DRAFT" isExecutable="true">
     <bpmn:startEvent id="StartEvent_HmpoDraft">
       <bpmn:outgoing>Flow_0wep40c</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="EndEvent_HmpoDraft">
-      <bpmn:incoming>Flow_0wep40c</bpmn:incoming>
+      <bpmn:incoming>Flow_0gjqjjw</bpmn:incoming>
+      <bpmn:incoming>Flow_0hjtflt</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0wep40c" sourceRef="StartEvent_HmpoDraft" targetRef="EndEvent_HmpoDraft" />
+    <bpmn:sequenceFlow id="Flow_0wep40c" sourceRef="StartEvent_HmpoDraft" targetRef="Screen_DraftInput" />
+    <bpmn:userTask id="Screen_DraftInput" name="Draft" camunda:formKey="POGR2_HMPO_DRAFT">
+      <bpmn:incoming>Flow_1v9sur0</bpmn:incoming>
+      <bpmn:incoming>Flow_18w85t7</bpmn:incoming>
+      <bpmn:incoming>Flow_0r0xfoj</bpmn:incoming>
+      <bpmn:incoming>Flow_1y7hy3e</bpmn:incoming>
+      <bpmn:incoming>Flow_0wep40c</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gepzbc</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0s6alky" default="Flow_1v9sur0">
+      <bpmn:incoming>Flow_0gepzbc</bpmn:incoming>
+      <bpmn:outgoing>Flow_1v9sur0</bpmn:outgoing>
+      <bpmn:outgoing>Flow_142kq78</bpmn:outgoing>
+      <bpmn:outgoing>Flow_03nprpd</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0rl2jzk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14mqiuh</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Screen_RejectDraft" name="Reject Draft" camunda:formKey="POGR2_HMPO_DRAFT_REJECT">
+      <bpmn:incoming>Flow_03nprpd</bpmn:incoming>
+      <bpmn:incoming>Flow_17p4u3n</bpmn:incoming>
+      <bpmn:outgoing>Flow_17i63ow</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Service_RejectCaseNote" name="Save Reject Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;HMPODraftRejectionNote&#34;), &#34;REJECT&#34;)}">
+      <bpmn:incoming>Flow_0f3x8gm</bpmn:incoming>
+      <bpmn:outgoing>Flow_1r1fgf1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_0mues46" default="Flow_17p4u3n">
+      <bpmn:incoming>Flow_17i63ow</bpmn:incoming>
+      <bpmn:outgoing>Flow_18w85t7</bpmn:outgoing>
+      <bpmn:outgoing>Flow_17p4u3n</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0f3x8gm</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Service_ClearRejectedValue" name="Clear Rejected Value" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;Rejected&#34;)}">
+      <bpmn:incoming>Flow_142kq78</bpmn:incoming>
+      <bpmn:incoming>Flow_1r1fgf1</bpmn:incoming>
+      <bpmn:incoming>Flow_1wr2tco</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hjtflt</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Service_EscalateCaseNote" name="Save Escalate Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_DraftEscalate&#34;), &#34;SEND_TO_WORKFLOW_MANAGER&#34;)}">
+      <bpmn:incoming>Flow_0fotdra</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wr2tco</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Screen_HmpoEscalateScreen" name="Escalate Case" camunda:formKey="POGR2_HMPO_DRAFT_ESCALATE">
+      <bpmn:incoming>Flow_0rl2jzk</bpmn:incoming>
+      <bpmn:incoming>Flow_174vont</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jl1u76</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0901dwv" default="Flow_174vont">
+      <bpmn:incoming>Flow_0jl1u76</bpmn:incoming>
+      <bpmn:outgoing>Flow_0r0xfoj</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0fotdra</bpmn:outgoing>
+      <bpmn:outgoing>Flow_174vont</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_0bgf2oz" default="Flow_1y7hy3e">
+      <bpmn:incoming>Flow_0mxnnvj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1y7hy3e</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0gjqjjw</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="CallActivity_DraftCloseCase" name="Close Case" calledElement="POGR_CLOSE_CASE">
+      <bpmn:extensionElements>
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_14mqiuh</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mxnnvj</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1v9sur0" sourceRef="Gateway_0s6alky" targetRef="Screen_DraftInput" />
+    <bpmn:sequenceFlow id="Flow_18w85t7" name="Back" sourceRef="Gateway_0mues46" targetRef="Screen_DraftInput">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0r0xfoj" sourceRef="Gateway_0901dwv" targetRef="Screen_DraftInput">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1y7hy3e" name="Back" sourceRef="Gateway_0bgf2oz" targetRef="Screen_DraftInput" />
+    <bpmn:sequenceFlow id="Flow_0gepzbc" sourceRef="Screen_DraftInput" targetRef="Gateway_0s6alky" />
+    <bpmn:sequenceFlow id="Flow_142kq78" sourceRef="Gateway_0s6alky" targetRef="Service_ClearRejectedValue">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "QA" || DraftOutcome == "Dispatch" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_03nprpd" sourceRef="Gateway_0s6alky" targetRef="Screen_RejectDraft">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "ReturnInvestigation" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0rl2jzk" sourceRef="Gateway_0s6alky" targetRef="Screen_HmpoEscalateScreen">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "Escalate" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_14mqiuh" sourceRef="Gateway_0s6alky" targetRef="CallActivity_DraftCloseCase">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DraftOutcome == "CloseCase" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_17p4u3n" sourceRef="Gateway_0mues46" targetRef="Screen_RejectDraft" />
+    <bpmn:sequenceFlow id="Flow_17i63ow" sourceRef="Screen_RejectDraft" targetRef="Gateway_0mues46" />
+    <bpmn:sequenceFlow id="Flow_0f3x8gm" sourceRef="Gateway_0mues46" targetRef="Service_RejectCaseNote">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1r1fgf1" sourceRef="Service_RejectCaseNote" targetRef="Service_ClearRejectedValue" />
+    <bpmn:sequenceFlow id="Flow_1wr2tco" sourceRef="Service_EscalateCaseNote" targetRef="Service_ClearRejectedValue" />
+    <bpmn:sequenceFlow id="Flow_0fotdra" sourceRef="Gateway_0901dwv" targetRef="Service_EscalateCaseNote">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_174vont" sourceRef="Gateway_0901dwv" targetRef="Screen_HmpoEscalateScreen" />
+    <bpmn:sequenceFlow id="Flow_0jl1u76" sourceRef="Screen_HmpoEscalateScreen" targetRef="Gateway_0901dwv" />
+    <bpmn:sequenceFlow id="Flow_0mxnnvj" sourceRef="CallActivity_DraftCloseCase" targetRef="Gateway_0bgf2oz" />
+    <bpmn:sequenceFlow id="Flow_0gjqjjw" sourceRef="Gateway_0bgf2oz" targetRef="EndEvent_HmpoDraft">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("CloseCase") == true }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0hjtflt" sourceRef="Service_ClearRejectedValue" targetRef="EndEvent_HmpoDraft" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="POGR2_HMPO_DRAFT">
       <bpmndi:BPMNEdge id="Flow_0wep40c_di" bpmnElement="Flow_0wep40c">
-        <di:waypoint x="208" y="100" />
-        <di:waypoint x="292" y="100" />
+        <di:waypoint x="188" y="530" />
+        <di:waypoint x="250" y="530" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_0pid86l_di" bpmnElement="StartEvent_HmpoDraft">
-        <dc:Bounds x="172" y="82" width="36" height="36" />
+      <bpmndi:BPMNEdge id="Flow_1v9sur0_di" bpmnElement="Flow_1v9sur0" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="440" y="505" />
+        <di:waypoint x="440" y="440" />
+        <di:waypoint x="300" y="440" />
+        <di:waypoint x="300" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18w85t7_di" bpmnElement="Flow_18w85t7" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="700" y="375" />
+        <di:waypoint x="700" y="270" />
+        <di:waypoint x="300" y="270" />
+        <di:waypoint x="300" y="490" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="488" y="252" width="25" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r0xfoj_di" bpmnElement="Flow_0r0xfoj" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="700" y="695" />
+        <di:waypoint x="700" y="740" />
+        <di:waypoint x="300" y="740" />
+        <di:waypoint x="300" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1y7hy3e_di" bpmnElement="Flow_1y7hy3e" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="700" y="155" />
+        <di:waypoint x="700" y="100" />
+        <di:waypoint x="300" y="100" />
+        <di:waypoint x="300" y="490" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="488" y="82" width="25" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gepzbc_di" bpmnElement="Flow_0gepzbc">
+        <di:waypoint x="350" y="530" />
+        <di:waypoint x="415" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_142kq78_di" bpmnElement="Flow_142kq78">
+        <di:waypoint x="465" y="530" />
+        <di:waypoint x="780" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03nprpd_di" bpmnElement="Flow_03nprpd" bioc:stroke="#fb8c00" color:border-color="#fb8c00">
+        <di:waypoint x="440" y="505" />
+        <di:waypoint x="440" y="400" />
+        <di:waypoint x="530" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rl2jzk_di" bpmnElement="Flow_0rl2jzk" bioc:stroke="#fb8c00" color:border-color="#fb8c00">
+        <di:waypoint x="440" y="555" />
+        <di:waypoint x="440" y="670" />
+        <di:waypoint x="530" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14mqiuh_di" bpmnElement="Flow_14mqiuh" bioc:stroke="#1e88e5" color:border-color="#1e88e5">
+        <di:waypoint x="440" y="505" />
+        <di:waypoint x="440" y="180" />
+        <di:waypoint x="530" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17p4u3n_di" bpmnElement="Flow_17p4u3n" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="700" y="375" />
+        <di:waypoint x="700" y="320" />
+        <di:waypoint x="580" y="320" />
+        <di:waypoint x="580" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17i63ow_di" bpmnElement="Flow_17i63ow">
+        <di:waypoint x="630" y="400" />
+        <di:waypoint x="675" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f3x8gm_di" bpmnElement="Flow_0f3x8gm">
+        <di:waypoint x="725" y="400" />
+        <di:waypoint x="780" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1r1fgf1_di" bpmnElement="Flow_1r1fgf1">
+        <di:waypoint x="830" y="440" />
+        <di:waypoint x="830" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wr2tco_di" bpmnElement="Flow_1wr2tco">
+        <di:waypoint x="830" y="630" />
+        <di:waypoint x="830" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0fotdra_di" bpmnElement="Flow_0fotdra">
+        <di:waypoint x="725" y="670" />
+        <di:waypoint x="780" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_174vont_di" bpmnElement="Flow_174vont" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="700" y="645" />
+        <di:waypoint x="700" y="600" />
+        <di:waypoint x="580" y="600" />
+        <di:waypoint x="580" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jl1u76_di" bpmnElement="Flow_0jl1u76">
+        <di:waypoint x="630" y="670" />
+        <di:waypoint x="675" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mxnnvj_di" bpmnElement="Flow_0mxnnvj">
+        <di:waypoint x="630" y="180" />
+        <di:waypoint x="675" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gjqjjw_di" bpmnElement="Flow_0gjqjjw">
+        <di:waypoint x="725" y="180" />
+        <di:waypoint x="960" y="180" />
+        <di:waypoint x="960" y="512" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hjtflt_di" bpmnElement="Flow_0hjtflt">
+        <di:waypoint x="880" y="530" />
+        <di:waypoint x="942" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1cbwmdq_di" bpmnElement="Screen_DraftInput">
+        <dc:Bounds x="250" y="490" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0s6alky_di" bpmnElement="Gateway_0s6alky" isMarkerVisible="true">
+        <dc:Bounds x="415" y="505" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0s7r7ul_di" bpmnElement="Screen_RejectDraft">
+        <dc:Bounds x="530" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08yvkhr_di" bpmnElement="Service_RejectCaseNote">
+        <dc:Bounds x="780" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0mues46_di" bpmnElement="Gateway_0mues46" isMarkerVisible="true">
+        <dc:Bounds x="675" y="375" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03z0tg5_di" bpmnElement="Service_ClearRejectedValue">
+        <dc:Bounds x="780" y="490" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_12m9du3_di" bpmnElement="Service_EscalateCaseNote">
+        <dc:Bounds x="780" y="630" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1he812w_di" bpmnElement="Screen_HmpoEscalateScreen">
+        <dc:Bounds x="530" y="630" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0901dwv_di" bpmnElement="Gateway_0901dwv" isMarkerVisible="true">
+        <dc:Bounds x="675" y="645" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0bgf2oz_di" bpmnElement="Gateway_0bgf2oz" isMarkerVisible="true">
+        <dc:Bounds x="675" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0payuel_di" bpmnElement="CallActivity_DraftCloseCase">
+        <dc:Bounds x="530" y="140" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_04tmesu_di" bpmnElement="EndEvent_HmpoDraft">
-        <dc:Bounds x="292" y="82" width="36" height="36" />
+        <dc:Bounds x="942" y="512" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pid86l_di" bpmnElement="StartEvent_HmpoDraft">
+        <dc:Bounds x="152" y="512" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

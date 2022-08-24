@@ -1,12 +1,12 @@
-package uk.gov.digital.ho.hocs.workflow.processes.pogr;
+package uk.gov.digital.ho.hocs.workflow.processes.pogr2;
 
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
-import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -26,9 +26,9 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/POGR/POGR_GRO_DRAFT.bpmn"
+        "processes/POGR2/POGR2_GRO_DRAFT.bpmn"
 })
-public class POGR_GRO_DRAFT {
+public class POGR2_GRO_DRAFT {
 
     @Rule
     @ClassRule
@@ -56,60 +56,11 @@ public class POGR_GRO_DRAFT {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
+                .startByKey("POGR2_GRO_DRAFT")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
-        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
-        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
-        verify(processScenario).hasCompleted("EndEvent_GroDraft");
-    }
-
-    @Test
-    public void testTelephoneResponse() {
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DraftOutcome", "TelephoneResponse")
-                .deploy(rule);
-
-        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
-                .thenReturn("TelephoneResponse", "", "DIRECTION", "Backward")
-                .thenReturn("TelephoneResponse", "")
-                .thenReturn("TelephoneResponse", "Yes")
-                .deploy(rule);
-
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
-                .execute();
-
-        verify(processScenario).hasCompleted("StartEvent_GroDraft");
-        verify(processScenario).hasCompleted("CallActivity_DraftInput");
-        verify(processScenario, times(3)).hasCompleted("CallActivity_TelephoneResponse");
-        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
-        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
-        verify(processScenario).hasCompleted("EndEvent_GroDraft");
-    }
-
-    @Test
-    public void testNotTelephoneResponse() {
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DraftOutcome", "TelephoneResponse")
-                .thenReturn("DraftOutcome", "TelephoneResponse")
-                .thenReturn("DraftOutcome", "QA")
-                .deploy(rule);
-
-        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
-                .thenReturn("DIRECTION", "BACKWARD")
-                .thenReturn("TelephoneResponse", "No")
-                .deploy(rule);
-
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
-                .execute();
-
-        verify(processScenario).hasCompleted("StartEvent_GroDraft");
-        verify(processScenario, times(3)).hasCompleted("CallActivity_DraftInput");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
         verify(processScenario).hasCompleted("Service_ClearRejectedValue");
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
@@ -128,7 +79,7 @@ public class POGR_GRO_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
 
         Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
+                .startByKey("POGR2_GRO_DRAFT")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
@@ -153,7 +104,7 @@ public class POGR_GRO_DRAFT {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
 
         Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
+                .startByKey("POGR2_GRO_DRAFT")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
@@ -175,7 +126,7 @@ public class POGR_GRO_DRAFT {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
+                .startByKey("POGR2_GRO_DRAFT")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
