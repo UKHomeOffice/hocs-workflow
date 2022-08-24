@@ -85,8 +85,6 @@ public class POGR_GRO_DRAFT {
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario).hasCompleted("CallActivity_DraftInput");
         verify(processScenario, times(3)).hasCompleted("CallActivity_TelephoneResponse");
-        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
-        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }
 
@@ -110,7 +108,6 @@ public class POGR_GRO_DRAFT {
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(3)).hasCompleted("CallActivity_DraftInput");
         verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
-        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_GroDraft");
     }

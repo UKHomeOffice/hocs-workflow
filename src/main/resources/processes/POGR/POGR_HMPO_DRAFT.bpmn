@@ -7,6 +7,7 @@
     <bpmn:endEvent id="EndEvent_HmpoDraft">
       <bpmn:incoming>Flow_0qattfi</bpmn:incoming>
       <bpmn:incoming>Flow_1ikvaaj</bpmn:incoming>
+      <bpmn:incoming>Flow_1izvbv1</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="Screen_DraftInput" name="Draft" camunda:formKey="POGR_HMPO_DRAFT">
       <bpmn:incoming>Flow_1h6zo9j</bpmn:incoming>
@@ -38,7 +39,7 @@
         <camunda:in variables="all" />
         <camunda:out variables="all" />
         <camunda:inputOutput>
-          <camunda:outputParameter name="CloseCaseDraft">${ execution.getVariable("TelephoneResponse") == "Yes" }</camunda:outputParameter>
+          <camunda:outputParameter name="CloseCase">${ execution.getVariable("TelephoneResponse") == "Yes" }</camunda:outputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0ruzn3v</bpmn:incoming>
@@ -54,7 +55,7 @@
       <bpmn:outgoing>Flow_197gv7u</bpmn:outgoing>
       <bpmn:outgoing>Flow_0mz6qcv</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1izvbv1" sourceRef="Gateway_0ethfwm" targetRef="Service_EscalateCaseNote">
+    <bpmn:sequenceFlow id="Flow_1izvbv1" sourceRef="Gateway_0ethfwm" targetRef="EndEvent_HmpoDraft">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("TelephoneResponse") == "Yes" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1mfn8rb" sourceRef="CallActivity_TelephoneResponse" targetRef="Gateway_0ethfwm" />
@@ -62,7 +63,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("TelephoneResponse") == "No" || execution.getVariable("DIRECTION") == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0mz6qcv" sourceRef="Gateway_0ethfwm" targetRef="CallActivity_TelephoneResponse" />
-    <bpmn:userTask id="Screen_RejectDraft" name="Reject Draft" camunda:formKey="POGR_HMPO_DRAFT_REJECT_CASE">
+    <bpmn:userTask id="Screen_RejectDraft" name="Reject Draft" camunda:formKey="POGR_HMPO_DRAFT_REJECT">
       <bpmn:incoming>Flow_1vyu5vl</bpmn:incoming>
       <bpmn:incoming>Flow_0s0yo2m</bpmn:incoming>
       <bpmn:outgoing>Flow_0u2jyzy</bpmn:outgoing>
@@ -98,10 +99,9 @@
     <bpmn:sequenceFlow id="Flow_0qattfi" sourceRef="Service_ClearRejectedValue" targetRef="EndEvent_HmpoDraft" />
     <bpmn:serviceTask id="Service_EscalateCaseNote" name="Save Escalate Note" camunda:expression="${bpmnService.updateAllocationNote(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;CaseNote_DraftEscalate&#34;), &#34;SEND_TO_WORKFLOW_MANAGER&#34;)}">
       <bpmn:incoming>Flow_1le646z</bpmn:incoming>
-      <bpmn:incoming>Flow_1izvbv1</bpmn:incoming>
       <bpmn:outgoing>Flow_0363jos</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:userTask id="Screen_HmpoEscalateScreen" name="Escalate Case" camunda:formKey="POGR_HMPO_DRAFT_ESCALATE">
+    <bpmn:userTask id="Screen_HmpoEscalateScreen" name="Escalate Case" camunda:formKey="POGR__DRAFT_ESCALATE">
       <bpmn:incoming>Flow_1i9y9zn</bpmn:incoming>
       <bpmn:incoming>Flow_0ih647f</bpmn:incoming>
       <bpmn:outgoing>Flow_0mta4zf</bpmn:outgoing>
@@ -255,8 +255,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1izvbv1_di" bpmnElement="Flow_1izvbv1">
         <di:waypoint x="745" y="820" />
-        <di:waypoint x="850" y="820" />
-        <di:waypoint x="850" y="710" />
+        <di:waypoint x="980" y="820" />
+        <di:waypoint x="980" y="550" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0yyn7w3_di" bpmnElement="Flow_0yyn7w3">
         <di:waypoint x="485" y="530" />
@@ -284,9 +284,6 @@
       <bpmndi:BPMNShape id="Event_0pid86l_di" bpmnElement="StartEvent_HmpoDraft">
         <dc:Bounds x="172" y="512" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_04tmesu_di" bpmnElement="EndEvent_HmpoDraft">
-        <dc:Bounds x="962" y="512" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0ie5w7n_di" bpmnElement="Screen_DraftInput">
         <dc:Bounds x="270" y="490" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -308,9 +305,6 @@
       <bpmndi:BPMNShape id="Gateway_0bt29iu_di" bpmnElement="Gateway_0bt29iu" isMarkerVisible="true">
         <dc:Bounds x="695" y="375" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1fwp6zl_di" bpmnElement="Service_ClearRejectedValue">
-        <dc:Bounds x="800" y="490" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0tra77n_di" bpmnElement="Service_EscalateCaseNote">
         <dc:Bounds x="800" y="630" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -325,6 +319,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1yqkdg1_di" bpmnElement="CallActivity_DraftCloseCase">
         <dc:Bounds x="550" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1fwp6zl_di" bpmnElement="Service_ClearRejectedValue">
+        <dc:Bounds x="800" y="490" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_04tmesu_di" bpmnElement="EndEvent_HmpoDraft">
+        <dc:Bounds x="962" y="512" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

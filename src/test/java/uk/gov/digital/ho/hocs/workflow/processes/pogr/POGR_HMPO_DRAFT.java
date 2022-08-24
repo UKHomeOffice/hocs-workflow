@@ -83,8 +83,6 @@ public class POGR_HMPO_DRAFT {
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario).hasCompleted("Screen_DraftInput");
         verify(processScenario, times(3)).hasCompleted("CallActivity_TelephoneResponse");
-        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
-        verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
 
@@ -107,7 +105,6 @@ public class POGR_HMPO_DRAFT {
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(3)).hasCompleted("Screen_DraftInput");
         verify(processScenario, times(2)).hasCompleted("CallActivity_TelephoneResponse");
-        verify(processScenario).hasCompleted("Service_ClearRejectedValue");
         verify(bpmnService).blankCaseValues(any(), any(), eq("Rejected"));
         verify(processScenario).hasCompleted("EndEvent_HmpoDraft");
     }
