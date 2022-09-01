@@ -20,6 +20,7 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/IEDET/IEDET_REGISTRATION.bpmn")
@@ -27,9 +28,7 @@ public class IEDET_REGISTRATION {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.91)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -38,122 +37,34 @@ public class IEDET_REGISTRATION {
     BpmnService bpmnService;
 
     @Mock
-    private ProcessScenario compRegistrationProcess;
+    private ProcessScenario processScenario;
 
     @Before
-    public void defaultScenario() {
+    public void setup() {
         Mocks.register("bpmnService", bpmnService);
+    }
 
-        when(compRegistrationProcess.waitsAtUserTask("Validate_CorrespondentInput"))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
 
-        when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT"))).thenReturn(true);
+    @Test
+    public void testHappyPath() {
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
+                .thenReturn("DIRECTION", "")
+                .thenReturn("DIRECTION", "FORWARD")
+                .thenReturn("DIRECTION", "FORWARD")
+                .deploy(rule);
 
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Complainant"))
+        when(processScenario.waitsAtUserTask("Screen_ComplainantInput"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Complaint"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","CompType", "Service")));
-
-        when(compRegistrationProcess.waitsAtUserTask("UserTask_0k00jya"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Category"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Not_Service")));
-    }
-
-    @Test
-    public void happyPath() {
-        Scenario.run(compRegistrationProcess)
+        Scenario.run(processScenario)
                 .startByKey("IEDET_REGISTRATION")
                 .execute();
 
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
-    }
-
-    @Test
-    public void backwardsFromValidateComplainant(){
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Complainant"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", false)))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", true)));
-
-        Scenario.run(compRegistrationProcess)
-                .startByKey("IEDET_REGISTRATION")
-                .execute();
-
-        verify(compRegistrationProcess, times(2))
-                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
-    }
-
-    @Test
-    public void hasNoPrimaryCorrespondent(){
-        when(compRegistrationProcess.waitsAtUserTask("Validate_CorrespondentInput"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
-
-        when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT")))
-                .thenReturn(false)
-                .thenReturn(true);
-
-        when(compRegistrationProcess.waitsAtUserTask("Validate_InvalidCorrespondents"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
-
-        Scenario.run(compRegistrationProcess)
-                .startByKey("IEDET_REGISTRATION")
-                .execute();
-
-        verify(compRegistrationProcess, times(2))
-                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
-
-        verify(compRegistrationProcess, times(2))
-                .hasCompleted("Screen_InvalidCorrespondents");
-    }
-
-    @Test
-    public void backwardsFromValidateComplaint(){
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Complaint"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Service", "valid", false)))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Service", "valid", true)));
-
-        Scenario.run(compRegistrationProcess)
-                .startByKey("IEDET_REGISTRATION")
-                .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
-    }
-
-    @Test
-    public void backwardsFromValidateInput(){
-        when(compRegistrationProcess.waitsAtUserTask("UserTask_0k00jya"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", false)))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", true)));
-
-        Scenario.run(compRegistrationProcess)
-                .startByKey("IEDET_REGISTRATION")
-                .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
-    }
-
-    @Test
-    public void backwardsFromValidateCategory(){
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Category"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "CompType", "Not_Service")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD",  "valid", false)))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Not_Service", "valid", true)));
-
-        Scenario.run(compRegistrationProcess)
-                .startByKey("IEDET_REGISTRATION")
-                .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
+        verify(processScenario).hasCompleted("StartEvent_Registration");
+        verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
+        verify(processScenario, times(3)).hasCompleted("Screen_ComplainantInput");
+        verify(processScenario).hasCompleted("EndEvent_Registration");
     }
 }
