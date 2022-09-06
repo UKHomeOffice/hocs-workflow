@@ -51,7 +51,9 @@ public class POGR_TELEPHONE_RESPONSE {
     @Test
     public void testHappyPath() {
         when(processScenario.waitsAtUserTask("Screen_TelephoneResponse"))
-                .thenReturn(task -> task.complete(withVariables("TelephoneResponse", "Yes", "TelephoneResponseCaseNote", "Test")));
+                .thenReturn(task -> task.complete(withVariables("TelephoneResponse", "Yes",
+                        "TelephoneResponseCaseNote", "Test",
+                        "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR_TELEPHONE_RESPONSE")
@@ -68,7 +70,9 @@ public class POGR_TELEPHONE_RESPONSE {
     @Test
     public void testNonTelephone() {
         when(processScenario.waitsAtUserTask("Screen_TelephoneResponse"))
-                .thenReturn(task -> task.complete(withVariables("TelephoneResponse", "No", "TelephoneResponseCaseNote", "Test")));
+                .thenReturn(task -> task.complete(withVariables("TelephoneResponse", "No",
+                        "TelephoneResponseCaseNote", "Test",
+                        "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR_TELEPHONE_RESPONSE")
@@ -80,6 +84,23 @@ public class POGR_TELEPHONE_RESPONSE {
         verify(processScenario).hasCompleted("EndEvent_TelephoneResponse");
 
         verify(bpmnService).createCaseNote(any(), eq("Test"), eq("PHONECALL"));
+    }
+
+    @Test
+    public void testBackTelephone() {
+        when(processScenario.waitsAtUserTask("Screen_TelephoneResponse"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("POGR_TELEPHONE_RESPONSE")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_TelephoneResponse");
+        verify(processScenario).hasCompleted("Screen_TelephoneResponse");
+        verify(processScenario, times(0)).hasCompleted("Service_TelephoneCreateCaseNote");
+        verify(processScenario).hasCompleted("EndEvent_TelephoneResponse");
+
+        verify(bpmnService, times(0)).createCaseNote(any(), any(), any());
     }
 
 }
