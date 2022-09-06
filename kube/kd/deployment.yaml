@@ -63,38 +63,6 @@ spec:
               cpu: 300m
 
       containers:
-        - name: certs
-          image: quay.io/ukhomeofficedigital/cfssl-sidekick:v0.0.9
-          securityContext:
-            runAsNonRoot: true
-            capabilities:
-              drop:
-                - SETUID
-                - SETGID
-          args:
-            - --certs=/certs
-            - --domain=hocs-workflow.${KUBE_NAMESPACE}.svc.cluster.local
-            - --expiry=8760h
-            - --command=/usr/local/scripts/trigger_nginx_reload.sh
-          env:
-            - name: KUBE_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          volumeMounts:
-            - name: certs
-              mountPath: /certs
-            - name: bundle
-              mountPath: /etc/ssl/certs
-              readOnly: true
-          resources:
-            limits:
-              memory: 96Mi
-              cpu: 400m
-            requests:
-              memory: 96Mi
-              cpu: 100m
-
         - name: proxy
           image: quay.io/ukhomeofficedigital/nginx-proxy:v4.2.0
           securityContext:
