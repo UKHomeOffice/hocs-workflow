@@ -34,7 +34,7 @@ public class IEDET_DRAFT {
     private BpmnService bpmnService;
 
     @Mock
-    private ProcessScenario compServiceDraftProcess;
+    private ProcessScenario processScenario;
 
     @Before
     public void setup() {
@@ -43,12 +43,14 @@ public class IEDET_DRAFT {
 
     @Test
     public void testDefaultPassThrough(){
-        when(compServiceDraftProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false )))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+        when(processScenario.waitsAtUserTask("Screen_Input"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "" )))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(compServiceDraftProcess).startByKey("IEDET_DRAFT").execute();
+        Scenario.run(processScenario).startByKey("IEDET_DRAFT").execute();
 
-        verify(compServiceDraftProcess, times(2)).hasCompleted("Screen_Input");
+        verify(processScenario).hasCompleted("StartEvent_Draft");
+        verify(processScenario, times(2)).hasCompleted("Screen_Input");
+        verify(processScenario).hasCompleted("EndEvent_Draft");
     }
 }

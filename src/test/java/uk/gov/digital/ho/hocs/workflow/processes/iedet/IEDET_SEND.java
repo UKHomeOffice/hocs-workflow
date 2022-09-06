@@ -43,12 +43,14 @@ public class IEDET_SEND {
 
     @Test
     public void testDefaultRoute(){
-        when(processScenario.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+        when(processScenario.waitsAtUserTask("Screen_Input"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "" )))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario).startByKey("IEDET_SEND").execute();
 
+        verify(processScenario).hasCompleted("StartEvent_Send");
         verify(processScenario, times(2)).hasCompleted("Screen_Input");
+        verify(processScenario).hasCompleted("EndEvent_Send");
     }
 }
