@@ -18,7 +18,6 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.Mockito.*;
-import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/IEDET/IEDET_TRIAGE.bpmn")
@@ -60,15 +59,10 @@ public class IEDET_TRIAGE {
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask("Screen_Accept"))
+        when(processScenario.waitsAtUserTask("Screen_Assign"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAccept", "Yes")));
-
-        when(processScenario.waitsAtUserTask("Screen_BusinessArea"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAssign", "Yes")));
 
         Scenario.run(processScenario)
                 .startByKey("IEDET_TRIAGE")
@@ -78,34 +72,7 @@ public class IEDET_TRIAGE {
         verify(processScenario, times(3)).hasCompleted("Screen_ComplaintType");
         verify(processScenario, times(5)).hasCompleted("Screen_ComplaintCategory");
         verify(processScenario, times(4)).hasCompleted("Screen_ComplaintInput");
-        verify(processScenario, times(4)).hasCompleted("Screen_Accept");
-        verify(processScenario, times(3)).hasCompleted("Screen_BusinessArea");
-        verify(processScenario).hasCompleted("EndEvent_Triage");
-    }
-
-    @Test
-    public void testTriageNoFurtherConsideration(){
-        when(processScenario.waitsAtUserTask("Screen_ComplaintType"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask("Screen_ComplaintCategory"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask("Screen_ComplaintInput"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
-        when(processScenario.waitsAtUserTask("Screen_Accept"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAccept", "NoFurtherConsideration")));
-
-        Scenario.run(processScenario)
-                .startByKey("IEDET_TRIAGE")
-                .execute();
-
-        verify(processScenario).hasCompleted("StartEvent_Triage");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintType");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintCategory");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintInput");
-        verify(processScenario, times(1)).hasCompleted("Screen_Accept");
+        verify(processScenario, times(3)).hasCompleted("Screen_Assign");
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
 
@@ -120,8 +87,13 @@ public class IEDET_TRIAGE {
         when(processScenario.waitsAtUserTask("Screen_ComplaintInput"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask("Screen_Accept"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAccept", "NoCch")));
+        when(processScenario.waitsAtUserTask("Screen_Assign"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAssign", "CCH")));
+
+        when(processScenario.waitsAtUserTask("Screen_CloseCase"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario)
                 .startByKey("IEDET_TRIAGE")
@@ -131,8 +103,8 @@ public class IEDET_TRIAGE {
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintType");
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintCategory");
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintInput");
-        verify(processScenario, times(1)).hasCompleted("Screen_Accept");
-        verify(processScenario, times(1)).hasCompleted("Service_CreateCase");
+        verify(processScenario, times(2)).hasCompleted("Screen_Assign");
+        verify(processScenario, times(1)).hasCompleted("Service_CreateTransferCaseNote");
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
 
