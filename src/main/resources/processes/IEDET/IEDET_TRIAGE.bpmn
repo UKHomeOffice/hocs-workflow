@@ -85,7 +85,7 @@
     <bpmn:sequenceFlow id="Flow_05konbf" sourceRef="ExclusiveGateway_140qp0m" targetRef="Gateway_0b8dam5">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:userTask id="Screen_CloseCase" name="Transfer Case" camunda:formKey="IEDET_TRIAGE_CLOSE_CASE">
+    <bpmn:userTask id="Screen_OfflineTransfer" name="Transfer Case" camunda:formKey="IEDET_TRIAGE_OFFLINE_TRANSFER">
       <bpmn:extensionElements>
         <camunda:inputOutput>
           <camunda:outputParameter name="CloseCase">${ execution.getVariable("DIRECTION") == "FORWARD" }</camunda:outputParameter>
@@ -105,12 +105,12 @@
       <bpmn:outgoing>Flow_0rse2un</bpmn:outgoing>
       <bpmn:outgoing>Flow_11bigxh</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0vt1shj" sourceRef="Screen_CloseCase" targetRef="Gateway_0s8xnfg" />
+    <bpmn:sequenceFlow id="Flow_0vt1shj" sourceRef="Screen_OfflineTransfer" targetRef="Gateway_0s8xnfg" />
     <bpmn:sequenceFlow id="Flow_0dqlycf" sourceRef="Gateway_0s8xnfg" targetRef="Service_CreateTransferCaseNote">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1kgvg7o" sourceRef="Service_CreateTransferCaseNote" targetRef="EndEvent_Triage" />
-    <bpmn:sequenceFlow id="Flow_03zphu1" sourceRef="Gateway_1lkzlz8" targetRef="Screen_CloseCase">
+    <bpmn:sequenceFlow id="Flow_03zphu1" sourceRef="Gateway_1lkzlz8" targetRef="Screen_OfflineTransfer">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageAssign == "CCH"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_1lkzlz8" default="Flow_0f0ntxx">
@@ -119,13 +119,47 @@
       <bpmn:outgoing>Flow_03zphu1</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_0f0ntxx" sourceRef="Gateway_1lkzlz8" targetRef="EndEvent_Triage" />
-    <bpmn:sequenceFlow id="Flow_0rse2un" sourceRef="Gateway_0s8xnfg" targetRef="Screen_CloseCase" />
+    <bpmn:sequenceFlow id="Flow_0rse2un" sourceRef="Gateway_0s8xnfg" targetRef="Screen_OfflineTransfer" />
     <bpmn:sequenceFlow id="Flow_11bigxh" sourceRef="Gateway_0s8xnfg" targetRef="Screen_Assign">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET_TRIAGE">
+      <bpmndi:BPMNEdge id="Flow_11bigxh_di" bpmnElement="Flow_11bigxh" bioc:stroke="#43a047" color:border-color="#43a047">
+        <di:waypoint x="1430" y="345" />
+        <di:waypoint x="1430" y="430" />
+        <di:waypoint x="1050" y="430" />
+        <di:waypoint x="1050" y="235" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rse2un_di" bpmnElement="Flow_0rse2un" bioc:stroke="#e53935" color:border-color="#e53935">
+        <di:waypoint x="1430" y="345" />
+        <di:waypoint x="1430" y="400" />
+        <di:waypoint x="1330" y="400" />
+        <di:waypoint x="1330" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f0ntxx_di" bpmnElement="Flow_0f0ntxx">
+        <di:waypoint x="1265" y="195" />
+        <di:waypoint x="1592" y="195" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03zphu1_di" bpmnElement="Flow_03zphu1">
+        <di:waypoint x="1240" y="220" />
+        <di:waypoint x="1240" y="320" />
+        <di:waypoint x="1280" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kgvg7o_di" bpmnElement="Flow_1kgvg7o">
+        <di:waypoint x="1580" y="320" />
+        <di:waypoint x="1610" y="320" />
+        <di:waypoint x="1610" y="213" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dqlycf_di" bpmnElement="Flow_0dqlycf">
+        <di:waypoint x="1455" y="320" />
+        <di:waypoint x="1480" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vt1shj_di" bpmnElement="Flow_0vt1shj">
+        <di:waypoint x="1380" y="320" />
+        <di:waypoint x="1405" y="320" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_05konbf_di" bpmnElement="Flow_05konbf" bioc:stroke="#43a047" color:border-color="#43a047">
         <di:waypoint x="1170" y="170" />
         <di:waypoint x="1170" y="80" />
@@ -204,42 +238,11 @@
         <di:waypoint x="1195" y="195" />
         <di:waypoint x="1215" y="195" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1kgvg7o_di" bpmnElement="Flow_1kgvg7o">
-        <di:waypoint x="1580" y="320" />
-        <di:waypoint x="1610" y="320" />
-        <di:waypoint x="1610" y="213" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_03zphu1_di" bpmnElement="Flow_03zphu1">
-        <di:waypoint x="1240" y="220" />
-        <di:waypoint x="1240" y="320" />
-        <di:waypoint x="1280" y="320" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0vt1shj_di" bpmnElement="Flow_0vt1shj">
-        <di:waypoint x="1380" y="320" />
-        <di:waypoint x="1405" y="320" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0dqlycf_di" bpmnElement="Flow_0dqlycf">
-        <di:waypoint x="1455" y="320" />
-        <di:waypoint x="1480" y="320" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0f0ntxx_di" bpmnElement="Flow_0f0ntxx">
-        <di:waypoint x="1265" y="195" />
-        <di:waypoint x="1592" y="195" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0rse2un_di" bpmnElement="Flow_0rse2un" bioc:stroke="#e53935" color:border-color="#e53935">
-        <di:waypoint x="1430" y="345" />
-        <di:waypoint x="1430" y="400" />
-        <di:waypoint x="1330" y="400" />
-        <di:waypoint x="1330" y="360" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_11bigxh_di" bpmnElement="Flow_11bigxh" bioc:stroke="#43a047" color:border-color="#43a047">
-        <di:waypoint x="1430" y="345" />
-        <di:waypoint x="1430" y="430" />
-        <di:waypoint x="1050" y="430" />
-        <di:waypoint x="1050" y="235" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Triage">
         <dc:Bounds x="152" y="177" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_0sgm5gi_di" bpmnElement="EndEvent_Triage">
+        <dc:Bounds x="1592" y="177" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_140qp0m_di" bpmnElement="ExclusiveGateway_140qp0m" isMarkerVisible="true">
         <dc:Bounds x="1145" y="170" width="50" height="50" />
@@ -265,7 +268,7 @@
       <bpmndi:BPMNShape id="Activity_1a7s409_di" bpmnElement="Screen_ComplaintType">
         <dc:Bounds x="240" y="155" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_11ymf9x_di" bpmnElement="Screen_CloseCase">
+      <bpmndi:BPMNShape id="Activity_11ymf9x_di" bpmnElement="Screen_OfflineTransfer">
         <dc:Bounds x="1280" y="280" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0ccupf3_di" bpmnElement="Service_CreateTransferCaseNote">
@@ -276,9 +279,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1lkzlz8_di" bpmnElement="Gateway_1lkzlz8" isMarkerVisible="true">
         <dc:Bounds x="1215" y="170" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_0sgm5gi_di" bpmnElement="EndEvent_Triage">
-        <dc:Bounds x="1592" y="177" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

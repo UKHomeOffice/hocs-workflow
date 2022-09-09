@@ -90,7 +90,7 @@ public class IEDET_TRIAGE {
         when(processScenario.waitsAtUserTask("Screen_Assign"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAssign", "CCH")));
 
-        when(processScenario.waitsAtUserTask("Screen_CloseCase"))
+        when(processScenario.waitsAtUserTask("Screen_OfflineTransfer"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
