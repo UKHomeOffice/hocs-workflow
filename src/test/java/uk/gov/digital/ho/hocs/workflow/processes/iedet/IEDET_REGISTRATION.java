@@ -67,20 +67,4 @@ public class IEDET_REGISTRATION {
         verify(processScenario, times(3)).hasCompleted("Screen_ComplainantInput");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
-
-    @Test
-    public void hasComplaintTypeOfSeriousMisconduct() {
-        when(compRegistrationProcess.waitsAtUserTask("Validate_Complaint"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD","CompType", "SeriousMisconduct")));
-
-        when(compRegistrationProcess.waitsAtUserTask("Activity_0bf3jlz"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
-        Scenario.run(compRegistrationProcess)
-                .startByKey("IEDET_REGISTRATION")
-                .execute();
-
-        verify(compRegistrationProcess)
-                .hasCompleted("Service_CaseHasPrimaryCorrespondentType");
-    }
 }
