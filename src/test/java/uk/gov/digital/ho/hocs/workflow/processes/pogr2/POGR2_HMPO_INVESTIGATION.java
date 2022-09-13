@@ -73,14 +73,15 @@ public class POGR2_HMPO_INVESTIGATION {
     @Test
     public void testRejectCase() {
         when(processScenario.waitsAtUserTask("Screen_InvestigationAcceptCase"))
-                .thenReturn(task -> task.complete(withVariables("InvestigationAccept", "Reject")));
+                .thenReturn(task -> task.complete(withVariables("InvestigationAccept", "Reject")))
+                .thenReturn(task -> task.complete(withVariables("InvestigationAccept", "Reject", "CaseNote_InvestigationReject", "Test")));
 
         Scenario.run(processScenario)
                 .startByKey("POGR2_HMPO_INVESTIGATION")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_POGR2_HMPO_INVESTIGATION");
-        verify(processScenario).hasCompleted("Screen_InvestigationAcceptCase");
+        verify(processScenario, times(2)).hasCompleted("Screen_InvestigationAcceptCase");
         verify(processScenario).hasCompleted("Activity_RejectCaseNote");
         verify(processScenario).hasCompleted("EndEvent_POGR2_HMPO_INVESTIGATION");
     }

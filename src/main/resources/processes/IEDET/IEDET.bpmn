@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0">
   <bpmn:process id="IEDET" isExecutable="true">
     <bpmn:startEvent id="StartEvent_IEDET">
       <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
@@ -27,7 +27,7 @@
       <bpmn:incoming>SequenceFlow_1y94fvq</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1jkxh22" sourceRef="StartEvent_IEDET" targetRef="CallActivity_IEDET_REGISTRATION" />
-    <bpmn:sequenceFlow id="SequenceFlow_15z7c6l" sourceRef="CallActivity_IEDET_REGISTRATION" targetRef="ExclusiveGateway_11h64pd" />
+    <bpmn:sequenceFlow id="SequenceFlow_15z7c6l" sourceRef="CallActivity_IEDET_REGISTRATION" targetRef="CallActivity_IEDET_TRIAGE" />
     <bpmn:sequenceFlow id="SequenceFlow_0qgx3mz" sourceRef="CallActivity_IEDET_TRIAGE" targetRef="ExclusiveGateway_0j0zx2i" />
     <bpmn:callActivity id="CallActivity_IEDET_TRIAGE" name="Service Triage" calledElement="STAGE">
       <bpmn:extensionElements>
@@ -44,29 +44,18 @@
         <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
         <camunda:in source="QueueTeamUUID" target="AllocationTeamUUID" />
         <camunda:out source="CompType" target="CompType" />
-        <camunda:out source="TriageAccept" target="TriageAccept" />
+        <camunda:out source="TriageAssign" target="TriageAssign" />
         <camunda:out source="TriageResult" target="TriageResult" />
         <camunda:in source="DateReceived" target="DateReceived" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_000uqx9</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_15z7c6l</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0qgx3mz</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:exclusiveGateway id="ExclusiveGateway_11h64pd">
-      <bpmn:incoming>SequenceFlow_15z7c6l</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0rody0g</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_000uqx9</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_000uqx9" sourceRef="ExclusiveGateway_11h64pd" targetRef="CallActivity_IEDET_TRIAGE" />
-    <bpmn:exclusiveGateway id="ExclusiveGateway_0j0zx2i" default="SequenceFlow_0rody0g">
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0j0zx2i" default="Flow_0opl4mu">
       <bpmn:incoming>SequenceFlow_0qgx3mz</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0pmwzqz</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_0rody0g</bpmn:outgoing>
       <bpmn:outgoing>Flow_1mlwgjt</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0opl4mu</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_0pmwzqz" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="CallActivity_IEDET_DRAFT">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageAccept == "YesThirdParty" || TriageAccept == "YesIEDETCompliance"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0rody0g" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="ExclusiveGateway_11h64pd" />
     <bpmn:callActivity id="CallActivity_IEDET_DRAFT" name="Response Draft" calledElement="STAGE">
       <bpmn:extensionElements>
         <camunda:in source="ServiceDraftUUID" target="StageUUID" />
@@ -84,7 +73,7 @@
         <camunda:out source="LastUpdatedByUserUUID" target="ResponseUserUUID" />
         <camunda:out source="DraftResult" target="DraftResult" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_0pmwzqz</bpmn:incoming>
+      <bpmn:incoming>Flow_0opl4mu</bpmn:incoming>
       <bpmn:outgoing>Flow_1mu9t5g</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="CallActivity_IEDET_SEND" name="Response Send" calledElement="STAGE_WITH_USER">
@@ -114,86 +103,69 @@
     <bpmn:sequenceFlow id="Flow_1mu9t5g" sourceRef="CallActivity_IEDET_DRAFT" targetRef="CallActivity_IEDET_SEND" />
     <bpmn:sequenceFlow id="Flow_0li8ecg" sourceRef="CallActivity_IEDET_SEND" targetRef="ServiceTask_CompleteCase" />
     <bpmn:sequenceFlow id="Flow_1mlwgjt" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="ServiceTask_CompleteCase">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageAccept == "NoFurtherConsideration" || TriageAccept == "NoCch"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageAssign == "CCH"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0opl4mu" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="CallActivity_IEDET_DRAFT" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET">
+      <bpmndi:BPMNEdge id="Flow_0opl4mu_di" bpmnElement="Flow_0opl4mu">
+        <di:waypoint x="565" y="189" />
+        <di:waypoint x="600" y="189" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mlwgjt_di" bpmnElement="Flow_1mlwgjt">
-        <di:waypoint x="1055" y="390" />
-        <di:waypoint x="2874" y="390" />
-        <di:waypoint x="2874" y="162" />
+        <di:waypoint x="540" y="164" />
+        <di:waypoint x="540" y="80" />
+        <di:waypoint x="950" y="80" />
+        <di:waypoint x="950" y="149" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0li8ecg_di" bpmnElement="Flow_0li8ecg">
-        <di:waypoint x="2370" y="323" />
-        <di:waypoint x="2597" y="323" />
-        <di:waypoint x="2597" y="121" />
-        <di:waypoint x="2745" y="123" />
-        <di:waypoint x="2824" y="123" />
+        <di:waypoint x="850" y="189" />
+        <di:waypoint x="900" y="189" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1mu9t5g_di" bpmnElement="Flow_1mu9t5g">
-        <di:waypoint x="1635" y="323" />
-        <di:waypoint x="2270" y="320" />
+        <di:waypoint x="700" y="189" />
+        <di:waypoint x="750" y="189" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1y94fvq_di" bpmnElement="SequenceFlow_1y94fvq">
-        <di:waypoint x="2924" y="122" />
-        <di:waypoint x="3120" y="122" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0rody0g_di" bpmnElement="SequenceFlow_0rody0g">
-        <di:waypoint x="1030" y="415" />
-        <di:waypoint x="1030" y="464" />
-        <di:waypoint x="665" y="464" />
-        <di:waypoint x="665" y="146" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0pmwzqz_di" bpmnElement="SequenceFlow_0pmwzqz">
-        <di:waypoint x="1050" y="385" />
-        <di:waypoint x="1050" y="323" />
-        <di:waypoint x="1535" y="323" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_000uqx9_di" bpmnElement="SequenceFlow_000uqx9">
-        <di:waypoint x="690" y="121" />
-        <di:waypoint x="860" y="121" />
-        <di:waypoint x="860" y="283" />
+        <di:waypoint x="1000" y="189" />
+        <di:waypoint x="1042" y="189" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0qgx3mz_di" bpmnElement="SequenceFlow_0qgx3mz">
-        <di:waypoint x="910" y="323" />
-        <di:waypoint x="1030" y="323" />
-        <di:waypoint x="1030" y="365" />
+        <di:waypoint x="480" y="189" />
+        <di:waypoint x="515" y="189" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_15z7c6l_di" bpmnElement="SequenceFlow_15z7c6l">
-        <di:waypoint x="542" y="121" />
-        <di:waypoint x="640" y="121" />
+        <di:waypoint x="330" y="189" />
+        <di:waypoint x="380" y="189" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1jkxh22_di" bpmnElement="SequenceFlow_1jkxh22">
-        <di:waypoint x="215" y="121" />
-        <di:waypoint x="442" y="121" />
+        <di:waypoint x="188" y="189" />
+        <di:waypoint x="230" y="189" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_IEDET">
-        <dc:Bounds x="179" y="103" width="36" height="36" />
+        <dc:Bounds x="152" y="171" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_104cnqu_di" bpmnElement="CallActivity_IEDET_REGISTRATION">
-        <dc:Bounds x="442" y="81" width="100" height="80" />
+        <dc:Bounds x="230" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1afztus_di" bpmnElement="EndEvent_IEDET">
-        <dc:Bounds x="3120" y="104" width="36" height="36" />
+        <dc:Bounds x="1042" y="171" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_0r9oq18_di" bpmnElement="CallActivity_IEDET_TRIAGE">
-        <dc:Bounds x="810" y="283" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ExclusiveGateway_11h64pd_di" bpmnElement="ExclusiveGateway_11h64pd" isMarkerVisible="true">
-        <dc:Bounds x="640" y="96" width="50" height="50" />
+        <dc:Bounds x="380" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0j0zx2i_di" bpmnElement="ExclusiveGateway_0j0zx2i" isMarkerVisible="true">
-        <dc:Bounds x="1005" y="365" width="50" height="50" />
+        <dc:Bounds x="515" y="164" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_17qyrjh_di" bpmnElement="CallActivity_IEDET_DRAFT">
-        <dc:Bounds x="1535" y="283" width="100" height="80" />
+        <dc:Bounds x="600" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_14wr0qn_di" bpmnElement="CallActivity_IEDET_SEND">
-        <dc:Bounds x="2270" y="283" width="100" height="80" />
+        <dc:Bounds x="750" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_16gueal_di" bpmnElement="ServiceTask_CompleteCase">
-        <dc:Bounds x="2824" y="82" width="100" height="80" />
+        <dc:Bounds x="900" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
