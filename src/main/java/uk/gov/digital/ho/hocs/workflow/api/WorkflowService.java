@@ -48,15 +48,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.WORKFLOW_SERV
 @Slf4j
 public class WorkflowService {
 
-    private final CaseworkClient caseworkClient;
-
-    private final DocumentClient documentClient;
-
-    private final InfoClient infoClient;
-
-    private final CamundaClient camundaClient;
-
-    private final UserPermissionsService userPermissionsService;
+    public static final String STICKY_CASES_VARIABLE = "STICKY_CASES";
 
     private static final String COMPONENT_ENTITY_LIST = "entity-list";
 
@@ -74,7 +66,15 @@ public class WorkflowService {
 
     private static final String DOCUMENT_NOT_FOUND = "Document not found";
 
-    public static final String STICKY_CASES_VARIABLE = "STICKY_CASES";
+    private final CaseworkClient caseworkClient;
+
+    private final DocumentClient documentClient;
+
+    private final InfoClient infoClient;
+
+    private final CamundaClient camundaClient;
+
+    private final UserPermissionsService userPermissionsService;
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
@@ -87,6 +87,24 @@ public class WorkflowService {
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.userPermissionsService = userPermissionsService;
+    }
+
+    private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
+        List<HocsFormField> fields = new ArrayList<>();
+        Set<String> uniqueFieldNames = new HashSet<>();
+        for (SchemaDto schemaDto : schemaDtos) {
+            fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
+            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(
+                toList());
+            for (HocsFormField fieldToAdd : fieldsToAdd) {
+                if (fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(
+                    String.valueOf(fieldToAdd.getProps().get("name")))) {
+                    uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
+                    fields.add(fieldToAdd);
+                }
+            }
+        }
+        return fields;
     }
 
     public CreateCaseResponse createCase(String caseDataType,
@@ -235,6 +253,7 @@ public class WorkflowService {
             STICKY_CASES_VARIABLE);
     }
 
+    @Deprecated(forRemoval = true)
     public GetCaseResponse getAllCaseStages(UUID caseUUID) {
 
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
@@ -261,6 +280,7 @@ public class WorkflowService {
         return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
     }
 
+    @Deprecated(forRemoval = true)
     public GetCaseDetailsResponse getReadOnlyCaseDetails(UUID caseUUID) {
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
 
@@ -283,6 +303,7 @@ public class WorkflowService {
 
     }
 
+    @Deprecated(forRemoval = true)
     public Map<String, String> convertDataToSchema(List<SchemaDto> schemaDtos, Map<String, String> dataMap) {
         for (SchemaDto schemaDto : schemaDtos) {
             for (FieldDto fieldDto : schemaDto.getFields()) {
@@ -332,24 +353,6 @@ public class WorkflowService {
             throw exception;
         }
 
-    }
-
-    private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
-        List<HocsFormField> fields = new ArrayList<>();
-        Set<String> uniqueFieldNames = new HashSet<>();
-        for (SchemaDto schemaDto : schemaDtos) {
-            fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
-            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(
-                toList());
-            for (HocsFormField fieldToAdd : fieldsToAdd) {
-                if (fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(
-                    String.valueOf(fieldToAdd.getProps().get("name")))) {
-                    uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
-                    fields.add(fieldToAdd);
-                }
-            }
-        }
-        return fields;
     }
 
     public void updateStage(UUID caseUUID,

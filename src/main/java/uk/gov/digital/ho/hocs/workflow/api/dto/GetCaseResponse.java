@@ -8,6 +8,7 @@ import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
 
 import java.util.Map;
 
+@Deprecated(forRemoval = true)
 @AllArgsConstructor
 @Getter
 public class GetCaseResponse {

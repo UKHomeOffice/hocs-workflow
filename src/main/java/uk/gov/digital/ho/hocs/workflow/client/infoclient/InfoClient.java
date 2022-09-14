@@ -46,6 +46,7 @@ public class InfoClient {
         return caseDataType;
     }
 
+    @Deprecated(forRemoval = true)
     @Cacheable(value = "InfoClientGetSchemasForCaseTypeAndStages", unless = "#result.size() == 0")
     public List<SchemaDto> getSchemasForCaseTypeAndStages(String caseType, String caseStages) {
         List<SchemaDto> response = restHelper.get(serviceBaseURL,
@@ -126,6 +127,7 @@ public class InfoClient {
         return unitDto;
     }
 
+    @Deprecated(forRemoval = true)
     @Cacheable(value = "InfoClientGetCaseDetailsFieldDtos", unless = "#result == null", key = "{ #caseType}")
     public List<CaseDetailsFieldDto> getCaseDetailsFieldsByCaseType(String caseType) {
         List<CaseDetailsFieldDto> caseDetailsFieldDtos = restHelper.get(serviceBaseURL,
