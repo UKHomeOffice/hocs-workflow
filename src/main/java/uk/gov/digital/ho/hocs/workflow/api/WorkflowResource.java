@@ -49,7 +49,7 @@ class WorkflowResource {
     @PostMapping(value = "/case/bulk", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseRequest request,
                                                                  @RequestHeader(RequestData.USER_ID_HEADER)
-                                                                 UUID userUUID) {
+                                                                     UUID userUUID) {
         List<DocumentSummary> list = request.getDocuments();
         list.forEach((documentSummary) -> workflowService.createCase(request.getType(), request.getDateReceived(),
             Collections.singletonList(documentSummary), userUUID, null, request.getData()));
@@ -62,7 +62,7 @@ class WorkflowResource {
                                                                @PathVariable UUID stageUUID,
                                                                @RequestBody AddCaseDataRequest request,
                                                                @RequestHeader(RequestData.USER_ID_HEADER)
-                                                               UUID userUUID) {
+                                                                   UUID userUUID) {
         workflowService.updateStage(caseUUID, stageUUID, request.getData(), Direction.FORWARD.getValue(), userUUID);
         return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
@@ -74,7 +74,7 @@ class WorkflowResource {
                                                                      @PathVariable UUID stageUUID,
                                                                      @PathVariable String flowDirection,
                                                                      @RequestHeader(RequestData.USER_ID_HEADER)
-                                                                     UUID userUUID) {
+                                                                         UUID userUUID) {
         workflowService.updateStage(caseUUID, stageUUID, new HashMap<>(), flowDirection, userUUID);
         return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
@@ -102,6 +102,7 @@ class WorkflowResource {
         return ResponseEntity.ok().build();
     }
 
+    @Deprecated(forRemoval = true)
     @Authorised(accessLevel = AccessLevel.READ, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
     @GetMapping(value = "/case/{caseUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetCaseResponse> getCase(@PathVariable UUID caseUUID) {
@@ -109,6 +110,7 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
+    @Deprecated(forRemoval = true)
     @Authorised(accessLevel = AccessLevel.READ)
     @GetMapping(value = "/case/details/{caseUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetCaseDetailsResponse> getReadOnlyCaseDetails(@PathVariable UUID caseUUID) {

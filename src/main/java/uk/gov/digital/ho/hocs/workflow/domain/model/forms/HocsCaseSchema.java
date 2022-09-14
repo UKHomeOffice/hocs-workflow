@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated(forRemoval = true)
 @AllArgsConstructor
 @Getter
 public class HocsCaseSchema {
