@@ -51,7 +51,8 @@ public class WorkflowResourceTest {
 
         when(workflowService.getStage(caseUUID, stageUUID)).thenReturn(mockStageResponse);
 
-        ResponseEntity<GetStageResponse> result = workflowResource.updateStageForward(caseUUID, stageUUID, addCaseDataRequest, userUUID);
+        ResponseEntity<GetStageResponse> result = workflowResource.updateStageForward(caseUUID, stageUUID,
+            addCaseDataRequest, userUUID);
 
         assertThat(result).isNotNull();
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
@@ -75,12 +76,14 @@ public class WorkflowResourceTest {
 
         when(workflowService.getStage(caseUUID, stageUUID)).thenReturn(mockStageResponse);
 
-        ResponseEntity<GetStageResponse> result = workflowResource.updateStageWithDirection(caseUUID, stageUUID, Direction.BACKWARD.getValue(), userUUID);
+        ResponseEntity<GetStageResponse> result = workflowResource.updateStageWithDirection(caseUUID, stageUUID,
+            Direction.BACKWARD.getValue(), userUUID);
 
         assertThat(result).isNotNull();
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
         assertThat(result.getBody()).isEqualTo(mockStageResponse);
-        verify(workflowService).updateStage(caseUUID, stageUUID, new HashMap<>(), Direction.BACKWARD.getValue(), userUUID);
+        verify(workflowService).updateStage(caseUUID, stageUUID, new HashMap<>(), Direction.BACKWARD.getValue(),
+            userUUID);
         verify(workflowService).getStage(caseUUID, stageUUID);
         verifyNoMoreInteractions(workflowService);
 
@@ -99,7 +102,8 @@ public class WorkflowResourceTest {
 
         when(workflowService.getStage(caseUUID, stageUUID)).thenReturn(mockStageResponse);
 
-        ResponseEntity<GetStageResponse> result = workflowResource.updateStageWithDirection(caseUUID, stageUUID, "testDirection", userUUID);
+        ResponseEntity<GetStageResponse> result = workflowResource.updateStageWithDirection(caseUUID, stageUUID,
+            "testDirection", userUUID);
 
         assertThat(result).isNotNull();
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
@@ -125,7 +129,8 @@ public class WorkflowResourceTest {
         CreateCaseRequest request = new CreateCaseRequest(caseType, dateReceived, requestData, documents, null);
         CreateCaseResponse response = new CreateCaseResponse(caseUUID, caseRef);
 
-        when(workflowService.createCase(caseType, dateReceived, documents, userUUID, fromCaseUUID, requestData)).thenReturn(response);
+        when(workflowService.createCase(caseType, dateReceived, documents, userUUID, fromCaseUUID,
+            requestData)).thenReturn(response);
 
         ResponseEntity<CreateCaseResponse> result = workflowResource.createCase(request, userUUID);
 
@@ -139,7 +144,6 @@ public class WorkflowResourceTest {
         verifyNoMoreInteractions(workflowService);
 
     }
-
 
     @Test
     public void createBulkCase() {
@@ -158,8 +162,10 @@ public class WorkflowResourceTest {
         CreateCaseRequest request = new CreateCaseRequest(caseType, dateReceived, requestData, documents, null);
         CreateCaseResponse response = new CreateCaseResponse(caseUUID, caseRef);
 
-        when(workflowService.createCase(caseType, dateReceived, List.of(doc1), userUUID, fromCaseUUID, requestData)).thenReturn(response);
-        when(workflowService.createCase(caseType, dateReceived, List.of(doc2), userUUID, fromCaseUUID, requestData)).thenReturn(response);
+        when(workflowService.createCase(caseType, dateReceived, List.of(doc1), userUUID, fromCaseUUID,
+            requestData)).thenReturn(response);
+        when(workflowService.createCase(caseType, dateReceived, List.of(doc2), userUUID, fromCaseUUID,
+            requestData)).thenReturn(response);
 
         ResponseEntity<CreateBulkCaseResponse> result = workflowResource.createCaseBulk(request, userUUID);
 
@@ -175,9 +181,8 @@ public class WorkflowResourceTest {
 
     }
 
-
     @Test
-    public void getCase(){
+    public void getCase() {
         UUID caseUUID = UUID.randomUUID();
         String caseRef = "Ref123";
         HocsCaseSchema hocsCaseSchema = new HocsCaseSchema("Title", null);
@@ -197,17 +202,16 @@ public class WorkflowResourceTest {
         verify(workflowService).getAllCaseStages(caseUUID);
         verifyNoMoreInteractions(workflowService);
 
-
     }
 
     @Test
-    public void getReadOnlyCaseDetails(){
+    public void getReadOnlyCaseDetails() {
         UUID caseUUID = UUID.randomUUID();
         String caseRef = "Ref123";
         List<HocsFormField> fields = new ArrayList<>();
         fields.add(new HocsFormField("text", null, Map.of("label", "label1")));
         HocsSchema hocsSchema = new HocsSchema(caseRef, null, fields, null, null, null, null);
-        GetCaseDetailsResponse response = new GetCaseDetailsResponse( hocsSchema, Map.of("key1", "value1"));
+        GetCaseDetailsResponse response = new GetCaseDetailsResponse(hocsSchema, Map.of("key1", "value1"));
 
         when(workflowService.getReadOnlyCaseDetails(caseUUID)).thenReturn(response);
 
@@ -228,7 +232,8 @@ public class WorkflowResourceTest {
     @Test(expected = IllegalArgumentException.class)
     public void getReadOnlyCaseDetails_throwsException() {
         UUID caseUUID = UUID.randomUUID();
-        when(workflowService.getReadOnlyCaseDetails(caseUUID)).thenThrow(new IllegalArgumentException("Test Exception"));
+        when(workflowService.getReadOnlyCaseDetails(caseUUID)).thenThrow(
+            new IllegalArgumentException("Test Exception"));
 
         workflowResource.getReadOnlyCaseDetails(caseUUID);
 
@@ -240,9 +245,11 @@ public class WorkflowResourceTest {
         UUID stageUUID = UUID.randomUUID();
         UpdateCaseValueRequest updateCaseValueRequest = new UpdateCaseValueRequest("TEST");
 
-        ResponseEntity result = workflowResource.updateCaseValue(caseUUID, stageUUID, "CaseworkTeamUUID", updateCaseValueRequest);
+        ResponseEntity result = workflowResource.updateCaseValue(caseUUID, stageUUID, "CaseworkTeamUUID",
+            updateCaseValueRequest);
 
-        verify(bpmnService).updateValue(caseUUID.toString(), stageUUID.toString(), "CaseworkTeamUUID", updateCaseValueRequest.getValue());
+        verify(bpmnService).updateValue(caseUUID.toString(), stageUUID.toString(), "CaseworkTeamUUID",
+            updateCaseValueRequest.getValue());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatusCodeValue()).isEqualTo(200);
@@ -264,10 +271,8 @@ public class WorkflowResourceTest {
         UUID caseUUID = UUID.randomUUID();
         UUID actionDataItemUuid = UUID.randomUUID();
 
-        final List<DocumentSummary> documentSummaries = List.of(
-                new DocumentSummary("displayName1", "type1", "url1"),
-                new DocumentSummary("displayName2", "type2", "url2")
-        );
+        final List<DocumentSummary> documentSummaries = List.of(new DocumentSummary("displayName1", "type1", "url1"),
+            new DocumentSummary("displayName2", "type2", "url2"));
 
         CreateDocumentRequest createDocumentRequest = new CreateDocumentRequest(documentSummaries, actionDataItemUuid);
 
@@ -278,4 +283,5 @@ public class WorkflowResourceTest {
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(workflowService).createDocument(eq(caseUUID), eq(actionDataItemUuid), eq(documentSummaries));
     }
+
 }

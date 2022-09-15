@@ -42,7 +42,8 @@ public enum LogEvent {
     CASE_NOTE_FAILED,
     STAGE_CREATION_STARTED,
     STAGE_CREATION_SUCCESS;
-  
+
     public static final String EVENT = "event_id";
+
     public static final String EXCEPTION = "exception";
 }

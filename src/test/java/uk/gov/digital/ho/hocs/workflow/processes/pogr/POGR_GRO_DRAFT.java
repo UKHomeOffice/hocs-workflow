@@ -25,14 +25,13 @@ import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/POGR/POGR_GRO_DRAFT.bpmn"
-})
+@Deployment(resources = { "processes/POGR/POGR_GRO_DRAFT.bpmn" })
 public class POGR_GRO_DRAFT {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -50,14 +49,10 @@ public class POGR_GRO_DRAFT {
 
     @Test
     public void testHappyPath() {
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DraftOutcome", "")
-                .thenReturn("DraftOutcome", "QA")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DraftOutcome", "").thenReturn("DraftOutcome",
+            "QA").deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
@@ -68,19 +63,13 @@ public class POGR_GRO_DRAFT {
 
     @Test
     public void testTelephoneResponse() {
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DraftOutcome", "TelephoneResponse")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DraftOutcome", "TelephoneResponse").deploy(
+            rule);
 
-        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
-                .thenReturn("TelephoneResponse", "", "DIRECTION", "Backward")
-                .thenReturn("TelephoneResponse", "")
-                .thenReturn("TelephoneResponse", "Yes")
-                .deploy(rule);
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE").thenReturn("TelephoneResponse", "", "DIRECTION",
+            "Backward").thenReturn("TelephoneResponse", "").thenReturn("TelephoneResponse", "Yes").deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario).hasCompleted("CallActivity_DraftInput");
@@ -90,20 +79,14 @@ public class POGR_GRO_DRAFT {
 
     @Test
     public void testNotTelephoneResponse() {
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DraftOutcome", "TelephoneResponse")
-                .thenReturn("DraftOutcome", "TelephoneResponse")
-                .thenReturn("DraftOutcome", "QA")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DraftOutcome",
+            "TelephoneResponse").thenReturn("DraftOutcome", "TelephoneResponse").thenReturn("DraftOutcome",
+            "QA").deploy(rule);
 
-        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
-                .thenReturn("DIRECTION", "BACKWARD")
-                .thenReturn("TelephoneResponse", "No")
-                .deploy(rule);
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE").thenReturn("DIRECTION", "BACKWARD").thenReturn(
+            "TelephoneResponse", "No").deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(3)).hasCompleted("CallActivity_DraftInput");
@@ -114,19 +97,15 @@ public class POGR_GRO_DRAFT {
 
     @Test
     public void testRejectionPath() {
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DraftOutcome", "ReturnInvestigation")
-                .thenReturn("DraftOutcome", "ReturnInvestigation")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DraftOutcome",
+            "ReturnInvestigation").thenReturn("DraftOutcome", "ReturnInvestigation").deploy(rule);
 
-        when(processScenario.waitsAtUserTask("Screen_RejectDraft"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","UNKNOWN")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_RejectDraft")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "UNKNOWN"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
@@ -139,19 +118,15 @@ public class POGR_GRO_DRAFT {
 
     @Test
     public void testEscalationPath() {
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DraftOutcome", "Escalate")
-                .thenReturn("DraftOutcome", "Escalate")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DraftOutcome", "Escalate").thenReturn(
+            "DraftOutcome", "Escalate").deploy(rule);
 
-        when(processScenario.waitsAtUserTask("Screen_GroEscalateScreen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","UNKNOWN")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION","FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_GroEscalateScreen")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "UNKNOWN"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");
@@ -161,19 +136,13 @@ public class POGR_GRO_DRAFT {
 
     @Test
     public void testCloseCaseAtDraftStage() {
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DraftOutcome", "CloseCase")
-                .thenReturn("DraftOutcome", "CloseCase")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DraftOutcome", "CloseCase").thenReturn(
+            "DraftOutcome", "CloseCase").deploy(rule);
 
-        whenAtCallActivity("POGR_CLOSE_CASE")
-                .thenReturn("CloseCase", Boolean.toString(false))
-                .thenReturn("CloseCase", Boolean.toString(true))
-                .deploy(rule);
+        whenAtCallActivity("POGR_CLOSE_CASE").thenReturn("CloseCase", Boolean.toString(false)).thenReturn("CloseCase",
+            Boolean.toString(true)).deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_GroDraft");
         verify(processScenario, times(2)).hasCompleted("CallActivity_DraftInput");

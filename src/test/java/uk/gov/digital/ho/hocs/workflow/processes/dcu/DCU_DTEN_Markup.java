@@ -21,14 +21,15 @@ public class DCU_DTEN_Markup extends DCU_MIN_DTEN_Markup_Common {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.55)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.55).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario dcuMinSignOffProcess;
 
@@ -39,22 +40,26 @@ public class DCU_DTEN_Markup extends DCU_MIN_DTEN_Markup_Common {
 
     @Test
     public void shouldSaveDraftAndPolicyTeamWhenPRAndWhenNotOverride() {
-        shouldSaveDraftAndPolicyTeamWhenPRAndWhenNotOverride(dcuMinSignOffProcess, "DCU_DTEN_MARKUP", bpmnService, "DCU_DTEN");
+        shouldSaveDraftAndPolicyTeamWhenPRAndWhenNotOverride(dcuMinSignOffProcess, "DCU_DTEN_MARKUP", bpmnService,
+            "DCU_DTEN");
     }
 
     @Test
     public void shouldSaveDraftAndPolicyTeamWhenPRAndWhenOverride() {
-        shouldSaveDraftAndPolicyTeamWhenPRAndWhenOverride(dcuMinSignOffProcess, "DCU_DTEN_MARKUP", bpmnService, "DCU_DTEN");
+        shouldSaveDraftAndPolicyTeamWhenPRAndWhenOverride(dcuMinSignOffProcess, "DCU_DTEN_MARKUP", bpmnService,
+            "DCU_DTEN");
     }
 
     @Test
     public void shouldSaveDraftAndPolicyTeamWhenFAQAndWhenNotOverride() {
-        shouldSaveDraftAndPolicyTeamWhenFAQAndWhenNotOverride(dcuMinSignOffProcess, "DCU_DTEN_MARKUP", bpmnService, "DCU_DTEN");
+        shouldSaveDraftAndPolicyTeamWhenFAQAndWhenNotOverride(dcuMinSignOffProcess, "DCU_DTEN_MARKUP", bpmnService,
+            "DCU_DTEN");
     }
 
     @Test
     public void shouldSaveDraftAndPolicyTeamWhenFAQAndWhenOverride() {
-        shouldSaveDraftAndPolicyTeamWhenFAQAndWhenOverride(dcuMinSignOffProcess, "DCU_DTEN_MARKUP", bpmnService, "DCU_DTEN");
+        shouldSaveDraftAndPolicyTeamWhenFAQAndWhenOverride(dcuMinSignOffProcess, "DCU_DTEN_MARKUP", bpmnService,
+            "DCU_DTEN");
     }
 
 }

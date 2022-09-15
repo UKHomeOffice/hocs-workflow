@@ -24,11 +24,7 @@ import java.util.Collections;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/MTS/MTS.bpmn",
-        "processes/MTS/MTS_DATA_INPUT.bpmn",
-        "processes/STAGE.bpmn"
-})
+@Deployment(resources = { "processes/MTS/MTS.bpmn", "processes/MTS/MTS_DATA_INPUT.bpmn", "processes/STAGE.bpmn" })
 public class MTS {
 
     public static final String DATA_INPUT_CALL_ACTIVITY = "CallActivity_14mwb9u";
@@ -39,8 +35,7 @@ public class MTS {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().build();
 
     @Mock
     BpmnService bpmnService;
@@ -52,22 +47,18 @@ public class MTS {
     public void defaultScenario() {
         Mocks.register("bpmnService", bpmnService);
 
-        ProcessExpressions.registerCallActivityMock("MTS_DATA_INPUT")
-                .deploy(rule);
+        ProcessExpressions.registerCallActivityMock("MTS_DATA_INPUT").deploy(rule);
     }
 
     @Test
     public void happyPath() {
-        Scenario.run(mtsProcess)
-                .startByKey("MTS")
-                .execute();
+        Scenario.run(mtsProcess).startByKey("MTS").execute();
 
-        verify(mtsProcess)
-                .hasCompleted(DATA_INPUT_CALL_ACTIVITY);
+        verify(mtsProcess).hasCompleted(DATA_INPUT_CALL_ACTIVITY);
 
-        verify(mtsProcess)
-                .hasCompleted(COMPLETE_CASE_SERVICE_TASK);
+        verify(mtsProcess).hasCompleted(COMPLETE_CASE_SERVICE_TASK);
 
         verify(mtsProcess).hasFinished(END_EVENT);
     }
+
 }

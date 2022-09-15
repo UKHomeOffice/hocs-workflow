@@ -22,7 +22,6 @@ public class HocsFormSecondaryActionTest {
         String[] validation = Arrays.asList("validation1", "validation2").toArray(new String[2]);
         Map<String, Object> props = new HashMap<>();
 
-
         SecondaryActionDto dto = new SecondaryActionDto(uuid, name, label, component, validation, props);
 
         HocsFormSecondaryAction result = HocsFormSecondaryAction.from(dto);

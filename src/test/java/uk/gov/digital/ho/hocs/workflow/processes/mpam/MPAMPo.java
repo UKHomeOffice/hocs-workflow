@@ -32,14 +32,15 @@ public class MPAMPo {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.2)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.2).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario processScenario;
 
@@ -53,22 +54,13 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "UKVI");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Reject-PfS",
-                        "BusArea", "UKVI")));
-        when(processScenario.waitsAtUserTask("Validate_Reject"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "CaseNote_RejectPfs", "Casenote Reject",
-                        "BusArea", "UKVI")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Reject-PfS", "BusArea", "UKVI")));
+        when(processScenario.waitsAtUserTask("Validate_Reject")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_RejectPfs", "Casenote Reject", "BusArea",
+                "UKVI")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("Screen_Reject");
         verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
@@ -76,7 +68,8 @@ public class MPAMPo {
         verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
         verify(processScenario).hasCompleted("Service_UpdateTeamForQA");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -85,22 +78,13 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "BF");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Reject-PfS",
-                        "BusArea", "BF")));
-        when(processScenario.waitsAtUserTask("Validate_Reject"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "CaseNote_RejectPfs", "Casenote Reject",
-                        "BusArea", "BF")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Reject-PfS", "BusArea", "BF")));
+        when(processScenario.waitsAtUserTask("Validate_Reject")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_RejectPfs", "Casenote Reject", "BusArea",
+                "BF")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("Screen_Reject");
         verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
@@ -108,7 +92,8 @@ public class MPAMPo {
         verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
         verify(processScenario).hasCompleted("Service_UpdateTeamForQA");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -117,22 +102,13 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "IE");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Reject-PfS",
-                        "BusArea", "IE")));
-        when(processScenario.waitsAtUserTask("Validate_Reject"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "CaseNote_RejectPfs", "Casenote Reject",
-                        "BusArea", "IE")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Reject-PfS", "BusArea", "IE")));
+        when(processScenario.waitsAtUserTask("Validate_Reject")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_RejectPfs", "Casenote Reject", "BusArea",
+                "IE")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("Screen_Reject");
         verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
@@ -140,7 +116,8 @@ public class MPAMPo {
         verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
         verify(processScenario).hasCompleted("Service_UpdateTeamForQA");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_QA"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -149,22 +126,13 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "EUSS");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Reject-PfS",
-                        "BusArea", "EUSS")));
-        when(processScenario.waitsAtUserTask("Validate_Reject"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "CaseNote_RejectPfs", "Casenote Reject",
-                        "BusArea", "EUSS")));
+        when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Reject-PfS", "BusArea", "EUSS")));
+        when(processScenario.waitsAtUserTask("Validate_Reject")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_RejectPfs", "Casenote Reject", "BusArea",
+                "EUSS")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("Screen_Reject");
         verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
@@ -172,7 +140,8 @@ public class MPAMPo {
         verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
         verify(processScenario).hasCompleted("Service_UpdateTeamForDraft");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -181,22 +150,13 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "HMPO");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Reject-PfS",
-                        "BusArea", "HMPO")));
-        when(processScenario.waitsAtUserTask("Validate_Reject"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "CaseNote_RejectPfs", "Casenote Reject",
-                        "BusArea", "HMPO")));
+        when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Reject-PfS", "BusArea", "HMPO")));
+        when(processScenario.waitsAtUserTask("Validate_Reject")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_RejectPfs", "Casenote Reject", "BusArea",
+                "HMPO")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("Screen_Reject");
         verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
@@ -204,7 +164,8 @@ public class MPAMPo {
         verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
         verify(processScenario).hasCompleted("Service_UpdateTeamForDraft");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -213,22 +174,13 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "Windrush");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Reject-PfS",
-                        "BusArea", "Windrush")));
-        when(processScenario.waitsAtUserTask("Validate_Reject"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "CaseNote_RejectPfs", "Casenote Reject",
-                        "BusArea", "Windrush")));
+        when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Reject-PfS", "BusArea", "Windrush")));
+        when(processScenario.waitsAtUserTask("Validate_Reject")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_RejectPfs", "Casenote Reject", "BusArea",
+                "Windrush")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("Screen_Reject");
         verify(processScenario).hasCompleted("Service_SaveRejectPfsNote");
@@ -236,7 +188,8 @@ public class MPAMPo {
         verify(processScenario).hasCompleted("Service_UpdateToRejectedByPo");
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By PO"));
         verify(processScenario).hasCompleted("Service_UpdateTeamForDraft");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -245,19 +198,15 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "UKVI");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Approved-Ministerial-Dispatch",
-                        "BusArea", "UKVI")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Approved-Ministerial-Dispatch", "BusArea",
+                "UKVI")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"),
+            eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -266,19 +215,15 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "BF");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Approved-Ministerial-Dispatch",
-                        "BusArea", "BF")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Approved-Ministerial-Dispatch", "BusArea",
+                "BF")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"),
+            eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -287,19 +232,15 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "IE");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Approved-Ministerial-Dispatch",
-                        "BusArea", "IE")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Approved-Ministerial-Dispatch", "BusArea",
+                "IE")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"),
+            eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -308,19 +249,15 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "UKVI");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Approved-Local-Dispatch",
-                        "BusArea", "UKVI")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Approved-Local-Dispatch", "BusArea",
+                "UKVI")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"),
+            eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -329,19 +266,15 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "BF");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Approved-Local-Dispatch",
-                        "BusArea", "BF")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Approved-Local-Dispatch", "BusArea",
+                "BF")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"),
+            eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -350,19 +283,15 @@ public class MPAMPo {
 
         Mocks.register("BusArea", "IE");
 
-        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "PoStatus", "Approved-Local-Dispatch",
-                        "BusArea", "IE")));
+        when(processScenario.waitsAtUserTask("Validate_UserInputUkviBfIe")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "PoStatus", "Approved-Local-Dispatch", "BusArea",
+                "IE")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO").execute();
 
         verify(processScenario).hasCompleted("UpdateTeamAwaitDispatch");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO_APPROVED_MIN_DISPATCH"),
+            eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamPo");
     }
 
@@ -377,4 +306,5 @@ public class MPAMPo {
 
         Mocks.reset();
     }
+
 }

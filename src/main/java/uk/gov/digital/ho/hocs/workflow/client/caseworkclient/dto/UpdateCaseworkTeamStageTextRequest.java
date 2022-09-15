@@ -26,7 +26,12 @@ public class UpdateCaseworkTeamStageTextRequest {
     @JsonProperty("texts")
     private String[] texts;
 
-    public UpdateCaseworkTeamStageTextRequest(UUID caseUUID, UUID stageUUID, String stageType, String teamUUIDKey, String teamNameKey, String[] texts) {
+    public UpdateCaseworkTeamStageTextRequest(UUID caseUUID,
+                                              UUID stageUUID,
+                                              String stageType,
+                                              String teamUUIDKey,
+                                              String teamNameKey,
+                                              String[] texts) {
         this.caseUUID = caseUUID;
         this.stageUUID = stageUUID;
         this.stageType = stageType;
@@ -34,4 +39,5 @@ public class UpdateCaseworkTeamStageTextRequest {
         this.teamNameKey = teamNameKey;
         this.texts = texts;
     }
+
 }

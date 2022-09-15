@@ -18,7 +18,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class CaseworkClientTest {
 
@@ -30,8 +29,11 @@ public class CaseworkClientTest {
     private String caseServiceUrl = "http://localhost:8082";
 
     private UUID caseUUID = UUID.randomUUID();
+
     private UUID stageUUID = UUID.randomUUID();
+
     private UUID userUUID = UUID.randomUUID();
+
     private String stageType = "TypeA";
 
     @Before
@@ -65,7 +67,8 @@ public class CaseworkClientTest {
 
         caseworkClient.updateStageDeadline(caseUUID, stageUUID, "TEST", 7);
 
-        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateStageDeadlineRequest.class), eq(Void.class));
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateStageDeadlineRequest.class),
+            eq(Void.class));
         verifyNoMoreInteractions(restHelper);
     }
 
@@ -84,7 +87,8 @@ public class CaseworkClientTest {
     @Test
     public void recreateStage() {
         String expectedUrl = String.format("/case/%s/stage/%s/recreate", caseUUID, stageUUID);
-        RecreateCaseworkStageRequest expectedBody = new RecreateCaseworkStageRequest(stageUUID, stageType, stageUUID, userUUID);
+        RecreateCaseworkStageRequest expectedBody = new RecreateCaseworkStageRequest(stageUUID, stageType, stageUUID,
+            userUUID);
 
         caseworkClient.recreateStage(caseUUID, expectedBody);
 
@@ -96,15 +100,16 @@ public class CaseworkClientTest {
 
     @Test
     public void updateTeamByStageAndTexts() {
-        String[] texts = {"Text1", "Text2"};
+        String[] texts = { "Text1", "Text2" };
         String expectedUrl = String.format("/case/%s/stage/%s/teamTexts", caseUUID, stageUUID);
         UpdateCaseworkTeamStageTextResponse response = new UpdateCaseworkTeamStageTextResponse();
-        when(restHelper.put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class), eq(UpdateCaseworkTeamStageTextResponse.class)))
-                .thenReturn(response);
+        when(restHelper.put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class),
+            eq(UpdateCaseworkTeamStageTextResponse.class))).thenReturn(response);
 
         caseworkClient.updateTeamByStageAndTexts(caseUUID, stageUUID, stageType, "teamUUIDKey", "teamNameKey", texts);
 
-        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class), eq(UpdateCaseworkTeamStageTextResponse.class));
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateCaseworkTeamStageTextRequest.class),
+            eq(UpdateCaseworkTeamStageTextResponse.class));
         verifyNoMoreInteractions(restHelper);
     }
 
@@ -165,12 +170,8 @@ public class CaseworkClientTest {
         String resourcePath = String.format("/stage/case/%s", caseUUID);
         GetAllStagesForCaseResponse expectedResponse = new GetAllStagesForCaseResponse();
 
-        when(
-                restHelper.get(
-                        eq(caseServiceUrl),
-                        eq(resourcePath),
-                        eq(GetAllStagesForCaseResponse.class))
-        ).thenReturn(expectedResponse);
+        when(restHelper.get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class))).thenReturn(
+            expectedResponse);
 
         GetAllStagesForCaseResponse result = caseworkClient.getAllStagesForCase(caseUUID);
 
@@ -187,7 +188,8 @@ public class CaseworkClientTest {
 
         caseworkClient.updateDeadlineForStages(caseUUID, stageUUID, stageTypeAndDaysMap);
 
-        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateDeadlineForStagesRequest.class), eq(Void.class));
+        verify(restHelper).put(eq(caseServiceUrl), eq(expectedUrl), any(UpdateDeadlineForStagesRequest.class),
+            eq(Void.class));
         verifyNoMoreInteractions(restHelper);
     }
 
@@ -202,7 +204,8 @@ public class CaseworkClientTest {
         stages.add(stageDtoWithTeam);
         GetAllStagesForCaseResponse expectedResponse = new GetAllStagesForCaseResponse(stages);
 
-        when(restHelper.get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class))).thenReturn(expectedResponse);
+        when(restHelper.get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class))).thenReturn(
+            expectedResponse);
 
         Optional<StageDto> optionalStageDto = caseworkClient.getActiveStage(caseUUID);
         assertThat(optionalStageDto.isPresent()).isTrue();
@@ -223,7 +226,8 @@ public class CaseworkClientTest {
         stages.add(stageDtoWithoutTeam2);
         GetAllStagesForCaseResponse expectedResponse = new GetAllStagesForCaseResponse(stages);
 
-        when(restHelper.get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class))).thenReturn(expectedResponse);
+        when(restHelper.get(eq(caseServiceUrl), eq(resourcePath), eq(GetAllStagesForCaseResponse.class))).thenReturn(
+            expectedResponse);
 
         Optional<StageDto> optionalStageDto = caseworkClient.getActiveStage(caseUUID);
         assertThat(optionalStageDto.isEmpty());
@@ -232,7 +236,7 @@ public class CaseworkClientTest {
     }
 
     @Test
-    public void updatePrimaryTopicForCase(){
+    public void updatePrimaryTopicForCase() {
         // GIVEN
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
@@ -257,7 +261,8 @@ public class CaseworkClientTest {
         caseworkClient.mapCaseData(caseUUID, varMap);
 
         // THEN
-        verify(restHelper).post(any(),eq(expectedURI), eq(varMap), eq(Void.class));
+        verify(restHelper).post(any(), eq(expectedURI), eq(varMap), eq(Void.class));
         verifyNoMoreInteractions(restHelper);
     }
+
 }

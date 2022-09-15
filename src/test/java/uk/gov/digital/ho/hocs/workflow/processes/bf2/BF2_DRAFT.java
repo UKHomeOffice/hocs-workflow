@@ -26,7 +26,8 @@ public class BF2_DRAFT {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -43,24 +44,24 @@ public class BF2_DRAFT {
     }
 
     @Test
-    public void testHappyPath(){
-        when(process.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfDraftResult", "Send")));
+    public void testHappyPath() {
+        when(process.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "BfDraftResult", "Send")));
 
         Scenario.run(process).startByKey("BF2_DRAFT").execute();
         verify(process).hasCompleted("EndEvent_BF2_DRAFT");
     }
 
     @Test
-    public void testEscalate(){
-        when(process.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfDraftResult", "Escalate")));
+    public void testEscalate() {
+        when(process.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "BfDraftResult", "Escalate")));
 
-        when(process.waitsAtUserTask("Validate_Escalate"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Escalate")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         Scenario.run(process).startByKey("BF2_DRAFT").execute();
         verify(process).hasCompleted("Save_Note");
@@ -68,17 +69,18 @@ public class BF2_DRAFT {
     }
 
     @Test
-    public void testReject(){
-        when(process.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BfDraftResult", "Reject")));
+    public void testReject() {
+        when(process.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "BfDraftResult", "Reject")));
 
-        when(process.waitsAtUserTask("Validate_Reject"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Reject")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         Scenario.run(process).startByKey("BF2_DRAFT").execute();
         verify(process).hasCompleted("Save_Rejection_Note");
         verify(process).hasCompleted("EndEvent_BF2_DRAFT");
     }
+
 }

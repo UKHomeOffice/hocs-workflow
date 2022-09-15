@@ -24,14 +24,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/POGR/POGR_HMPO_QA.bpmn"
-})
+@Deployment(resources = { "processes/POGR/POGR_HMPO_QA.bpmn" })
 public class POGR_HMPO_QA {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -49,31 +48,27 @@ public class POGR_HMPO_QA {
 
     @Test
     public void testHappyPath() {
-        when(processScenario.waitsAtUserTask("Screen_QaInput"))
-                .thenReturn(task -> task.complete(withVariables("QaOutcome", "Accept")));
+        when(processScenario.waitsAtUserTask("Screen_QaInput")).thenReturn(
+            task -> task.complete(withVariables("QaOutcome", "Accept")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_HMPO_QA")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_HMPO_QA").execute();
 
         verify(processScenario).hasCompleted("EndEvent_HmpoQa");
     }
 
     @Test
     public void testQaReject() {
-        when(processScenario.waitsAtUserTask("Screen_QaInput"))
-                .thenReturn(task -> task.complete(withVariables("QaOutcome", "Reject")))
-                .thenReturn(task -> task.complete(withVariables("QaOutcome", "Reject")))
-                .thenReturn(task -> task.complete(withVariables("QaOutcome", "Reject")));
+        when(processScenario.waitsAtUserTask("Screen_QaInput")).thenReturn(
+            task -> task.complete(withVariables("QaOutcome", "Reject"))).thenReturn(
+            task -> task.complete(withVariables("QaOutcome", "Reject"))).thenReturn(
+            task -> task.complete(withVariables("QaOutcome", "Reject")));
 
-        when(processScenario.waitsAtUserTask("Screen_QaReject"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "UNKNOWN")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CaseNote_QaReject", "Reject")));
+        when(processScenario.waitsAtUserTask("Screen_QaReject")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "UNKNOWN"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "CaseNote_QaReject", "Reject")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_HMPO_QA")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_HMPO_QA").execute();
 
         verify(processScenario, times(2)).hasCompleted("Screen_QaInput");
         verify(processScenario, times(3)).hasCompleted("Screen_QaReject");
@@ -82,4 +77,5 @@ public class POGR_HMPO_QA {
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By QA"));
         verify(processScenario).hasCompleted("EndEvent_HmpoQa");
     }
+
 }

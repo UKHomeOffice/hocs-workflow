@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,11 +29,15 @@ public class UserPermissionsServiceTest {
     private UserPermissionsService service;
 
     private final UUID team1Uuid = UUID.fromString("1325fe16-b864-42c7-85c2-7cab2863fe01");
+
     private final UUID team2Uuid = UUID.fromString("f1825c7d-baff-4c09-8056-2166760ccbd2");
+
     private final UUID team3Uuid = UUID.fromString("1c1e2f17-d5d9-4ff6-a023-6c40d76e1e9d");
 
     private final String team1Base64 = Base64UUID.UUIDToBase64String(team1Uuid);
+
     private final String team2Base64 = Base64UUID.UUIDToBase64String(team2Uuid);
+
     private final String team3Base64 = Base64UUID.UUIDToBase64String(team3Uuid);
 
     @Before
@@ -50,7 +55,7 @@ public class UserPermissionsServiceTest {
 
         Set<PermissionDto> permissions2 = new HashSet<>();
         permissions2.add(new PermissionDto("MIN", AccessLevel.READ));
-        permissions2.add(new PermissionDto("TRO",   AccessLevel.OWNER));
+        permissions2.add(new PermissionDto("TRO", AccessLevel.OWNER));
         TeamDto teamDto2 = new TeamDto("TEAM 2", team2Uuid, true, permissions2);
         teamDtos.add(teamDto2);
 
@@ -104,19 +109,11 @@ public class UserPermissionsServiceTest {
         String caseType1 = "CASE_TYPE_1";
         String caseType2 = "CASE_TYPE_2";
 
-        Set<PermissionDto> permissions1 = Set.of(
-                new PermissionDto(caseType1, AccessLevel.CASE_ADMIN),
-                new PermissionDto(caseType2, AccessLevel.OWNER)
-        );
+        Set<PermissionDto> permissions1 = Set.of(new PermissionDto(caseType1, AccessLevel.CASE_ADMIN),
+            new PermissionDto(caseType2, AccessLevel.OWNER));
 
         Set<TeamDto> teams = Set.of(
-                new TeamDto(
-                        "TEAM 1",
-                        Base64UUID.Base64StringToUUID(team1Base64),
-                        true,
-                        permissions1
-                )
-        );
+            new TeamDto("TEAM 1", Base64UUID.Base64StringToUUID(team1Base64), true, permissions1));
 
         when(infoClient.getTeams()).thenReturn(teams);
 
@@ -127,11 +124,12 @@ public class UserPermissionsServiceTest {
 
     @Test
     public void isUserOnTeamShouldReturnTrueForTeamsTheyAreAMemberOf() {
-        assertThat( service.isUserOnTeam(team2Uuid)).isTrue();
+        assertThat(service.isUserOnTeam(team2Uuid)).isTrue();
     }
 
     @Test
     public void isUserOnTeamShouldReturnFalseForTeamsTheyAreNotAMemberOf() {
         assertThat(service.isUserOnTeam(UUID.randomUUID())).isFalse();
     }
+
 }

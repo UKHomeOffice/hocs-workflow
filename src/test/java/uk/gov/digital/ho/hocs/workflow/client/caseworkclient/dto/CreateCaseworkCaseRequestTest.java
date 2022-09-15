@@ -17,7 +17,8 @@ public class CreateCaseworkCaseRequestTest {
         Map<String, String> data = new HashMap<>();
         LocalDate dateReceived = LocalDate.now().minusDays(4);
 
-        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseDataType, data, dateReceived, null);
+        CreateCaseworkCaseRequest createCaseRequest = new CreateCaseworkCaseRequest(caseDataType, data, dateReceived,
+            null);
 
         assertThat(createCaseRequest.getType()).isEqualTo(caseDataType);
         assertThat(createCaseRequest.getData()).isEqualTo(data);
@@ -35,4 +36,5 @@ public class CreateCaseworkCaseRequestTest {
         assertThat(createCaseRequest.getDateReceived()).isNull();
 
     }
+
 }

@@ -26,4 +26,5 @@ public class CreateCaseworkStageRequest {
 
     @JsonProperty("allocationType")
     private String allocationType;
+
 }

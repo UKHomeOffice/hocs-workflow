@@ -28,7 +28,8 @@ public class IEDET_REGISTRATION {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -44,27 +45,22 @@ public class IEDET_REGISTRATION {
         Mocks.register("bpmnService", bpmnService);
     }
 
-
     @Test
     public void testHappyPath() {
-        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
-                .thenReturn("DIRECTION", "")
-                .thenReturn("DIRECTION", "FORWARD")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT").thenReturn("DIRECTION", "").thenReturn("DIRECTION",
+            "FORWARD").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        when(processScenario.waitsAtUserTask("Screen_ComplainantInput"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_ComplainantInput")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("IEDET_REGISTRATION")
-                .execute();
+        Scenario.run(processScenario).startByKey("IEDET_REGISTRATION").execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
         verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
         verify(processScenario, times(3)).hasCompleted("Screen_ComplainantInput");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
+
 }

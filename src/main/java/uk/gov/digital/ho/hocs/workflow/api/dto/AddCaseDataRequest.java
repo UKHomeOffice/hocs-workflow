@@ -15,4 +15,5 @@ public class AddCaseDataRequest {
 
     @JsonProperty("data")
     private Map<String, String> data = new HashMap<>();
+
 }

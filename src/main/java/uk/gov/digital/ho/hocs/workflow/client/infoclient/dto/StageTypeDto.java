@@ -27,7 +27,7 @@ public class StageTypeDto implements Serializable {
     @JsonProperty("type")
     private String type;
 
-    public StageTypeDto(String label, String value, String displayName, String type, String shortCode)  {
+    public StageTypeDto(String label, String value, String displayName, String type, String shortCode) {
         this.label = label;
         this.value = value;
         this.displayName = displayName;

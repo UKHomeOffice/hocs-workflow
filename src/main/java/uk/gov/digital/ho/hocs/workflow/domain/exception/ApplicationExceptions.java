@@ -5,6 +5,7 @@ import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 public interface ApplicationExceptions {
 
     class EntityCreationException extends RuntimeException {
+
         private final LogEvent event;
 
         public EntityCreationException(String msg, LogEvent event, Object... args) {
@@ -15,9 +16,11 @@ public interface ApplicationExceptions {
         public LogEvent getEvent() {
             return event;
         }
+
     }
 
     class EntityNotFoundException extends RuntimeException {
+
         private final LogEvent event;
 
         public EntityNotFoundException(String msg, LogEvent event, Object... args) {
@@ -28,6 +31,7 @@ public interface ApplicationExceptions {
         public LogEvent getEvent() {
             return event;
         }
+
     }
 
     class InvalidMethodArgumentException extends RuntimeException {
@@ -36,5 +40,7 @@ public interface ApplicationExceptions {
             super(msg);
 
         }
+
     }
+
 }
