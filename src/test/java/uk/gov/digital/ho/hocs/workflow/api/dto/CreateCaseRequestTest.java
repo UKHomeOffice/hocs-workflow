@@ -11,6 +11,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CreateCaseRequestTest {
+
     @Test
     public void getCreateCaseRequest() {
 
@@ -20,7 +21,8 @@ public class CreateCaseRequestTest {
         Map<String, String> data = new HashMap<>();
         data.put("TestKey", "TestValue");
 
-        CreateCaseRequest createCaseRequest = new CreateCaseRequest(caseDataType, dateReceived, data, documentSummaryList, null);
+        CreateCaseRequest createCaseRequest = new CreateCaseRequest(caseDataType, dateReceived, data,
+            documentSummaryList, null);
 
         assertThat(createCaseRequest.getType()).isEqualTo(caseDataType);
         assertThat(createCaseRequest.getDateReceived()).isEqualTo(dateReceived);
@@ -40,4 +42,5 @@ public class CreateCaseRequestTest {
         assertThat(createCaseRequest.getDocuments()).isNull();
 
     }
+
 }

@@ -26,11 +26,12 @@ public class MPAMTriageOnHold {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.83)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.83).build();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario mpamTriageOnHoldScenario;
 
@@ -39,27 +40,21 @@ public class MPAMTriageOnHold {
 
         Mocks.register("bpmnService", bpmnService);
 
-        when(mpamTriageOnHoldScenario.waitsAtUserTask("UserTask_0jxw8et"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "TriageOnHoldOutcome", "PutOnCampaign", "DIRECTION", "FORWARD")));
-        when(mpamTriageOnHoldScenario.waitsAtUserTask("UserTask_1ql7p2r"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(mpamTriageOnHoldScenario.waitsAtUserTask("UserTask_0jxw8et")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "TriageOnHoldOutcome", "PutOnCampaign", "DIRECTION", "FORWARD")));
+        when(mpamTriageOnHoldScenario.waitsAtUserTask("UserTask_1ql7p2r")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
     }
 
     @Test
     public void happyPath() {
 
-        Scenario.run(mpamTriageOnHoldScenario)
-                .startByKey("MPAM_TRIAGE_ON_HOLD")
-                .execute();
+        Scenario.run(mpamTriageOnHoldScenario).startByKey("MPAM_TRIAGE_ON_HOLD").execute();
 
-        verify(mpamTriageOnHoldScenario)
-                .hasCompleted("ServiceTask_1smdf47");
-        verify(mpamTriageOnHoldScenario)
-                .hasCompleted("ServiceTask_18u5rz3");
-        verify(mpamTriageOnHoldScenario)
-                .hasCompleted("ServiceTask_0ms9mqv");
-        verify(mpamTriageOnHoldScenario)
-                .hasFinished("EndEvent_1golwf2");
+        verify(mpamTriageOnHoldScenario).hasCompleted("ServiceTask_1smdf47");
+        verify(mpamTriageOnHoldScenario).hasCompleted("ServiceTask_18u5rz3");
+        verify(mpamTriageOnHoldScenario).hasCompleted("ServiceTask_0ms9mqv");
+        verify(mpamTriageOnHoldScenario).hasFinished("EndEvent_1golwf2");
 
         verify(bpmnService).blankCaseValues(any(), any(), any());
 

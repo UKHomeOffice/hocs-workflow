@@ -26,21 +26,25 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/FOI/FOI_ALLOCATION.bpmn"})
+@Deployment(resources = { "processes/FOI/FOI_ALLOCATION.bpmn" })
 public class FOI_ALLOCATION {
 
     public static final String CHOOSE_FOI_HUB = "Activity_0egyc0f";
+
     public static final String CONFIRMATION_SCREEN = "Activity_0gpqsvz";
+
     public static final String CASE_UUID = "123-456-789";
+
     public static final String STAGE_UUID = "987-654-321";
+
     public static final String PROCESS_KEY = "FOI_ALLOCATION";
+
     public static final String ACCEPTANCE_TEAM_UUID = UUID.randomUUID().toString();
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(1)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -60,18 +64,14 @@ public class FOI_ALLOCATION {
     public void happyPath() {
 
         //given
-        when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD")
-                ));
-        when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN))
-                .thenReturn(task -> task.complete());
+        when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN)).thenReturn(task -> task.complete());
 
         //when
         Scenario.run(processScenario).startBy(() -> {
             return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
-                    Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
-                            "StageUUID", STAGE_UUID));
+                Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID, "StageUUID", STAGE_UUID));
         }).execute();
 
         //then
@@ -83,24 +83,20 @@ public class FOI_ALLOCATION {
     public void backPath() {
 
         //given
-        when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "BACKWARD")
-                )).thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD")
-                ));
-        when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN))
-                .thenReturn(task -> task.complete());
+        when(processScenario.waitsAtUserTask(CHOOSE_FOI_HUB)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask(CONFIRMATION_SCREEN)).thenReturn(task -> task.complete());
 
         //when
         Scenario.run(processScenario).startBy(() -> {
             return rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
-                    Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID,
-                            "StageUUID", STAGE_UUID));
+                Map.of("CaseUUID", CASE_UUID, "AcceptanceTeam", ACCEPTANCE_TEAM_UUID, "StageUUID", STAGE_UUID));
         }).execute();
 
         //then
         verify(processScenario, times(2)).hasCompleted(CHOOSE_FOI_HUB);
         verify(processScenario, times(2)).hasCompleted(CONFIRMATION_SCREEN);
     }
+
 }

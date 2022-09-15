@@ -15,13 +15,15 @@ public class HocsFormSecondaryAction {
 
     private String[] validation;
 
-    private Map<String,Object> props;
+    private Map<String, Object> props;
 
     public static HocsFormSecondaryAction from(SecondaryActionDto secondaryActionDto) {
         Map<String, Object> props = secondaryActionDto.getProps();
         props.put("label", secondaryActionDto.getLabel());
         props.put("name", secondaryActionDto.getName());
 
-        return new HocsFormSecondaryAction(secondaryActionDto.getComponent(), secondaryActionDto.getValidation(), props);
+        return new HocsFormSecondaryAction(secondaryActionDto.getComponent(), secondaryActionDto.getValidation(),
+            props);
     }
+
 }

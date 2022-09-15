@@ -33,7 +33,8 @@ public class BF2_TRIAGE {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -45,17 +46,26 @@ public class BF2_TRIAGE {
     private ProcessScenario process;
 
     private static final String PAYMENT_TYPE_CONSOLATORY = "PaymentTypeConsolatory";
+
     private static final String PAYMENT_TYPE_EXGRATIA = "PaymentTypeExGratia";
+
     private static final String PAYMENT_REQUESTED = "PaymentRequested";
+
     private static final String YES = "Yes";
+
     private static final String NO = "No";
+
     private static final String EMPTY_STRING = "";
 
     // PROCESSES
     private static final String CLEAR_EXGRATIA_VAL = "CLEAR_EXGRATIA_VAL";
+
     private static final String CLEAR_CONSOL_VAL = "CLEAR_CONSOL_VAL";
+
     private static final String CLEAR_PAYMENT_VALS = "CLEAR_PAYMENT_VALS";
+
     private static final String CALCULATE_TOTAL_PAYMENT = "CALCULATE_TOTAL_PAYMENT";
+
     private static final String CLEAR_REQUESTED_AMOUNT = "CLEAR_REQUESTED_AMOUNT";
 
     @Before
@@ -64,41 +74,22 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testHappyPath(){
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+    public void testHappyPath() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
-        when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, false,
-                        "BFTriageResult", "Pending",
-                        PAYMENT_TYPE_CONSOLATORY, EMPTY_STRING,
-                        PAYMENT_TYPE_EXGRATIA, EMPTY_STRING,
-                        PAYMENT_REQUESTED, EMPTY_STRING
-                )))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Pending",
-                        PAYMENT_TYPE_CONSOLATORY, EMPTY_STRING,
-                        PAYMENT_TYPE_EXGRATIA, EMPTY_STRING,
-                        PAYMENT_REQUESTED, EMPTY_STRING
-                )))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Pending",
-                        PAYMENT_TYPE_CONSOLATORY, NO,
-                        PAYMENT_TYPE_EXGRATIA, NO,
-                        PAYMENT_REQUESTED, NO
-                )))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Draft",
-                        PAYMENT_TYPE_CONSOLATORY, NO,
-                        PAYMENT_TYPE_EXGRATIA, NO,
-                        PAYMENT_REQUESTED, NO
-                )));
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(task -> task.complete(
+            withVariables(VALID, false, "BFTriageResult", "Pending", PAYMENT_TYPE_CONSOLATORY, EMPTY_STRING,
+                PAYMENT_TYPE_EXGRATIA, EMPTY_STRING, PAYMENT_REQUESTED, EMPTY_STRING))).thenReturn(
+            task -> task.complete(
+                withVariables(VALID, true, "BFTriageResult", "Pending", PAYMENT_TYPE_CONSOLATORY, EMPTY_STRING,
+                    PAYMENT_TYPE_EXGRATIA, EMPTY_STRING, PAYMENT_REQUESTED, EMPTY_STRING))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Pending", PAYMENT_TYPE_CONSOLATORY, NO,
+                PAYMENT_TYPE_EXGRATIA, NO, PAYMENT_REQUESTED, NO))).thenReturn(task -> task.complete(
+            withVariables(VALID, true, "BFTriageResult", "Draft", PAYMENT_TYPE_CONSOLATORY, NO, PAYMENT_TYPE_EXGRATIA,
+                NO, PAYMENT_REQUESTED, NO)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(3)).hasCompleted(CLEAR_PAYMENT_VALS);
@@ -111,15 +102,15 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testTriageOfflineTransfer(){
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "No")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "No")));
+    public void testTriageOfflineTransfer() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "No"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "No")));
 
-        when(process.waitsAtUserTask("Transfer_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, FORWARD)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, BACKWARD, VALID, false)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, VALID, true, "CaseNote_TriageTransfer", "Reject note")));
+        when(process.waitsAtUserTask("Transfer_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, false, DIRECTION, FORWARD))).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, BACKWARD, VALID, false))).thenReturn(task -> task.complete(
+            withVariables(DIRECTION, FORWARD, VALID, true, "CaseNote_TriageTransfer", "Reject note")));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(0)).hasCompleted(CLEAR_PAYMENT_VALS);
@@ -130,23 +121,19 @@ public class BF2_TRIAGE {
 
         verify(process, times(1)).hasCompleted("EndEvent_BF2_TRIAGE");
         verify(process, times(1)).hasCompleted("Save_Offline_Case_Transfer_Note");
-        verify(bpmnService, times(1)).updateAllocationNote(any(), any(), eq("Reject note"), eq("OFFLINE_CASE_TRANSFER"));
+        verify(bpmnService, times(1)).updateAllocationNote(any(), any(), eq("Reject note"),
+            eq("OFFLINE_CASE_TRANSFER"));
     }
 
     @Test
-    public void testReasonsBackThenComplete(){
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+    public void testReasonsBackThenComplete() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
-        when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, BACKWARD)))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Draft",
-                        PAYMENT_TYPE_CONSOLATORY, EMPTY_STRING,
-                        PAYMENT_TYPE_EXGRATIA, EMPTY_STRING,
-                        PAYMENT_REQUESTED, EMPTY_STRING
-                )));
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(
+            task -> task.complete(withVariables(VALID, false, DIRECTION, BACKWARD))).thenReturn(task -> task.complete(
+            withVariables(VALID, true, "BFTriageResult", "Draft", PAYMENT_TYPE_CONSOLATORY, EMPTY_STRING,
+                PAYMENT_TYPE_EXGRATIA, EMPTY_STRING, PAYMENT_REQUESTED, EMPTY_STRING)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(1)).hasCompleted(CLEAR_PAYMENT_VALS);
@@ -159,30 +146,20 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testCompleteComplaint(){
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+    public void testCompleteComplaint() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
-        when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Complete",
-                        PAYMENT_TYPE_CONSOLATORY, EMPTY_STRING,
-                        PAYMENT_TYPE_EXGRATIA, EMPTY_STRING,
-                        PAYMENT_REQUESTED, EMPTY_STRING
-                )))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Complete",
-                        PAYMENT_TYPE_CONSOLATORY, NO,
-                        PAYMENT_TYPE_EXGRATIA, NO,
-                        PAYMENT_REQUESTED, NO
-                )));
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(task -> task.complete(
+            withVariables(VALID, true, "BFTriageResult", "Complete", PAYMENT_TYPE_CONSOLATORY, EMPTY_STRING,
+                PAYMENT_TYPE_EXGRATIA, EMPTY_STRING, PAYMENT_REQUESTED, EMPTY_STRING))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BFTriageResult", "Complete", PAYMENT_TYPE_CONSOLATORY, NO,
+                PAYMENT_TYPE_EXGRATIA, NO, PAYMENT_REQUESTED, NO)));
 
-        when(process.waitsAtUserTask("Validate_Complete_Reason"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, BACKWARD)))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, DIRECTION, FORWARD)))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
+        when(process.waitsAtUserTask("Validate_Complete_Reason")).thenReturn(
+            task -> task.complete(withVariables(VALID, true, DIRECTION, BACKWARD))).thenReturn(
+            task -> task.complete(withVariables(VALID, false, DIRECTION, FORWARD))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(2)).hasCompleted(CLEAR_PAYMENT_VALS);
@@ -195,24 +172,18 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testEscalate(){
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+    public void testEscalate() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
-        when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        DIRECTION, FORWARD,
-                        "BFTriageResult", "Escalate",
-                        PAYMENT_TYPE_CONSOLATORY, NO,
-                        PAYMENT_TYPE_EXGRATIA, NO,
-                        PAYMENT_REQUESTED, NO
-                )));
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(task -> task.complete(
+            withVariables(VALID, true, DIRECTION, FORWARD, "BFTriageResult", "Escalate", PAYMENT_TYPE_CONSOLATORY, NO,
+                PAYMENT_TYPE_EXGRATIA, NO, PAYMENT_REQUESTED, NO)));
 
-        when(process.waitsAtUserTask("Validate_Escalate"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, "BFTriageResult", "Pending")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, BACKWARD)))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
+        when(process.waitsAtUserTask("Validate_Escalate")).thenReturn(
+            task -> task.complete(withVariables(VALID, false, "BFTriageResult", "Pending"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, DIRECTION, BACKWARD))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, DIRECTION, FORWARD)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(2)).hasCompleted(CLEAR_PAYMENT_VALS);
@@ -226,19 +197,15 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testPaymentCalcConsolOnlyPath(){
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+    public void testPaymentCalcConsolOnlyPath() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
-        when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Draft",
-                        PAYMENT_TYPE_CONSOLATORY, YES,
-                        PAYMENT_REQUESTED, NO
-                )));
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(task -> task.complete(
+            withVariables(VALID, true, "BFTriageResult", "Draft", PAYMENT_TYPE_CONSOLATORY, YES, PAYMENT_REQUESTED,
+                NO)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(0)).hasCompleted(CLEAR_PAYMENT_VALS);
@@ -251,19 +218,14 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testPaymentCalcExGratiaOnlyPath(){
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+    public void testPaymentCalcExGratiaOnlyPath() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
-        when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Draft",
-                        PAYMENT_TYPE_EXGRATIA, YES,
-                        PAYMENT_REQUESTED, NO
-                )));
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(task -> task.complete(
+            withVariables(VALID, true, "BFTriageResult", "Draft", PAYMENT_TYPE_EXGRATIA, YES, PAYMENT_REQUESTED, NO)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(0)).hasCompleted(CLEAR_PAYMENT_VALS);
@@ -276,20 +238,15 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testPaymentCalcConsolAndExGratiaPath(){
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+    public void testPaymentCalcConsolAndExGratiaPath() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, false, "BfTriageAccept", "Yes"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes"))).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
-        when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Draft",
-                        PAYMENT_TYPE_CONSOLATORY, YES,
-                        PAYMENT_TYPE_EXGRATIA, YES,
-                        PAYMENT_REQUESTED, NO
-                )));
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(task -> task.complete(
+            withVariables(VALID, true, "BFTriageResult", "Draft", PAYMENT_TYPE_CONSOLATORY, YES, PAYMENT_TYPE_EXGRATIA,
+                YES, PAYMENT_REQUESTED, NO)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
         verify(process, times(0)).hasCompleted(CLEAR_PAYMENT_VALS);
@@ -304,17 +261,12 @@ public class BF2_TRIAGE {
     @Test
     public void testPaymentRequestedYes() {
 
-        when(process.waitsAtUserTask("Validate_Accept_Case"))
-                .thenReturn(task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
 
-        when(process.waitsAtUserTask("Validate_Capture_Reason"))
-                .thenReturn(task -> task.complete(withVariables(
-                        VALID, true,
-                        "BFTriageResult", "Draft",
-                        PAYMENT_TYPE_CONSOLATORY, NO,
-                        PAYMENT_TYPE_EXGRATIA, NO,
-                        PAYMENT_REQUESTED, YES
-                )));
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(task -> task.complete(
+            withVariables(VALID, true, "BFTriageResult", "Draft", PAYMENT_TYPE_CONSOLATORY, NO, PAYMENT_TYPE_EXGRATIA,
+                NO, PAYMENT_REQUESTED, YES)));
 
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
 
@@ -326,4 +278,5 @@ public class BF2_TRIAGE {
 
         verify(process).hasCompleted("EndEvent_BF2_TRIAGE");
     }
+
 }

@@ -29,4 +29,5 @@ public interface WorkflowConstants {
     String CHANNEL = "Channel";
     String CHANNEL_COMP_ORIGINATEDFROM = "XOriginatedFrom";
     String CHANNEL_COMP_WEBFORM = "Webform";
+
 }

@@ -7,6 +7,9 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 public class CallActivityVariable {
+
     private final String source;
+
     private final String target;
+
 }

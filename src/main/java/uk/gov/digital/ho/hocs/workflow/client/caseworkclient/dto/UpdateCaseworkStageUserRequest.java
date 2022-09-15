@@ -14,4 +14,5 @@ public class UpdateCaseworkStageUserRequest {
 
     @JsonProperty("userUUID")
     private UUID userUUID;
+
 }

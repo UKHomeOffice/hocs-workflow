@@ -21,14 +21,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/POGR2/POGR2_HMPO_ESCALATE.bpmn"
-})
+@Deployment(resources = { "processes/POGR2/POGR2_HMPO_ESCALATE.bpmn" })
 public class POGR2_HMPO_ESCALATE {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -46,14 +45,13 @@ public class POGR2_HMPO_ESCALATE {
 
     @Test
     public void testHappyPath() {
-        when(processScenario.waitsAtUserTask("Screen_EscalateInput"))
-                .thenReturn(task -> task.complete(withVariables("EscalationOutcome", "Pending")))
-                .thenReturn(task -> task.complete(withVariables("EscalationOutcome", "Draft")));
+        when(processScenario.waitsAtUserTask("Screen_EscalateInput")).thenReturn(
+            task -> task.complete(withVariables("EscalationOutcome", "Pending"))).thenReturn(
+            task -> task.complete(withVariables("EscalationOutcome", "Draft")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_HMPO_ESCALATE")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_HMPO_ESCALATE").execute();
 
         verify(processScenario).hasCompleted("EndEvent_HmpoEscalate");
     }
+
 }

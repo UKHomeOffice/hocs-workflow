@@ -20,29 +20,36 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/FOI/FOI_CASE_CREATION.bpmn"})
+@Deployment(resources = { "processes/FOI/FOI_CASE_CREATION.bpmn" })
 public class FOI_CASE_CREATION {
 
     public static final String ALLOCATE_TO_CASE_CREATOR = "ALLOCATE_TO_CASE_CREATOR";
+
     public static final String CHECK_ANSWERS = "CHECK_ANSWERS";
+
     public static final String CHANGE_ANSWERS = "CHANGE_ANSWERS";
+
     public static final String UPDATE_DEADLINES = "UPDATE_DEADLINES";
+
     public static final String CHECK_VALIDITY = "CHECK_VALIDITY";
+
     public static final String VALID_TEMPLATES = "VALID_TEMPLATES";
+
     public static final String NON_VALID_TEMPLATES = "NON_VALID_TEMPLATES";
+
     public static final String END_EVENT = "END_EVENT";
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.575)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.575).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario FOICaseCreationProcess;
 
@@ -54,43 +61,30 @@ public class FOI_CASE_CREATION {
     @Test
     public void testChangeAnswersOnceThenAcceptThenValidResponse() {
 
-        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "CHANGE_HOME_OFFICE_DATE_RECEIVED")))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD")));
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "CHANGE_HOME_OFFICE_DATE_RECEIVED"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(FOICaseCreationProcess.waitsAtUserTask(CHANGE_ANSWERS))
-                .thenReturn(task -> task.complete());
+        when(FOICaseCreationProcess.waitsAtUserTask(CHANGE_ANSWERS)).thenReturn(task -> task.complete());
 
-        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_VALIDITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "RequestValidity", "RequestValid-Y")));
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_VALIDITY)).thenReturn(
+            task -> task.complete(withVariables("RequestValidity", "RequestValid-Y")));
 
-        when(FOICaseCreationProcess.waitsAtUserTask(VALID_TEMPLATES))
-                .thenReturn(task -> task.complete());
+        when(FOICaseCreationProcess.waitsAtUserTask(VALID_TEMPLATES)).thenReturn(task -> task.complete());
 
-        Scenario.run(FOICaseCreationProcess)
-                .startByKey("FOI_CASE_CREATION")
-                .execute();
+        Scenario.run(FOICaseCreationProcess).startByKey("FOI_CASE_CREATION").execute();
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
-        verify(FOICaseCreationProcess, times(2))
-                .hasCompleted(CHECK_ANSWERS);
+        verify(FOICaseCreationProcess, times(2)).hasCompleted(CHECK_ANSWERS);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(CHANGE_ANSWERS);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(CHANGE_ANSWERS);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(UPDATE_DEADLINES);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(UPDATE_DEADLINES);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(CHECK_VALIDITY);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(CHECK_VALIDITY);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(VALID_TEMPLATES);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(VALID_TEMPLATES);
 
         verify(FOICaseCreationProcess).hasFinished(END_EVENT);
 
@@ -99,92 +93,68 @@ public class FOI_CASE_CREATION {
     @Test
     public void testAnswersThenInvalidResponse() {
 
-        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD")));
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_VALIDITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "RequestValidity", "RequestValid-N")));
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_VALIDITY)).thenReturn(
+            task -> task.complete(withVariables("RequestValidity", "RequestValid-N")));
 
-        when(FOICaseCreationProcess.waitsAtUserTask(NON_VALID_TEMPLATES))
-                .thenReturn(task -> task.complete());
+        when(FOICaseCreationProcess.waitsAtUserTask(NON_VALID_TEMPLATES)).thenReturn(task -> task.complete());
 
-        Scenario.run(FOICaseCreationProcess)
-                .startByKey("FOI_CASE_CREATION")
-                .execute();
+        Scenario.run(FOICaseCreationProcess).startByKey("FOI_CASE_CREATION").execute();
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(CHECK_ANSWERS);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(CHECK_ANSWERS);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(CHECK_VALIDITY);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(CHECK_VALIDITY);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(NON_VALID_TEMPLATES);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(NON_VALID_TEMPLATES);
 
         // NOT INVOKED
 
-        verify(FOICaseCreationProcess, times(0))
-                .hasCompleted(CHANGE_ANSWERS);
+        verify(FOICaseCreationProcess, times(0)).hasCompleted(CHANGE_ANSWERS);
 
-        verify(FOICaseCreationProcess, times(0))
-                .hasCompleted(UPDATE_DEADLINES);
+        verify(FOICaseCreationProcess, times(0)).hasCompleted(UPDATE_DEADLINES);
 
         // END NOT INVOKED
 
         verify(FOICaseCreationProcess).hasFinished(END_EVENT);
 
     }
-
 
     @Test
     public void testAnswersThenBackThenForwardWithValidResponse() {
 
-        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD")));
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_ANSWERS)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_VALIDITY))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables(
-                        "DIRECTION", "FORWARD",
-                        "RequestValidity", "RequestValid-Y")));
+        when(FOICaseCreationProcess.waitsAtUserTask(CHECK_VALIDITY)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "RequestValidity", "RequestValid-Y")));
 
-        when(FOICaseCreationProcess.waitsAtUserTask(VALID_TEMPLATES))
-                .thenReturn(task -> task.complete());
+        when(FOICaseCreationProcess.waitsAtUserTask(VALID_TEMPLATES)).thenReturn(task -> task.complete());
 
-        Scenario.run(FOICaseCreationProcess)
-                .startByKey("FOI_CASE_CREATION")
-                .execute();
+        Scenario.run(FOICaseCreationProcess).startByKey("FOI_CASE_CREATION").execute();
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(ALLOCATE_TO_CASE_CREATOR);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(ALLOCATE_TO_CASE_CREATOR);
 
-        verify(FOICaseCreationProcess, times(2))
-                .hasCompleted(CHECK_ANSWERS);
+        verify(FOICaseCreationProcess, times(2)).hasCompleted(CHECK_ANSWERS);
 
-        verify(FOICaseCreationProcess, times(2))
-                .hasCompleted(CHECK_VALIDITY);
+        verify(FOICaseCreationProcess, times(2)).hasCompleted(CHECK_VALIDITY);
 
-        verify(FOICaseCreationProcess, times(1))
-                .hasCompleted(VALID_TEMPLATES);
+        verify(FOICaseCreationProcess, times(1)).hasCompleted(VALID_TEMPLATES);
 
         // NOT INVOKED
 
-        verify(FOICaseCreationProcess, times(0))
-                .hasCompleted(CHANGE_ANSWERS);
+        verify(FOICaseCreationProcess, times(0)).hasCompleted(CHANGE_ANSWERS);
 
-        verify(FOICaseCreationProcess, times(0))
-                .hasCompleted(UPDATE_DEADLINES);
+        verify(FOICaseCreationProcess, times(0)).hasCompleted(UPDATE_DEADLINES);
 
         // END NOT INVOKED
 
         verify(FOICaseCreationProcess).hasFinished(END_EVENT);
 
     }
+
 }

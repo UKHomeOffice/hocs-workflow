@@ -32,7 +32,8 @@ public class POGR_TELEPHONE_RESPONSE {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -50,14 +51,10 @@ public class POGR_TELEPHONE_RESPONSE {
 
     @Test
     public void testHappyPath() {
-        when(processScenario.waitsAtUserTask("Screen_TelephoneResponse"))
-                .thenReturn(task -> task.complete(withVariables("TelephoneResponse", "Yes",
-                        "TelephoneResponseCaseNote", "Test",
-                        "DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_TelephoneResponse")).thenReturn(task -> task.complete(
+            withVariables("TelephoneResponse", "Yes", "TelephoneResponseCaseNote", "Test", "DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_TELEPHONE_RESPONSE")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_TELEPHONE_RESPONSE").execute();
 
         verify(processScenario).hasCompleted("StartEvent_TelephoneResponse");
         verify(processScenario).hasCompleted("Screen_TelephoneResponse");
@@ -69,14 +66,10 @@ public class POGR_TELEPHONE_RESPONSE {
 
     @Test
     public void testNonTelephone() {
-        when(processScenario.waitsAtUserTask("Screen_TelephoneResponse"))
-                .thenReturn(task -> task.complete(withVariables("TelephoneResponse", "No",
-                        "TelephoneResponseCaseNote", "Test",
-                        "DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_TelephoneResponse")).thenReturn(task -> task.complete(
+            withVariables("TelephoneResponse", "No", "TelephoneResponseCaseNote", "Test", "DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_TELEPHONE_RESPONSE")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_TELEPHONE_RESPONSE").execute();
 
         verify(processScenario).hasCompleted("StartEvent_TelephoneResponse");
         verify(processScenario).hasCompleted("Screen_TelephoneResponse");
@@ -88,12 +81,10 @@ public class POGR_TELEPHONE_RESPONSE {
 
     @Test
     public void testBackTelephone() {
-        when(processScenario.waitsAtUserTask("Screen_TelephoneResponse"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")));
+        when(processScenario.waitsAtUserTask("Screen_TelephoneResponse")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_TELEPHONE_RESPONSE")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_TELEPHONE_RESPONSE").execute();
 
         verify(processScenario).hasCompleted("StartEvent_TelephoneResponse");
         verify(processScenario).hasCompleted("Screen_TelephoneResponse");

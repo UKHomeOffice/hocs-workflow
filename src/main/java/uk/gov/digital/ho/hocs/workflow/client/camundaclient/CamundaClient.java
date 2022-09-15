@@ -1,6 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
@@ -24,6 +25,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 public class CamundaClient {
 
     private final RuntimeService runtimeService;
+
     private final TaskService taskService;
 
     @Autowired
@@ -32,14 +34,16 @@ public class CamundaClient {
         this.taskService = taskService;
     }
 
-    public void startCase(UUID caseUUID, String caseDataType, Map<String,String> data) {
+    public void startCase(UUID caseUUID, String caseDataType, Map<String, String> data) {
         runtimeService.startProcessInstanceByKey(caseDataType, caseUUID.toString(), new HashMap<>(data));
-        log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType, value(EVENT, CASE_STARTED_SUCCESS));
+        log.info("Started case bpmn: Case: '{}' Type: '{}'", caseUUID, caseDataType,
+            value(EVENT, CASE_STARTED_SUCCESS));
     }
 
-    public void startCaseWithMessage(UUID caseUUID, String caseDataType, String message, Map<String,String> data) {
+    public void startCaseWithMessage(UUID caseUUID, String caseDataType, String message, Map<String, String> data) {
         runtimeService.startProcessInstanceByMessage(message, caseUUID.toString(), new HashMap<>(data));
-        log.info("Started case bpmn: Case: '{}', Type: '{}', Message: {}, Event {}", caseUUID, caseDataType, message, value(EVENT, CASE_STARTED_SUCCESS));
+        log.info("Started case bpmn: Case: '{}', Type: '{}', Message: {}, Event {}", caseUUID, caseDataType, message,
+            value(EVENT, CASE_STARTED_SUCCESS));
     }
 
     /**
@@ -48,13 +52,13 @@ public class CamundaClient {
      * (we can't call .singleResult() like we do now)
      * We then need a way to determine which stage we are allocating (using stageUUID?)
      */
-    public void completeTask(UUID key, Map<String,String> data) {
+    public void completeTask(UUID key, Map<String, String> data) {
         String taskId = getTaskIdByBusinessKey(key);
         taskService.complete(taskId, new HashMap<>(data));
         log.info("Completed task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
     }
 
-    public void updateTask(UUID key, Map<String,String> data) {
+    public void updateTask(UUID key, Map<String, String> data) {
         String taskId = getTaskIdByBusinessKey(key);
         taskService.setVariables(taskId, new HashMap<>(data));
         log.info("Updated task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
@@ -66,66 +70,56 @@ public class CamundaClient {
         log.info("Removed task for key: '{}'", key, value(EVENT, TASK_COMPLETED));
     }
 
-
     public String getStageScreenName(UUID stageUUID) {
         String formKeyScreenName = getFormKeyForCurrentTask(stageUUID);
         return formKeyScreenName != null ? formKeyScreenName : getStageScreenNameFromProcessVariable(stageUUID);
     }
 
-
-
     public String getFormKeyForCurrentTask(UUID stageUUID) {
-        Task task = taskService.createTaskQuery()
-            .processInstanceBusinessKey(stageUUID.toString())
-            .initializeFormKeys()
-            .singleResult();
+        Task task = taskService.createTaskQuery().processInstanceBusinessKey(
+            stageUUID.toString()).initializeFormKeys().singleResult();
         return task != null ? task.getFormKey() : null;
     }
 
     public String getStageScreenNameFromProcessVariable(UUID stageUUID) {
         String screenName = getPropertyByBusinessKey(stageUUID, "screen");
-        log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName, value(EVENT, CURRENT_STAGE_RETRIEVED));
+        log.info("Got current stage for bpmn Stage: '{}' Screen: '{}'", stageUUID, screenName,
+            value(EVENT, CURRENT_STAGE_RETRIEVED));
         return screenName == null || screenName.equals("null") ? "FINISH" : screenName;
     }
 
     public boolean hasProcessInstanceVariableWithValue(String businessKey, String variableName, String value) {
-        List<ProcessInstance> matches = runtimeService.createProcessInstanceQuery()
-            .processInstanceBusinessKey(businessKey)
-            .variableValueEquals(variableName, value)
-            .list();
+        List<ProcessInstance> matches = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(
+            businessKey).variableValueEquals(variableName, value).list();
         return !matches.isEmpty();
     }
 
     public void removeProcessInstanceVariableFromAllScopes(String caseUUID, String stageUUID, String variableName) {
-        List<ProcessInstance> caseProcessInstanceList = runtimeService.createProcessInstanceQuery()
-            .processInstanceBusinessKey(caseUUID)
-            .list();
+        List<ProcessInstance> caseProcessInstanceList = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(
+            caseUUID).list();
         caseProcessInstanceList.forEach(pI -> runtimeService.removeVariable(pI.getProcessInstanceId(), variableName));
 
-        List<ProcessInstance> stageProcessInstanceList = runtimeService.createProcessInstanceQuery()
-            .processInstanceBusinessKey(stageUUID)
-            .list();
+        List<ProcessInstance> stageProcessInstanceList = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(
+            stageUUID).list();
         stageProcessInstanceList.forEach(pI -> runtimeService.removeVariable(pI.getProcessInstanceId(), variableName));
     }
 
     private String getTaskIdByBusinessKey(UUID businessKey) {
-        Task task = taskService.createTaskQuery()
-                .processInstanceBusinessKey(businessKey.toString())
-                .singleResult();
+        Task task = taskService.createTaskQuery().processInstanceBusinessKey(businessKey.toString()).singleResult();
 
-        if(task != null) {
+        if (task != null) {
             return task.getId();
         } else {
-        throw new ApplicationExceptions.EntityNotFoundException(String.format("No tasks returned %s", businessKey), TASK_RETRIEVAL_FAILURE);
+            throw new ApplicationExceptions.EntityNotFoundException(String.format("No tasks returned %s", businessKey),
+                TASK_RETRIEVAL_FAILURE);
         }
     }
 
     private String getProcessIdByBusinessKey(UUID businessKey) {
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(businessKey.toString())
-                .singleResult();
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(
+            businessKey.toString()).singleResult();
 
-        if(processInstance != null) {
+        if (processInstance != null) {
             return processInstance.getProcessInstanceId();
         } else {
             return null;
@@ -136,10 +130,8 @@ public class CamundaClient {
 
         String processInstanceId = getProcessIdByBusinessKey(businessKey);
 
-        VariableInstance instance = runtimeService.createVariableInstanceQuery()
-                .processInstanceIdIn(processInstanceId)
-                .variableName(key)
-                .singleResult();
+        VariableInstance instance = runtimeService.createVariableInstanceQuery().processInstanceIdIn(
+            processInstanceId).variableName(key).singleResult();
 
         if (instance != null) {
             return (String) instance.getValue();
@@ -148,7 +140,7 @@ public class CamundaClient {
         }
     }
 
-    public void removeProcess(UUID stageUUID){
+    public void removeProcess(UUID stageUUID) {
         String processID = getProcessIdByBusinessKey(stageUUID);
         runtimeService.deleteProcessInstance(processID, null);
     }

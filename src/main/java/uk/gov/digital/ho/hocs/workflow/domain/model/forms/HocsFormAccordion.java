@@ -57,4 +57,5 @@ public class HocsFormAccordion extends HocsFormField {
         }
         return returnFields;
     }
+
 }

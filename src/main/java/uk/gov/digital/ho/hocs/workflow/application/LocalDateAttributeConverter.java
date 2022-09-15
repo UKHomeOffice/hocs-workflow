@@ -17,4 +17,5 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
     public LocalDate convertToEntityAttribute(Date sqlTimestamp) {
         return sqlTimestamp == null ? null : sqlTimestamp.toLocalDate();
     }
+
 }

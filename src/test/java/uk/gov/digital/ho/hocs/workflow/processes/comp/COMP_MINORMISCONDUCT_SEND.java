@@ -28,7 +28,8 @@ public class COMP_MINORMISCONDUCT_SEND {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -47,12 +48,13 @@ public class COMP_MINORMISCONDUCT_SEND {
     @Test
     public void testDefaultRoute() {
 
-        when(minorMisconductProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+        when(minorMisconductProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true)));
 
         Scenario.run(minorMisconductProcess).startByKey("COMP_MINORMISCONDUCT_SEND").execute();
 
         verify(minorMisconductProcess, times(2)).hasCompleted("Screen_Input");
     }
+
 }

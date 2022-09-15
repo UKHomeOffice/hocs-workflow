@@ -21,14 +21,13 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/POGR/POGR.bpmn",
-        "processes/STAGE.bpmn"})
+@Deployment(resources = { "processes/POGR/POGR.bpmn", "processes/STAGE.bpmn" })
 public class POGR {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(0.1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -46,17 +45,11 @@ public class POGR {
 
     @Test
     public void testHappyHmpoPath() {
-        whenAtCallActivity("POGR_REGISTRATION")
-                .thenReturn("BusinessArea", "HMPO")
-                .deploy(rule);
+        whenAtCallActivity("POGR_REGISTRATION").thenReturn("BusinessArea", "HMPO").deploy(rule);
 
-        whenAtCallActivity("POGR_HMPO")
-                .thenReturn("", "")
-                .deploy(rule);
+        whenAtCallActivity("POGR_HMPO").thenReturn("", "").deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR").execute();
 
         verify(processScenario).hasCompleted("StartEvent_POGR");
         verify(processScenario).hasCompleted("CallActivity_RegistrationStage");
@@ -67,17 +60,11 @@ public class POGR {
 
     @Test
     public void testHappyGroPath() {
-        whenAtCallActivity("POGR_REGISTRATION")
-                .thenReturn("BusinessArea", "GRO")
-                .deploy(rule);
+        whenAtCallActivity("POGR_REGISTRATION").thenReturn("BusinessArea", "GRO").deploy(rule);
 
-        whenAtCallActivity("POGR_GRO")
-                .thenReturn("", "")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO").thenReturn("", "").deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR").execute();
 
         verify(processScenario).hasCompleted("StartEvent_POGR");
         verify(processScenario).hasCompleted("CallActivity_RegistrationStage");

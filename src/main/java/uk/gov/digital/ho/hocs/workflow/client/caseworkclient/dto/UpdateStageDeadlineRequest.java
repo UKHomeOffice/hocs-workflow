@@ -12,10 +12,9 @@ public class UpdateStageDeadlineRequest {
     @JsonProperty("days")
     private Integer days;
 
-    public UpdateStageDeadlineRequest(
-            String stageType,
-            Integer days) {
+    public UpdateStageDeadlineRequest(String stageType, Integer days) {
         this.stageType = stageType;
         this.days = days;
     }
+
 }

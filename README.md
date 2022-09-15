@@ -28,7 +28,9 @@ This repository contains a [Docker Compose](https://docs.docker.com/compose/)
 file.
 
 ### Start localstack (sqs, sns, s3) and postgres
+
 From the project root run:
+
 ```console
 $ docker-compose -f ./ci/docker-compose.yml up -d localstack postgres
 ```
@@ -36,15 +38,19 @@ $ docker-compose -f ./ci/docker-compose.yml up -d localstack postgres
 > With Docker using 4 GB of memory, this takes approximately 2 minutes to startup.
 
 ### Stop the services
+
 From the project root run:
+
 ```console
 $ docker-compose -f ./ci/docker-compose.yml stop
 ```
+
 > This will retain data in the local database and other volumes.
 
 ## Running in an IDE
 
-If you are using an IDE, such as IntelliJ, this service can be started by running the ```HocsWorkflowApplication``` main class.
+If you are using an IDE, such as IntelliJ, this service can be started by running the ```HocsWorkflowApplication``` main
+class.
 The service can then be accessed at ```http://localhost:8091```.
 
 You need to specify appropriate Spring profiles.

@@ -27,11 +27,12 @@ public class MPAMQaClearanceRequest {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(1)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario process;
 
@@ -42,25 +43,21 @@ public class MPAMQaClearanceRequest {
 
     @Test
     public void clearanceCancelled() {
-        when(process.waitsAtUserTask("Validate_Clearance_Fulfilment"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClearanceStatus", "Cancelled")));
+        when(process.waitsAtUserTask("Validate_Clearance_Fulfilment")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClearanceStatus", "Cancelled")));
 
-        Scenario.run(process)
-                .startByKey("MPAM_QA_CLEARANCE_REQ")
-                .execute();
+        Scenario.run(process).startByKey("MPAM_QA_CLEARANCE_REQ").execute();
 
         verify(process).hasCompleted("mpam_clearance_end");
     }
 
     @Test
     public void clearanceRejected() {
-        when(process.waitsAtUserTask("Validate_Clearance_Fulfilment"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClearanceStatus", "RejectDraft")));
+        when(process.waitsAtUserTask("Validate_Clearance_Fulfilment")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClearanceStatus", "RejectDraft")));
 
-        Scenario.run(process)
-                .startByKey("MPAM_QA_CLEARANCE_REQ")
-                .execute();
+        Scenario.run(process).startByKey("MPAM_QA_CLEARANCE_REQ").execute();
 
         verify(bpmnService).updateAllocationNote(any(), any(), any(), eq("REJECT"));
 
@@ -71,12 +68,10 @@ public class MPAMQaClearanceRequest {
 
     @Test
     public void clearanceAccepted() {
-        when(process.waitsAtUserTask("Validate_Clearance_Fulfilment"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClearanceStatus", "ApprovePO")));
+        when(process.waitsAtUserTask("Validate_Clearance_Fulfilment")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClearanceStatus", "ApprovePO")));
 
-        Scenario.run(process)
-                .startByKey("MPAM_QA_CLEARANCE_REQ")
-                .execute();
+        Scenario.run(process).startByKey("MPAM_QA_CLEARANCE_REQ").execute();
 
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_PO"), any(), any(), any(), any());
     }

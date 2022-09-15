@@ -11,11 +11,11 @@ import javax.validation.constraints.NotEmpty;
 public class CreateCaseNoteRequest {
 
     @NotEmpty
-    @JsonProperty(value="type")
+    @JsonProperty(value = "type")
     private String type;
 
     @NotEmpty
-    @JsonProperty(value="text")
+    @JsonProperty(value = "text")
     private String text;
 
 }
