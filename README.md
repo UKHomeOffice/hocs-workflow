@@ -49,6 +49,13 @@ $ docker-compose -f ./ci/docker-compose.yml stop
 
 ## Running in an IDE
 
+This project contains a `git-blame-ignore-revs` file which can be used to ignore large formatting commits when using git blame. This also works in IntelliJ as it uses the standard `git blame` command to annotate commits.
+To see the correct blame information, you need to add the following to your git config:
+
+``` console
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 If you are using an IDE, such as IntelliJ, this service can be started by running the ```HocsWorkflowApplication``` main
 class.
 The service can then be accessed at ```http://localhost:8091```.
