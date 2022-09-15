@@ -47,7 +47,7 @@ public class IEDET_TRIAGE {
         when(processScenario.waitsAtUserTask("Screen_ComplaintType"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
 
         when(processScenario.waitsAtUserTask("Screen_ComplaintCategory"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
@@ -79,7 +79,7 @@ public class IEDET_TRIAGE {
     @Test
     public void testTriageTransferToCCH(){
         when(processScenario.waitsAtUserTask("Screen_ComplaintType"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
 
         when(processScenario.waitsAtUserTask("Screen_ComplaintCategory"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
@@ -108,4 +108,25 @@ public class IEDET_TRIAGE {
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
 
+    @Test
+    public void testTriageCaseTypeSeriousMisconduct(){
+        when(processScenario.waitsAtUserTask("Screen_ComplaintType"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "SeriousMisconduct")));
+
+        when(processScenario.waitsAtUserTask("Screen_ComplaintCategory"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask("Screen_ComplaintInput"))
+                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario)
+                .startByKey("IEDET_TRIAGE")
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Triage");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintType");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintCategory");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintInput");
+        verify(processScenario).hasCompleted("EndEvent_Triage");
+    }
 }
