@@ -20,16 +20,14 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/SMC/SMC.bpmn",
-        "processes/SMC/SMC_REGISTRATION.bpmn",
-        "processes/SMC/SMC_TRIAGE.bpmn",
-        "processes/SMC/SMC_SEND.bpmn",
-        "processes/STAGE.bpmn"})
+@Deployment(resources = { "processes/SMC/SMC.bpmn", "processes/SMC/SMC_REGISTRATION.bpmn",
+    "processes/SMC/SMC_TRIAGE.bpmn", "processes/SMC/SMC_SEND.bpmn", "processes/STAGE.bpmn" })
 public class SMC {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(0.1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -47,25 +45,15 @@ public class SMC {
 
     @Test
     public void testHappyPath() {
-        whenAtCallActivity("SMC_REGISTRATION")
-                .thenReturn("valid", "true")
-                .deploy(rule);
+        whenAtCallActivity("SMC_REGISTRATION").thenReturn("valid", "true").deploy(rule);
 
-        whenAtCallActivity("SMC_TRIAGE")
-                .thenReturn("valid", "true")
-                .deploy(rule);
+        whenAtCallActivity("SMC_TRIAGE").thenReturn("valid", "true").deploy(rule);
 
-        whenAtCallActivity("SMC_DRAFT")
-                .thenReturn("valid", "true")
-                .deploy(rule);
+        whenAtCallActivity("SMC_DRAFT").thenReturn("valid", "true").deploy(rule);
 
-        whenAtCallActivity("SMC_SEND")
-                .thenReturn("valid", "true")
-                .deploy(rule);
+        whenAtCallActivity("SMC_SEND").thenReturn("valid", "true").deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("SMC")
-                .execute();
+        Scenario.run(processScenario).startByKey("SMC").execute();
 
         verify(processScenario).hasCompleted("StartEvent_SMC");
         verify(processScenario).hasCompleted("CallActivity_SMC_REGISTRATION");

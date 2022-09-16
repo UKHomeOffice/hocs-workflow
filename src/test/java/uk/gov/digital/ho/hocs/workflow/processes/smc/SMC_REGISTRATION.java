@@ -27,7 +27,8 @@ public class SMC_REGISTRATION {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -44,31 +45,32 @@ public class SMC_REGISTRATION {
     }
 
     @Test
-    public void testHappyPath(){
-        when(process.waitsAtUserTask("Validate_Correspondents"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+    public void testHappyPath() {
+        when(process.waitsAtUserTask("Validate_Correspondents")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true)));
 
-        when(process.waitsAtUserTask("Validate_Complainant"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Complainant")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Category"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Category")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         Scenario.run(process).startByKey("SMC_REGISTRATION").execute();
 
         verify(bpmnService, times(2)).updatePrimaryCorrespondent(any(), any(), any());
         verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage1"));
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("SMC_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("SMC_TRIAGE"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("Stage"));
         verify(process).hasCompleted("EndEvent_SCM_Registration");
     }
 

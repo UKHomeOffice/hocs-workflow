@@ -27,7 +27,8 @@ public class BF_REGISTRATION {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -44,88 +45,91 @@ public class BF_REGISTRATION {
     }
 
     @Test
-    public void testHappyPath(){
-        when(process.waitsAtUserTask("Validate_Correspondents"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+    public void testHappyPath() {
+        when(process.waitsAtUserTask("Validate_Correspondents")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true)));
 
         when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT"))).thenReturn(true);
 
-        when(process.waitsAtUserTask("Validate_Complainant"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Complainant")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Selection"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Complaint_Selection")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD", "CompType", "Service")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD", "CompType", "Service")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
+        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(task -> task.complete(
+            withVariables("valid", false, "DIRECTION", "BACKWARD", "CompType", "Service"))).thenReturn(
+            task -> task.complete(
+                withVariables("valid", false, "DIRECTION", "FORWARD", "CompType", "Service"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
 
         Scenario.run(process).startByKey("BF_REGISTRATION").execute();
 
         verify(bpmnService, times(2)).updatePrimaryCorrespondent(any(), any(), any());
         verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage1"));
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF_TRIAGE"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("Stage"));
         verify(process).hasCompleted("EndEvent_BF_Registration");
     }
 
     @Test
-    public void testMinorMisconduct(){
-        when(process.waitsAtUserTask("Validate_Correspondents"))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+    public void testMinorMisconduct() {
+        when(process.waitsAtUserTask("Validate_Correspondents")).thenReturn(
+            task -> task.complete(withVariables("valid", true)));
 
         when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT"))).thenReturn(true);
 
-        when(process.waitsAtUserTask("Validate_Complainant"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Complainant")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Selection"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Complaint_Selection")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
+        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
 
         Scenario.run(process).startByKey("BF_REGISTRATION").execute();
 
         verify(bpmnService, times(1)).updatePrimaryCorrespondent(any(), any(), any());
         verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage1"));
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF_TRIAGE"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("Stage"));
         verify(process).hasCompleted("EndEvent_BF_Registration");
     }
 
     @Test
-    public void testNoPrimaryCorrespondents(){
-        when(process.waitsAtUserTask("Validate_Correspondents"))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+    public void testNoPrimaryCorrespondents() {
+        when(process.waitsAtUserTask("Validate_Correspondents")).thenReturn(
+            task -> task.complete(withVariables("valid", true)));
 
-        when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT")))
-                .thenReturn(false)
-                .thenReturn(true);
+        when(bpmnService.caseHasPrimaryCorrespondentType(any(), eq("COMPLAINANT"))).thenReturn(false).thenReturn(true);
 
-        when(process.waitsAtUserTask("Validate_Invalid_Correspondents"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+        when(process.waitsAtUserTask("Validate_Invalid_Correspondents")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true)));
 
-        when(process.waitsAtUserTask("Validate_Complainant"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Complainant")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Selection"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(process.waitsAtUserTask("Validate_Complaint_Selection")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
+        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
 
         Scenario.run(process).startByKey("BF_REGISTRATION").execute();
 
         verify(process, times(2)).hasCompleted("hasPrimaryCorrespondents");
         verify(process, times(2)).hasCompleted("Invalid_Correspondents");
         verify(bpmnService).updateValue(any(), any(), eq("Stage"), eq("Stage1"));
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF_TRIAGE"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("BF_TRIAGE"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("Stage"));
         verify(process).hasCompleted("EndEvent_BF_Registration");
     }
+
 }

@@ -14,4 +14,5 @@ public class UpdateStageDeadlineRequestTest {
         assertThat(request.getStageType()).isEqualTo("stageType");
         assertThat(request.getDays()).isEqualTo(7);
     }
+
 }

@@ -26,7 +26,8 @@ public class BF2_SEND {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -43,12 +44,13 @@ public class BF2_SEND {
     }
 
     @Test
-    public void testHappyPath(){
-        when(process.waitsAtUserTask("Validate_Send"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+    public void testHappyPath() {
+        when(process.waitsAtUserTask("Validate_Send")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         Scenario.run(process).startByKey("BF2_SEND").execute();
         verify(process).hasCompleted("EndEvent_BF2_SEND");
     }
+
 }

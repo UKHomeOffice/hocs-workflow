@@ -23,4 +23,5 @@ public class CreateCaseworkCaseRequest {
 
     @JsonProperty
     private UUID fromCaseUUID;
+
 }

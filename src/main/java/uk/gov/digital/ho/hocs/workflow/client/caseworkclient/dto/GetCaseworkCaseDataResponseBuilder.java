@@ -6,19 +6,30 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class GetCaseworkCaseDataResponseBuilder {
-    private UUID uuid;
-    private ZonedDateTime created;
-    private String type;
-    private String reference;
-    private Map<String, String> data;
-    private LocalDate caseDeadline;
-    private LocalDate dateReceived;
-    private UUID primaryTopicUUID;
-    private GetTopicResponse primaryTopic;
-    private UUID primaryCorrespondentUUID;
-    private GetCorrespondentResponse primaryCorrespondent;
-    private Boolean completed;
 
+    private UUID uuid;
+
+    private ZonedDateTime created;
+
+    private String type;
+
+    private String reference;
+
+    private Map<String, String> data;
+
+    private LocalDate caseDeadline;
+
+    private LocalDate dateReceived;
+
+    private UUID primaryTopicUUID;
+
+    private GetTopicResponse primaryTopic;
+
+    private UUID primaryCorrespondentUUID;
+
+    private GetCorrespondentResponse primaryCorrespondent;
+
+    private Boolean completed;
 
     private GetCaseworkCaseDataResponseBuilder() {
     }
@@ -88,6 +99,8 @@ public final class GetCaseworkCaseDataResponseBuilder {
     }
 
     public GetCaseworkCaseDataResponse build() {
-        return new GetCaseworkCaseDataResponse(uuid, created, type, reference, data, caseDeadline, dateReceived, primaryTopicUUID, primaryTopic, primaryCorrespondentUUID, primaryCorrespondent, completed);
+        return new GetCaseworkCaseDataResponse(uuid, created, type, reference, data, caseDeadline, dateReceived,
+            primaryTopicUUID, primaryTopic, primaryCorrespondentUUID, primaryCorrespondent, completed);
     }
+
 }

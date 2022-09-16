@@ -27,7 +27,8 @@ public class SMC_DRAFT {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -44,10 +45,10 @@ public class SMC_DRAFT {
     }
 
     @Test
-    public void testHappyPath(){
-        when(process.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+    public void testHappyPath() {
+        when(process.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true)));
 
         Scenario.run(process).startByKey("SMC_DRAFT").execute();
 

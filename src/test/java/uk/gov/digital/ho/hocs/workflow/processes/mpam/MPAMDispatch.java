@@ -28,14 +28,15 @@ public class MPAMDispatch {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.2)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.2).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario processScenario;
 
@@ -47,20 +48,12 @@ public class MPAMDispatch {
     @Test
     public void whenReturnToDraft_thenSavesCasenote_andUpdatesRejected_andUpdatesTeam() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "DispatchStatus", "ReturnToDraft")));
-        when(processScenario.waitsAtUserTask("Validate_ReturnToDraftInput"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "valid", true,
-                        "DIRECTION", "FORWARD",
-                        "CaseNote_DispatchReturnToDraft", "Casenote Reject")));
+        when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "DispatchStatus", "ReturnToDraft")));
+        when(processScenario.waitsAtUserTask("Validate_ReturnToDraftInput")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_DispatchReturnToDraft", "Casenote Reject")));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_DISPATCH")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_DISPATCH").execute();
 
         verify(processScenario).hasCompleted("Screen_ReturnToDraftInput");
         verify(processScenario).hasCompleted("Service_SaveReturnReasonNote");
@@ -68,7 +61,9 @@ public class MPAMDispatch {
         verify(processScenario).hasCompleted("Service_UpdateToRejectedByDispatch");
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By Dispatch"));
         verify(processScenario).hasCompleted("Service_UpdateTeamForDraft");
-        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"), eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
+        verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_DRAFT"), eq("QueueTeamUUID"),
+            eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
         verify(processScenario).hasFinished("EndEvent_MpamDispatch");
     }
+
 }

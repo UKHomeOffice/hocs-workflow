@@ -25,7 +25,8 @@ public class COMP_CCH_RETURNS {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -42,10 +43,10 @@ public class COMP_CCH_RETURNS {
     }
 
     @Test
-    public void testChcCompTypeService(){
-        when(compReturnProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "CchCompType", "Service")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "Service")));
+    public void testChcCompTypeService() {
+        when(compReturnProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "CchCompType", "Service"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "Service")));
 
         Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
 
@@ -57,17 +58,17 @@ public class COMP_CCH_RETURNS {
     }
 
     @Test
-    public void testChcCompTypeComplete(){
-        when(compReturnProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "Complete")));
+    public void testChcCompTypeComplete() {
+        when(compReturnProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "Complete")));
 
-        when(compReturnProcess.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compReturnProcess.waitsAtUserTask("Validate_CompleteReason")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compReturnProcess.waitsAtUserTask("Validate_CompleteConfirm"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD", "CompleteResult", "Yes")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
+        when(compReturnProcess.waitsAtUserTask("Validate_CompleteConfirm")).thenReturn(task -> task.complete(
+            withVariables("valid", false, "DIRECTION", "FORWARD", "CompleteResult", "Yes"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
 
         Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
 
@@ -77,13 +78,13 @@ public class COMP_CCH_RETURNS {
     }
 
     @Test
-    public void testRestartAfterReason(){
-        when(compReturnProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "Complete")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "Service")));
+    public void testRestartAfterReason() {
+        when(compReturnProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "Complete"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "Service")));
 
-        when(compReturnProcess.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")));
+        when(compReturnProcess.waitsAtUserTask("Validate_CompleteReason")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")));
 
         Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
 
@@ -93,35 +94,16 @@ public class COMP_CCH_RETURNS {
     }
 
     @Test
-    public void testRestartAfterConfirm(){
-        when(compReturnProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "Complete")));
+    public void testRestartAfterConfirm() {
+        when(compReturnProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "Complete")));
 
-        when(compReturnProcess.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compReturnProcess.waitsAtUserTask("Validate_CompleteReason")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compReturnProcess.waitsAtUserTask("Validate_CompleteConfirm"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD", "CompleteResult", "Yes")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
-
-        Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
-
-        verify(compReturnProcess).hasCompleted("Screen_Input");
-        verify(compReturnProcess, times(2)).hasCompleted("Service_CompleteReason");
-        verify(compReturnProcess, times(2)).hasCompleted("Validate_CompleteConfirm");
-    }
-
-    @Test
-    public void testIncompleteResult(){
-        when(compReturnProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "Complete")));
-
-        when(compReturnProcess.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
-
-        when(compReturnProcess.waitsAtUserTask("Validate_CompleteConfirm"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
+        when(compReturnProcess.waitsAtUserTask("Validate_CompleteConfirm")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "BACKWARD", "CompleteResult", "Yes"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
 
         Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
 
@@ -131,10 +113,29 @@ public class COMP_CCH_RETURNS {
     }
 
     @Test
-    public void testUnexpectedCchCompType(){
+    public void testIncompleteResult() {
+        when(compReturnProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "Complete")));
+
+        when(compReturnProcess.waitsAtUserTask("Validate_CompleteReason")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(compReturnProcess.waitsAtUserTask("Validate_CompleteConfirm")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
+
+        Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
+
+        verify(compReturnProcess).hasCompleted("Screen_Input");
+        verify(compReturnProcess, times(2)).hasCompleted("Service_CompleteReason");
+        verify(compReturnProcess, times(2)).hasCompleted("Validate_CompleteConfirm");
+    }
+
+    @Test
+    public void testUnexpectedCchCompType() {
         //This passes but should it?
-        when(compReturnProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "Toast")));
+        when(compReturnProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "Toast")));
 
         Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
 
@@ -144,9 +145,9 @@ public class COMP_CCH_RETURNS {
     }
 
     @Test
-    public void testSendToExGratia(){
-        when(compReturnProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "Ex-Gratia")));
+    public void testSendToExGratia() {
+        when(compReturnProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "Ex-Gratia")));
 
         Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
 
@@ -157,9 +158,9 @@ public class COMP_CCH_RETURNS {
     }
 
     @Test
-    public void testSendToMinorMisconduct(){
-        when(compReturnProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CchCompType", "MinorMisconduct")));
+    public void testSendToMinorMisconduct() {
+        when(compReturnProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CchCompType", "MinorMisconduct")));
 
         Scenario.run(compReturnProcess).startByKey("COMP_CCH_RETURNS").execute();
 

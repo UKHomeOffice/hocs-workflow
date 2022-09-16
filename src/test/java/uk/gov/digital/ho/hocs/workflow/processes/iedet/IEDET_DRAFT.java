@@ -25,7 +25,8 @@ public class IEDET_DRAFT {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -42,10 +43,10 @@ public class IEDET_DRAFT {
     }
 
     @Test
-    public void testDefaultPassThrough(){
-        when(processScenario.waitsAtUserTask("Screen_Input"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "" )))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+    public void testDefaultPassThrough() {
+        when(processScenario.waitsAtUserTask("Screen_Input")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario).startByKey("IEDET_DRAFT").execute();
 
@@ -53,4 +54,5 @@ public class IEDET_DRAFT {
         verify(processScenario, times(2)).hasCompleted("Screen_Input");
         verify(processScenario).hasCompleted("EndEvent_Draft");
     }
+
 }

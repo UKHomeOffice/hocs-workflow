@@ -8,6 +8,8 @@ public interface AuthFilter {
 
     String getKey();
 
-    Object applyFilter(ResponseEntity<?> responseEntityToFilter, AccessLevel userAccessLevel, Object[] collectionAsArray) throws SecurityExceptions.AuthFilterException;
+    Object applyFilter(ResponseEntity<?> responseEntityToFilter,
+                       AccessLevel userAccessLevel,
+                       Object[] collectionAsArray) throws SecurityExceptions.AuthFilterException;
 
 }
