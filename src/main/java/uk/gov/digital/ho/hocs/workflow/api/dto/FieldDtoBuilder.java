@@ -4,14 +4,23 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class FieldDtoBuilder {
+
     private UUID uuid;
+
     private String name;
+
     private String label;
+
     private String component;
+
     private Object[] validation;
+
     private Map<String, Object> props;
+
     private boolean summary;
+
     private boolean active;
+
     private FieldDto child;
 
     private FieldDtoBuilder() {
@@ -69,4 +78,5 @@ public final class FieldDtoBuilder {
     public FieldDto build() {
         return new FieldDto(uuid, name, label, component, validation, props, summary, active, child);
     }
+
 }

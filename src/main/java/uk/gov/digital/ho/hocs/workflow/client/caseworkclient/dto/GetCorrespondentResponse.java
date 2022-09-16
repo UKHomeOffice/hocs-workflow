@@ -40,4 +40,5 @@ public class GetCorrespondentResponse {
 
     @JsonProperty("reference")
     private String reference;
+
 }

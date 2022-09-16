@@ -30,4 +30,5 @@ public class CreateCaseResponseTest {
         assertThat(createCaseResponse.getReference()).isEqualTo(null);
 
     }
+
 }

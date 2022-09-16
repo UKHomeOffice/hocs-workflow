@@ -21,14 +21,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/COMP/COMP_CLOSE.bpmn")
 public class COMP_CLOSE {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -46,10 +46,8 @@ public class COMP_CLOSE {
 
     @Test
     public void testDefaultRoute() {
-        when(processScenario.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true,
-                                                  "CaseNote_CompleteReason","Complete",
-                                                                     "DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Validate_CompleteReason")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "CaseNote_CompleteReason", "Complete", "DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario).startByKey("COMP_CLOSE").execute();
 
@@ -58,10 +56,8 @@ public class COMP_CLOSE {
 
     @Test
     public void testBackwards() {
-        when(processScenario.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true,
-                                                  "CaseNote_CompleteReason","Complete",
-                                                                     "DIRECTION", "BACKWARD")));
+        when(processScenario.waitsAtUserTask("Validate_CompleteReason")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "CaseNote_CompleteReason", "Complete", "DIRECTION", "BACKWARD")));
 
         Scenario.run(processScenario).startByKey("COMP_CLOSE").execute();
 

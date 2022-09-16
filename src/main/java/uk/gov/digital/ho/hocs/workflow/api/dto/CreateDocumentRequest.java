@@ -18,4 +18,5 @@ public class CreateDocumentRequest {
 
     @JsonProperty("actionDataItemUuid")
     private UUID actionDataItemUuid;
+
 }

@@ -9,4 +9,5 @@ public class UuidUtils {
     public static boolean isUUID(String uuid) {
         return StringUtils.hasText(uuid) && uuid.matches(UUID_REGEX);
     }
+
 }

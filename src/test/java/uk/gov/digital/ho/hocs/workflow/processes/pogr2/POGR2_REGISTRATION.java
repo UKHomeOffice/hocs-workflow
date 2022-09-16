@@ -15,7 +15,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
+
 import java.util.Map;
+
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,7 +32,8 @@ public class POGR2_REGISTRATION {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -48,25 +51,20 @@ public class POGR2_REGISTRATION {
 
     @Test
     public void testHmpoHappyPath() {
-        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
-                .thenReturn("DIRECTION", "")
-                .thenReturn("DIRECTION", "FORWARD")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT").thenReturn("DIRECTION", "").thenReturn("DIRECTION",
+            "FORWARD").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "", "BusinessArea", "HMPO")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "", "BusinessArea", "HMPO"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD", "BusinessArea", "HMPO"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "HMPO"))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "HMPO")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
         verify(processScenario, times(3)).hasCompleted("CallActivity_CorrespondentInput");
@@ -77,35 +75,25 @@ public class POGR2_REGISTRATION {
 
     @Test
     public void testHappyGroPath() {
-        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
-                .thenReturn("DIRECTION", "BACKWARD")
-                .thenReturn("DIRECTION", "FORWARD")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT").thenReturn("DIRECTION", "BACKWARD").thenReturn("DIRECTION",
+            "FORWARD").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DIRECTION", "")
-                .thenReturn("DIRECTION", "BACKWARD")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DIRECTION", "").thenReturn("DIRECTION",
+            "BACKWARD").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DIRECTION", "")
-                .thenReturn("DIRECTION", "BACKWARD")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DIRECTION", "").thenReturn("DIRECTION",
+            "BACKWARD").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "No"))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_REGISTRATION",
+            Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "No")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
         verify(processScenario).hasCompleted("Service_UpdateCaseDeadline");
@@ -119,47 +107,38 @@ public class POGR2_REGISTRATION {
 
     @Test
     public void testDeadlineSetToTenDaysForGroPostChannel() {
-        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO","ComplaintChannel", "Post", "ComplaintPriority", "No"))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_REGISTRATION",
+            Map.of("BusinessArea", "GRO", "ComplaintChannel", "Post", "ComplaintPriority", "No")).execute();
 
         verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("10"));
     }
 
     @Test
     public void testDeadlineSetToOneDayForGroPriority() {
-        whenAtCallActivity("COMPLAINT_CORRESPONDENT")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN")
-                .thenReturn("DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("POGR_GRO_PRIORITY_CHANGE_SCREEN").thenReturn("DIRECTION", "FORWARD").deploy(rule);
 
-        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_GroAllocateTeam")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "Yes"))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_REGISTRATION",
+            Map.of("BusinessArea", "GRO", "ComplaintChannel", "Other", "ComplaintPriority", "Yes")).execute();
 
         verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("1"));
     }
+
 }

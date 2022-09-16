@@ -6,6 +6,7 @@ import java.util.List;
 public class HocsFormSection {
 
     public String title;
+
     public String name;
 
     public List<HocsFormField> items;
@@ -18,4 +19,5 @@ public class HocsFormSection {
             this.name = field.getProps().get("name").toString();
         }
     }
+
 }

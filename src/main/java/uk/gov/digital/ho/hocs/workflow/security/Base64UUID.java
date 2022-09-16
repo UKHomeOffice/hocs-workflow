@@ -5,8 +5,8 @@ import org.apache.commons.codec.binary.Base64;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
-public class Base64UUID
-{
+public class Base64UUID {
+
     private Base64UUID() {}
 
     public static String UUIDToBase64String(UUID uuid) {
@@ -15,7 +15,6 @@ public class Base64UUID
         uuidBytes.putLong(uuid.getLeastSignificantBits());
         return Base64.encodeBase64URLSafeString(uuidBytes.array());
     }
-
 
     public static UUID Base64StringToUUID(String base64UUIDString) {
         byte[] bytes = Base64.decodeBase64(base64UUIDString);

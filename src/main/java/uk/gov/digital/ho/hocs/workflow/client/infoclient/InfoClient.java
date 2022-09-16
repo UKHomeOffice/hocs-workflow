@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.client.infoclient;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 public class InfoClient {
 
     private final RestHelper restHelper;
+
     private final String serviceBaseURL;
 
     @Autowired
@@ -37,19 +39,18 @@ public class InfoClient {
 
     @Cacheable(value = "InfoClientGetCaseTypeByShortCode", unless = "#result == null", key = "#shortCode")
     public CaseDataType getCaseTypeByShortCode(String shortCode) {
-        CaseDataType caseDataType = restHelper.get(serviceBaseURL, String.format("/caseType/shortCode/%s", shortCode), CaseDataType.class);
-        log.info("Got CaseDataType {} for Short code {}", caseDataType.getDisplayCode(), shortCode, value(EVENT, INFO_CLIENT_GET_CASE_TYPE_SHORT_SUCCESS));
+        CaseDataType caseDataType = restHelper.get(serviceBaseURL, String.format("/caseType/shortCode/%s", shortCode),
+            CaseDataType.class);
+        log.info("Got CaseDataType {} for Short code {}", caseDataType.getDisplayCode(), shortCode,
+            value(EVENT, INFO_CLIENT_GET_CASE_TYPE_SHORT_SUCCESS));
         return caseDataType;
     }
 
     @Cacheable(value = "InfoClientGetSchemasForCaseTypeAndStages", unless = "#result.size() == 0")
     public List<SchemaDto> getSchemasForCaseTypeAndStages(String caseType, String caseStages) {
-        List<SchemaDto> response = restHelper.get(
-                serviceBaseURL,
-                String.format("/schema/caseType/%s?stages=%s", caseType, caseStages),
-                new ParameterizedTypeReference<List<SchemaDto>>() {
-                }
-        );
+        List<SchemaDto> response = restHelper.get(serviceBaseURL,
+            String.format("/schema/caseType/%s?stages=%s", caseType, caseStages),
+            new ParameterizedTypeReference<List<SchemaDto>>() {});
         log.info("Got {} schemas", response.size(), value(EVENT, INFO_CLIENT_GET_SCHEMAS_SUCCESS));
         return response;
     }
@@ -63,16 +64,15 @@ public class InfoClient {
 
     @Cacheable(value = "InfoClientGetTeams", unless = "#result.size() == 0")
     public Set<TeamDto> getTeams() {
-        Set<TeamDto> teams = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {
-        });
+        Set<TeamDto> teams = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {});
         log.info("Got {} teams", teams.size(), value(EVENT, INFO_CLIENT_GET_TEAMS_SUCCESS));
         return teams;
     }
 
     @Cacheable(value = "InfoClientGetAllStageTypes", unless = "#result.size() == 0")
     public Set<StageTypeDto> getAllStageTypes() {
-        Set<StageTypeDto> response = restHelper.get(serviceBaseURL,"/stageType",
-                new ParameterizedTypeReference<Set<StageTypeDto>>(){ });
+        Set<StageTypeDto> response = restHelper.get(serviceBaseURL, "/stageType",
+            new ParameterizedTypeReference<Set<StageTypeDto>>() {});
         log.info("Got {} Stage Types", response.size(), value(EVENT, INFO_CLIENT_GET_TEAM_SUCCESS));
         return response;
     }
@@ -86,15 +86,21 @@ public class InfoClient {
 
     @Cacheable(value = "InfoClientGetTeamForStageType", unless = "#result == null", key = "#stageType")
     public UUID getTeamForStageType(String stageType) {
-        TeamDto response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType), TeamDto.class);
-        log.info("Got Team teamUUID {} for Stage {}", response.getUuid(), stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_STAGE_SUCCESS));
+        TeamDto response = restHelper.get(serviceBaseURL, String.format("/stageType/%s/team", stageType),
+            TeamDto.class);
+        log.info("Got Team teamUUID {} for Stage {}", response.getUuid(), stageType,
+            value(EVENT, INFO_CLIENT_GET_TEAM_FOR_STAGE_SUCCESS));
         return response.getUuid();
     }
 
-    @Cacheable(value = "InfoClientGetTeamForTopicAndStage", unless = "#result == null", key = "{ #caseUUID, #topicUUID, #stageType}")
+    @Cacheable(value = "InfoClientGetTeamForTopicAndStage",
+               unless = "#result == null",
+               key = "{ #caseUUID, #topicUUID, #stageType}")
     public TeamDto getTeamForTopicAndStage(UUID caseUUID, UUID topicUUID, String stageType) {
-        TeamDto response = restHelper.get(serviceBaseURL, String.format("/team/case/%s/topic/%s/stage/%s", caseUUID, topicUUID, stageType), TeamDto.class);
-        log.info("Got Team teamUUID {} for Topic {} and Stage {}", response.getUuid(), topicUUID, stageType, value(EVENT, INFO_CLIENT_GET_TEAM_FOR_TOPIC_STAGE_SUCCESS));
+        TeamDto response = restHelper.get(serviceBaseURL,
+            String.format("/team/case/%s/topic/%s/stage/%s", caseUUID, topicUUID, stageType), TeamDto.class);
+        log.info("Got Team teamUUID {} for Topic {} and Stage {}", response.getUuid(), topicUUID, stageType,
+            value(EVENT, INFO_CLIENT_GET_TEAM_FOR_TOPIC_STAGE_SUCCESS));
         return response;
     }
 
@@ -107,7 +113,8 @@ public class InfoClient {
 
     @Cacheable(value = "InfoClientGetUserForTeam", unless = "#result == null", key = "{ #teamUUID, #userUUID}")
     public UserDto getUserForTeam(UUID teamUUID, UUID userUUID) {
-        UserDto userDto = restHelper.get(serviceBaseURL, String.format("/teams/%s/member/%s", teamUUID, userUUID), UserDto.class);
+        UserDto userDto = restHelper.get(serviceBaseURL, String.format("/teams/%s/member/%s", teamUUID, userUUID),
+            UserDto.class);
         log.info("Got User for Team {} for User {}", teamUUID, userUUID, value(EVENT, INFO_CLIENT_GET_USER_SUCESS));
         return userDto;
     }
@@ -121,9 +128,11 @@ public class InfoClient {
 
     @Cacheable(value = "InfoClientGetCaseDetailsFieldDtos", unless = "#result == null", key = "{ #caseType}")
     public List<CaseDetailsFieldDto> getCaseDetailsFieldsByCaseType(String caseType) {
-        List<CaseDetailsFieldDto> caseDetailsFieldDtos = restHelper.get(serviceBaseURL, String.format("/caseDetailsFields/%s", caseType), new ParameterizedTypeReference<List<CaseDetailsFieldDto>>() {
-        });
+        List<CaseDetailsFieldDto> caseDetailsFieldDtos = restHelper.get(serviceBaseURL,
+            String.format("/caseDetailsFields/%s", caseType),
+            new ParameterizedTypeReference<List<CaseDetailsFieldDto>>() {});
         log.info("Got CaseDetailsFields By Case Type {} ", value(EVENT, INFO_CLIENT_GET_CASE_DETAILS_FIELDS));
         return caseDetailsFieldDtos;
     }
+
 }

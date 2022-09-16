@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
+
 import java.util.Map;
 
 @AllArgsConstructor
@@ -20,4 +21,5 @@ public class GetCaseResponse {
     @Setter
     @JsonProperty("data")
     private Map<String, String> data;
+
 }

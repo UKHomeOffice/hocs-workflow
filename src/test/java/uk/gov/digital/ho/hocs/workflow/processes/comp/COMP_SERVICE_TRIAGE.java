@@ -25,12 +25,13 @@ import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/COMP/COMP_SERVICE_TRIAGE.bpmn", "processes/COMP/COMP_CLOSE.bpmn"})
+@Deployment(resources = { "processes/COMP/COMP_SERVICE_TRIAGE.bpmn", "processes/COMP/COMP_CLOSE.bpmn" })
 public class COMP_SERVICE_TRIAGE {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(0.86).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.86).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -48,14 +49,15 @@ public class COMP_SERVICE_TRIAGE {
 
     @Test
     public void testRejectTriage() {
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Transfer"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(
+                withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
 
         Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
 
@@ -67,29 +69,32 @@ public class COMP_SERVICE_TRIAGE {
 
     @Test
     public void testTriageResultDraft() {
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "Pending")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Draft")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(
+                withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "Pending"))).thenReturn(
+            task -> task.complete(
+                withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult",
+                    "Draft")));
 
         Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
 
@@ -98,25 +103,27 @@ public class COMP_SERVICE_TRIAGE {
 
     @Test
     public void testTriageResultEscalate() {
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Escalate")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult",
+                "Escalate")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Escalate"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageEscalate", "Escalate")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Escalate")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(
+                withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageEscalate", "Escalate")));
 
         Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
 
@@ -128,25 +135,24 @@ public class COMP_SERVICE_TRIAGE {
     @Test
     public void testTriageResultComplete() {
 
-        whenAtCallActivity("COMP_CLOSE")
-                .thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "BACKWARD")
-                .thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "FORWARD")
-                .deploy(rule);
+        whenAtCallActivity("COMP_CLOSE").thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION",
+            "BACKWARD").thenReturn("CloseResult", "Yes", "varx", "vary", "DIRECTION", "FORWARD").deploy(rule);
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult", "Complete")));
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "NotPending", "CctTriageResult",
+                "Complete")));
 
         Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
 

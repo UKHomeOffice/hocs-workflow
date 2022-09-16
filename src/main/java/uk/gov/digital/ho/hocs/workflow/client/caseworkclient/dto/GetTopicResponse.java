@@ -28,4 +28,5 @@ public class GetTopicResponse {
 
     @JsonProperty("topicUUID")
     private UUID topicUUID;
+
 }

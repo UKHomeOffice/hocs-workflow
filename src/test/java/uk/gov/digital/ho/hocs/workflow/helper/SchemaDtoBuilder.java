@@ -9,16 +9,27 @@ import java.util.List;
 import java.util.UUID;
 
 public final class SchemaDtoBuilder {
+
     private UUID uuid;
+
     private String stageType;
+
     private String type;
+
     private String title;
+
     private String defaultActionLabel;
+
     private boolean active;
+
     private List<FieldDto> fields;
+
     private List<SecondaryActionDto> secondaryActions;
+
     private Object props;
+
     private Object validation;
+
     private List<Object> summary;
 
     public SchemaDtoBuilder() {
@@ -81,6 +92,8 @@ public final class SchemaDtoBuilder {
     }
 
     public SchemaDto build() {
-        return new SchemaDto(uuid, stageType, type, title, defaultActionLabel, active, fields, secondaryActions, props, validation, summary);
+        return new SchemaDto(uuid, stageType, type, title, defaultActionLabel, active, fields, secondaryActions, props,
+            validation, summary);
     }
+
 }

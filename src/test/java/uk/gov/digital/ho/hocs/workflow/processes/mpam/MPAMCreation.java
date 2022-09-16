@@ -28,14 +28,15 @@ public class MPAMCreation {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.75)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.75).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario mpamCreationProcess;
 
@@ -44,10 +45,10 @@ public class MPAMCreation {
 
         Mocks.register("bpmnService", bpmnService);
 
-        when(mpamCreationProcess.waitsAtUserTask("UserTask_145n012"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "BusArea", "")));
-        when(mpamCreationProcess.waitsAtUserTask("UserTask_0iez602"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(mpamCreationProcess.waitsAtUserTask("UserTask_145n012")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "BusArea", "")));
+        when(mpamCreationProcess.waitsAtUserTask("UserTask_0iez602")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
     }
 
     @Test
@@ -55,16 +56,11 @@ public class MPAMCreation {
 
         when(bpmnService.caseHasMember(any())).thenReturn(true);
 
-        Scenario.run(mpamCreationProcess)
-                .startByKey("MPAM_CREATION")
-                .execute();
+        Scenario.run(mpamCreationProcess).startByKey("MPAM_CREATION").execute();
 
-        verify(mpamCreationProcess)
-                .hasCompleted("ServiceTask_1wekfef");
-        verify(mpamCreationProcess)
-                .hasCompleted("ServiceTask_0wdqurs");
-        verify(mpamCreationProcess)
-                .hasFinished("EndEvent_0cpzydi");
+        verify(mpamCreationProcess).hasCompleted("ServiceTask_1wekfef");
+        verify(mpamCreationProcess).hasCompleted("ServiceTask_0wdqurs");
+        verify(mpamCreationProcess).hasFinished("EndEvent_0cpzydi");
 
         verify(bpmnService).updatePrimaryCorrespondent(any(), any(), any());
 
@@ -75,27 +71,18 @@ public class MPAMCreation {
     @Test
     public void hasNoCaseMember() {
 
-        when(bpmnService.caseHasMember(any()))
-                .thenReturn(false)
-                .thenReturn(true);
+        when(bpmnService.caseHasMember(any())).thenReturn(false).thenReturn(true);
 
-        when(mpamCreationProcess.waitsAtUserTask("Activity_0oz6tve"))
-                .thenReturn(task -> task.complete(withVariables("valid", true)));
+        when(mpamCreationProcess.waitsAtUserTask("Activity_0oz6tve")).thenReturn(
+            task -> task.complete(withVariables("valid", true)));
 
-        Scenario.run(mpamCreationProcess)
-                .startByKey("MPAM_CREATION")
-                .execute();
+        Scenario.run(mpamCreationProcess).startByKey("MPAM_CREATION").execute();
 
-        verify(mpamCreationProcess, times(2))
-                .hasCompleted("ServiceTask_1wekfef");
-        verify(mpamCreationProcess)
-                .hasCompleted("ServiceTask_0wdqurs");
-        verify(mpamCreationProcess)
-                .hasCompleted("Activity_1jsutsb");
-        verify(mpamCreationProcess)
-                .hasCompleted("Activity_0oz6tve");
-        verify(mpamCreationProcess)
-                .hasFinished("EndEvent_0cpzydi");
+        verify(mpamCreationProcess, times(2)).hasCompleted("ServiceTask_1wekfef");
+        verify(mpamCreationProcess).hasCompleted("ServiceTask_0wdqurs");
+        verify(mpamCreationProcess).hasCompleted("Activity_1jsutsb");
+        verify(mpamCreationProcess).hasCompleted("Activity_0oz6tve");
+        verify(mpamCreationProcess).hasFinished("EndEvent_0cpzydi");
 
         verify(bpmnService, times(2)).updatePrimaryCorrespondent(any(), any(), any());
 

@@ -20,5 +20,4 @@ public class CreateTopicRequest {
         return new CreateTopicRequest(uuidString);
     }
 
-
 }

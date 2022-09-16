@@ -29,4 +29,5 @@ public class CreateCaseRequest implements CreateCaseRequestInterface {
 
     @JsonProperty("fromCaseUUID")
     private UUID fromCaseUUID;
+
 }

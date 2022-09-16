@@ -26,14 +26,13 @@ import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/POGR2/POGR2_HMPO_DRAFT.bpmn"
-})
+@Deployment(resources = { "processes/POGR2/POGR2_HMPO_DRAFT.bpmn" })
 public class POGR2_HMPO_DRAFT {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -51,13 +50,11 @@ public class POGR2_HMPO_DRAFT {
 
     @Test
     public void testHappyPath() {
-        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "")))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "QA")));
+        when(processScenario.waitsAtUserTask("Screen_DraftInput")).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", ""))).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "QA")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_HMPO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_HMPO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
@@ -68,18 +65,13 @@ public class POGR2_HMPO_DRAFT {
 
     @Test
     public void testTelephoneResponse() {
-        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
-                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")));
+        when(processScenario.waitsAtUserTask("Screen_DraftInput")).thenReturn(
+            task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")));
 
-        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
-                .thenReturn("TelephoneResponse", "", "DIRECTION", "Backward")
-                .thenReturn("TelephoneResponse", "")
-                .thenReturn("TelephoneResponse", "Yes")
-                .deploy(rule);
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE").thenReturn("TelephoneResponse", "", "DIRECTION",
+            "Backward").thenReturn("TelephoneResponse", "").thenReturn("TelephoneResponse", "Yes").deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_HMPO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_HMPO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario).hasCompleted("Screen_DraftInput");
@@ -89,19 +81,15 @@ public class POGR2_HMPO_DRAFT {
 
     @Test
     public void testNotTelephoneResponse() {
-        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
-                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")))
-                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse")))
-                .thenReturn(task -> task.complete(withVariables("DraftOutcome", "QA")));
+        when(processScenario.waitsAtUserTask("Screen_DraftInput")).thenReturn(
+            task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse"))).thenReturn(
+            task -> task.complete(withVariables("DraftOutcome", "TelephoneResponse"))).thenReturn(
+            task -> task.complete(withVariables("DraftOutcome", "QA")));
 
-        whenAtCallActivity("POGR_TELEPHONE_RESPONSE")
-                .thenReturn("DIRECTION", "BACKWARD")
-                .thenReturn("TelephoneResponse", "No")
-                .deploy(rule);
+        whenAtCallActivity("POGR_TELEPHONE_RESPONSE").thenReturn("DIRECTION", "BACKWARD").thenReturn(
+            "TelephoneResponse", "No").deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_HMPO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_HMPO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(3)).hasCompleted("Screen_DraftInput");
@@ -112,18 +100,16 @@ public class POGR2_HMPO_DRAFT {
 
     @Test
     public void testRejectionPath() {
-        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "ReturnInvestigation")))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "ReturnInvestigation")));
+        when(processScenario.waitsAtUserTask("Screen_DraftInput")).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "ReturnInvestigation"))).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "ReturnInvestigation")));
 
-        when(processScenario.waitsAtUserTask("Screen_RejectDraft"))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DIRECTION","UNKNOWN")))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DIRECTION","BACKWARD")))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DIRECTION","FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_RejectDraft")).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DIRECTION", "UNKNOWN"))).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_HMPO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_HMPO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
@@ -136,18 +122,16 @@ public class POGR2_HMPO_DRAFT {
 
     @Test
     public void testEscalationPath() {
-        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "Escalate")))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "Escalate")));
+        when(processScenario.waitsAtUserTask("Screen_DraftInput")).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "Escalate"))).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "Escalate")));
 
-        when(processScenario.waitsAtUserTask("Screen_HmpoEscalateScreen"))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DIRECTION","UNKNOWN")))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DIRECTION","BACKWARD")))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DIRECTION","FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_HmpoEscalateScreen")).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DIRECTION", "UNKNOWN"))).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_HMPO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_HMPO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");
@@ -157,18 +141,14 @@ public class POGR2_HMPO_DRAFT {
 
     @Test
     public void testCloseCaseAtDraftStage() {
-        when(processScenario.waitsAtUserTask("Screen_DraftInput"))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "CloseCase")))
-                .thenReturn(task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "CloseCase")));
+        when(processScenario.waitsAtUserTask("Screen_DraftInput")).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "CloseCase"))).thenReturn(
+            task -> task.complete(BpmnAwareTests.withVariables("DraftOutcome", "CloseCase")));
 
-        whenAtCallActivity("POGR_CLOSE_CASE")
-                .thenReturn("CloseCase", Boolean.toString(false))
-                .thenReturn("CloseCase", Boolean.toString(true))
-                .deploy(rule);
+        whenAtCallActivity("POGR_CLOSE_CASE").thenReturn("CloseCase", Boolean.toString(false)).thenReturn("CloseCase",
+            Boolean.toString(true)).deploy(rule);
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_HMPO_DRAFT")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_HMPO_DRAFT").execute();
 
         verify(processScenario).hasCompleted("StartEvent_HmpoDraft");
         verify(processScenario, times(2)).hasCompleted("Screen_DraftInput");

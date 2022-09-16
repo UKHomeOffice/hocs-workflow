@@ -1,7 +1,9 @@
 package uk.gov.digital.ho.hocs.workflow.util;
 
 public class CallActivityReturnVariable {
+
     String key;
+
     String value;
 
     public CallActivityReturnVariable(String key, String value) {
@@ -16,4 +18,5 @@ public class CallActivityReturnVariable {
     public String getValue() {
         return value;
     }
+
 }

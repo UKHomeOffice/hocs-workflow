@@ -15,10 +15,15 @@ import static org.camunda.community.mockito.ProcessExpressions.registerCallActiv
  * A wrapper class to simplify workflow testing
  */
 public class CallActivityMockWrapper {
+
     private final String callActivityName;
+
     private List<List<CallActivityReturnVariable>> variableListList;
+
     private final VariableMap variableMap = new VariableMapImpl();
+
     private boolean thenReturnCalled;
+
     private boolean alwaysReturnCalled;
 
     public static CallActivityMockWrapper whenAtCallActivity(String callActivityName) {
@@ -32,7 +37,9 @@ public class CallActivityMockWrapper {
     /**
      * Every mock call of the callActivity will return the same values
      */
-    public CallActivityMockWrapper alwaysReturn(final String key, final Object value, final Object... furtherKeyValuePairs) {
+    public CallActivityMockWrapper alwaysReturn(final String key,
+                                                final Object value,
+                                                final Object... furtherKeyValuePairs) {
         if (thenReturnCalled) {
             throw new IllegalStateException("Can't call thenReturn and alwaysReturn together");
         }
@@ -49,7 +56,9 @@ public class CallActivityMockWrapper {
     /**
      * This method can be chained together to allow a different set of variable/values to be returned for each call to this callActivity mock
      */
-    public CallActivityMockWrapper thenReturn(final String key, final Object value, final Object... furtherKeyValuePairs) {
+    public CallActivityMockWrapper thenReturn(final String key,
+                                              final Object value,
+                                              final Object... furtherKeyValuePairs) {
         if (alwaysReturnCalled) {
             throw new IllegalStateException("Can't call alwaysReturn and thenReturn together");
         }
@@ -69,16 +78,14 @@ public class CallActivityMockWrapper {
 
     public void deploy(final ProcessEngineServices processEngineServices) {
         if (thenReturnCalled) {
-            registerCallActivityMock(callActivityName)
-                    .onExecutionDo(new ExecutionVariableSequence(variableListList))
-                    .deploy(processEngineServices);
+            registerCallActivityMock(callActivityName).onExecutionDo(
+                new ExecutionVariableSequence(variableListList)).deploy(processEngineServices);
         } else if (alwaysReturnCalled) {
-            registerCallActivityMock(callActivityName)
-                    .onExecutionAddVariables(variableMap)
-                    .deploy(processEngineServices);
+            registerCallActivityMock(callActivityName).onExecutionAddVariables(variableMap).deploy(
+                processEngineServices);
         } else {
-            registerCallActivityMock(callActivityName)
-                    .deploy(processEngineServices);
+            registerCallActivityMock(callActivityName).deploy(processEngineServices);
         }
     }
+
 }
