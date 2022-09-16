@@ -41,7 +41,11 @@ public enum LogEvent {
     AUTH_FILTER_SUCCESS,
     CASE_NOTE_FAILED,
     STAGE_CREATION_STARTED,
-    STAGE_CREATION_SUCCESS;
+    STAGE_CREATION_SUCCESS,
+    AUDIT_FAILED,
+    AUDIT_EVENT_CREATED,
+    AUDIT_EVENT_UPDATED
+    ;
 
     public static final String EVENT = "event_id";
 
