@@ -70,7 +70,7 @@ public class IEDET_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
         verify(processScenario, times(3)).hasCompleted("Screen_ComplaintType");
-        verify(processScenario, times(5)).hasCompleted("Screen_ComplaintCategory");
+        verify(processScenario, times(6)).hasCompleted("Screen_ComplaintCategory");
         verify(processScenario, times(4)).hasCompleted("Screen_ComplaintDetails_NotSerious");
         verify(processScenario, times(3)).hasCompleted("Screen_Assign");
         verify(processScenario).hasCompleted("EndEvent_Triage");
@@ -127,7 +127,7 @@ public class IEDET_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintType");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintCategory");
+        verify(processScenario, times(3)).hasCompleted("Screen_ComplaintCategory");
         verify(processScenario, times(3)).hasCompleted("Screen_ComplaintDetails_Serious");
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
