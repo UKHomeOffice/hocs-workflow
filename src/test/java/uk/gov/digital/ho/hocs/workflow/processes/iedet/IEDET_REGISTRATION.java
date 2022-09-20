@@ -62,5 +62,4 @@ public class IEDET_REGISTRATION {
         verify(processScenario, times(3)).hasCompleted("Screen_ComplainantInput");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
-
 }
