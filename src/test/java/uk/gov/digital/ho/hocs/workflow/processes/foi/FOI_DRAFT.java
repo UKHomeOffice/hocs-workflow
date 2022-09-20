@@ -22,23 +22,27 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {"processes/FOI/FOI_DRAFT.bpmn"})
+@Deployment(resources = { "processes/FOI/FOI_DRAFT.bpmn" })
 public class FOI_DRAFT {
 
     public static final String PROCESS_KEY = "FOI_DRAFT";
+
     public static final String CASE_UUID = UUID.randomUUID().toString();
+
     public static final String STAGE_UUID = UUID.randomUUID().toString();
 
     public static final String MULTIPLE_CONTRIBUTIONS = "MULTIPLE_CONTRIBUTIONS";
+
     public static final String END_EVENT = "END_EVENT";
+
     public static final String ARE_MCS_REQUIRED = "ARE_MCS_REQUIRED";
+
     public static final String UPLOAD_DRAFT = "UPLOAD_DRAFT";
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(0.75)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        0.75).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -57,22 +61,17 @@ public class FOI_DRAFT {
     @Test
     public void multipleContributions() {
 
-        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED)).thenReturn(
+            task -> task.complete(withVariables("ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-
-        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
-                .thenReturn(task -> task.complete());
+        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT)).thenReturn(task -> task.complete());
 
         Scenario.run(processScenario).startBy(
-                () -> rule.getRuntimeService().startProcessInstanceByKey(
-                        PROCESS_KEY, STAGE_UUID,
-                        Map.of("CaseUUID", CASE_UUID)
-                )).execute();
+            () -> rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
+                Map.of("CaseUUID", CASE_UUID))).execute();
 
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(MULTIPLE_CONTRIBUTIONS);
@@ -83,28 +82,22 @@ public class FOI_DRAFT {
     @Test
     public void multipleContributionsBackandForth() {
 
-        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED)).thenReturn(task -> task.complete(
+            withVariables("ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(
+                withVariables("ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("ContributionsRequired", "RequestContrib-Y", "DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask(MULTIPLE_CONTRIBUTIONS)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-
-        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete());
+        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT)).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(task -> task.complete());
 
         Scenario.run(processScenario).startBy(
-                () -> rule.getRuntimeService().startProcessInstanceByKey(
-                        PROCESS_KEY, STAGE_UUID,
-                        Map.of("CaseUUID", CASE_UUID)
-                )).execute();
+            () -> rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
+                Map.of("CaseUUID", CASE_UUID))).execute();
 
         verify(processScenario, times(3)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(2)).hasCompleted(MULTIPLE_CONTRIBUTIONS);
@@ -115,23 +108,19 @@ public class FOI_DRAFT {
     @Test
     public void happyPath() {
 
-        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED))
-                .thenReturn(task -> task.complete(withVariables(
-                        "ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask(ARE_MCS_REQUIRED)).thenReturn(
+            task -> task.complete(withVariables("ContributionsRequired", "RequestContrib-N", "DIRECTION", "FORWARD")));
 
-
-        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT))
-                .thenReturn(task -> task.complete());
+        when(processScenario.waitsAtUserTask(UPLOAD_DRAFT)).thenReturn(task -> task.complete());
 
         Scenario.run(processScenario).startBy(
-                () -> rule.getRuntimeService().startProcessInstanceByKey(
-                        PROCESS_KEY, STAGE_UUID,
-                        Map.of("CaseUUID", CASE_UUID)
-                )).execute();
+            () -> rule.getRuntimeService().startProcessInstanceByKey(PROCESS_KEY, STAGE_UUID,
+                Map.of("CaseUUID", CASE_UUID))).execute();
 
         verify(processScenario, times(1)).hasCompleted(ARE_MCS_REQUIRED);
         verify(processScenario, times(1)).hasCompleted(UPLOAD_DRAFT);
         verify(processScenario).hasFinished(END_EVENT);
         verify(processScenario, never()).waitsAtUserTask(MULTIPLE_CONTRIBUTIONS);
     }
+
 }

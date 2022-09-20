@@ -12,4 +12,5 @@ public class CreateCaseworkStageResponse {
 
     @JsonProperty("uuid")
     private UUID uuid;
+
 }

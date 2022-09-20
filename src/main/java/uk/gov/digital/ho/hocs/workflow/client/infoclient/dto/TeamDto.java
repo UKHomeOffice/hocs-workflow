@@ -23,7 +23,6 @@ public class TeamDto implements Serializable {
     @JsonProperty("permissions")
     private Set<PermissionDto> permissionDtos;
 
-
     public TeamDto() {
         permissionDtos = new HashSet<>();
     }
@@ -34,4 +33,5 @@ public class TeamDto implements Serializable {
         this.active = active;
         this.permissionDtos = permissionDtos;
     }
+
 }

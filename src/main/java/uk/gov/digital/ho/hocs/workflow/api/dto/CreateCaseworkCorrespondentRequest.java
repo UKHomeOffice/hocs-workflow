@@ -49,4 +49,5 @@ public class CreateCaseworkCorrespondentRequest {
 
     @JsonProperty("reference")
     String reference;
+
 }

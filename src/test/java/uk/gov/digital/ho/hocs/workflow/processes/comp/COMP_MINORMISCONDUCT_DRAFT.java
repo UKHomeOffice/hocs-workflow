@@ -25,7 +25,8 @@ public class COMP_MINORMISCONDUCT_DRAFT {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -42,10 +43,10 @@ public class COMP_MINORMISCONDUCT_DRAFT {
     }
 
     @Test
-    public void testDefaultPassThrough(){
-        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "CctDraftResult", "Ignore")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "Ignore")));
+    public void testDefaultPassThrough() {
+        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "CctDraftResult", "Ignore"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctDraftResult", "Ignore")));
 
         Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
@@ -53,9 +54,9 @@ public class COMP_MINORMISCONDUCT_DRAFT {
     }
 
     @Test
-    public void testSendRoute(){
-        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "Send")));
+    public void testSendRoute() {
+        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctDraftResult", "Send")));
 
         Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
@@ -63,9 +64,9 @@ public class COMP_MINORMISCONDUCT_DRAFT {
     }
 
     @Test
-    public void testQARoute(){
-        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "QA")));
+    public void testQARoute() {
+        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctDraftResult", "QA")));
 
         Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
@@ -73,13 +74,13 @@ public class COMP_MINORMISCONDUCT_DRAFT {
     }
 
     @Test
-    public void testEscalateRoute(){
-        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "Escalate")));
-        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Escalate"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "false")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "true")));
+    public void testEscalateRoute() {
+        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctDraftResult", "Escalate")));
+        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Escalate")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "false"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "true")));
 
         Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 
@@ -89,13 +90,13 @@ public class COMP_MINORMISCONDUCT_DRAFT {
     }
 
     @Test
-    public void testReturnRoute(){
-        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "CctDraftResult", "Return")));
-        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Return"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "false")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "true")));
+    public void testReturnRoute() {
+        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctDraftResult", "Return")));
+        when(minorMisconductDraftProcess.waitsAtUserTask("Validate_Return")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "false"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "valid", "true")));
 
         Scenario.run(minorMisconductDraftProcess).startByKey("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").execute();
 

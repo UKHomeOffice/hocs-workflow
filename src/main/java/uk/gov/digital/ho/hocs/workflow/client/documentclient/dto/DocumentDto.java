@@ -12,4 +12,5 @@ public class DocumentDto {
 
     @JsonProperty("displayName")
     private String displayName;
+
 }

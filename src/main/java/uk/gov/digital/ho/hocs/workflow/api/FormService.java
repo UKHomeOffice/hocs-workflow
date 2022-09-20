@@ -20,10 +20,10 @@ import java.util.UUID;
 public class FormService {
 
     private final CaseworkClient caseworkClient;
+
     private final InfoClient infoClient;
 
-    public FormService(CaseworkClient caseworkClient,
-                           InfoClient infoClient) {
+    public FormService(CaseworkClient caseworkClient, InfoClient infoClient) {
         this.caseworkClient = caseworkClient;
         this.infoClient = infoClient;
     }
@@ -35,8 +35,10 @@ public class FormService {
         List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).toList();
         fields = HocsFormAccordion.loadFormAccordions(fields);
 
-        List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).toList();
-        HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions, schemaDto.getProps(), schemaDto.getValidation(), schemaDto.getSummary());
+        List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(
+            HocsFormSecondaryAction::from).toList();
+        HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields,
+            secondaryActions, schemaDto.getProps(), schemaDto.getValidation(), schemaDto.getSummary());
         HocsForm form = new HocsForm(schema, caseData.getData());
         return new GetFormResponse(caseData.getReference(), form);
     }

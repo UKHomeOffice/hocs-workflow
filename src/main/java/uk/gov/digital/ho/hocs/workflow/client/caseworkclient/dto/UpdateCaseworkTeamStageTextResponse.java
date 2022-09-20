@@ -12,4 +12,5 @@ public class UpdateCaseworkTeamStageTextResponse {
 
     @JsonProperty("teamMap")
     private Map<String, String> teamMap;
+
 }

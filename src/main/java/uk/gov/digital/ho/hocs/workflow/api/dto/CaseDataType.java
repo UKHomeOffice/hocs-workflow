@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = {"shortCode"})
+@EqualsAndHashCode(of = { "shortCode" })
 public class CaseDataType {
 
     @JsonProperty("displayName")
@@ -26,4 +26,5 @@ public class CaseDataType {
         this.displayCode = type;
         this.shortCode = shortCode;
     }
+
 }

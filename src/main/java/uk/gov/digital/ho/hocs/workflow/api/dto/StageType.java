@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = {"shortCode"})
+@EqualsAndHashCode(of = { "shortCode" })
 public class StageType {
 
     @JsonProperty("displayName")
@@ -20,4 +20,5 @@ public class StageType {
 
     @JsonProperty("type")
     private String displayCode;
+
 }

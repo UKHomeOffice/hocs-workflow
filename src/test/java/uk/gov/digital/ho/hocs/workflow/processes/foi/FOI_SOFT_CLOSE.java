@@ -20,24 +20,26 @@ import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVari
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/FOI/FOI_SOFT_CLOSE.bpmn"})
+@Deployment(resources = { "processes/FOI/FOI_SOFT_CLOSE.bpmn" })
 public class FOI_SOFT_CLOSE {
 
     public static final String SOFT_CLOSE = "SOFT_CLOSE";
+
     public static final String DEALLOCATE_TEAM = "DEALLOCATE_TEAM";
+
     public static final String END_EVENT = "END_EVENT";
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(1)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario FOIDataInputProcess;
 
@@ -48,21 +50,16 @@ public class FOI_SOFT_CLOSE {
 
     @Test
     public void happyPath() {
-        when(FOIDataInputProcess.waitsAtUserTask(SOFT_CLOSE))
-                .thenReturn(task -> task.complete());
+        when(FOIDataInputProcess.waitsAtUserTask(SOFT_CLOSE)).thenReturn(task -> task.complete());
 
-        Scenario.run(FOIDataInputProcess)
-                .startByKey("FOI_SOFT_CLOSE")
-                .execute();
+        Scenario.run(FOIDataInputProcess).startByKey("FOI_SOFT_CLOSE").execute();
 
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(SOFT_CLOSE);
+        verify(FOIDataInputProcess, times(1)).hasCompleted(SOFT_CLOSE);
 
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(DEALLOCATE_TEAM);
+        verify(FOIDataInputProcess, times(1)).hasCompleted(DEALLOCATE_TEAM);
 
-        verify(FOIDataInputProcess, times(1))
-                .hasCompleted(END_EVENT);
+        verify(FOIDataInputProcess, times(1)).hasCompleted(END_EVENT);
 
     }
+
 }

@@ -16,4 +16,5 @@ public class GetCaseDetailsResponse {
 
     @JsonProperty("data")
     private Map<String, String> data;
+
 }

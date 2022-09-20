@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ExecutionVariableSequence implements Consumer<DelegateExecution> {
+
     private int callCount = 0;
+
     private final List<List<CallActivityReturnVariable>> variableListList;
 
     public ExecutionVariableSequence(List<List<CallActivityReturnVariable>> variableListList) {
@@ -20,10 +22,12 @@ public class ExecutionVariableSequence implements Consumer<DelegateExecution> {
             List<CallActivityReturnVariable> callSequenceVariableList = variableListList.get(callCount++);
 
             for (CallActivityReturnVariable callActivityReturnVariable : callSequenceVariableList) {
-                delegateExecution.setVariable(callActivityReturnVariable.getKey(), callActivityReturnVariable.getValue());
+                delegateExecution.setVariable(callActivityReturnVariable.getKey(),
+                    callActivityReturnVariable.getValue());
             }
         } catch (Exception e) {
             throw e;
         }
     }
+
 }

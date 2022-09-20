@@ -16,6 +16,6 @@ public class HocsForm {
 
     @Setter
     @JsonProperty("data")
-    private Map<String,String> data;
+    private Map<String, String> data;
 
 }

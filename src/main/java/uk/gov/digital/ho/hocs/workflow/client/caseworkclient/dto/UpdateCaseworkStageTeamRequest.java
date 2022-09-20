@@ -24,4 +24,5 @@ public class UpdateCaseworkStageTeamRequest {
         this.teamUUID = teamUUID;
         this.allocationType = allocationType;
     }
+
 }

@@ -25,7 +25,6 @@ public class DocumentClientTest {
 
     private String documentServiceUrl = "http://localhost:8083";
 
-
     @Before
     public void setup() {
         documentClient = new DocumentClient(restHelper, documentServiceUrl);
@@ -37,20 +36,15 @@ public class DocumentClientTest {
         UUID caseUuid = UUID.randomUUID();
         String expectedUrl = String.format("/document");
 
-        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
-                "displayName",
-                "type",
-                "fileLocation",
-                caseUuid,
-                null
-        );
+        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest("displayName", "type", "fileLocation",
+            caseUuid, null);
 
         // when
-        documentClient.createDocument(caseUuid,request);
+        documentClient.createDocument(caseUuid, request);
 
         // then
-        ArgumentCaptor<CreateCaseworkDocumentRequest> argumentCaptor =
-                ArgumentCaptor.forClass(CreateCaseworkDocumentRequest.class);
+        ArgumentCaptor<CreateCaseworkDocumentRequest> argumentCaptor = ArgumentCaptor.forClass(
+            CreateCaseworkDocumentRequest.class);
 
         verify(restHelper).post(eq(documentServiceUrl), eq(expectedUrl), argumentCaptor.capture(), eq(UUID.class));
 
@@ -68,20 +62,15 @@ public class DocumentClientTest {
         UUID actionDataItemUuid = UUID.randomUUID();
         String expectedUrl = String.format("/document");
 
-        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
-                "displayName",
-                "type",
-                "fileLocation",
-                caseUuid,
-                actionDataItemUuid
-        );
+        CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest("displayName", "type", "fileLocation",
+            caseUuid, actionDataItemUuid);
 
         // when
         documentClient.createDocument(caseUuid, request);
 
         // then
-        ArgumentCaptor<CreateCaseworkDocumentRequest> argumentCaptor =
-                ArgumentCaptor.forClass(CreateCaseworkDocumentRequest.class);
+        ArgumentCaptor<CreateCaseworkDocumentRequest> argumentCaptor = ArgumentCaptor.forClass(
+            CreateCaseworkDocumentRequest.class);
 
         verify(restHelper).post(eq(documentServiceUrl), eq(expectedUrl), argumentCaptor.capture(), eq(UUID.class));
 

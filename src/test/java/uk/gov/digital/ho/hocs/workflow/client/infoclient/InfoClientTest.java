@@ -28,7 +28,6 @@ public class InfoClientTest {
 
     private String infoServiceUrl = "http://localhost:8082";
 
-
     @Before
     public void setup() {
         infoClient = new InfoClient(restHelper, infoServiceUrl);
@@ -66,8 +65,8 @@ public class InfoClientTest {
 
         SchemaDto schemaDto = new SchemaDto();
 
-        when(restHelper.get(eq(infoServiceUrl), eq(expectedResourcePath), any(ParameterizedTypeReference.class)))
-                .thenReturn(List.of(schemaDto));
+        when(restHelper.get(eq(infoServiceUrl), eq(expectedResourcePath),
+            any(ParameterizedTypeReference.class))).thenReturn(List.of(schemaDto));
         List<SchemaDto> result = infoClient.getSchemasForCaseTypeAndStages(caseType, caseStages);
 
         Assert.assertEquals(List.of(schemaDto), result);
