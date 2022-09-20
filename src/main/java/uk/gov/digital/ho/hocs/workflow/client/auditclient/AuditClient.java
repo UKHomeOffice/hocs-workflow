@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
+import uk.gov.digital.ho.hocs.workflow.domain.CaseData;
 import uk.gov.digital.ho.hocs.workflow.util.SnsStringMessageAttributeValue;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.CreateAuditRequest;
 
@@ -104,6 +105,22 @@ public class AuditClient {
         }
     }
 
+    public void createCaseAudit(CaseData caseData) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        String data = "{}";
+        try {
+            data = objectMapper.writeValueAsString("Test data created");
+        } catch (JsonProcessingException e) {
+            logFailedToParseDataPayload(e);
+        }
+        sendAuditMessage(localDateTime, caseData.getUuid(), data, EventType.CASE_CREATED, null, data, requestData.correlationId(),
+                requestData.userId(), requestData.username(), requestData.groups());
+    }
+
+    private void logFailedToParseAuditPayload(JsonProcessingException e){
+        log.error("Failed to parse audit payload, event {}, exception: {}", value(LogEvent.EVENT, LogEvent.UNCAUGHT_EXCEPTION), value(LogEvent.EXCEPTION, e));
+    }
+
     private Map<String, MessageAttributeValue> getQueueHeaders(String eventType) {
         return Map.of(
                 EVENT_TYPE_HEADER, new SnsStringMessageAttributeValue(eventType),
@@ -112,5 +129,4 @@ public class AuditClient {
                 RequestData.USERNAME_HEADER, new SnsStringMessageAttributeValue(requestData.username()),
                 RequestData.GROUP_HEADER, new SnsStringMessageAttributeValue(requestData.groups()));
     }
-
 }

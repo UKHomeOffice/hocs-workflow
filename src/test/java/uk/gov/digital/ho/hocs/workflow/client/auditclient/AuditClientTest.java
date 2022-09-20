@@ -4,6 +4,7 @@ import com.amazonaws.services.sns.AmazonSNSAsync;
 import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -19,8 +20,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
+import uk.gov.digital.ho.hocs.workflow.domain.CaseData;
 import uk.gov.digital.ho.hocs.workflow.util.BaseAwsTest;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.CreateAuditRequest;
+import uk.gov.digital.ho.hocs.workflow.util.CaseDataTypeFactory;
 
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -54,6 +60,37 @@ public class AuditClientTest extends BaseAwsTest {
 
         snsPublishResult = new ResultCaptor<>();
         doAnswer(snsPublishResult).when(auditSearchSnsClient).publish(any());
+    }
+
+    @Test
+    public void shouldSendCaseCreateEvent() throws JsonProcessingException {
+        var caseID = 12345L;
+        var caseType = CaseDataTypeFactory.from("TEST", "F0");
+        var caseData = new CaseData(caseType, caseID, new HashMap<>(), LocalDate.now());
+
+        auditClient.createCaseAudit(caseData);
+
+        verify(auditSearchSnsClient).publish(publicRequestCaptor.capture());
+        //assertSnsValues(caseData.getUuid(), EventType.CASE_CREATED);
+    }
+
+
+    private void assertSnsValues(UUID caseUuid, EventType event, @NotNull Map<String, String> otherValues) throws JsonProcessingException {
+        var caseCreated =
+                objectMapper.readValue(publicRequestCaptor.getValue().getMessage(), CreateAuditRequest.class);
+
+        Assertions.assertNotNull(snsPublishResult.getResult());
+        Assertions.assertNotNull(snsPublishResult.getResult().getMessageId());
+        Assertions.assertEquals(snsPublishResult.getResult().getSdkHttpMetadata().getHttpStatusCode(), 200);
+        Assertions.assertEquals(caseCreated.getCaseUUID(), caseUuid);
+        Assertions.assertEquals(caseCreated.getType(), event);
+
+        if (!otherValues.isEmpty()) {
+            var caseCreatedData =
+                    objectMapper.readValue(caseCreated.getAuditPayload(), Map.class);
+
+            Assertions.assertTrue(caseCreatedData.entrySet().containsAll(otherValues.entrySet()));
+        }
     }
 
 }

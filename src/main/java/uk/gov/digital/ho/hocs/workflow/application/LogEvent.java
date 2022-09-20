@@ -43,7 +43,8 @@ public enum LogEvent {
     STAGE_CREATION_STARTED,
     STAGE_CREATION_SUCCESS,
     AUDIT_FAILED,
-    AUDIT_EVENT_CREATED;
+    AUDIT_EVENT_CREATED,
+    CASE_CREATE_FAILURE;
 
     public static final String EVENT = "event_id";
 
