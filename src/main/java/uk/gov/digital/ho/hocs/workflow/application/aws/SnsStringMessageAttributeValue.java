@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.util;
+package uk.gov.digital.ho.hocs.workflow.application.aws;
 
 import com.amazonaws.services.sns.model.MessageAttributeValue;
 import org.springframework.util.StringUtils;
