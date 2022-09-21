@@ -29,37 +29,35 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = AuditClient.class)
+@SpringBootTest
 @ActiveProfiles("local")
-public class AuditClientTest
-//        extends BaseAwsTest
-{
+public class AuditClientTest extends BaseAwsTest {
 
-    //@Captor
-  //  private ArgumentCaptor<PublishRequest> publicRequestCaptor;
-//    private ResultCaptor<PublishResult> snsPublishResult;
-//    @SpyBean
-    //private AmazonSNSAsync auditSearchSnsClient;
-    //@MockBean(name = "requestData")
-    //private RequestData requestData;
-    //@MockBean
-    //private RestHelper restHelper;
+    @Captor
+    private ArgumentCaptor<PublishRequest> publicRequestCaptor;
+    private ResultCaptor<PublishResult> snsPublishResult;
+    @SpyBean
+    private AmazonSNSAsync auditSearchSnsClient;
+    @MockBean(name = "requestData")
+    private RequestData requestData;
+    @MockBean
+    private RestHelper restHelper;
 
     @Autowired
     private AuditClient auditClient;
 
-    //@Value("${hocs.audit-service}")
-    //private String auditService;
+    @Value("${hocs.audit-service}")
+    private String auditService;
 
     @Before
     public void setUp() {
-       /* when(requestData.correlationId()).thenReturn(UUID.randomUUID().toString());
-        when(requestData.userId()).thenReturn("some user id");
-        when(requestData.groups()).thenReturn("some groups");
-        when(requestData.username()).thenReturn("some username");*/
+       /*when(requestData.correlationId()).thenReturn(UUID.randomUUID().toString());
+       when(requestData.userId()).thenReturn("some user id");
+       when(requestData.groups()).thenReturn("some groups");
+       when(requestData.username()).thenReturn("some username");
 
-        //snsPublishResult = new ResultCaptor<>();
-        //doAnswer(snsPublishResult).when(auditSearchSnsClient).publish(any());
+       snsPublishResult = new ResultCaptor<>();
+       doAnswer(snsPublishResult).when(auditSearchSnsClient).publish(any());*/
     }
 
     @Test
@@ -68,7 +66,7 @@ public class AuditClientTest
 
         //verify(auditSearchSnsClient).publish(publicRequestCaptor.capture());
         //assertSnsValues(caseData.getUuid(), EventType.CASE_CREATED);
-        System.out.println("Test completed");
+        //System.out.println("Test completed");
     }
 
 

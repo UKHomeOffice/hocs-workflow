@@ -34,5 +34,4 @@ public class LocalStackConfiguration {
                 .withEndpointConfiguration(endpoint)
                 .build();
     }
-
 }
