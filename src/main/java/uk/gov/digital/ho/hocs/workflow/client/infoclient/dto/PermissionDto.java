@@ -11,10 +11,12 @@ import uk.gov.digital.ho.hocs.workflow.security.AccessLevel;
 public class PermissionDto {
 
     @JsonCreator
-    public PermissionDto(@JsonProperty("caseTypeCode") String caseTypeCode, @JsonProperty("accessLevel") AccessLevel accessLevel) {
+    public PermissionDto(@JsonProperty("caseTypeCode") String caseTypeCode,
+                         @JsonProperty("accessLevel") AccessLevel accessLevel) {
         this.caseTypeCode = caseTypeCode;
         this.accessLevel = accessLevel;
     }
+
     @JsonProperty("caseTypeCode")
     private String caseTypeCode;
 

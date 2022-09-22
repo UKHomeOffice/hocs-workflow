@@ -28,13 +28,15 @@ public class DCU_TRO_Markup extends DCU_MIN_DTEN_Markup_Common {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            //.assertClassCoverageAtLeast(0.55)
-            .build();
+        //.assertClassCoverageAtLeast(0.55)
+        .build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario dcuMinSignOffProcess;
 
@@ -47,22 +49,21 @@ public class DCU_TRO_Markup extends DCU_MIN_DTEN_Markup_Common {
     public void shouldSaveDraftAndPolicyTeamWhenPRAndWhenNotOverride() {
         setupMarkupFor("PR", dcuMinSignOffProcess);
 
-        when(dcuMinSignOffProcess.waitsAtUserTask("VALIDATE_DCU_ANSWERING"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD",
-                        "POTeamUUID", "",
-                        "OverrideDraftingTeamUUID", "",
-                        "OverridePOTeamUUID", ""
-                )));
+        when(dcuMinSignOffProcess.waitsAtUserTask("VALIDATE_DCU_ANSWERING")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "POTeamUUID", "", "OverrideDraftingTeamUUID", "",
+                "OverridePOTeamUUID", "")));
 
-        Scenario.run(dcuMinSignOffProcess)
-                .startByKey("DCU_TRO_MARKUP")
-                .execute();
+        Scenario.run(dcuMinSignOffProcess).startByKey("DCU_TRO_MARKUP").execute();
 
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"), eq("DefaultPolicyTeamUnitHistoricName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC),
+            eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"),
+            eq("DefaultPolicyTeamUnitHistoricName"));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"), eq("DraftingTeamUnitHistoricName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC),
+            eq("DCU_TRO_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"),
+            eq("DraftingTeamUnitHistoricName"));
 
         verify(bpmnService).updateTeamSelection(any(), any(), eq(""), eq(""));
     }
@@ -71,22 +72,21 @@ public class DCU_TRO_Markup extends DCU_MIN_DTEN_Markup_Common {
     public void shouldSaveDraftAndPolicyTeamWhenPRAndWhenOverride() {
         setupMarkupFor("PR", dcuMinSignOffProcess);
 
-        when(dcuMinSignOffProcess.waitsAtUserTask("VALIDATE_DCU_ANSWERING"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD",
-                        "POTeamUUID", "",
-                        "OverrideDraftingTeamUUID", DCU_DRAFT_TEAM_UUID,
-                        "OverridePOTeamUUID", ""
-                )));
+        when(dcuMinSignOffProcess.waitsAtUserTask("VALIDATE_DCU_ANSWERING")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "POTeamUUID", "", "OverrideDraftingTeamUUID",
+                DCU_DRAFT_TEAM_UUID, "OverridePOTeamUUID", "")));
 
-        Scenario.run(dcuMinSignOffProcess)
-                .startByKey("DCU_TRO_MARKUP")
-                .execute();
+        Scenario.run(dcuMinSignOffProcess).startByKey("DCU_TRO_MARKUP").execute();
 
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"), eq("DefaultPolicyTeamUnitHistoricName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC),
+            eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"),
+            eq("DefaultPolicyTeamUnitHistoricName"));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"), eq("DraftingTeamUnitHistoricName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC),
+            eq("DCU_TRO_INITIAL_DRAFT"), eq("DraftingTeamUUID"), eq("DraftingTeamName"),
+            eq("DraftingTeamUnitHistoricName"));
 
         verify(bpmnService).updateTeamSelection(any(), any(), eq(DCU_DRAFT_TEAM_UUID), eq(""));
     }
@@ -95,13 +95,13 @@ public class DCU_TRO_Markup extends DCU_MIN_DTEN_Markup_Common {
     public void shouldSaveDraftAndPolicyTeamWhenFAQAndWhenNotOverride() {
         setupMarkupFor("FAQ", dcuMinSignOffProcess);
 
-        Scenario.run(dcuMinSignOffProcess)
-                .startByKey("DCU_TRO_MARKUP")
-                .execute();
+        Scenario.run(dcuMinSignOffProcess).startByKey("DCU_TRO_MARKUP").execute();
 
         verify(bpmnService).updatePrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC));
 
-        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC), eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"), eq("DefaultPolicyTeamUnitHistoricName"));
+        verify(bpmnService).updateTeamsForPrimaryTopic(any(), any(), eq(POINTY_THINGS_TOPIC),
+            eq("DCU_TRO_INITIAL_DRAFT"), eq("DefaultPolicyTeamUUID"), eq("DefaultPolicyTeamName"),
+            eq("DefaultPolicyTeamUnitHistoricName"));
 
         verify(bpmnService).setDraftingTeam(any(), any(), eq(DCU_DRAFT_TEAM_UUID));
 

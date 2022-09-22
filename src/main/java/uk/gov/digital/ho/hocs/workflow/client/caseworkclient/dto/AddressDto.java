@@ -25,4 +25,5 @@ public class AddressDto {
 
     @JsonProperty("country")
     private String country;
+
 }

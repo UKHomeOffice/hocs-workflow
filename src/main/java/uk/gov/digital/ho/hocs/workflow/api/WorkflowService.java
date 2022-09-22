@@ -49,17 +49,27 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.WORKFLOW_SERV
 public class WorkflowService {
 
     private final CaseworkClient caseworkClient;
+
     private final DocumentClient documentClient;
+
     private final InfoClient infoClient;
+
     private final CamundaClient camundaClient;
+
     private final UserPermissionsService userPermissionsService;
 
     private static final String COMPONENT_ENTITY_LIST = "entity-list";
+
     private static final String COMPONENT_DROPDOWN = "dropdown";
+
     private static final String CHOICES_PROPERTY = "choices";
+
     private static final String CONTENT_TYPE_TEAMS = "TEAMS";
+
     private static final String CONTENT_TYPE_USERS = "USERS";
+
     private static final String ENTITY_PROPERTY = "entity";
+
     private static final String ENTITY_TYPE_DOCUMENT = "document";
 
     private static final String DOCUMENT_NOT_FOUND = "Document not found";
@@ -79,13 +89,18 @@ public class WorkflowService {
         this.userPermissionsService = userPermissionsService;
     }
 
-    public CreateCaseResponse createCase(String caseDataType, LocalDate dateReceived, List<DocumentSummary> documents, UUID userUUID, UUID fromCaseUUID, Map<String, String> receivedData) {
+    public CreateCaseResponse createCase(String caseDataType,
+                                         LocalDate dateReceived,
+                                         List<DocumentSummary> documents,
+                                         UUID userUUID,
+                                         UUID fromCaseUUID,
+                                         Map<String, String> receivedData) {
         // Create a case in the casework service in order to get a reference back to display to the user.
         Map<String, String> seedData = new HashMap<>(receivedData);
         CreateCaseworkCorrespondentRequest correspondentRequest = null;
 
-        if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI)
-                && receivedData.containsKey(WorkflowConstants.FULL_NAME)) {
+        if (Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_FOI) && receivedData.containsKey(
+            WorkflowConstants.FULL_NAME)) {
             seedData = new HashMap<>();
             correspondentRequest = buildCorrespondentRequest(receivedData);
 
@@ -98,7 +113,8 @@ public class WorkflowService {
         seedData.put(WorkflowConstants.DATE_RECEIVED, dateReceived.toString());
         seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
 
-        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, seedData, dateReceived, fromCaseUUID);
+        CreateCaseworkCaseResponse caseResponse = caseworkClient.createCase(caseDataType, seedData, dateReceived,
+            fromCaseUUID);
         seedData.putAll(caseResponse.getData());
         UUID caseUUID = caseResponse.getUuid();
 
@@ -117,7 +133,8 @@ public class WorkflowService {
             createDocument(caseUUID, null, documents);
         } else {
             log.error("Failed to start case, invalid caseUUID!, event: {}", value(EVENT, CASE_STARTED_FAILURE));
-            throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!", CASE_STARTED_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException("Failed to start case, invalid caseUUID!",
+                CASE_STARTED_FAILURE);
         }
         return new CreateCaseResponse(caseUUID, caseResponse.getReference());
     }
@@ -135,19 +152,13 @@ public class WorkflowService {
 
     private CreateCaseworkCorrespondentRequest buildCorrespondentRequest(Map<String, String> data) {
         CreateCaseworkCorrespondentRequest correspondentRequest;
-        correspondentRequest = CreateCaseworkCorrespondentRequest.builder()
-                .type(WorkflowConstants.TYPE_FOI_REQUESTER)
-                .fullname(data.get(WorkflowConstants.FULL_NAME))
-                .postcode(data.get(WorkflowConstants.POSTCODE))
-                .organisation(data.get(WorkflowConstants.ORGANISATION))
-                .address1(data.get(WorkflowConstants.ADDRESS1))
-                .address2(data.get(WorkflowConstants.ADDRESS2))
-                .address3(data.get(WorkflowConstants.ADDRESS3))
-                .country(data.get(WorkflowConstants.COUNTRY))
-                .telephone(data.get(WorkflowConstants.TELEPHONE))
-                .email(data.get(WorkflowConstants.EMAIL))
-                .reference(data.get(WorkflowConstants.REFERENCE))
-                .build();
+        correspondentRequest = CreateCaseworkCorrespondentRequest.builder().type(
+            WorkflowConstants.TYPE_FOI_REQUESTER).fullname(data.get(WorkflowConstants.FULL_NAME)).postcode(
+            data.get(WorkflowConstants.POSTCODE)).organisation(data.get(WorkflowConstants.ORGANISATION)).address1(
+            data.get(WorkflowConstants.ADDRESS1)).address2(data.get(WorkflowConstants.ADDRESS2)).address3(
+            data.get(WorkflowConstants.ADDRESS3)).country(data.get(WorkflowConstants.COUNTRY)).telephone(
+            data.get(WorkflowConstants.TELEPHONE)).email(data.get(WorkflowConstants.EMAIL)).reference(
+            data.get(WorkflowConstants.REFERENCE)).build();
         return correspondentRequest;
     }
 
@@ -157,30 +168,21 @@ public class WorkflowService {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
 
-                CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
-                        document.getDisplayName(),
-                        document.getType(),
-                        document.getS3UntrustedUrl(),
-                        caseUUID,
-                        actionDataItemUuid
-                );
+                CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(document.getDisplayName(),
+                    document.getType(), document.getS3UntrustedUrl(), caseUUID, actionDataItemUuid);
 
                 documentClient.createDocument(caseUUID, request);
             }
         }
 
     }
+
     public void createDocument(UUID caseUUID, List<DocumentSummary> documents) {
         if (documents != null) {
             // Add any Documents to the case
             for (DocumentSummary document : documents) {
-                CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(
-                        document.getDisplayName(),
-                        document.getType(),
-                        document.getS3UntrustedUrl(),
-                        caseUUID,
-                        null
-                );
+                CreateCaseworkDocumentRequest request = new CreateCaseworkDocumentRequest(document.getDisplayName(),
+                    document.getType(), document.getS3UntrustedUrl(), caseUUID, null);
                 documentClient.createDocument(caseUUID, request);
             }
         }
@@ -214,19 +216,23 @@ public class WorkflowService {
 
         SchemaDto schemaDto = infoClient.getSchema(screenName);
         List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
-        List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(HocsFormSecondaryAction::from).collect(toList());
+        List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(
+            HocsFormSecondaryAction::from).collect(toList());
         fields = HocsFormAccordion.loadFormAccordions(fields);
-        HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields, secondaryActions, schemaDto.getProps(), schemaDto.getValidation(), schemaDto.getSummary());
+        HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields,
+            secondaryActions, schemaDto.getProps(), schemaDto.getValidation(), schemaDto.getSummary());
         HocsForm form = new HocsForm(schema, inputResponse.getData());
         return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
     }
 
     private boolean isStickyCasesModeOn(UUID caseUUID) {
-        return camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), STICKY_CASES_VARIABLE, Boolean.TRUE.toString());
+        return camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), STICKY_CASES_VARIABLE,
+            Boolean.TRUE.toString());
     }
 
     private void turnOffStickyCases(UUID caseUUID, UUID stageUUID) {
-        camundaClient.removeProcessInstanceVariableFromAllScopes(caseUUID.toString(), stageUUID.toString(), STICKY_CASES_VARIABLE);
+        camundaClient.removeProcessInstanceVariableFromAllScopes(caseUUID.toString(), stageUUID.toString(),
+            STICKY_CASES_VARIABLE);
     }
 
     public GetCaseResponse getAllCaseStages(UUID caseUUID) {
@@ -235,29 +241,18 @@ public class WorkflowService {
 
         GetAllStagesForCaseResponse allStagesForCase = caseworkClient.getAllStagesForCase(caseUUID);
 
-        String caseStages = allStagesForCase.getStages()
-                .stream()
-                .map(s -> s.getType())
-                .collect(Collectors.joining(","));
+        String caseStages = allStagesForCase.getStages().stream().map(s -> s.getType()).collect(
+            Collectors.joining(","));
 
         List<SchemaDto> schemaDtos = infoClient.getSchemasForCaseTypeAndStages(inputResponse.getType(), caseStages);
 
+        Map<String, List<SchemaDto>> stageSchemas = schemaDtos.stream().collect(
+            Collectors.groupingBy(SchemaDto::getStageType, LinkedHashMap::new, Collectors.toList()));
 
-        Map<String, List<SchemaDto>> stageSchemas = schemaDtos
-                .stream()
-                .collect(Collectors.groupingBy(SchemaDto::getStageType, LinkedHashMap::new, Collectors.toList()));
-
-
-        Map<String, List<HocsFormField>> hocsFields = stageSchemas
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        c -> schemasToFormField(c.getValue()),
-                        (k, v) -> {
-                            throw new IllegalStateException(String.format("Duplicate key %s", k));
-                        },
-                        LinkedHashMap::new));
+        Map<String, List<HocsFormField>> hocsFields = stageSchemas.entrySet().stream().collect(
+            Collectors.toMap(Map.Entry::getKey, c -> schemasToFormField(c.getValue()), (k, v) -> {
+                throw new IllegalStateException(String.format("Duplicate key %s", k));
+            }, LinkedHashMap::new));
 
         HocsCaseSchema schema = new HocsCaseSchema("View Case", hocsFields);
 
@@ -275,10 +270,8 @@ public class WorkflowService {
 
         GetAllStagesForCaseResponse allStagesForCase = caseworkClient.getAllStagesForCase(caseUUID);
 
-        String caseStages = allStagesForCase.getStages()
-                .stream()
-                .map(s -> s.getType())
-                .collect(Collectors.joining(","));
+        String caseStages = allStagesForCase.getStages().stream().map(s -> s.getType()).collect(
+            Collectors.joining(","));
 
         List<SchemaDto> schemaDtos = infoClient.getSchemasForCaseTypeAndStages(inputResponse.getType(), caseStages);
 
@@ -339,7 +332,6 @@ public class WorkflowService {
             throw exception;
         }
 
-
     }
 
     private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
@@ -347,9 +339,11 @@ public class WorkflowService {
         Set<String> uniqueFieldNames = new HashSet<>();
         for (SchemaDto schemaDto : schemaDtos) {
             fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
-            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
+            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(
+                toList());
             for (HocsFormField fieldToAdd : fieldsToAdd) {
-                if (fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(String.valueOf(fieldToAdd.getProps().get("name")))) {
+                if (fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(
+                    String.valueOf(fieldToAdd.getProps().get("name")))) {
                     uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
                     fields.add(fieldToAdd);
                 }
@@ -358,7 +352,11 @@ public class WorkflowService {
         return fields;
     }
 
-    public void updateStage(UUID caseUUID, UUID stageUUID, Map<String, String> values, String flowDirection, UUID userUUID) {
+    public void updateStage(UUID caseUUID,
+                            UUID stageUUID,
+                            Map<String, String> values,
+                            String flowDirection,
+                            UUID userUUID) {
 
         values.put(WorkflowConstants.DIRECTION, flowDirection);
         values.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUUID.toString());
@@ -377,7 +375,8 @@ public class WorkflowService {
         GetCaseworkCaseDataResponse caseDetails = caseworkClient.getCase(caseUUID);
 
         //Get stage uuid from casework
-        GetStagesResponse stage = caseworkClient.getActiveStage(URLEncoder.encode(caseDetails.getReference(), StandardCharsets.UTF_8));
+        GetStagesResponse stage = caseworkClient.getActiveStage(
+            URLEncoder.encode(caseDetails.getReference(), StandardCharsets.UTF_8));
         UUID stageUUID = stage.getStages().stream().findFirst().get().getStageUUID();
 
         //Mark case as complete
@@ -387,31 +386,37 @@ public class WorkflowService {
         UUID oldTeam = caseworkClient.getStageTeam(caseUUID, stageUUID); //To allow reversion if required
         try {
             caseworkClient.updateStageTeam(caseUUID, stageUUID, null, null);
-        } catch(Exception e) { //Revert marking as complete and return error
+        } catch (Exception e) { //Revert marking as complete and return error
             log.error("Failed to update team: {}", e.getMessage(), value(EVENT, CASE_CLOSE_ERROR));
-            caseworkClient.completeCase(caseUUID, caseDetails.getCompleted()); //Audit event may already have been created for closed case
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update stage team for " + caseUUID + " Error : " + e);
+            caseworkClient.completeCase(caseUUID,
+                caseDetails.getCompleted()); //Audit event may already have been created for closed case
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                "Failed to update stage team for " + caseUUID + " Error : " + e);
         }
 
         //Delete Camunda process
-        try{
+        try {
             deleteProcess(stageUUID);
-        } catch(Exception e) { //Revert team change and case complete and return error
+        } catch (Exception e) { //Revert team change and case complete and return error
             log.error("Failed to delete process: {}", e.getMessage(), value(EVENT, CASE_CLOSE_ERROR));
             caseworkClient.updateStageTeam(caseUUID, stageUUID, oldTeam, null);
-            caseworkClient.completeCase(caseUUID, caseDetails.getCompleted()); //Audit event may already have been created for closed case
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete process for " + caseUUID + " Error : " + e);
+            caseworkClient.completeCase(caseUUID,
+                caseDetails.getCompleted()); //Audit event may already have been created for closed case
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                "Failed to delete process for " + caseUUID + " Error : " + e);
         }
         return ResponseEntity.ok("Closed case " + caseUUID);
     }
 
-    public void deleteProcess(UUID stageUuid){
+    public void deleteProcess(UUID stageUuid) {
         camundaClient.removeProcess(stageUuid);
     }
 
     public void updateCaseDataValues(UUID caseUUID, UUID stageUUID, String caseDataType, Map<String, String> request) {
         log.debug("Updating case data for case {} with stage {}", caseUUID, stageUUID);
-        String msg = caseDataType != null ? NoteType.valueOf(caseDataType).getDefaultMessage() : NoteType.CASE_DATA.getDefaultMessage();
+        String msg = caseDataType != null
+            ? NoteType.valueOf(caseDataType).getDefaultMessage()
+            : NoteType.CASE_DATA.getDefaultMessage();
 
         if (caseworkClient.getActiveStage(caseUUID).isPresent()) {
             camundaClient.updateTask(stageUUID, request);
@@ -419,11 +424,13 @@ public class WorkflowService {
 
         caseworkClient.updateCase(caseUUID, stageUUID, request);
         caseworkClient.createCaseNote(caseUUID, caseDataType, msg);
-        log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID, value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
+        log.info("Updated case data for case {} with stage {}", caseUUID, stageUUID,
+            value(EVENT, WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES));
     }
 
     private boolean isCreationForCompWebformCase(String caseDataType, Map<String, String> receivedData) {
-        return Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_COMP)
-                    && Objects.equals(receivedData.get(WorkflowConstants.CHANNEL_COMP_ORIGINATEDFROM), WorkflowConstants.CHANNEL_COMP_WEBFORM);
+        return Objects.equals(caseDataType, WorkflowConstants.CASE_DATA_TYPE_COMP) && Objects.equals(
+            receivedData.get(WorkflowConstants.CHANNEL_COMP_ORIGINATEDFROM), WorkflowConstants.CHANNEL_COMP_WEBFORM);
     }
+
 }

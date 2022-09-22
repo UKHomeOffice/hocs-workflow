@@ -31,7 +31,8 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -49,12 +50,11 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
     @Test
     public void testHappyPath() {
-        when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST"))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN",
+            Map.of("SCREEN_KEY", "TEST")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_0");
         verify(processScenario).hasCompleted("Screen");
@@ -65,12 +65,11 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
     @Test
     public void testBackwardPath() {
-        when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")));
+        when(processScenario.waitsAtUserTask("Screen")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST"))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN",
+            Map.of("SCREEN_KEY", "TEST")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_0");
         verify(processScenario).hasCompleted("Screen");
@@ -81,12 +80,11 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
     @Test
     public void testChangedPriorityNoPath() {
-        when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "")));
+        when(processScenario.waitsAtUserTask("Screen")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", "Yes"))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN",
+            Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", "Yes")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_0");
         verify(processScenario).hasCompleted("Screen");
@@ -98,12 +96,11 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
     @Test
     public void testChangedPriorityYesPath() {
-        when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "Yes")));
+        when(processScenario.waitsAtUserTask("Screen")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "Yes")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", ""))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN",
+            Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", "")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_0");
         verify(processScenario).hasCompleted("Screen");
@@ -115,12 +112,11 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
     @Test
     public void testChangedChannelPostPath() {
-        when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintChannel", "Post")));
+        when(processScenario.waitsAtUserTask("Screen")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintChannel", "Post")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintChannel", ""))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN",
+            Map.of("SCREEN_KEY", "TEST", "ComplaintChannel", "")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_0");
         verify(processScenario).hasCompleted("Screen");
@@ -132,12 +128,11 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
     @Test
     public void testChangedChannelOtherPath() {
-        when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintChannel", "Other")));
+        when(processScenario.waitsAtUserTask("Screen")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintChannel", "Other")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintChannel", ""))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN",
+            Map.of("SCREEN_KEY", "TEST", "ComplaintChannel", "")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_0");
         verify(processScenario).hasCompleted("Screen");
@@ -149,12 +144,11 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
     @Test
     public void testNoChange() {
-        when(processScenario.waitsAtUserTask("Screen"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "Yes", "ComplaintChannel", "Post")));
+        when(processScenario.waitsAtUserTask("Screen")).thenReturn(task -> task.complete(
+            withVariables("DIRECTION", "FORWARD", "ComplaintPriority", "Yes", "ComplaintChannel", "Post")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN", Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", "Yes", "ComplaintChannel", "Post"))
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR_GRO_PRIORITY_CHANGE_SCREEN",
+            Map.of("SCREEN_KEY", "TEST", "ComplaintPriority", "Yes", "ComplaintChannel", "Post")).execute();
 
         verify(processScenario).hasCompleted("StartEvent_0");
         verify(processScenario).hasCompleted("Screen");
@@ -163,4 +157,5 @@ public class POGR_GRO_PRIORITY_CHANGE_SCREEN {
 
         verify(bpmnService, times(0)).updateDeadlineDays(any(), any(), any());
     }
+
 }

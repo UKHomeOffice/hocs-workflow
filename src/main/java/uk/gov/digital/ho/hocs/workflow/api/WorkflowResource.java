@@ -31,37 +31,50 @@ class WorkflowResource {
     private BpmnService bpmnService;
 
     @Autowired
-    public WorkflowResource(WorkflowService workflowService,
-                            BpmnService bpmnService) {
+    public WorkflowResource(WorkflowService workflowService, BpmnService bpmnService) {
         this.workflowService = workflowService;
         this.bpmnService = bpmnService;
     }
 
-    @Authorised(accessLevel = AccessLevel.OWNER, permittedLowerLevels = {AccessLevel.RESTRICTED_OWNER})
+    @Authorised(accessLevel = AccessLevel.OWNER, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
-        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(), request.getDocuments(), userUUID, request.getFromCaseUUID(), request.getData());
+    public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request,
+                                                         @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
+        CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(),
+            request.getDocuments(), userUUID, request.getFromCaseUUID(), request.getData());
         return ResponseEntity.ok(response);
     }
 
     @Authorised(accessLevel = AccessLevel.OWNER)
     @PostMapping(value = "/case/bulk", consumes = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
+    public ResponseEntity<CreateBulkCaseResponse> createCaseBulk(@RequestBody CreateCaseRequest request,
+                                                                 @RequestHeader(RequestData.USER_ID_HEADER)
+                                                                 UUID userUUID) {
         List<DocumentSummary> list = request.getDocuments();
-        list.forEach( (documentSummary) -> workflowService.createCase(request.getType(), request.getDateReceived(), Collections.singletonList(documentSummary), userUUID, null, request.getData()));
+        list.forEach((documentSummary) -> workflowService.createCase(request.getType(), request.getDateReceived(),
+            Collections.singletonList(documentSummary), userUUID, null, request.getData()));
         return ResponseEntity.ok(new CreateBulkCaseResponse(list.size()));
     }
 
     @Allocated(allocatedTo = AllocationLevel.USER)
     @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> updateStageForward(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @RequestBody AddCaseDataRequest request, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
+    public ResponseEntity<GetStageResponse> updateStageForward(@PathVariable UUID caseUUID,
+                                                               @PathVariable UUID stageUUID,
+                                                               @RequestBody AddCaseDataRequest request,
+                                                               @RequestHeader(RequestData.USER_ID_HEADER)
+                                                               UUID userUUID) {
         workflowService.updateStage(caseUUID, stageUUID, request.getData(), Direction.FORWARD.getValue(), userUUID);
         return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
 
     @Allocated(allocatedTo = AllocationLevel.USER)
-    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/direction/{flowDirection}", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<GetStageResponse> updateStageWithDirection(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID, @PathVariable String flowDirection, @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
+    @PostMapping(value = "/case/{caseUUID}/stage/{stageUUID}/direction/{flowDirection}",
+                 produces = APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<GetStageResponse> updateStageWithDirection(@PathVariable UUID caseUUID,
+                                                                     @PathVariable UUID stageUUID,
+                                                                     @PathVariable String flowDirection,
+                                                                     @RequestHeader(RequestData.USER_ID_HEADER)
+                                                                     UUID userUUID) {
         workflowService.updateStage(caseUUID, stageUUID, new HashMap<>(), flowDirection, userUUID);
         return ResponseEntity.ok(workflowService.getStage(caseUUID, stageUUID));
     }
@@ -73,25 +86,23 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
-    @Authorised(accessLevel = AccessLevel.WRITE, permittedLowerLevels = {AccessLevel.RESTRICTED_OWNER})
+    @Authorised(accessLevel = AccessLevel.WRITE, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
     @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity createDocument(@PathVariable UUID caseUUID,@RequestBody CreateDocumentRequest request) {
+    public ResponseEntity createDocument(@PathVariable UUID caseUUID, @RequestBody CreateDocumentRequest request) {
         workflowService.createDocument(caseUUID, request.getDocuments());
         return ResponseEntity.ok().build();
     }
 
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "/case/{caseUUID}/action/{actionDataItemUuid}/document", produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity createDocument(
-            @PathVariable UUID caseUUID,
-            @PathVariable UUID actionDataItemUuid,
-            @RequestBody CreateDocumentRequest request
-    ) {
+    public ResponseEntity createDocument(@PathVariable UUID caseUUID,
+                                         @PathVariable UUID actionDataItemUuid,
+                                         @RequestBody CreateDocumentRequest request) {
         workflowService.createDocument(caseUUID, actionDataItemUuid, request.getDocuments());
         return ResponseEntity.ok().build();
     }
 
-    @Authorised(accessLevel = AccessLevel.READ, permittedLowerLevels = {AccessLevel.RESTRICTED_OWNER})
+    @Authorised(accessLevel = AccessLevel.READ, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
     @GetMapping(value = "/case/{caseUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetCaseResponse> getCase(@PathVariable UUID caseUUID) {
         GetCaseResponse response = workflowService.getAllCaseStages(caseUUID);
@@ -107,24 +118,23 @@ class WorkflowResource {
 
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PutMapping(value = "/case/{caseUUID}/stage/{stageUUID}/{variable}")
-    public ResponseEntity updateCaseValue(@PathVariable UUID caseUUID, @PathVariable UUID stageUUID,
-                        @PathVariable String variable, @RequestBody UpdateCaseValueRequest request) {
+    public ResponseEntity updateCaseValue(@PathVariable UUID caseUUID,
+                                          @PathVariable UUID stageUUID,
+                                          @PathVariable String variable,
+                                          @RequestBody UpdateCaseValueRequest request) {
         bpmnService.updateValue(caseUUID.toString(), stageUUID.toString(), variable, request.getValue());
         return ResponseEntity.ok().build();
     }
 
     @Authorised(accessLevel = AccessLevel.WRITE)
     @PutMapping(value = "/case/{caseUUID}/stage/{stageUUID}/data")
-    public ResponseEntity<Void> updateCaseDataValues(
-            @PathVariable UUID caseUUID,
-            @PathVariable UUID stageUUID,
-            @RequestParam(name = "type", required = false) String type,
-            @RequestBody Map<String, String> request
-    ) {
+    public ResponseEntity<Void> updateCaseDataValues(@PathVariable UUID caseUUID,
+                                                     @PathVariable UUID stageUUID,
+                                                     @RequestParam(name = "type", required = false) String type,
+                                                     @RequestBody Map<String, String> request) {
         workflowService.updateCaseDataValues(caseUUID, stageUUID, type, request);
         return ResponseEntity.ok().build();
     }
-
 
     @Authorised(accessLevel = AccessLevel.CASE_ADMIN)
     @PutMapping(value = "/case/close/{caseUUID}")

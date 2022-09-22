@@ -16,7 +16,8 @@ public class CreateCaseworkStageRequestTest {
         UUID userUUID = UUID.randomUUID();
         String allocationType = "anyType";
 
-        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(stageType, null, teamUUID, userUUID, allocationType);
+        CreateCaseworkStageRequest createStageRequest = new CreateCaseworkStageRequest(stageType, null, teamUUID,
+            userUUID, allocationType);
 
         assertThat(createStageRequest.getType()).isEqualTo(stageType);
         assertThat(createStageRequest.getTeamUUID()).isEqualTo(teamUUID);

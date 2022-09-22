@@ -42,7 +42,7 @@ public class HocsFormAccordionTest {
 
         assertThat(result.size()).isEqualTo(2);
         assertThat(result.get(0).props.get("items")).isNotNull();
-        List<HocsFormField> items = (List<HocsFormField>)result.get(0).props.get("items");
+        List<HocsFormField> items = (List<HocsFormField>) result.get(0).props.get("items");
         assertThat(items.size()).isEqualTo(1);
         assertThat(items.get(0).component).isEqualTo("text");
         assertThat(result.get(1).component).isEqualTo("inset");
@@ -68,11 +68,11 @@ public class HocsFormAccordionTest {
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).props.get("sections")).isNotNull();
-        List<HocsFormSection> sections = (ArrayList)result.get(0).props.get("sections");
+        List<HocsFormSection> sections = (ArrayList) result.get(0).props.get("sections");
         assertThat(sections.size()).isEqualTo(1);
         assertThat(sections.get(0).items.size()).isEqualTo(1);
         assertThat(sections.get(0).items.get(0).props.get("items")).isNotNull();
-        List<HocsFormField> items = (List<HocsFormField>)sections.get(0).items.get(0).props.get("items");
+        List<HocsFormField> items = (List<HocsFormField>) sections.get(0).items.get(0).props.get("items");
         assertThat(items.size()).isEqualTo(1);
     }
 
@@ -96,8 +96,9 @@ public class HocsFormAccordionTest {
         fields.add(textBox);
 
         List<HocsFormField> result = HocsFormAccordion.loadFormAccordions(fields);
-        List<HocsFormSection> sections = (ArrayList)result.get(0).props.get("sections");
+        List<HocsFormSection> sections = (ArrayList) result.get(0).props.get("sections");
         String nameResult = sections.get(0).name;
         assertThat(nameResult).isEqualTo(expected);
     }
+
 }

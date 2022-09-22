@@ -39,9 +39,11 @@ public class AllocatedAspectTest {
     private AllocatedAspect aspect;
 
     private final UUID stageUUID = UUID.randomUUID();
+
     private final UUID caseUUID = UUID.randomUUID();
 
     private final UUID userId = UUID.randomUUID();
+
     private final UUID teamId = UUID.randomUUID();
 
     @Mock
@@ -87,7 +89,7 @@ public class AllocatedAspectTest {
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
 
         verify(userService, times(1)).getUserTeams();
-        verify(caseworkClient, times(1)).getStageTeam(caseUUID,stageUUID);
+        verify(caseworkClient, times(1)).getStageTeam(caseUUID, stageUUID);
         verify(proceedingJoinPoint, atLeast(1)).getArgs();
     }
 
@@ -122,7 +124,6 @@ public class AllocatedAspectTest {
 
     }
 
-
     @Test
     public void shouldProceedIfUserAndTeamIsAllocatedToCase() throws Throwable {
 
@@ -140,7 +141,6 @@ public class AllocatedAspectTest {
         verify(proceedingJoinPoint, times(1)).proceed();
 
     }
-
 
     @Test(expected = SecurityExceptions.StageNotAssignedToLoggedInUserException.class)
     public void shouldNotProceedIfTeamHasPermissionButUserDoesNotHavePermission() throws Throwable {
@@ -170,7 +170,7 @@ public class AllocatedAspectTest {
 
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM_USER);
-        when(userService.getUserTeams()).thenReturn(new HashSet<>(){{UUID.randomUUID();}});
+        when(userService.getUserTeams()).thenReturn(new HashSet<>() {{UUID.randomUUID();}});
         when(caseworkClient.getStageTeam(caseUUID, stageUUID)).thenReturn(teamId);
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
@@ -203,7 +203,7 @@ public class AllocatedAspectTest {
 
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
-        when(userService.getUserTeams()).thenReturn(new HashSet<>(){{UUID.randomUUID();}});
+        when(userService.getUserTeams()).thenReturn(new HashSet<>() {{UUID.randomUUID();}});
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
         verify(proceedingJoinPoint, never()).proceed();
@@ -252,7 +252,7 @@ public class AllocatedAspectTest {
         when(infoClient.getCaseTypeByShortCode(any())).thenReturn(new CaseDataType("ABC", "Z1"));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.allocatedTo()).thenReturn(AllocationLevel.TEAM);
-        when(userService.getUserTeams()).thenReturn(new HashSet<>(){{UUID.randomUUID();}});
+        when(userService.getUserTeams()).thenReturn(new HashSet<>() {{UUID.randomUUID();}});
 
         aspect = new AllocatedAspect(caseworkClient, infoClient, userService);
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
@@ -280,4 +280,5 @@ public class AllocatedAspectTest {
         aspect.validateUserAccess(proceedingJoinPoint, annotation);
         verify(proceedingJoinPoint, times(1)).proceed();
     }
+
 }

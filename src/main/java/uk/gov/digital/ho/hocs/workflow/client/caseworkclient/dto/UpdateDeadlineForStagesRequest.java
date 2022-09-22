@@ -14,4 +14,5 @@ public class UpdateDeadlineForStagesRequest {
     public UpdateDeadlineForStagesRequest(Map<String, Integer> stageTypeAndDaysMap) {
         this.stageTypeAndDaysMap = stageTypeAndDaysMap;
     }
+
 }

@@ -25,7 +25,8 @@ public class IEDET_SEND {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -42,10 +43,10 @@ public class IEDET_SEND {
     }
 
     @Test
-    public void testDefaultRoute(){
-        when(processScenario.waitsAtUserTask("Screen_Input"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "" )))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+    public void testDefaultRoute() {
+        when(processScenario.waitsAtUserTask("Screen_Input")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
         Scenario.run(processScenario).startByKey("IEDET_SEND").execute();
 
@@ -53,4 +54,5 @@ public class IEDET_SEND {
         verify(processScenario, times(2)).hasCompleted("Screen_Input");
         verify(processScenario).hasCompleted("EndEvent_Send");
     }
+
 }

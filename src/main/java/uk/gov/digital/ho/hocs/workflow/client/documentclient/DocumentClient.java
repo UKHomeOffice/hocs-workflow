@@ -18,11 +18,11 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 public class DocumentClient {
 
     private final RestHelper restHelper;
+
     private final String serviceBaseURL;
 
     @Autowired
-    public DocumentClient(RestHelper restHelper,
-                          @Value("${hocs.document-service}") String documentService){
+    public DocumentClient(RestHelper restHelper, @Value("${hocs.document-service}") String documentService) {
         this.restHelper = restHelper;
         this.serviceBaseURL = documentService;
     }
@@ -34,7 +34,9 @@ public class DocumentClient {
     }
 
     public String getDocumentName(UUID documentUUID) {
-        DocumentDto documentDto = restHelper.get(serviceBaseURL, String.format("/document/%s", documentUUID), DocumentDto.class);
+        DocumentDto documentDto = restHelper.get(serviceBaseURL, String.format("/document/%s", documentUUID),
+            DocumentDto.class);
         return documentDto.getDisplayName();
     }
+
 }

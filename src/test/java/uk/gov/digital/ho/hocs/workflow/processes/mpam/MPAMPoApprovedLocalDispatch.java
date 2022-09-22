@@ -32,14 +32,15 @@ public class MPAMPoApprovedLocalDispatch {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create()
-            .assertClassCoverageAtLeast(1)
-            .build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
     @Mock
     BpmnService bpmnService;
+
     @Mock
     private ProcessScenario processScenario;
 
@@ -51,18 +52,11 @@ public class MPAMPoApprovedLocalDispatch {
     @Test
     public void isValidInput_ThenEndStage() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "MPAMDispatchStatus", "DispatchAndClose",
-                        "valid", false)))
-                .thenReturn(task -> task.complete(withVariables(
-                        "MPAMDispatchStatus", "DispatchAndClose",
-                        "valid", true
-                )));
+        when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(
+            task -> task.complete(withVariables("MPAMDispatchStatus", "DispatchAndClose", "valid", false))).thenReturn(
+            task -> task.complete(withVariables("MPAMDispatchStatus", "DispatchAndClose", "valid", true)));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO_APPROVED_LOCAL_DISPATCH")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO_APPROVED_LOCAL_DISPATCH").execute();
 
         verify(processScenario).hasFinished("EndEvent_MPAMPoApprovedLocalDispatch");
     }
@@ -70,15 +64,10 @@ public class MPAMPoApprovedLocalDispatch {
     @Test
     public void setDirectionBackward_ThenEndStage() {
 
-        when(processScenario.waitsAtUserTask("Validate_UserInput"))
-                .thenReturn(task -> task.complete(withVariables(
-                        "MPAMDispatchStatus", "MoveBack",
-                        "valid", true
-                )));
+        when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(
+            task -> task.complete(withVariables("MPAMDispatchStatus", "MoveBack", "valid", true)));
 
-        Scenario.run(processScenario)
-                .startByKey("MPAM_PO_APPROVED_LOCAL_DISPATCH")
-                .execute();
+        Scenario.run(processScenario).startByKey("MPAM_PO_APPROVED_LOCAL_DISPATCH").execute();
 
         verify(bpmnService).updateValue(any(), any(), eq("Rejected"), eq("By Dispatch"));
         verify(processScenario).hasCompleted("Activity_0ry80sz");
@@ -96,4 +85,5 @@ public class MPAMPoApprovedLocalDispatch {
 
         Mocks.reset();
     }
+
 }

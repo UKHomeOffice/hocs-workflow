@@ -23,29 +23,38 @@ import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/TO/TO_CAMPAIGN.bpmn",
-        "processes/TO/TO_ENQUIRY_SUBJECT_REASON.bpmn",
-        "processes/TO/TO_CHANGE_BUSINESS_AREA.bpmn"
-})
+@Deployment(resources = { "processes/TO/TO_CAMPAIGN.bpmn", "processes/TO/TO_ENQUIRY_SUBJECT_REASON.bpmn",
+    "processes/TO/TO_CHANGE_BUSINESS_AREA.bpmn" })
 public class TO_CAMPAIGN {
 
     // COMMON GATEWAY &  GATEWAY OUTCOMES
     private static final String DIRECTION = "DIRECTION";
+
     private static final String CAMPAIGN_OUTCOME = "CampaignOutcome";
+
     private static final String BACKWARD = "BACKWARD";
+
     private static final String FORWARD = "FORWARD";
+
     private static final String SET_ENQUIRY = "SetEnquiry";
+
     private static final String CHANGE_BUSINESS_AREA = "ChangeBusinessArea";
+
     private static final String SAVE = "Save";
+
     private static final String TO_DRAFT = "SendToDraft";
+
     private static final String PUT_ON_CAMPAIGN = "PutOnCampaign";
 
     // USER AND SERVICE TASKS
     private static final String UPDATE_BUS_AREA_STATUS = "UPDATE_BUS_AREA_STATUS";
+
     private static final String TO_ENQUIRY_SUBJECT_REASON = "TO_ENQUIRY_SUBJECT_REASON";
+
     private static final String TO_CHANGE_BUSINESS_AREA = "TO_CHANGE_BUSINESS_AREA";
+
     private static final String TO_GET_CAMPAIGN_TYPE = "TO_GET_CAMPAIGN_TYPE";
+
     private static final String CAMPAIGN_INPUT = "CAMPAIGN_INPUT";
 
     @Rule
@@ -69,114 +78,85 @@ public class TO_CAMPAIGN {
     @Test
     public void shouldSetEnquiryAndComplete() {
 
-        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, TO_DRAFT)));
+        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT)).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY))).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, TO_DRAFT)));
 
+        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON).deploy(rule);
 
-        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
-                .deploy(rule);
+        Scenario.run(TOProcess).startByKey("TO_CAMPAIGN").execute();
 
-        Scenario.run(TOProcess)
-                .startByKey("TO_CAMPAIGN")
-                .execute();
+        verify(TOProcess, times(2)).hasCompleted(CAMPAIGN_INPUT);
 
-        verify(TOProcess, times(2))
-                .hasCompleted(CAMPAIGN_INPUT);
+        verify(TOProcess, times(1)).hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
+        verify(TOProcess, times(1)).hasCompleted(UPDATE_BUS_AREA_STATUS);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
-
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+        verify(TOProcess, times(0)).hasCompleted(TO_CHANGE_BUSINESS_AREA);
     }
 
     @Test
     public void shouldSetEnquiryAndSaveAndComplete() {
 
-        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, SAVE)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, TO_DRAFT)));
+        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT)).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY))).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, SAVE))).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, TO_DRAFT)));
 
         whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON).deploy(rule);
 
-        Scenario.run(TOProcess)
-                .startByKey("TO_CAMPAIGN")
-                .execute();
+        Scenario.run(TOProcess).startByKey("TO_CAMPAIGN").execute();
 
-        verify(TOProcess, times(3))
-                .hasCompleted(CAMPAIGN_INPUT);
+        verify(TOProcess, times(3)).hasCompleted(CAMPAIGN_INPUT);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
+        verify(TOProcess, times(1)).hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
+        verify(TOProcess, times(1)).hasCompleted(UPDATE_BUS_AREA_STATUS);
 
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+        verify(TOProcess, times(0)).hasCompleted(TO_CHANGE_BUSINESS_AREA);
     }
 
     @Test
     public void shouldChangeBusinessAreaAndComplete() {
 
-        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)));
+        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT)).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)));
 
-        whenAtCallActivity(TO_CHANGE_BUSINESS_AREA)
-                .thenReturn("BusAreaStatus", "Transferred", DIRECTION, FORWARD, "TROFTeamUUID", "e4925c53-cbec-4690-a9f0-e09111fb281f")
-                .deploy(rule);
+        whenAtCallActivity(TO_CHANGE_BUSINESS_AREA).thenReturn("BusAreaStatus", "Transferred", DIRECTION, FORWARD,
+            "TROFTeamUUID", "e4925c53-cbec-4690-a9f0-e09111fb281f").deploy(rule);
 
-        Scenario.run(TOProcess)
-                .startByKey("TO_CAMPAIGN")
-                .execute();
+        Scenario.run(TOProcess).startByKey("TO_CAMPAIGN").execute();
 
-        verify(TOProcess, times(1))
-                .hasCompleted(CAMPAIGN_INPUT);
+        verify(TOProcess, times(1)).hasCompleted(CAMPAIGN_INPUT);
 
-        verify(TOProcess, times(0))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
+        verify(TOProcess, times(0)).hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
 
-        verify(TOProcess, times(0))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
+        verify(TOProcess, times(0)).hasCompleted(UPDATE_BUS_AREA_STATUS);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+        verify(TOProcess, times(1)).hasCompleted(TO_CHANGE_BUSINESS_AREA);
     }
 
     @Test
     public void shouldChangeBusinessAreaAndGoBackAndSetEnquiryAndComplete() {
 
-        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY)))
-                .thenReturn(task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, TO_DRAFT)));
+        when(TOProcess.waitsAtUserTask(CAMPAIGN_INPUT)).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, CHANGE_BUSINESS_AREA))).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, SET_ENQUIRY))).thenReturn(
+            task -> task.complete(withVariables(DIRECTION, FORWARD, CAMPAIGN_OUTCOME, TO_DRAFT)));
 
-        whenAtCallActivity(TO_CHANGE_BUSINESS_AREA)
-                .thenReturn(DIRECTION, BACKWARD)
-                .deploy(rule);
+        whenAtCallActivity(TO_CHANGE_BUSINESS_AREA).thenReturn(DIRECTION, BACKWARD).deploy(rule);
 
-        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON)
-                .deploy(rule);
+        whenAtCallActivity(TO_ENQUIRY_SUBJECT_REASON).deploy(rule);
 
-        Scenario.run(TOProcess)
-                .startByKey("TO_CAMPAIGN")
-                .execute();
+        Scenario.run(TOProcess).startByKey("TO_CAMPAIGN").execute();
 
-        verify(TOProcess, times(3))
-                .hasCompleted(CAMPAIGN_INPUT);
+        verify(TOProcess, times(3)).hasCompleted(CAMPAIGN_INPUT);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
+        verify(TOProcess, times(1)).hasCompleted(TO_ENQUIRY_SUBJECT_REASON);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(UPDATE_BUS_AREA_STATUS);
+        verify(TOProcess, times(1)).hasCompleted(UPDATE_BUS_AREA_STATUS);
 
-        verify(TOProcess, times(1))
-                .hasCompleted(TO_CHANGE_BUSINESS_AREA);
+        verify(TOProcess, times(1)).hasCompleted(TO_CHANGE_BUSINESS_AREA);
     }
+
 }

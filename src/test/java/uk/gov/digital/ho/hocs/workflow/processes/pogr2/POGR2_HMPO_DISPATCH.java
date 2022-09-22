@@ -22,14 +22,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/POGR2/POGR2_HMPO_DISPATCH.bpmn"
-})
+@Deployment(resources = { "processes/POGR2/POGR2_HMPO_DISPATCH.bpmn" })
 public class POGR2_HMPO_DISPATCH {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -47,13 +46,11 @@ public class POGR2_HMPO_DISPATCH {
 
     @Test
     public void testHappyPath() {
-        when(processScenario.waitsAtUserTask("Screen_Dispatch"))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
-                .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+        when(processScenario.waitsAtUserTask("Screen_Dispatch")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        Scenario.run(processScenario)
-                .startByKey("POGR2_HMPO_DISPATCH")
-                .execute();
+        Scenario.run(processScenario).startByKey("POGR2_HMPO_DISPATCH").execute();
 
         verify(processScenario, times(2)).hasCompleted("Screen_Dispatch");
     }

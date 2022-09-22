@@ -15,4 +15,5 @@ public class CreateCaseResponse {
 
     @JsonProperty("reference")
     private final String reference;
+
 }

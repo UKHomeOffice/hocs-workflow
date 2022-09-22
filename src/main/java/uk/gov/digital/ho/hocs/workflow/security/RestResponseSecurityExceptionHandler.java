@@ -47,4 +47,5 @@ public class RestResponseSecurityExceptionHandler {
         }
         return new ResponseEntity<>(e.getMessage(), UNAUTHORIZED);
     }
+
 }

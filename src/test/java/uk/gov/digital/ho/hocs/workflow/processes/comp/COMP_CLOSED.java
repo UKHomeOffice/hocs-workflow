@@ -25,7 +25,8 @@ public class COMP_CLOSED {
 
     @Rule
     @ClassRule
-    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
+        1).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -42,10 +43,10 @@ public class COMP_CLOSED {
     }
 
     @Test
-    public void testNeitherCompleteOrTriage(){
-        when(compClosedProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", false)))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClosedCompType", "Rejected")));
+    public void testNeitherCompleteOrTriage() {
+        when(compClosedProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClosedCompType", "Rejected")));
 
         Scenario.run(compClosedProcess).startByKey("COMP_CLOSED").execute();
 
@@ -54,9 +55,9 @@ public class COMP_CLOSED {
     }
 
     @Test
-    public void testRequiresTriage(){
-        when(compClosedProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClosedCompType", "Service")));
+    public void testRequiresTriage() {
+        when(compClosedProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClosedCompType", "Service")));
 
         Scenario.run(compClosedProcess).startByKey("COMP_CLOSED").execute();
 
@@ -66,17 +67,17 @@ public class COMP_CLOSED {
     }
 
     @Test
-    public void testClosedComplete(){
-        when(compClosedProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClosedCompType", "Complete")));
+    public void testClosedComplete() {
+        when(compClosedProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClosedCompType", "Complete")));
 
-        when(compClosedProcess.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compClosedProcess.waitsAtUserTask("Validate_CompleteReason")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compClosedProcess.waitsAtUserTask("Validate_CompleteConfirm"))
-                .thenReturn(task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
+        when(compClosedProcess.waitsAtUserTask("Validate_CompleteConfirm")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
 
         Scenario.run(compClosedProcess).startByKey("COMP_CLOSED").execute();
 
@@ -87,16 +88,16 @@ public class COMP_CLOSED {
     }
 
     @Test
-    public void testRestartAfterValidateCompleteReason(){
-        when(compClosedProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClosedCompType", "Complete")));
+    public void testRestartAfterValidateCompleteReason() {
+        when(compClosedProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClosedCompType", "Complete")));
 
-        when(compClosedProcess.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compClosedProcess.waitsAtUserTask("Validate_CompleteReason")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compClosedProcess.waitsAtUserTask("Validate_CompleteConfirm"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
+        when(compClosedProcess.waitsAtUserTask("Validate_CompleteConfirm")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
 
         Scenario.run(compClosedProcess).startByKey("COMP_CLOSED").execute();
 
@@ -107,17 +108,16 @@ public class COMP_CLOSED {
     }
 
     @Test
-    public void testRestartAfterValidateConfirmComplete(){
-        when(compClosedProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClosedCompType", "Complete")));
+    public void testRestartAfterValidateConfirmComplete() {
+        when(compClosedProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClosedCompType", "Complete")));
 
-        when(compClosedProcess.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compClosedProcess.waitsAtUserTask("Validate_CompleteReason")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compClosedProcess.waitsAtUserTask("Validate_CompleteConfirm"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD", "CompleteResult", "Yes")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
-
+        when(compClosedProcess.waitsAtUserTask("Validate_CompleteConfirm")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "BACKWARD", "CompleteResult", "Yes"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
 
         Scenario.run(compClosedProcess).startByKey("COMP_CLOSED").execute();
 
@@ -128,17 +128,16 @@ public class COMP_CLOSED {
     }
 
     @Test
-    public void testNoCompleteResult(){
-        when(compClosedProcess.waitsAtUserTask("Validate_Input"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "ClosedCompType", "Complete")));
+    public void testNoCompleteResult() {
+        when(compClosedProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "ClosedCompType", "Complete")));
 
-        when(compClosedProcess.waitsAtUserTask("Validate_CompleteReason"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+        when(compClosedProcess.waitsAtUserTask("Validate_CompleteReason")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(compClosedProcess.waitsAtUserTask("Validate_CompleteConfirm"))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No")))
-                .thenReturn(task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
-
+        when(compClosedProcess.waitsAtUserTask("Validate_CompleteConfirm")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "No"))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompleteResult", "Yes")));
 
         Scenario.run(compClosedProcess).startByKey("COMP_CLOSED").execute();
 
@@ -147,4 +146,5 @@ public class COMP_CLOSED {
         verify(compClosedProcess, times(2)).hasCompleted("Screen_CompleteConfirm");
         verify(compClosedProcess).hasCompleted("Service_UpdateAllocationNote_Complete");
     }
+
 }

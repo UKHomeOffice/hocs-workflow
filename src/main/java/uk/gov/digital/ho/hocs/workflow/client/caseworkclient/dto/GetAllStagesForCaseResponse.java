@@ -14,4 +14,5 @@ public class GetAllStagesForCaseResponse {
 
     @JsonProperty("stages")
     private List<StageDto> stages;
+
 }
