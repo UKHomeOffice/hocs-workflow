@@ -13,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
@@ -44,17 +45,21 @@ public class BpmnService {
     private final Clock clock;
     private final WorkflowService workflowService;
 
+    private final AuditClient auditClient;
+
     @Autowired
     public BpmnService(CaseworkClient caseworkClient,
                        CamundaClient camundaClient,
                        InfoClient infoClient,
                        Clock clock,
-                       WorkflowService workflowService) {
+                       WorkflowService workflowService,
+                       AuditClient auditClient) {
         this.clock = clock;
         this.caseworkClient = caseworkClient;
         this.camundaClient = camundaClient;
         this.infoClient = infoClient;
         this.workflowService = workflowService;
+        this.auditClient = auditClient;
     }
 
     public String createStage(String caseUUIDString, String stageUUIDString, String stageTypeString, String allocationType, String allocationTeamString) {
@@ -605,5 +610,18 @@ public class BpmnService {
     private static class NoteDetails {
         private final String oldTeamName;
         private final StageTypeDto stageTypeDto;
+    }
+
+    public void createComplaintType(String caseUUIDString, String stageUUIDString){
+        log.info("Create complaint Type called");
+        UUID caseUUID = UUID.fromString(caseUUIDString);
+
+        UUID stageUUID = null;
+
+        if (StringUtils.hasText(stageUUIDString)) {
+            stageUUID= UUID.fromString(stageUUIDString);
+        }
+        auditClient.createCaseComplaintType(caseUUID, stageUUID);
+        log.info("Create complaint Type successfully");
     }
 }

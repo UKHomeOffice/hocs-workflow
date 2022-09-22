@@ -1,14 +1,27 @@
 package uk.gov.digital.ho.hocs.workflow.client.auditclient;
 
 import com.amazonaws.services.sns.AmazonSNSAsync;
-
+import com.amazonaws.services.sns.model.MessageAttributeValue;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import uk.gov.digital.ho.hocs.workflow.application.aws.SnsStringMessageAttributeValue;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.CreateAuditRequest;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.UUID;
+
+import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 
 @Slf4j
 @Component
@@ -36,7 +49,7 @@ public class AuditClient {
         this.requestData = requestData;
     }
 
-   /*public void createCaseComplaintType() {
+   public void createCaseComplaintType(UUID caseUUID, UUID stageUUID) {
         LocalDateTime localDateTime = LocalDateTime.now();
         ObjectMapper objectMapper = new ObjectMapper();
         String data = "{}";
@@ -45,16 +58,19 @@ public class AuditClient {
         } catch (JsonProcessingException e) {
             logFailedToParseDataPayload(e);
         }
-        sendAuditMessage(localDateTime, randomUUID("TEST1234567"), data, EventType.COMPLAINT_TYPE_CREATED, randomUUID("TET098134"),
+        sendAuditMessage(localDateTime, caseUUID, data, EventType.COMPLAINT_TYPE_CREATED, stageUUID,
                 requestData.correlationId(), requestData.userId(), requestData.username(), requestData.groups());
     }
 
    private void logFailedToParseDataPayload(JsonProcessingException e) {
-        log.error("Failed to parse data payload, event {}, exception: {}", value(LogEvent.EVENT, LogEvent.UNCAUGHT_EXCEPTION), value(LogEvent.EXCEPTION, e));
+        log.error("Failed to parse data payload, event {}, exception: {}",
+                value(EVENT, LogEvent.UNCAUGHT_EXCEPTION), value(EXCEPTION, e));
     }
 
-    private void sendAuditMessage(LocalDateTime localDateTime, UUID caseUUID, String payload, EventType eventType, UUID stageUUID, String correlationId, String userId, String username, String groups) {
-        sendAuditMessage(localDateTime, null, payload, eventType, stageUUID, "{}", correlationId, userId, username, groups);
+    private void sendAuditMessage(LocalDateTime localDateTime, UUID caseUUID, String payload, EventType eventType,
+                                  UUID stageUUID, String correlationId, String userId, String username, String groups) {
+        sendAuditMessage(localDateTime, caseUUID, payload, eventType, stageUUID, "{}",
+                correlationId, userId, username, groups);
     }
     private void sendAuditMessage(LocalDateTime localDateTime, UUID caseUUID, String payload, EventType eventType,
                                   UUID stageUUID, String data, String correlationId, String userId,
@@ -96,7 +112,7 @@ public class AuditClient {
             String uuid = UUID.randomUUID().toString().substring(0, 33);
             return UUID.fromString(uuid.concat(shortCode));
         } else {
-            throw new ApplicationExceptions.EntityCreationException("shortCode is null", CASE_CREATE_FAILURE);
+            throw new ApplicationExceptions.EntityCreationException("shortCode is null", AUDIT_FAILED);
         }
-    }*/
+    }
 }
