@@ -29,5 +29,8 @@ public interface WorkflowConstants {
     String CHANNEL = "Channel";
     String CHANNEL_COMP_ORIGINATEDFROM = "XOriginatedFrom";
     String CHANNEL_COMP_WEBFORM = "Webform";
-
+    String PREVIOUS_COMPLAINT_TYPE =  "previousComplaintType";
+    String COMPLAINT_TYPE =  "Complaint type :";
+    String COMPLAINT_TYPE_CHANGED_TO =  "Complaint type changed to: ";
+    String EMPTY_JSON = "{}";
 }

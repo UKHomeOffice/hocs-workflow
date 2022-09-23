@@ -14,14 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.digital.ho.hocs.workflow.application.aws.SnsStringMessageAttributeValue;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.CreateAuditRequest;
-import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.*;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.AUDIT_FAILED;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EXCEPTION;
+import static uk.gov.digital.ho.hocs.workflow.client.auditclient.EventType.COMPLAINT_TYPE_CREATED;
+import static uk.gov.digital.ho.hocs.workflow.client.auditclient.EventType.COMPLAINT_TYPE_UPDATED;
 
 @Slf4j
 @Component
@@ -49,20 +53,30 @@ public class AuditClient {
         this.requestData = requestData;
     }
 
-   public void createCaseComplaintType(UUID caseUUID, UUID stageUUID) {
+    public void createCaseComplaintType(UUID caseUUID, UUID stageUUID, String currentComplaintType, String previousComplaintType) {
+        log.info("Audit Client gets called");
         LocalDateTime localDateTime = LocalDateTime.now();
         ObjectMapper objectMapper = new ObjectMapper();
-        String data = "{}";
+        String data = EMPTY_JSON;
+        StringBuilder complaintTypeNote = new StringBuilder();
+        EventType eventType = null;
         try {
-            data = objectMapper.writeValueAsString("Test message created");
+            if(previousComplaintType!=null && !currentComplaintType.equalsIgnoreCase(previousComplaintType)) {
+                complaintTypeNote.append(COMPLAINT_TYPE_CHANGED_TO).append(previousComplaintType);
+                eventType = COMPLAINT_TYPE_UPDATED;
+            } else {
+                complaintTypeNote.append(COMPLAINT_TYPE).append(currentComplaintType);
+                eventType = COMPLAINT_TYPE_CREATED;
+            }
+            data = objectMapper.writeValueAsString(complaintTypeNote);
         } catch (JsonProcessingException e) {
             logFailedToParseDataPayload(e);
         }
-        sendAuditMessage(localDateTime, caseUUID, data, EventType.COMPLAINT_TYPE_CREATED, stageUUID,
-                requestData.correlationId(), requestData.userId(), requestData.username(), requestData.groups());
+        sendAuditMessage(localDateTime, caseUUID, data, eventType, stageUUID, requestData.correlationId(),
+                requestData.userId(), requestData.username(), requestData.groups());
     }
 
-   private void logFailedToParseDataPayload(JsonProcessingException e) {
+    private void logFailedToParseDataPayload(JsonProcessingException e) {
         log.error("Failed to parse data payload, event {}, exception: {}",
                 value(EVENT, LogEvent.UNCAUGHT_EXCEPTION), value(EXCEPTION, e));
     }
@@ -92,27 +106,18 @@ public class AuditClient {
                     .withMessageAttributes(getQueueHeaders(eventType.toString()));
 
             auditSnsClient.publish(publishRequest);
-            log.info("Create audit of type {} for Case UUID: {}, correlationID: {}, UserID: {}, event: {}", eventType, caseUUID, correlationId, userId, value(EVENT, AUDIT_EVENT_CREATED));
+            log.info("Create audit of type {} for Case UUID: {}, correlationID: {}, UserID: {}, event: {}", eventType, caseUUID, correlationId, userId, value(EVENT, eventType));
         } catch (Exception e) {
             log.error("Failed to create audit event for case UUID {}, event {}, exception: {}", caseUUID, value(EVENT, AUDIT_FAILED), value(EXCEPTION, e));
         }
     }
 
-   private Map<String, MessageAttributeValue> getQueueHeaders(String eventType) {
+    private Map<String, MessageAttributeValue> getQueueHeaders(String eventType) {
         return Map.of(
                 EVENT_TYPE_HEADER, new SnsStringMessageAttributeValue(eventType),
                 RequestData.CORRELATION_ID_HEADER, new SnsStringMessageAttributeValue(requestData.correlationId()),
                 RequestData.USER_ID_HEADER, new SnsStringMessageAttributeValue(requestData.userId()),
                 RequestData.USERNAME_HEADER, new SnsStringMessageAttributeValue(requestData.username()),
                 RequestData.GROUP_HEADER, new SnsStringMessageAttributeValue(requestData.groups()));
-    }
-
-    private static UUID randomUUID(String shortCode) {
-        if (shortCode != null) {
-            String uuid = UUID.randomUUID().toString().substring(0, 33);
-            return UUID.fromString(uuid.concat(shortCode));
-        } else {
-            throw new ApplicationExceptions.EntityCreationException("shortCode is null", AUDIT_FAILED);
-        }
     }
 }
