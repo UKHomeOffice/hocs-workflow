@@ -50,13 +50,13 @@ public class POGR_CLOSE_CASE {
     @Test
     public void testHappyPath() {
         when(processScenario.waitsAtUserTask("Screen_CloseCase")).thenReturn(
-            task -> task.complete(withVariables("DIRECTION", "FORWARD", "ClosureCaseNote", "Test")));
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "ClosureReason", "Third Party Rejection", "ClosureCaseNote", "Test")));
 
         Scenario.run(processScenario).startByKey("POGR_CLOSE_CASE").execute();
 
         verify(processScenario).hasCompleted("Screen_CloseCase");
 
-        verify(bpmnService).createCaseNote(any(), eq("Test"), eq("CLOSE"));
+        verify(bpmnService).createClosureNote(any(), eq("Third Party Rejection"), eq("Test"), eq("CLOSE"));
     }
 
     @Test
@@ -76,13 +76,13 @@ public class POGR_CLOSE_CASE {
     public void testFowardsWithoutNoteDirection() {
         when(processScenario.waitsAtUserTask("Screen_CloseCase")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "FORWARD"))).thenReturn(
-            task -> task.complete(withVariables("DIRECTION", "FORWARD", "ClosureCaseNote", "Test")));
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "ClosureReason", "Third Party Rejection", "ClosureCaseNote", "Test")));
 
         Scenario.run(processScenario).startByKey("POGR_CLOSE_CASE").execute();
 
         verify(processScenario, times(2)).hasCompleted("Screen_CloseCase");
 
-        verify(bpmnService).createCaseNote(any(), eq("Test"), eq("CLOSE"));
+        verify(bpmnService).createClosureNote(any(), eq("Third Party Rejection"), eq("Test"), eq("CLOSE"));
     }
 
 }

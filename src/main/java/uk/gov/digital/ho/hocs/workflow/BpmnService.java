@@ -533,6 +533,12 @@ public class BpmnService {
         log.info("Adding new Case note to Case: {}", caseUUIDString);
     }
 
+    public void createClosureNote(String caseUUIDString, String closureReason, String caseNote, String caseNoteType) {
+        log.debug("######## Create Case Note ########");
+        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), caseNoteType, closureReason + " - " + caseNote);
+        log.info("Adding new Case note to Case: {}", caseUUIDString);
+    }
+
     public void createCaseConversionNote(String caseUUIDString, String stageUUIDString, String caseConversionNote) {
         log.debug("######## Create Case Conversion Note ########");
         String caseChangeNoteType = null;

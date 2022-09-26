@@ -741,6 +741,24 @@ public class BpmnServiceTest {
     }
 
     @Test
+    public void shouldCreateClosureNote() {
+
+        UUID testCaseId = UUID.randomUUID();
+        String testClosureReason = "Third Party Rejection";
+        String testCaseNote = "Case note for closing a case.";
+        ArgumentCaptor<String> valueCapture = ArgumentCaptor.forClass(String.class);
+
+        when(caseworkClient.createCaseNote(testCaseId, "CLOSE_CASE_TELEPHONE", testClosureReason + " - " + testCaseNote)).thenReturn(testCaseId);
+
+        bpmnService.createClosureNote(testCaseId.toString(), testClosureReason, testCaseNote, "CLOSE_CASE_TELEPHONE");
+
+        verify(caseworkClient, times(1)).createCaseNote(testCaseId, "CLOSE_CASE_TELEPHONE", testClosureReason + " - " + testCaseNote);
+        verify(caseworkClient).createCaseNote(eq(testCaseId), eq("CLOSE_CASE_TELEPHONE"), valueCapture.capture());
+        assertThat(valueCapture.getValue()).isEqualTo(testClosureReason + " - " + testCaseNote);
+        verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
+    }
+
+    @Test
     public void shouldCalculateDeadline() {
 
         //given
