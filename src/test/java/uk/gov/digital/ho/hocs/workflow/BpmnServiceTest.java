@@ -48,10 +48,7 @@ public class BpmnServiceTest {
 
     @Mock
     private AuditClient auditClient;
-<<<<<<< HEAD
 
-=======
->>>>>>> BPMNService updated junit test suits
     private BpmnService bpmnService;
 
     private final UUID caseUUID = UUID.randomUUID();
