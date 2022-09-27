@@ -32,7 +32,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.PREVIOUS_COMPLAINT_TYPE;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 
 @Service
@@ -648,41 +647,5 @@ public class BpmnService {
 
         private final StageTypeDto stageTypeDto;
 
-    }
-
-    public String createComplaintType(String caseUUIDString, String stageUUIDString, String currentComplaintType){
-        log.info("Create complaint Type called to submit event to SNS topic");
-        log.info("Current Complaint Type =============> {}", currentComplaintType);
-
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID= UUID.fromString(stageUUIDString);
-        GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUUID);
-        String previousComplaintType = caseData.getData().get(PREVIOUS_COMPLAINT_TYPE);
-        log.info("Previous Complaint Type =============> {}", previousComplaintType);
-
-        String complaintType = auditClient.createCaseComplaintType(caseUUID, stageUUID, currentComplaintType, previousComplaintType);
-        updateCaseValue(caseUUIDString, stageUUIDString, PREVIOUS_COMPLAINT_TYPE, currentComplaintType);
-
-        log.info("Complaint Type successfully created/updated in SNS topic");
-
-        return complaintType;
-    }
-
-    public String createComplaintType(String caseUUIDString, String stageUUIDString, String currentComplaintType){
-        log.info("Create complaint Type called to submit event to SNS topic");
-        log.info("Current Complaint Type =============> {}", currentComplaintType);
-
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID= UUID.fromString(stageUUIDString);
-        GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUUID);
-        String previousComplaintType = caseData.getData().get(PREVIOUS_COMPLAINT_TYPE);
-        log.info("Previous Complaint Type =============> {}", previousComplaintType);
-
-        String complaintType = auditClient.createCaseComplaintType(caseUUID, stageUUID, currentComplaintType, previousComplaintType);
-        updateCaseValue(caseUUIDString, stageUUIDString, PREVIOUS_COMPLAINT_TYPE, currentComplaintType);
-
-        log.info("Complaint Type successfully created/updated in SNS topic");
-
-        return complaintType;
     }
 }

@@ -873,7 +873,7 @@ public class BpmnServiceTest {
 
     }
 
-    @Test
+ /*   @Test
     public void testShouldCreateCompliantType(){
         Map<String, String> data = new HashMap<>();
         String previousComplaintType = null;
@@ -943,5 +943,5 @@ public class BpmnServiceTest {
         when(auditClient.createCaseComplaintType(caseUUID, stageUUID, complaintType, previousComplaintType)).thenReturn(complaintType);
         String updatedComplaintType = bpmnService.createComplaintType(caseUUID.toString(), stageUUID.toString(), complaintType);
         assertThat(complaintType.equalsIgnoreCase(updatedComplaintType));
-    }
+    }*/
 }
