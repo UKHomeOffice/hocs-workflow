@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.digital.ho.hocs.workflow.application.aws.SnsStringMessageAttributeValue;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.BusinessEvent;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.CreateAuditRequest;
 
 import java.time.LocalDateTime;
@@ -20,12 +21,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.*;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.AUDIT_FAILED;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EXCEPTION;
-import static uk.gov.digital.ho.hocs.workflow.client.auditclient.EventType.COMPLAINT_TYPE_CREATED;
-import static uk.gov.digital.ho.hocs.workflow.client.auditclient.EventType.COMPLAINT_TYPE_UPDATED;
 
 @Slf4j
 @Component
@@ -37,6 +35,8 @@ public class AuditClient {
     private final AmazonSNSAsync auditSnsClient;
     private final ObjectMapper objectMapper;
     private final RequestData requestData;
+
+    private final static String EMPTY_JSON = "{}";
 
     @Autowired
     public AuditClient(AmazonSNSAsync auditSnsClient,
@@ -53,27 +53,17 @@ public class AuditClient {
         this.requestData = requestData;
     }
 
-    public void createCaseComplaintType(UUID caseUUID, UUID stageUUID, String currentComplaintType, String previousComplaintType) {
-        log.info("Audit Client gets called");
+    public void createBusinessEvent(UUID caseUuid, UUID stageUuid, BusinessEvent businessEvent) {
         LocalDateTime localDateTime = LocalDateTime.now();
-        ObjectMapper objectMapper = new ObjectMapper();
         String data = EMPTY_JSON;
-        StringBuilder complaintTypeNote = new StringBuilder();
-        EventType eventType = null;
         try {
-            if(previousComplaintType!=null && !currentComplaintType.equalsIgnoreCase(previousComplaintType)) {
-                complaintTypeNote.append(COMPLAINT_TYPE_CHANGED_TO).append(previousComplaintType);
-                eventType = COMPLAINT_TYPE_UPDATED;
-            } else {
-                complaintTypeNote.append(COMPLAINT_TYPE).append(currentComplaintType);
-                eventType = COMPLAINT_TYPE_CREATED;
-            }
-            data = objectMapper.writeValueAsString(complaintTypeNote);
+            data = objectMapper.writeValueAsString(businessEvent);
         } catch (JsonProcessingException e) {
             logFailedToParseDataPayload(e);
         }
-        sendAuditMessage(localDateTime, caseUUID, data, eventType, stageUUID, requestData.correlationId(),
-                requestData.userId(), requestData.username(), requestData.groups());
+
+        sendAuditMessage(localDateTime, caseUuid, data, EventType.BUSINESS_EVENT, stageUuid,
+            requestData.correlationId(), requestData.userId());
     }
 
     private void logFailedToParseDataPayload(JsonProcessingException e) {
@@ -82,13 +72,13 @@ public class AuditClient {
     }
 
     private void sendAuditMessage(LocalDateTime localDateTime, UUID caseUUID, String payload, EventType eventType,
-                                  UUID stageUUID, String correlationId, String userId, String username, String groups) {
+                                  UUID stageUUID, String correlationId, String userId) {
         sendAuditMessage(localDateTime, caseUUID, payload, eventType, stageUUID, "{}",
-                correlationId, userId, username, groups);
+                correlationId, userId);
     }
+
     private void sendAuditMessage(LocalDateTime localDateTime, UUID caseUUID, String payload, EventType eventType,
-                                  UUID stageUUID, String data, String correlationId, String userId,
-                                  String username, String groups) {
+                                  UUID stageUUID, String data, String correlationId, String userId) {
         CreateAuditRequest request = new CreateAuditRequest(
                 correlationId,
                 caseUUID,

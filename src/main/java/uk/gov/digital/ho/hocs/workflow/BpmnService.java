@@ -36,7 +36,7 @@ import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.PREVIOUS_COM
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 
 
-@Service
+@Service(value = "bpmnService")
 @Slf4j
 public class BpmnService {
 
@@ -613,19 +613,4 @@ public class BpmnService {
         private final StageTypeDto stageTypeDto;
     }
 
-    public void createComplaintType(String caseUUIDString, String stageUUIDString, String currentComplaintType){
-        log.info("Create complaint Type called to submit event to SNS topic");
-        log.info("Current Complaint Type =============> {}", currentComplaintType);
-
-        UUID caseUUID = UUID.fromString(caseUUIDString);
-        UUID stageUUID= UUID.fromString(stageUUIDString);
-        GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUUID);
-        String previousComplaintType = caseData.getData().get(PREVIOUS_COMPLAINT_TYPE);
-        log.info("Previous Complaint Type =============> {}", previousComplaintType);
-
-        auditClient.createCaseComplaintType(caseUUID, stageUUID, currentComplaintType, previousComplaintType);
-        updateCaseValue(caseUUIDString, stageUUIDString, PREVIOUS_COMPLAINT_TYPE, currentComplaintType);
-
-        log.info("Complaint Type successfully created/updated in SNS topic");
-    }
 }
