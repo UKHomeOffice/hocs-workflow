@@ -89,18 +89,13 @@ public class IEDET_TRIAGE {
         when(processScenario.waitsAtUserTask("Screen_Assign")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAssign", "CCH")));
 
-        when(processScenario.waitsAtUserTask("Screen_OfflineTransfer")).thenReturn(
-            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
-            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
-            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
-
         Scenario.run(processScenario).startByKey("IEDET_TRIAGE").execute();
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintType");
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintCategory");
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintDetails_NotSerious");
-        verify(processScenario, times(2)).hasCompleted("Screen_Assign");
+        verify(processScenario, times(1)).hasCompleted("Screen_Assign");
         verify(processScenario, times(1)).hasCompleted("Service_CreateTransferCaseNote");
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
