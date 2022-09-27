@@ -12,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
@@ -45,6 +46,8 @@ public class BpmnServiceTest {
     @Mock
     private WorkflowService workflowService;
 
+    @Mock
+    private AuditClient auditClient;
     private BpmnService bpmnService;
 
     private final UUID caseUUID = UUID.randomUUID();
@@ -54,7 +57,7 @@ public class BpmnServiceTest {
 
     @Before
     public void setup() {
-        bpmnService = new BpmnService(caseworkClient, camundaClient, infoClient, clock, workflowService);
+        bpmnService = new BpmnService(caseworkClient, camundaClient, infoClient, clock, workflowService, auditClient);
     }
 
     @Test
@@ -851,5 +854,77 @@ public class BpmnServiceTest {
 
         // THEN -- Exception Test
 
+    }
+
+    @Test
+    public void testShouldCreateCompliantType(){
+        Map<String, String> data = new HashMap<>();
+        String previousComplaintType = null;
+        data.put("previousComplaintType", previousComplaintType);
+        String complaintType = "Service";
+
+        GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
+                caseUUID, null, null, null,
+                data, null, null, null, null,
+                null, null, false);
+
+        when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
+        when(auditClient.createCaseComplaintType(caseUUID, stageUUID, complaintType, null)).thenReturn(previousComplaintType);
+        String updatedComplaintType = bpmnService.createComplaintType(caseUUID.toString(), stageUUID.toString(), complaintType);
+        assertThat(complaintType.equalsIgnoreCase(updatedComplaintType));
+    }
+
+    @Test
+    public void testShouldUpdateCompliantTypeToService(){
+        Map<String, String> data = new HashMap<>();
+        String previousComplaintType = "MinorMisconduct";
+        data.put("previousComplaintType", previousComplaintType);
+        String complaintType = "Service";
+
+        GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
+                caseUUID, null, null, null,
+                data, null, null, null, null,
+                null, null, false);
+
+        when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
+        when(auditClient.createCaseComplaintType(caseUUID, stageUUID, complaintType, previousComplaintType)).thenReturn(complaintType);
+        String updatedComplaintType = bpmnService.createComplaintType(caseUUID.toString(), stageUUID.toString(), complaintType);
+        assertThat(complaintType.equalsIgnoreCase(updatedComplaintType));
+    }
+
+    @Test
+    public void testShouldUpdateCompliantTypeToMinorMisconduct(){
+        Map<String, String> data = new HashMap<>();
+        String previousComplaintType = "Service";
+        data.put("previousComplaintType", previousComplaintType);
+        String complaintType = "MinorMisconduct";
+
+        GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
+                caseUUID, null, null, null,
+                data, null, null, null, null,
+                null, null, false);
+
+        when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
+        when(auditClient.createCaseComplaintType(caseUUID, stageUUID, complaintType, previousComplaintType)).thenReturn(complaintType);
+        String updatedComplaintType = bpmnService.createComplaintType(caseUUID.toString(), stageUUID.toString(), complaintType);
+        assertThat(complaintType.equalsIgnoreCase(updatedComplaintType));
+    }
+
+    @Test
+    public void testShouldUpdateCompliantTypeToSeriousMisconduct(){
+        Map<String, String> data = new HashMap<>();
+        String previousComplaintType = "Service";
+        data.put("previousComplaintType", previousComplaintType);
+        String complaintType = "SeriousMisconduct";
+
+        GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
+                caseUUID, null, null, null,
+                data, null, null, null, null,
+                null, null, false);
+
+        when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
+        when(auditClient.createCaseComplaintType(caseUUID, stageUUID, complaintType, previousComplaintType)).thenReturn(complaintType);
+        String updatedComplaintType = bpmnService.createComplaintType(caseUUID.toString(), stageUUID.toString(), complaintType);
+        assertThat(complaintType.equalsIgnoreCase(updatedComplaintType));
     }
 }

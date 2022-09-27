@@ -53,7 +53,7 @@ public class AuditClient {
         this.requestData = requestData;
     }
 
-    public void createCaseComplaintType(UUID caseUUID, UUID stageUUID, String currentComplaintType, String previousComplaintType) {
+    public String createCaseComplaintType(UUID caseUUID, UUID stageUUID, String currentComplaintType, String previousComplaintType) {
         log.info("Audit Client gets called");
         LocalDateTime localDateTime = LocalDateTime.now();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -74,6 +74,8 @@ public class AuditClient {
         }
         sendAuditMessage(localDateTime, caseUUID, data, eventType, stageUUID, requestData.correlationId(),
                 requestData.userId(), requestData.username(), requestData.groups());
+
+        return data.toString();
     }
 
     private void logFailedToParseDataPayload(JsonProcessingException e) {
