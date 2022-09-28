@@ -741,20 +741,20 @@ public class BpmnServiceTest {
     }
 
     @Test
-    public void shouldCreateClosureNote() {
+    public void shouldCreateExtendedCaseNote() {
 
         UUID testCaseId = UUID.randomUUID();
-        String testClosureReason = "Third Party Rejection";
+        String testNoteExtension = "Third Party Rejection";
         String testCaseNote = "Case note for closing a case.";
         ArgumentCaptor<String> valueCapture = ArgumentCaptor.forClass(String.class);
 
-        when(caseworkClient.createCaseNote(testCaseId, "CLOSE_CASE_TELEPHONE", testClosureReason + " - " + testCaseNote)).thenReturn(testCaseId);
+        when(caseworkClient.createCaseNote(testCaseId, "CLOSE_CASE_TELEPHONE", testNoteExtension + " - " + testCaseNote)).thenReturn(testCaseId);
 
-        bpmnService.createClosureNote(testCaseId.toString(), testClosureReason, testCaseNote, "CLOSE_CASE_TELEPHONE");
+        bpmnService.createExtendedCaseNote(testCaseId.toString(), testNoteExtension, testCaseNote, "CLOSE_CASE_TELEPHONE");
 
-        verify(caseworkClient, times(1)).createCaseNote(testCaseId, "CLOSE_CASE_TELEPHONE", testClosureReason + " - " + testCaseNote);
+        verify(caseworkClient, times(1)).createCaseNote(testCaseId, "CLOSE_CASE_TELEPHONE", testNoteExtension + " - " + testCaseNote);
         verify(caseworkClient).createCaseNote(eq(testCaseId), eq("CLOSE_CASE_TELEPHONE"), valueCapture.capture());
-        assertThat(valueCapture.getValue()).isEqualTo(testClosureReason + " - " + testCaseNote);
+        assertThat(valueCapture.getValue()).isEqualTo(testNoteExtension + " - " + testCaseNote);
         verifyNoMoreInteractions(caseworkClient, infoClient, camundaClient);
     }
 

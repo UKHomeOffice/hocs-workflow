@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = { "processes/POGR/SHARED/POGR_CLOSE_CASE.bpmn" })
@@ -56,7 +55,7 @@ public class POGR_CLOSE_CASE {
 
         verify(processScenario).hasCompleted("Screen_CloseCase");
 
-        verify(bpmnService).createClosureNote(any(), eq("Third Party Rejection"), eq("Test"), eq("CLOSE"));
+        verify(bpmnService).createExtendedCaseNote(any(), eq("Third Party Rejection"), eq("Test"), eq("CLOSE"));
     }
 
     @Test
@@ -82,7 +81,7 @@ public class POGR_CLOSE_CASE {
 
         verify(processScenario, times(2)).hasCompleted("Screen_CloseCase");
 
-        verify(bpmnService).createClosureNote(any(), eq("Third Party Rejection"), eq("Test"), eq("CLOSE"));
+        verify(bpmnService).createExtendedCaseNote(any(), eq("Third Party Rejection"), eq("Test"), eq("CLOSE"));
     }
 
 }

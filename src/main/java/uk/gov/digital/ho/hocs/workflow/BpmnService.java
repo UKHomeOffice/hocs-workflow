@@ -533,9 +533,9 @@ public class BpmnService {
         log.info("Adding new Case note to Case: {}", caseUUIDString);
     }
 
-    public void createClosureNote(String caseUUIDString, String closureReason, String caseNote, String caseNoteType) {
+    public void createExtendedCaseNote(String caseUUIDString, String noteExtension, String caseNote, String caseNoteType) {
         log.debug("######## Create Case Note ########");
-        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), caseNoteType, closureReason + " - " + caseNote);
+        caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), caseNoteType, noteExtension + " - " + caseNote);
         log.info("Adding new Case note to Case: {}", caseUUIDString);
     }
 
