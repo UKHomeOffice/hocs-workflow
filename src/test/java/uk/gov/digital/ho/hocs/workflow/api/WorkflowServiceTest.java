@@ -1,25 +1,40 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.digital.ho.hocs.workflow.api.dto.*;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.DocumentSummary;
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDtoBuilder;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseDetailsResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SecondaryActionDto;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponseBuilder;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStageResponseDto;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStagesResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
@@ -41,7 +56,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowServiceTest {
@@ -109,7 +136,7 @@ public class WorkflowServiceTest {
     private final Object schemaDtoProps = new Object();
 
     private FieldDto childField = new FieldDto(UUID.randomUUID(), "test", "test", "test", fieldValidation,
-        new HashMap<>(), false, false, null);
+        new HashMap<>(), false, null);
 
     private final UUID oldTeam = UUID.fromString("141a19e7-4cee-40d7-b078-50fc43846ca3");
 
@@ -821,7 +848,7 @@ public class WorkflowServiceTest {
 
     private SchemaDto exampleSchemaDto() {
         FieldDto fieldDto = new FieldDto(UUID.randomUUID(), fieldName, fieldLabel, fieldComponent, fieldValidation,
-            new HashMap<>(), false, false, childField);
+            new HashMap<>(), false, childField);
         List<FieldDto> fields = new ArrayList<>();
         fields.add(fieldDto);
         SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), secondaryActionName,
@@ -836,7 +863,7 @@ public class WorkflowServiceTest {
 
         Map<String, Object> props = Map.of("entity", "document");
         List<FieldDto> fieldDtos = List.of(
-            new FieldDto(null, testFieldName, null, "entity-list", null, props, true, true, null));
+            new FieldDto(null, testFieldName, null, "entity-list", null, props, true, null));
         SchemaDto schemaDto = new SchemaDto(UUID.randomUUID(), null, null, null, null, true, fieldDtos, null, null,
             null, null);
         return List.of(schemaDto);
