@@ -17,8 +17,6 @@ public final class FieldDtoBuilder {
 
     private Map<String, Object> props;
 
-    private boolean summary;
-
     private boolean active;
 
     private FieldDto child;
@@ -60,11 +58,6 @@ public final class FieldDtoBuilder {
         return this;
     }
 
-    public FieldDtoBuilder withSummary(boolean summary) {
-        this.summary = summary;
-        return this;
-    }
-
     public FieldDtoBuilder withActive(boolean active) {
         this.active = active;
         return this;
@@ -76,7 +69,7 @@ public final class FieldDtoBuilder {
     }
 
     public FieldDto build() {
-        return new FieldDto(uuid, name, label, component, validation, props, summary, active, child);
+        return new FieldDto(uuid, name, label, component, validation, props, active, child);
     }
 
 }

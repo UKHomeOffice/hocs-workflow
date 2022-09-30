@@ -67,7 +67,7 @@ public class FormServiceTest {
 
     private SchemaDto exampleSchemaDto() {
         FieldDto fieldDto = new FieldDto(UUID.randomUUID(), "TestField", "TestLabel", "text", new Object[0],
-            new HashMap<>(), false, false, null);
+            new HashMap<>(), false, null);
         List<FieldDto> fields = List.of(fieldDto);
 
         SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), "TestSecondaryAction",

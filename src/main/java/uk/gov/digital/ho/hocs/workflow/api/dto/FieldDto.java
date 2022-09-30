@@ -32,9 +32,6 @@ public class FieldDto {
     @JsonProperty("props")
     private Map<String, Object> props;
 
-    @JsonProperty("summary")
-    private boolean summary;
-
     @JsonProperty("active")
     private boolean active;
 
