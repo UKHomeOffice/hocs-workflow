@@ -26,4 +26,14 @@ public class HocsFormSecondaryAction {
             props);
     }
 
+    public static HocsFormSecondaryAction from(SecondaryAction secondaryAction) {
+        Map<String, Object> props = secondaryAction.getProps();
+
+        props.put("label", secondaryAction.getLabel());
+        props.put("name", secondaryAction.getName());
+
+        return new HocsFormSecondaryAction(secondaryAction.getComponent(), secondaryAction.getValidation(),
+            props);
+    }
+
 }

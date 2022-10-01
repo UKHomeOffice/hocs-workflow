@@ -5,12 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.SecondaryActionDto;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.ScreenRepository;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Field;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Schema;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.SecondaryAction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +28,13 @@ public class FormServiceTest {
     private CaseworkClient caseworkClient;
 
     @Mock
-    private InfoClient infoClient;
+    private ScreenRepository screenRepository;
 
     private FormService formService;
 
     @Before
     public void beforeTest() {
-        formService = new FormService(caseworkClient, infoClient);
+        formService = new FormService(caseworkClient, screenRepository);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class FormServiceTest {
         var getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUuid, null, null, "TEST/0000000/00",
             Map.of("Test", "Yes"), null, null, null, null, null, null, null);
         when(caseworkClient.getCase(caseUuid)).thenReturn(getCaseworkCaseDataResponse);
-        when(infoClient.getSchema(screenName)).thenReturn(exampleSchemaDto());
+        when(screenRepository.getSchema(screenName)).thenReturn(exampleSchemaDto());
 
         var response = formService.getFormWithCase(caseUuid, screenName);
 
@@ -65,16 +65,13 @@ public class FormServiceTest {
         assertThat(response.getForm().getData()).isSameAs(getCaseworkCaseDataResponse.getData());
     }
 
-    private SchemaDto exampleSchemaDto() {
-        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), "TestField", "TestLabel", "text", new Object[0],
-            new HashMap<>(), false, null);
-        List<FieldDto> fields = List.of(fieldDto);
+    private Schema exampleSchemaDto() {
+        List<Field> fields = List.of(new Field("TestField", "TestLabel", "text", new Object[0],
+            new HashMap<>(), null));
+        List<SecondaryAction> secondaryActions = List.of(new SecondaryAction("TestSecondaryAction",
+            "TestSecondaryLabel", "button", new String[0], new HashMap<>()));
 
-        SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), "TestSecondaryAction",
-            "TestSecondaryLabel", "button", new String[0], new HashMap<>());
-        List<SecondaryActionDto> secondaryActions = List.of(secondaryActionDto);
-
-        return new SchemaDto(UUID.randomUUID(), "STAGE", "SCHEMA_TYPE", "Test Schema Title", "Continue", true, fields,
+        return new Schema("Test Schema Title", "Continue", fields,
             secondaryActions, new Object(), new Object(), new ArrayList<>());
     }
 
