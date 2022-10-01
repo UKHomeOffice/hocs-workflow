@@ -64,13 +64,6 @@ public class InfoClient {
         return response;
     }
 
-    @Cacheable(value = "InfoClientGetSchema", unless = "#result == null", key = "#type")
-    public SchemaDto getSchema(String type) {
-        SchemaDto response = restHelper.get(serviceBaseURL, String.format("/schema/%s", type), SchemaDto.class);
-        log.info("Got Form {}", type, value(EVENT, INFO_CLIENT_GET_FORM_SUCCESS));
-        return response;
-    }
-
     @Cacheable(value = "InfoClientGetTeams", unless = "#result.size() == 0")
     public Set<TeamDto> getTeams() {
         Set<TeamDto> teams = restHelper.get(serviceBaseURL, "/team", new ParameterizedTypeReference<Set<TeamDto>>() {});
