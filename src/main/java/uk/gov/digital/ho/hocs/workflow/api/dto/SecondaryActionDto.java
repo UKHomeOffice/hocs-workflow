@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 import java.util.UUID;
 
-@NoArgsConstructor()
-@AllArgsConstructor()
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
+@Deprecated(forRemoval = true)
 public class SecondaryActionDto {
 
     @JsonProperty("uuid")

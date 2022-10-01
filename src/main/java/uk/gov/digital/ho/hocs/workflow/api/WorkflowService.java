@@ -115,6 +115,7 @@ public class WorkflowService {
         this.screenRepository = screenRepository;
     }
 
+    @Deprecated(forRemoval = true)
     private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
         List<HocsFormField> fields = new ArrayList<>();
         Set<String> uniqueFieldNames = new HashSet<>();
@@ -366,6 +367,7 @@ public class WorkflowService {
         return dataMap;
     }
 
+    @Deprecated(forRemoval = true)
     private String fetchDocumentName(UUID documentUUID) {
 
         try {
