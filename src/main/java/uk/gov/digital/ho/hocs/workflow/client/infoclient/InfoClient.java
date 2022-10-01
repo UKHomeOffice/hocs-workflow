@@ -112,14 +112,6 @@ public class InfoClient {
         return userDto;
     }
 
-    @Cacheable(value = "InfoClientGetUserForTeam", unless = "#result == null", key = "{ #teamUUID, #userUUID}")
-    public UserDto getUserForTeam(UUID teamUUID, UUID userUUID) {
-        UserDto userDto = restHelper.get(serviceBaseURL, String.format("/teams/%s/member/%s", teamUUID, userUUID),
-            UserDto.class);
-        log.info("Got User for Team {} for User {}", teamUUID, userUUID, value(EVENT, INFO_CLIENT_GET_USER_SUCESS));
-        return userDto;
-    }
-
     @Cacheable(value = "InfoClientGetUnitForTeam", unless = "#result == null", key = "{ #teamUUID }")
     public UnitDto getUnitForTeam(UUID teamUUID) {
         UnitDto unitDto = restHelper.get(serviceBaseURL, String.format("/unit/team/%s", teamUUID), UnitDto.class);
