@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.api.dto;
 import java.util.Map;
 import java.util.UUID;
 
+@Deprecated(forRemoval = true)
 public final class FieldDtoBuilder {
 
     private UUID uuid;

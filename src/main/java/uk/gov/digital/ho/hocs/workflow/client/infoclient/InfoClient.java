@@ -1,27 +1,35 @@
 package uk.gov.digital.ho.hocs.workflow.client.infoclient;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
-
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CaseDataType;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UnitDto;
+import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_CASE_DETAILS_FIELDS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_CASE_TYPE_SHORT_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_SCHEMAS_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_TEAMS_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_TEAM_FOR_STAGE_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_TEAM_FOR_TOPIC_STAGE_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_TEAM_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_UNIT_FOR_TEAM_SUCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.INFO_CLIENT_GET_USER_SUCESS;
 
 @Slf4j
 @Component
@@ -105,6 +113,7 @@ public class InfoClient {
         return response;
     }
 
+    @Deprecated(forRemoval = true)
     @Cacheable(value = "InfoClientGetUser", unless = "#result == null", key = "{ #userUUID}")
     public UserDto getUser(UUID userUUID) {
         UserDto userDto = restHelper.get(serviceBaseURL, String.format("/user/%s", userUUID), UserDto.class);

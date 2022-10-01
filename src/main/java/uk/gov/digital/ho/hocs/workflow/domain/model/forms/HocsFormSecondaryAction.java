@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SecondaryActionDto;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.SecondaryAction;
 
 import java.util.Map;
 
@@ -17,6 +18,7 @@ public class HocsFormSecondaryAction {
 
     private Map<String, Object> props;
 
+    @Deprecated(forRemoval = true)
     public static HocsFormSecondaryAction from(SecondaryActionDto secondaryActionDto) {
         Map<String, Object> props = secondaryActionDto.getProps();
         props.put("label", secondaryActionDto.getLabel());
@@ -32,8 +34,7 @@ public class HocsFormSecondaryAction {
         props.put("label", secondaryAction.getLabel());
         props.put("name", secondaryAction.getName());
 
-        return new HocsFormSecondaryAction(secondaryAction.getComponent(), secondaryAction.getValidation(),
-            props);
+        return new HocsFormSecondaryAction(secondaryAction.getComponent(), secondaryAction.getValidation(), props);
     }
 
 }
