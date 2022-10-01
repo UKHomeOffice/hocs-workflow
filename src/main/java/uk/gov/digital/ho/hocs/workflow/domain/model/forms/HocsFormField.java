@@ -33,6 +33,18 @@ public class HocsFormField {
         return new HocsFormField(fieldDto.getComponent(), fieldDto.getValidation(), props);
     }
 
+    public static HocsFormField from(Field field) {
+        Map<String, Object> props = field.getProps();
+        props.put("label", field.getLabel());
+        props.put("name", field.getName());
+
+        if (field.getChild() != null) {
+            props.put("child", HocsFormField.from(field.getChild()));
+        }
+
+        return new HocsFormField(field.getComponent(), field.getValidation(), props);
+    }
+
     public static HocsFormField from(CaseDetailsFieldDto caseDetailsFieldDto) {
         Map<String, Object> props = caseDetailsFieldDto.getProps();
         props.put("name", caseDetailsFieldDto.getName());
