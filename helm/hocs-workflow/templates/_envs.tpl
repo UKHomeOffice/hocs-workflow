@@ -1,14 +1,14 @@
 {{- define "deployment.envs" }}
 - name: JAVA_OPTS
-  value: '{{ tpl .Values.app.javaOpts . }}'
+  value: '{{ tpl .Values.env.app.javaOpts . }}'
 - name: SERVER_PORT
   value: '{{ include "hocs-app.port" . }}'
 - name: HOCS_CASE_SERVICE
-  value: '{{ tpl .Values.app.caseService . }}'
+  value: '{{ tpl .Values.env.app.caseService . }}'
 - name: HOCS_INFO_SERVICE
-  value: '{{ tpl .Values.app.infoService . }}'
+  value: '{{ tpl .Values.env.app.infoService . }}'
 - name: HOCS_DOCUMENT_SERVICE
-  value: '{{ tpl .Values.app.docsService . }}'
+  value: '{{ tpl .Values.env.app.docsService . }}'
 - name: HOCS_BASICAUTH
   valueFrom:
     secretKeyRef:
