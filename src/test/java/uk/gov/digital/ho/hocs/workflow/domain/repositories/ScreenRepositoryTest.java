@@ -40,4 +40,11 @@ public class ScreenRepositoryTest {
         assertThat(screen.getSummary()).isNotNull();
     }
 
+    @Test
+    public void shouldTrimScreenNameWhitespace() {
+        var screen = screenRepository.getSchema(" TEST_SCREEN ");
+
+        assertThat(screen.getTitle()).isEqualTo("Test Screen Title");
+    }
+
 }
