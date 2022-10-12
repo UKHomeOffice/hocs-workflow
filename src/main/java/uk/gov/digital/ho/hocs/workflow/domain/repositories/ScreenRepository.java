@@ -20,7 +20,7 @@ public class ScreenRepository {
     }
 
     public Schema getSchema(String screenName) {
-        return readScreenFromFile(screenName);
+        return readScreenFromFile(screenName.trim());
     }
 
     private Schema readScreenFromFile(String screenName) {
