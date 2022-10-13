@@ -53,7 +53,7 @@ public class IEDET_PSU_REGISTRATION {
                 .thenReturn(TaskDelegate::complete);
 
         Scenario.run(processScenario)
-                .startByKey("PSU_REGISTRATION")
+                .startByKey("IEDET_PSU_REGISTRATION")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
