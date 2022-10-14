@@ -1,4 +1,4 @@
-package uk.gov.digital.ho.hocs.workflow.processes.psu;
+package uk.gov.digital.ho.hocs.workflow.processes.iedet;
 
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
@@ -26,8 +26,8 @@ import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenA
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
-        "processes/PSU/PSU_REGISTRATION.bpmn"})
-public class PSU_REGISTRATION {
+        "processes/IEDET/IEDET_PSU_REGISTRATION.bpmn"})
+public class IEDET_PSU_REGISTRATION {
 
     @Rule
     @ClassRule
@@ -53,7 +53,7 @@ public class PSU_REGISTRATION {
                 .thenReturn(TaskDelegate::complete);
 
         Scenario.run(processScenario)
-                .startByKey("PSU_REGISTRATION")
+                .startByKey("IEDET_PSU_REGISTRATION")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
