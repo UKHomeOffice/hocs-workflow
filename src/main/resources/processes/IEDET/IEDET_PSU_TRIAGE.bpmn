@@ -5,59 +5,98 @@
       <bpmn:outgoing>Flow_18d0rzg</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="EndEvent_Triage">
-      <bpmn:incoming>Flow_13cll2t</bpmn:incoming>
+      <bpmn:incoming>Flow_1njxgww</bpmn:incoming>
+      <bpmn:incoming>Flow_13xu4ud</bpmn:incoming>
+      <bpmn:incoming>Flow_1cqxcqy</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_18d0rzg" sourceRef="StartEvent_Triage" targetRef="Activity_0k2e8v7" />
-    <bpmn:userTask id="Activity_0k2e8v7" name="Complaint Type" camunda:formKey="PSU_TRAIGE_COMPLAINT.json">
+    <bpmn:sequenceFlow id="Flow_18d0rzg" sourceRef="StartEvent_Triage" targetRef="PSUComplaints" />
+    <bpmn:userTask id="PSUComplaints" name="Complaint Type" camunda:formKey="PSU_TRAIGE_COMPLAINT">
       <bpmn:incoming>Flow_18d0rzg</bpmn:incoming>
       <bpmn:outgoing>Flow_12yecwj</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_12yecwj" sourceRef="Activity_0k2e8v7" targetRef="Gateway_0i64fzc" />
-    <bpmn:userTask id="Activity_1xcteln" name="Complaint Category" camunda:formKey="IEDET_TRIAGE_CATEGORY">
-      <bpmn:incoming>Flow_07ivwi3</bpmn:incoming>
-      <bpmn:outgoing>Flow_13cll2t</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_13cll2t" sourceRef="Activity_1xcteln" targetRef="EndEvent_Triage" />
-    <bpmn:exclusiveGateway id="Gateway_0i64fzc">
+    <bpmn:sequenceFlow id="Flow_12yecwj" sourceRef="PSUComplaints" targetRef="Gateway_0khr7oc" />
+    <bpmn:exclusiveGateway id="Gateway_0khr7oc">
       <bpmn:incoming>Flow_12yecwj</bpmn:incoming>
-      <bpmn:outgoing>Flow_07ivwi3</bpmn:outgoing>
+      <bpmn:outgoing>Flow_13xu4ud</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1iufr74</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0rvtbmq</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_07ivwi3" sourceRef="Gateway_0i64fzc" targetRef="Activity_1xcteln">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" }</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_13xu4ud" sourceRef="Gateway_0khr7oc" targetRef="EndEvent_Triage">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD" &amp;&amp; execution.hasVariable("Yes") }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_1isirtd" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
+      <bpmn:incoming>Flow_1iufr74</bpmn:incoming>
+      <bpmn:outgoing>Flow_1njxgww</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1iufr74" name="Send Case to Team not DECS" sourceRef="Gateway_0khr7oc" targetRef="Activity_1isirtd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "FORWARD" &amp;&amp; execution.hasVariable("SendToTeamoNotDECS") }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1njxgww" sourceRef="Activity_1isirtd" targetRef="EndEvent_Triage" />
+    <bpmn:serviceTask id="Activity_0u0ag14" name="Back to IEDetention" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
+      <bpmn:incoming>Flow_0rvtbmq</bpmn:incoming>
+      <bpmn:outgoing>Flow_1cqxcqy</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0rvtbmq" sourceRef="Gateway_0khr7oc" targetRef="Activity_0u0ag14">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD" &amp;&amp; execution.hasVariable("SendToIEDetention") }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1cqxcqy" sourceRef="Activity_0u0ag14" targetRef="EndEvent_Triage" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET_PSU_TRIAGE">
-      <bpmndi:BPMNEdge id="Flow_18d0rzg_di" bpmnElement="Flow_18d0rzg">
-        <di:waypoint x="215" y="97" />
-        <di:waypoint x="280" y="97" />
+      <bpmndi:BPMNEdge id="Flow_1cqxcqy_di" bpmnElement="Flow_1cqxcqy">
+        <di:waypoint x="660" y="360" />
+        <di:waypoint x="750" y="360" />
+        <di:waypoint x="750" y="97" />
+        <di:waypoint x="782" y="97" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rvtbmq_di" bpmnElement="Flow_0rvtbmq">
+        <di:waypoint x="490" y="122" />
+        <di:waypoint x="490" y="360" />
+        <di:waypoint x="560" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1njxgww_di" bpmnElement="Flow_1njxgww">
+        <di:waypoint x="660" y="230" />
+        <di:waypoint x="716" y="230" />
+        <di:waypoint x="716" y="97" />
+        <di:waypoint x="782" y="97" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1iufr74_di" bpmnElement="Flow_1iufr74">
+        <di:waypoint x="490" y="122" />
+        <di:waypoint x="490" y="230" />
+        <di:waypoint x="560" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="570" y="146" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13xu4ud_di" bpmnElement="Flow_13xu4ud">
+        <di:waypoint x="515" y="97" />
+        <di:waypoint x="782" y="97" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12yecwj_di" bpmnElement="Flow_12yecwj">
         <di:waypoint x="380" y="97" />
-        <di:waypoint x="445" y="97" />
+        <di:waypoint x="465" y="97" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_13cll2t_di" bpmnElement="Flow_13cll2t">
-        <di:waypoint x="660" y="97" />
-        <di:waypoint x="692" y="97" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_07ivwi3_di" bpmnElement="Flow_07ivwi3">
-        <di:waypoint x="495" y="97" />
-        <di:waypoint x="560" y="97" />
+      <bpmndi:BPMNEdge id="Flow_18d0rzg_di" bpmnElement="Flow_18d0rzg">
+        <di:waypoint x="215" y="97" />
+        <di:waypoint x="280" y="97" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Triage">
         <dc:Bounds x="179" y="79" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0s49pcm_di" bpmnElement="EndEvent_Triage">
-        <dc:Bounds x="692" y="79" width="36" height="36" />
+        <dc:Bounds x="782" y="79" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0k2e8v7_di" bpmnElement="Activity_0k2e8v7">
+      <bpmndi:BPMNShape id="Activity_0k2e8v7_di" bpmnElement="PSUComplaints">
         <dc:Bounds x="280" y="57" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1xcteln_di" bpmnElement="Activity_1xcteln">
-        <dc:Bounds x="560" y="57" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_0khr7oc_di" bpmnElement="Gateway_0khr7oc" isMarkerVisible="true">
+        <dc:Bounds x="465" y="72" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0i64fzc_di" bpmnElement="Gateway_0i64fzc" isMarkerVisible="true">
-        <dc:Bounds x="445" y="72" width="50" height="50" />
+      <bpmndi:BPMNShape id="Activity_1isirtd_di" bpmnElement="Activity_1isirtd">
+        <dc:Bounds x="560" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0u0ag14_di" bpmnElement="Activity_0u0ag14">
+        <dc:Bounds x="560" y="320" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
