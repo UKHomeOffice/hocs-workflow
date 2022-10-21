@@ -3,10 +3,10 @@ package uk.gov.digital.ho.hocs.workflow.processes.iedet;
 import org.camunda.bpm.engine.test.Deployment;
 import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
-import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
-import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -17,7 +17,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = "processes/IEDET/IEDET_TRIAGE.bpmn")
@@ -69,7 +71,7 @@ public class IEDET_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
         verify(processScenario, times(3)).hasCompleted("Screen_ComplaintType");
-        verify(processScenario, times(5)).hasCompleted("Screen_ComplaintCategory");
+        verify(processScenario, times(4)).hasCompleted("Screen_ComplaintCategory");
         verify(processScenario, times(4)).hasCompleted("Screen_ComplaintDetails_NotSerious");
         verify(processScenario, times(3)).hasCompleted("Screen_Assign");
         verify(processScenario).hasCompleted("EndEvent_Triage");
@@ -86,17 +88,18 @@ public class IEDET_TRIAGE {
         when(processScenario.waitsAtUserTask("Screen_ComplaintDetails_NotSerious"))
                 .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
-        when(processScenario.waitsAtUserTask("Screen_Assign")).thenReturn(
-            task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAssign", "CCH")));
+        when(processScenario.waitsAtUserTask("Screen_Assign"))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "TriageAssign", "CCH")));
 
         Scenario.run(processScenario).startByKey("IEDET_TRIAGE").execute();
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintType");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintCategory");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintDetails_NotSerious");
-        verify(processScenario, times(1)).hasCompleted("Screen_Assign");
-        verify(processScenario, times(1)).hasCompleted("Service_CreateTransferCaseNote");
+        verify(processScenario).hasCompleted("Screen_ComplaintType");
+        verify(processScenario).hasCompleted("Screen_ComplaintCategory");
+        verify(processScenario, times(2)).hasCompleted("Screen_ComplaintDetails_NotSerious");
+        verify(processScenario, times(2)).hasCompleted("Screen_Assign");
+        verify(processScenario).hasCompleted("Service_CreateTransferCaseNote");
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
 
@@ -118,7 +121,7 @@ public class IEDET_TRIAGE {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintType");
+        verify(processScenario).hasCompleted("Screen_ComplaintType");
         verify(processScenario, times(2)).hasCompleted("Screen_ComplaintCategory");
         verify(processScenario, times(3)).hasCompleted("Screen_ComplaintDetails_Serious");
         verify(processScenario).hasCompleted("EndEvent_Triage");
