@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
   <bpmn:process id="IEDET" isExecutable="true">
     <bpmn:startEvent id="StartEvent_IEDET">
       <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
@@ -49,6 +49,7 @@
         <camunda:in source="DateReceived" target="DateReceived" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_15z7c6l</bpmn:incoming>
+      <bpmn:incoming>Flow_1n94ml6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0qgx3mz</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0j0zx2i" default="Flow_0opl4mu">
@@ -98,7 +99,7 @@
     <bpmn:serviceTask id="ServiceTask_CompleteCase" name="Complete Case" camunda:expression="${bpmnService.completeCase(execution.processBusinessKey)}">
       <bpmn:incoming>Flow_1mlwgjt</bpmn:incoming>
       <bpmn:incoming>Flow_0li8ecg</bpmn:incoming>
-      <bpmn:incoming>Flow_1r9dyvr</bpmn:incoming>
+      <bpmn:incoming>Flow_01ekw72</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1y94fvq</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="SequenceFlow_1y94fvq" sourceRef="ServiceTask_CompleteCase" targetRef="EndEvent_IEDET" />
@@ -111,7 +112,7 @@
     <bpmn:sequenceFlow id="Flow_0maupo4" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="CallActivity_PSU_COMPLAINT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "SeriousMisconduct"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1r9dyvr" sourceRef="CallActivity_PSU_COMPLAINT" targetRef="ServiceTask_CompleteCase" />
+    <bpmn:sequenceFlow id="Flow_1r9dyvr" sourceRef="CallActivity_PSU_COMPLAINT" targetRef="Gateway_0xrdxea" />
     <bpmn:callActivity id="CallActivity_PSU_COMPLAINT" name="PSU Complaint" calledElement="PSU_COMPLAINT">
       <bpmn:extensionElements>
         <camunda:in businessKey="#{execution.processBusinessKey}" />
@@ -123,13 +124,21 @@
       <bpmn:incoming>Flow_0maupo4</bpmn:incoming>
       <bpmn:outgoing>Flow_1r9dyvr</bpmn:outgoing>
     </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_0xrdxea" default="Flow_01ekw72">
+      <bpmn:incoming>Flow_1r9dyvr</bpmn:incoming>
+      <bpmn:outgoing>Flow_01ekw72</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1n94ml6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_01ekw72" sourceRef="Gateway_0xrdxea" targetRef="ServiceTask_CompleteCase" />
+    <bpmn:sequenceFlow id="Flow_1n94ml6" sourceRef="Gateway_0xrdxea" targetRef="CallActivity_IEDET_TRIAGE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ ReturnCase }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET">
       <bpmndi:BPMNEdge id="Flow_1r9dyvr_di" bpmnElement="Flow_1r9dyvr">
         <di:waypoint x="700" y="310" />
-        <di:waypoint x="950" y="310" />
-        <di:waypoint x="950" y="229" />
+        <di:waypoint x="805" y="310" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0maupo4_di" bpmnElement="Flow_0maupo4">
         <di:waypoint x="540" y="214" />
@@ -170,6 +179,17 @@
         <di:waypoint x="188" y="189" />
         <di:waypoint x="230" y="189" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01ekw72_di" bpmnElement="Flow_01ekw72">
+        <di:waypoint x="855" y="310" />
+        <di:waypoint x="950" y="310" />
+        <di:waypoint x="950" y="229" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n94ml6_di" bpmnElement="Flow_1n94ml6">
+        <di:waypoint x="830" y="335" />
+        <di:waypoint x="830" y="430" />
+        <di:waypoint x="430" y="430" />
+        <di:waypoint x="430" y="229" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_IEDET">
         <dc:Bounds x="152" y="171" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -196,6 +216,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_13a1q4r_di" bpmnElement="CallActivity_PSU_COMPLAINT">
         <dc:Bounds x="600" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0xrdxea_di" bpmnElement="Gateway_0xrdxea" isMarkerVisible="true">
+        <dc:Bounds x="805" y="285" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
