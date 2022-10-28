@@ -49,7 +49,7 @@ public class IEDET_PSU_TRIAGE {
     @Test
     public void testHappyPath() {
         when(processScenario.waitsAtUserTask("Screen_PSUComplaints")).thenReturn(
-                task -> task.complete(withVariables("CompliantType", "Yes")));
+                task -> task.complete(withVariables("PsuTriageOutcome", "Yes")));
 
         Scenario.run(processScenario)
                 .startByKey("IEDET_PSU_TRIAGE")
@@ -65,7 +65,7 @@ public class IEDET_PSU_TRIAGE {
     public void testSetComplaintTypeAsCloseCase() {
         when(processScenario.waitsAtUserTask("Screen_PSUComplaints")).thenReturn(
             task -> task.complete(withVariables(
-                "CompliantType", "CloseCase")));
+                "PsuTriageOutcome", "CloseCase")));
 
         Scenario.run(processScenario)
             .startByKey("IEDET_PSU_TRIAGE")
@@ -80,7 +80,7 @@ public class IEDET_PSU_TRIAGE {
     public void testSetComplaintTypeAsReturnCase() {
         when(processScenario.waitsAtUserTask("Screen_PSUComplaints")).thenReturn(
             task -> task.complete(withVariables(
-                "CompliantType", "ReturnCase")));
+                "PsuTriageOutcome", "ReturnCase")));
 
         Scenario.run(processScenario)
             .startByKey("IEDET_PSU_TRIAGE")

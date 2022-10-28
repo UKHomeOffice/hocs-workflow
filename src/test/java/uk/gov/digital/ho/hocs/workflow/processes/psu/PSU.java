@@ -81,7 +81,7 @@ public class PSU {
             .deploy(rule);
 
         whenAtCallActivity("PSU_TRIAGE")
-            .thenReturn("CompliantType", "CloseCase")
+            .thenReturn("PsuTriageOutcome", "CloseCase")
             .deploy(rule);
 
         Scenario.run(processScenario)
