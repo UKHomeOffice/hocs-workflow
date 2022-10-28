@@ -77,7 +77,7 @@ public class IEDET_PSU_TRIAGE {
     }
 
     @Test
-    public void testSetComplaintTypeasReturnCase() {
+    public void testSetComplaintTypeAsReturnCase() {
         when(processScenario.waitsAtUserTask("Screen_PSUComplaints")).thenReturn(
             task -> task.complete(withVariables(
                 "CompliantType", "ReturnCase")));
@@ -88,7 +88,11 @@ public class IEDET_PSU_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
         verify(processScenario).hasCompleted("Screen_PSUComplaints");
-        verify(bpmnService).blankCaseValues(any(), any(), eq("CompCategoriesService"), eq("CompCategoriesSeriousAndMinor"), eq("CompCategoriesSerious"));
+        verify(bpmnService).blankCaseValues(any(), any(), eq("CatAdminErr"), eq("CatAvail"),
+            eq("CatDelay"), eq("CatPhysEnv"),
+            eq("CatPoorComm"), eq("CatLost"), eq("CatStolen"), eq("CatWithheld"), eq("CatProvMinor"), eq("CatWrongInfo"),
+            eq("CatHandle"), eq("CatRude"), eq("CatUnfair"), eq("CatOtherUnprof"), eq("CatDetOnDet"),
+            eq("CatTheft"), eq("CatAssault"), eq("CatSexAssault"), eq("CatFraud"), eq("CatRacism"));
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
 }
