@@ -16,7 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.withVariables;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -103,8 +105,8 @@ public class IEDET {
                 .deploy(rule);
 
         whenAtCallActivity("PSU_COMPLAINT")
-                .thenReturn("", "")
-                .deploy(rule);
+            .alwaysReturn("ReturnCase", "ReturnCase-false")
+            .deploy(rule);
 
         Scenario.run(processScenario).startByKey("IEDET").execute();
 
@@ -113,6 +115,29 @@ public class IEDET {
         verify(processScenario).hasCompleted("CallActivity_IEDET_TRIAGE");
         verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_IEDET");
+    }
+
+    @Test
+    public void testSeriousMisconductSendtoIEDetntion(){
+        whenAtCallActivity("IEDET_REGISTRATION")
+            .thenReturn("", "")
+            .deploy(rule);
+
+        whenAtCallActivity("IEDET_TRIAGE")
+            .thenReturn("CompType", "SeriousMisconduct")
+            .deploy(rule);
+
+        whenAtCallActivity("PSU_COMPLAINT")
+            .alwaysReturn("ReturnCase", "ReturnCase-true")
+            .deploy(rule);
+
+        Scenario.run(processScenario).startByKey("IEDET").execute();
+
+        verify(processScenario).hasCompleted("StartEvent_IEDET");
+        verify(processScenario).hasCompleted("CallActivity_IEDET_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_IEDET_TRIAGE");
+        verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
         verify(processScenario).hasCompleted("EndEvent_IEDET");
     }
 }
