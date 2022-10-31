@@ -1,11 +1,7 @@
 package uk.gov.digital.ho.hocs.workflow;
 
-import java.text.SimpleDateFormat;
-import java.time.Clock;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,23 +11,34 @@ import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkStageRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentsResponse;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.StageTypeDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UnitDto;
-
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.NumberUtils;
 
 import javax.validation.constraints.NotNull;
+import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.STAGE_CREATION_STARTED;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.STAGE_CREATION_SUCCESS;
 
 @Service
 @Slf4j
@@ -599,6 +606,7 @@ public class BpmnService {
 
     }
 
+    @Deprecated(forRemoval = true)
     public void unallocateUserFromStage(String caseUUIDString, String stageUUIDString) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID = UUID.fromString(stageUUIDString);
