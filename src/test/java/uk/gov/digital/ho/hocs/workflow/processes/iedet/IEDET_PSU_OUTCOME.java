@@ -48,7 +48,7 @@ public class IEDET_PSU_OUTCOME {
     @Test
     public void testHappyPath() {
         when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
-            task -> task.complete(withVariables("ComplaintOutcome", "Substantiated")));
+            task -> task.complete(withVariables("PsuComplaintOutcome", "Substantiated")));
 
         when(processScenario.waitsAtUserTask("Screen_FinalResponse")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
@@ -68,7 +68,7 @@ public class IEDET_PSU_OUTCOME {
     @Test
     public void testReturnCase() {
         when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
-            task -> task.complete(withVariables("ComplaintOutcome", "ReturnCase")));
+            task -> task.complete(withVariables("PsuComplaintOutcome", "ReturnCase")));
 
         Scenario.run(processScenario)
             .startByKey("IEDET_PSU_OUTCOME")
@@ -83,7 +83,7 @@ public class IEDET_PSU_OUTCOME {
     @Test
     public void testWithdrawCase() {
         when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
-            task -> task.complete(withVariables("ComplaintOutcome", "Withdrawn")));
+            task -> task.complete(withVariables("PsuComplaintOutcome", "Withdrawn")));
 
         Scenario.run(processScenario)
             .startByKey("IEDET_PSU_OUTCOME")
