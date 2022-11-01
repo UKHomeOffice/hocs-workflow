@@ -10,13 +10,13 @@
       <bpmn:incoming>Flow_1qmifyf</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0usdrtd" sourceRef="StartEvent_Outcome" targetRef="Screen_ComplaintOutcome" />
-    <bpmn:userTask id="Screen_ComplaintOutcome" name="Complaint Outcome" camunda:formKey="PSU_COMPLAINT_OUTCOME">
+    <bpmn:userTask id="Screen_ComplaintOutcome" name="Complaint Outcome" camunda:formKey="PSU_OUTCOME_COMPLAINT">
       <bpmn:incoming>Flow_0usdrtd</bpmn:incoming>
       <bpmn:incoming>Flow_1whegzr</bpmn:incoming>
       <bpmn:outgoing>Flow_051ylw3</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_051ylw3" sourceRef="Screen_ComplaintOutcome" targetRef="Gateway_0ob7xe9" />
-    <bpmn:userTask id="Screen_FinalResponse" name="Final Response" camunda:formKey="PSU_FINAL_RESPONSE">
+    <bpmn:userTask id="Screen_FinalResponse" name="Final Response" camunda:formKey="PSU_OUTCOME_FINAL_RESPONSE">
       <bpmn:incoming>Flow_1j14tq5</bpmn:incoming>
       <bpmn:incoming>Flow_0go88kx</bpmn:incoming>
       <bpmn:outgoing>Flow_0rpq39m</bpmn:outgoing>
@@ -30,10 +30,10 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1j14tq5" sourceRef="Gateway_0ob7xe9" targetRef="Screen_FinalResponse" />
     <bpmn:sequenceFlow id="Flow_19tcmg2" sourceRef="Gateway_0ob7xe9" targetRef="Activity_SaveWithdrawnNote">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ ComplaintOutcome == "Withdrawn" }</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ PsuComplaintOutcome == "Withdrawn" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1355gba" sourceRef="Gateway_0ob7xe9" targetRef="Activity_ReturnCase">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ ComplaintOutcome == "ReturnCase" }</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_1355gba" sourceRef="Gateway_0ob7xe9" targetRef="Activity_ResetCategories">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ PsuComplaintOutcome == "ReturnCase" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1gbbrj0" sourceRef="Activity_ReturnCase" targetRef="EndEvent_Outcome" />
     <bpmn:task id="Activity_ReturnCase" name="Return Case">
@@ -42,7 +42,7 @@
           <camunda:outputParameter name="ReturnCase">${ true }</camunda:outputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1355gba</bpmn:incoming>
+      <bpmn:incoming>Flow_0k1ual8</bpmn:incoming>
       <bpmn:outgoing>Flow_1gbbrj0</bpmn:outgoing>
     </bpmn:task>
     <bpmn:exclusiveGateway id="Gateway_07b42u1" default="Flow_0go88kx">
@@ -63,14 +63,28 @@
       <bpmn:outgoing>Flow_1qmifyf</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1qmifyf" sourceRef="Activity_SaveWithdrawnNote" targetRef="EndEvent_Outcome" />
+    <bpmn:serviceTask id="Activity_ResetCategories" name="Reset Complaint Categories" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;CatAdminErr&#34;, &#34;CatAvail&#34;, &#34;CatDelay&#34;, &#34;CatPhysEnv&#34;, &#34;CatPoorComm&#34;, &#34;CatLost&#34;, &#34;CatStolen&#34;, &#34;CatWithheld&#34;, &#34;CatProvMinor&#34;, &#34;CatWrongInfo&#34;, &#34;CatHandle&#34;, &#34;CatRude&#34;, &#34;CatUnfair&#34;, &#34;CatOtherUnprof&#34;, &#34;CatDetOnDet&#34;, &#34;CatTheft&#34;, &#34;CatAssault&#34;, &#34;CatSexAssault&#34;, &#34;CatFraud&#34;, &#34;CatRacism&#34;)}">
+      <bpmn:incoming>Flow_1355gba</bpmn:incoming>
+      <bpmn:outgoing>Flow_0k1ual8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0k1ual8" sourceRef="Activity_ResetCategories" targetRef="Activity_ReturnCase" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET_PSU_OUTCOME">
+      <bpmndi:BPMNEdge id="Flow_0k1ual8_di" bpmnElement="Flow_0k1ual8">
+        <di:waypoint x="560" y="240" />
+        <di:waypoint x="600" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qmifyf_di" bpmnElement="Flow_1qmifyf">
+        <di:waypoint x="560" y="140" />
+        <di:waypoint x="740" y="140" />
+        <di:waypoint x="740" y="319" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0go88kx_di" bpmnElement="Flow_0go88kx" bioc:stroke="#e53935" color:border-color="#e53935">
         <di:waypoint x="630" y="362" />
         <di:waypoint x="630" y="410" />
-        <di:waypoint x="520" y="410" />
-        <di:waypoint x="520" y="377" />
+        <di:waypoint x="510" y="410" />
+        <di:waypoint x="510" y="377" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1whegzr_di" bpmnElement="Flow_1whegzr" bioc:stroke="#43a047" color:border-color="#43a047">
         <di:waypoint x="630" y="362" />
@@ -80,29 +94,29 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1kgvzk3_di" bpmnElement="Flow_1kgvzk3">
         <di:waypoint x="655" y="337" />
-        <di:waypoint x="702" y="337" />
+        <di:waypoint x="722" y="337" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1gbbrj0_di" bpmnElement="Flow_1gbbrj0">
-        <di:waypoint x="570" y="240" />
-        <di:waypoint x="720" y="240" />
-        <di:waypoint x="720" y="319" />
+        <di:waypoint x="700" y="240" />
+        <di:waypoint x="740" y="240" />
+        <di:waypoint x="740" y="319" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1355gba_di" bpmnElement="Flow_1355gba">
         <di:waypoint x="410" y="312" />
         <di:waypoint x="410" y="240" />
-        <di:waypoint x="470" y="240" />
+        <di:waypoint x="460" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_19tcmg2_di" bpmnElement="Flow_19tcmg2">
         <di:waypoint x="410" y="312" />
         <di:waypoint x="410" y="140" />
-        <di:waypoint x="470" y="140" />
+        <di:waypoint x="460" y="140" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1j14tq5_di" bpmnElement="Flow_1j14tq5">
         <di:waypoint x="435" y="337" />
-        <di:waypoint x="470" y="337" />
+        <di:waypoint x="460" y="337" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0rpq39m_di" bpmnElement="Flow_0rpq39m">
-        <di:waypoint x="570" y="337" />
+        <di:waypoint x="560" y="337" />
         <di:waypoint x="605" y="337" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_051ylw3_di" bpmnElement="Flow_051ylw3">
@@ -113,34 +127,32 @@
         <di:waypoint x="215" y="337" />
         <di:waypoint x="250" y="337" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1qmifyf_di" bpmnElement="Flow_1qmifyf">
-        <di:waypoint x="570" y="140" />
-        <di:waypoint x="720" y="140" />
-        <di:waypoint x="720" y="319" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Outcome">
         <dc:Bounds x="179" y="319" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0iu7swi_di" bpmnElement="EndEvent_Outcome">
-        <dc:Bounds x="702" y="319" width="36" height="36" />
+        <dc:Bounds x="722" y="319" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_08djjl2_di" bpmnElement="Screen_ComplaintOutcome">
         <dc:Bounds x="250" y="297" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_09v6pb9_di" bpmnElement="Screen_FinalResponse">
-        <dc:Bounds x="470" y="297" width="100" height="80" />
+        <dc:Bounds x="460" y="297" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0ob7xe9_di" bpmnElement="Gateway_0ob7xe9" isMarkerVisible="true">
         <dc:Bounds x="385" y="312" width="50" height="50" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15bvtsg_di" bpmnElement="Activity_ReturnCase">
+        <dc:Bounds x="600" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_07b42u1_di" bpmnElement="Gateway_07b42u1" isMarkerVisible="true">
         <dc:Bounds x="605" y="312" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_15bvtsg_di" bpmnElement="Activity_ReturnCase">
-        <dc:Bounds x="470" y="200" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0mkppzp_di" bpmnElement="Activity_SaveWithdrawnNote">
-        <dc:Bounds x="470" y="100" width="100" height="80" />
+        <dc:Bounds x="460" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1an6g5s_di" bpmnElement="Activity_ResetCategories">
+        <dc:Bounds x="460" y="200" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
