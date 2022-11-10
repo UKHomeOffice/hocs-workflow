@@ -19,17 +19,16 @@ public class ScreenRepository {
         this.objectMapper = objectMapper;
     }
 
-    public Schema getSchema(String screenName) {
-        return readScreenFromFile(screenName.trim());
+    public Schema getSchema(String screenName, String folderName) {
+        return readScreenFromFile(screenName.trim(), folderName.trim().toLowerCase());
     }
 
-    private Schema readScreenFromFile(String screenName) {
+    private Schema readScreenFromFile(String screenName, String folderName) {
         try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(
-            String.format("screens/%s.json", screenName))) {
+            String.format("screens/%s/%s.json", folderName, screenName))) {
 
             if (in == null) {
-                throw new ApplicationExceptions.ScreenNotFoundException(
-                    String.format("Screen %s could not be found", screenName), LogEvent.SCREEN_NOT_FOUND);
+                return null;
             }
             return objectMapper.readValue(in, new TypeReference<>() {});
         } catch (IOException e) {
