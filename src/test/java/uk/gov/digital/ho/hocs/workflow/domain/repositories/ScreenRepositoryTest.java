@@ -18,19 +18,20 @@ public class ScreenRepositoryTest {
     @Autowired
     private ScreenRepository screenRepository;
 
-    @Test(expected = ApplicationExceptions.ScreenNotFoundException.class)
+    @Test
     public void throwNotFoundExceptionWithNonExistentScreen() {
-        screenRepository.getSchema("UNKNOWN");
+        var screen = screenRepository.getSchema("UNKNOWN", "live");
+        assertThat(screen).isNull();
     }
 
     @Test(expected = ApplicationExceptions.JsonFileReadException.class)
     public void throwFileReadExceptionWithInvalidScreenConfig() {
-        screenRepository.getSchema("INVALID_SCREEN");
+        screenRepository.getSchema("INVALID_SCREEN", "live");
     }
 
     @Test
     public void shouldReadValidScreen() {
-        var screen = screenRepository.getSchema("TEST_SCREEN");
+        var screen = screenRepository.getSchema("TEST_SCREEN", "live");
 
         assertThat(screen.getTitle()).isEqualTo("Test Screen Title");
         assertThat(screen.getDefaultActionLabel()).isEqualTo("Continue");
@@ -42,9 +43,37 @@ public class ScreenRepositoryTest {
 
     @Test
     public void shouldTrimScreenNameWhitespace() {
-        var screen = screenRepository.getSchema(" TEST_SCREEN ");
+        var screen = screenRepository.getSchema(" TEST_SCREEN ", "live");
 
         assertThat(screen.getTitle()).isEqualTo("Test Screen Title");
+    }
+
+    @Test
+    public void shouldReadValidScreenWithFolderNameLowercase() {
+        var screen = screenRepository.getSchema("TEST_SCREEN", "live");
+
+        assertThat(screen).isNotNull();
+    }
+
+    @Test
+    public void shouldReadValidScreenWithFolderNameUppercase() {
+        var screen = screenRepository.getSchema("TEST_SCREEN", "LIVE");
+
+        assertThat(screen).isNotNull();
+    }
+
+    @Test
+    public void shouldReadValidScreenWithFolderNameWhitespace() {
+        var screen = screenRepository.getSchema(" TEST_SCREEN ", " LIVE ");
+
+        assertThat(screen).isNotNull();
+    }
+
+    @Test
+    public void shouldReturnNullIfFolderIsInvalid() {
+        var screen = screenRepository.getSchema("TEST_SCREEN", "UNKNOWN");
+
+        assertThat(screen).isNull();
     }
 
 }

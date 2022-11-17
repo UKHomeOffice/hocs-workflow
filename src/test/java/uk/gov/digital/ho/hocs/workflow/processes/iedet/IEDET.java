@@ -107,7 +107,7 @@ public class IEDET {
                 .thenReturn("CompType", "SeriousMisconduct")
                 .deploy(rule);
 
-        whenAtCallActivity("PSU_COMPLAINT")
+        whenAtCallActivity("PSU_IEDET_COMPLAINT")
             .alwaysReturn("ReturnCase", "ReturnCase-false")
             .deploy(rule);
 
@@ -133,7 +133,7 @@ public class IEDET {
             .thenReturn("CompType", "SeriousMisconduct")
             .deploy(rule);
 
-        whenAtCallActivity("PSU_COMPLAINT")
+        whenAtCallActivity("PSU_IEDET_COMPLAINT")
             .alwaysReturn("ReturnCase", "ReturnCase-true")
             .deploy(rule);
 
