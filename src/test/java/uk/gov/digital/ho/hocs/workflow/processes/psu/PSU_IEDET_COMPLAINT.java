@@ -22,9 +22,8 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = {
-        "processes/PSU/PSU_COMPLAINT.bpmn"})
-public class PSU_COMPLAINT {
+@Deployment(resources = { "processes/PSU/PSU_IEDET_COMPLAINT.bpmn" })
+public class PSU_IEDET_COMPLAINT {
 
     @Rule
     @ClassRule
@@ -51,7 +50,7 @@ public class PSU_COMPLAINT {
                 .deploy(rule);
 
         Scenario.run(processScenario)
-                .startByKey("PSU_COMPLAINT", Map.of(
+                .startByKey("PSU_IEDET_COMPLAINT", Map.of(
                         "STAGE_REGISTRATION", "PSU_REGISTRATION",
                         "STAGE_TRIAGE", "PSU_TRIAGE",
                         "STAGE_OUTCOME", "PSU_OUTCOME"
