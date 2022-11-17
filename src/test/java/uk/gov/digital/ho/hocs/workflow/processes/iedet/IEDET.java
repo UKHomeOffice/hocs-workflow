@@ -17,6 +17,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.withVariables;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -113,6 +116,8 @@ public class IEDET {
         verify(processScenario).hasCompleted("StartEvent_IEDET");
         verify(processScenario).hasCompleted("CallActivity_IEDET_REGISTRATION");
         verify(processScenario).hasCompleted("CallActivity_IEDET_TRIAGE");
+        verify(processScenario).hasCompleted("Service_UpdateDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_IEDET");
@@ -137,6 +142,8 @@ public class IEDET {
         verify(processScenario).hasCompleted("StartEvent_IEDET");
         verify(processScenario).hasCompleted("CallActivity_IEDET_REGISTRATION");
         verify(processScenario).hasCompleted("CallActivity_IEDET_TRIAGE");
+        verify(processScenario).hasCompleted("Service_UpdateDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
         verify(processScenario).hasCompleted("EndEvent_IEDET");
     }
