@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
   <bpmn:process id="IEDET" isExecutable="true">
     <bpmn:startEvent id="StartEvent_IEDET">
       <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
@@ -50,6 +50,7 @@
         <camunda:inputOutput>
           <camunda:outputParameter name="ReturnCase">${false}</camunda:outputParameter>
         </camunda:inputOutput>
+        <camunda:out source="CaseUUID" target="CaseUUID" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_15z7c6l</bpmn:incoming>
       <bpmn:incoming>Flow_0kfgoqz</bpmn:incoming>
@@ -112,7 +113,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageAssign == "CCH"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0opl4mu" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="CallActivity_IEDET_DRAFT" />
-    <bpmn:sequenceFlow id="Flow_0maupo4" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="CallActivity_PSU_COMPLAINT">
+    <bpmn:sequenceFlow id="Flow_0maupo4" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="Activity_00ykk6z">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "SeriousMisconduct"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1r9dyvr" sourceRef="CallActivity_PSU_COMPLAINT" targetRef="Gateway_1qaiobu" />
@@ -125,7 +126,7 @@
         <camunda:in sourceExpression="IEDET_PSU_OUTCOME" target="STAGE_OUTCOME" local="true" />
         <camunda:out sourceExpression="${ ReturnCase ? ReturnCase : false }" target="ReturnCase" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0maupo4</bpmn:incoming>
+      <bpmn:incoming>Flow_1wzqu01</bpmn:incoming>
       <bpmn:outgoing>Flow_1r9dyvr</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:exclusiveGateway id="Gateway_1qaiobu" default="Flow_1h2qql8">
@@ -137,28 +138,32 @@
     <bpmn:sequenceFlow id="Flow_0kfgoqz" sourceRef="Gateway_1qaiobu" targetRef="CallActivity_IEDET_TRIAGE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ ReturnCase }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_00ykk6z" name="Update PSU stage Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;),execution.getVariable(&#34;ServiceTriageUUID&#34;),60)}">
+      <bpmn:incoming>Flow_0maupo4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wzqu01</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1wzqu01" sourceRef="Activity_00ykk6z" targetRef="CallActivity_PSU_COMPLAINT" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET">
       <bpmndi:BPMNEdge id="Flow_0kfgoqz_di" bpmnElement="Flow_0kfgoqz">
-        <di:waypoint x="800" y="325" />
+        <di:waypoint x="800" y="335" />
         <di:waypoint x="800" y="410" />
         <di:waypoint x="430" y="410" />
-        <di:waypoint x="430" y="230" />
+        <di:waypoint x="430" y="229" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1h2qql8_di" bpmnElement="Flow_1h2qql8">
-        <di:waypoint x="825" y="300" />
-        <di:waypoint x="950" y="300" />
+        <di:waypoint x="825" y="310" />
+        <di:waypoint x="950" y="310" />
         <di:waypoint x="950" y="229" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1r9dyvr_di" bpmnElement="Flow_1r9dyvr">
-        <di:waypoint x="700" y="300" />
-        <di:waypoint x="775" y="300" />
+        <di:waypoint x="740" y="310" />
+        <di:waypoint x="775" y="310" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0maupo4_di" bpmnElement="Flow_0maupo4">
         <di:waypoint x="540" y="214" />
-        <di:waypoint x="540" y="300" />
-        <di:waypoint x="600" y="300" />
+        <di:waypoint x="540" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0opl4mu_di" bpmnElement="Flow_0opl4mu">
         <di:waypoint x="565" y="189" />
@@ -194,6 +199,10 @@
         <di:waypoint x="188" y="189" />
         <di:waypoint x="230" y="189" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wzqu01_di" bpmnElement="Flow_1wzqu01">
+        <di:waypoint x="590" y="310" />
+        <di:waypoint x="640" y="310" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_IEDET">
         <dc:Bounds x="152" y="171" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -219,10 +228,13 @@
         <dc:Bounds x="900" y="149" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_13a1q4r_di" bpmnElement="CallActivity_PSU_COMPLAINT">
-        <dc:Bounds x="600" y="260" width="100" height="80" />
+        <dc:Bounds x="640" y="270" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1qaiobu_di" bpmnElement="Gateway_1qaiobu" isMarkerVisible="true">
-        <dc:Bounds x="775" y="275" width="50" height="50" />
+        <dc:Bounds x="775" y="285" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00ykk6z_di" bpmnElement="Activity_00ykk6z">
+        <dc:Bounds x="490" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1t13r39" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1t13r39" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="IEDET_PSU_TRIAGE" isExecutable="true">
     <bpmn:startEvent id="StartEvent_Triage">
       <bpmn:outgoing>Flow_18d0rzg</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:endEvent id="EndEvent_Triage">
       <bpmn:incoming>Flow_13xu4ud</bpmn:incoming>
-      <bpmn:incoming>Flow_09pdaeg</bpmn:incoming>
       <bpmn:incoming>Flow_1gidqty</bpmn:incoming>
+      <bpmn:incoming>Flow_09pdaeg</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_18d0rzg" sourceRef="StartEvent_Triage" targetRef="Screen_PSUComplaints" />
     <bpmn:userTask id="Screen_PSUComplaints" name="Complaint Type" camunda:formKey="PSU_TRAIGE_COMPLAINT">
@@ -29,20 +29,25 @@
       <bpmn:incoming>Flow_0rvtbmq</bpmn:incoming>
       <bpmn:outgoing>Flow_02ks0ls</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_02ks0ls" sourceRef="Activity_0dgy2k0" targetRef="Activity_1u4jmf5" />
+    <bpmn:sequenceFlow id="Flow_02ks0ls" sourceRef="Activity_0dgy2k0" targetRef="Activity_0fmast8" />
     <bpmn:task id="Activity_1u4jmf5" name="Return Case">
       <bpmn:extensionElements>
         <camunda:inputOutput>
           <camunda:outputParameter name="ReturnCase">${true}</camunda:outputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_02ks0ls</bpmn:incoming>
+      <bpmn:incoming>Flow_18kgsnq</bpmn:incoming>
       <bpmn:outgoing>Flow_09pdaeg</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_09pdaeg" sourceRef="Activity_1u4jmf5" targetRef="EndEvent_Triage" />
     <bpmn:sequenceFlow id="Flow_1gidqty" name="" sourceRef="Gateway_0khr7oc" targetRef="EndEvent_Triage">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${PsuTriageOutcome == "CloseCase"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Activity_0fmast8" name="Update Case Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,20)}">
+      <bpmn:incoming>Flow_02ks0ls</bpmn:incoming>
+      <bpmn:outgoing>Flow_18kgsnq</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_18kgsnq" sourceRef="Activity_0fmast8" targetRef="Activity_1u4jmf5" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET_PSU_TRIAGE">
@@ -56,18 +61,17 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_09pdaeg_di" bpmnElement="Flow_09pdaeg">
-        <di:waypoint x="690" y="200" />
-        <di:waypoint x="690" y="147" />
+        <di:waypoint x="810" y="147" />
         <di:waypoint x="842" y="147" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_02ks0ls_di" bpmnElement="Flow_02ks0ls">
-        <di:waypoint x="600" y="240" />
-        <di:waypoint x="640" y="240" />
+        <di:waypoint x="570" y="240" />
+        <di:waypoint x="605" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0rvtbmq_di" bpmnElement="Flow_0rvtbmq">
         <di:waypoint x="450" y="172" />
         <di:waypoint x="450" y="240" />
-        <di:waypoint x="500" y="240" />
+        <di:waypoint x="470" y="240" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_13xu4ud_di" bpmnElement="Flow_13xu4ud">
         <di:waypoint x="450" y="122" />
@@ -83,6 +87,11 @@
         <di:waypoint x="215" y="147" />
         <di:waypoint x="280" y="147" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18kgsnq_di" bpmnElement="Flow_18kgsnq">
+        <di:waypoint x="655" y="190" />
+        <di:waypoint x="655" y="147" />
+        <di:waypoint x="710" y="147" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Triage">
         <dc:Bounds x="179" y="129" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -95,11 +104,14 @@
       <bpmndi:BPMNShape id="Gateway_0khr7oc_di" bpmnElement="Gateway_0khr7oc" isMarkerVisible="true">
         <dc:Bounds x="425" y="122" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0dgy2k0_di" bpmnElement="Activity_0dgy2k0">
-        <dc:Bounds x="500" y="200" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1u4jmf5_di" bpmnElement="Activity_1u4jmf5">
-        <dc:Bounds x="640" y="200" width="100" height="80" />
+        <dc:Bounds x="710" y="107" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0dgy2k0_di" bpmnElement="Activity_0dgy2k0">
+        <dc:Bounds x="470" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fmast8_di" bpmnElement="Activity_0fmast8">
+        <dc:Bounds x="605" y="190" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
