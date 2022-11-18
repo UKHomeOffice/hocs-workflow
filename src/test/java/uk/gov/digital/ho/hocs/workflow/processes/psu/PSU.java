@@ -18,6 +18,7 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import java.util.Map;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
@@ -87,13 +88,15 @@ public class PSU {
         Scenario.run(processScenario)
             .startByKey("PSU", Map.of(
                 "STAGE_REGISTRATION", "PSU_REGISTRATION",
-                "STAGE_TRIAGE", "PSU_TRIAGE"
-                                     ))
+                "STAGE_TRIAGE", "PSU_TRIAGE",
+                "STAGE_OUTCOME", "PSU_OUTCOME"))
             .execute();
 
         verify(processScenario).hasCompleted("StartEvent_PSU");
         verify(processScenario).hasCompleted("CallActivity_PSU_REGISTRATION");
         verify(processScenario).hasCompleted("CallActivity_PSU_TRIAGE");
+        verify(processScenario, times(0)).hasCompleted("CallActivity_PSU_OUTCOME");
+
         verify(processScenario).hasCompleted("EndEvent_PSU");
     }
 

@@ -77,8 +77,6 @@ public class IEDET_PSU_OUTCOME {
             .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Outcome");
-        verify(processScenario).hasCompleted("Service_UpdateDeadline");
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
         verify(processScenario).hasCompleted("EndEvent_Outcome");
     }
