@@ -113,7 +113,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${TriageAssign == "CCH"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0opl4mu" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="CallActivity_IEDET_DRAFT" />
-    <bpmn:sequenceFlow id="Flow_0maupo4" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="Service_UpdateDeadline">
+    <bpmn:sequenceFlow id="Flow_0maupo4" sourceRef="ExclusiveGateway_0j0zx2i" targetRef="CallActivity_PSU_COMPLAINT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "SeriousMisconduct"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1r9dyvr" sourceRef="CallActivity_PSU_COMPLAINT" targetRef="Gateway_1qaiobu" />
@@ -126,7 +126,7 @@
         <camunda:in sourceExpression="IEDET_PSU_OUTCOME" target="STAGE_OUTCOME" local="true" />
         <camunda:out sourceExpression="${ ReturnCase ? ReturnCase : false }" target="ReturnCase" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1wzqu01</bpmn:incoming>
+      <bpmn:incoming>Flow_0maupo4</bpmn:incoming>
       <bpmn:outgoing>Flow_1r9dyvr</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:exclusiveGateway id="Gateway_1qaiobu" default="Flow_1h2qql8">
@@ -138,11 +138,6 @@
     <bpmn:sequenceFlow id="Flow_0kfgoqz" sourceRef="Gateway_1qaiobu" targetRef="CallActivity_IEDET_TRIAGE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ ReturnCase }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="Service_UpdateDeadline" name="Update PSU stage Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;),execution.getVariable(&#34;ServiceTriageUUID&#34;),60)}">
-      <bpmn:incoming>Flow_0maupo4</bpmn:incoming>
-      <bpmn:outgoing>Flow_1wzqu01</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1wzqu01" sourceRef="Service_UpdateDeadline" targetRef="CallActivity_PSU_COMPLAINT" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET">
@@ -163,7 +158,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0maupo4_di" bpmnElement="Flow_0maupo4">
         <di:waypoint x="540" y="214" />
-        <di:waypoint x="540" y="260" />
+        <di:waypoint x="540" y="310" />
+        <di:waypoint x="640" y="310" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0opl4mu_di" bpmnElement="Flow_0opl4mu">
         <di:waypoint x="565" y="189" />
@@ -199,10 +195,6 @@
         <di:waypoint x="188" y="189" />
         <di:waypoint x="230" y="189" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1wzqu01_di" bpmnElement="Flow_1wzqu01">
-        <di:waypoint x="590" y="310" />
-        <di:waypoint x="640" y="310" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_IEDET">
         <dc:Bounds x="152" y="171" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -232,9 +224,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1qaiobu_di" bpmnElement="Gateway_1qaiobu" isMarkerVisible="true">
         <dc:Bounds x="775" y="285" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_00ykk6z_di" bpmnElement="Service_UpdateDeadline">
-        <dc:Bounds x="490" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
