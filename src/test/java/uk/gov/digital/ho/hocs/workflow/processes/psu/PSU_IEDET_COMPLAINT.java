@@ -18,6 +18,8 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
@@ -59,6 +61,8 @@ public class PSU_IEDET_COMPLAINT {
 
         verify(processScenario).hasCompleted("StartEvent_Complaint");
         verify(processScenario).hasCompleted("CallActivity_PSU");
+        verify(processScenario).hasCompleted("Service_UpdateDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
 
