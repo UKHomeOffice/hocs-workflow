@@ -39,7 +39,10 @@ import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkD
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
-import uk.gov.digital.ho.hocs.workflow.domain.repositories.ScreenRepository;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormAccordion;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormSecondaryAction;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Field;
 import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Schema;
 import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.SecondaryAction;
@@ -114,6 +117,8 @@ public class WorkflowServiceTest {
 
     private final String stageUUID = "5b1c9476-2c0d-40d7-a814-f83e1d5ab8df";
 
+    private final Field childField = new Field("test", "test", "test", fieldValidation, new HashMap<>(), null);
+
     @Captor
     ArgumentCaptor<CreateCaseworkCorrespondentRequest> argumentCaptor;
 
@@ -122,8 +127,6 @@ public class WorkflowServiceTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> seedDataArgumentCaptor;
-
-    private final Field childField = new Field("test", "test", "test", fieldValidation, new HashMap<>(), null);
 
     @Mock
     private CamundaClient camundaClient;
@@ -138,7 +141,7 @@ public class WorkflowServiceTest {
     private InfoClient infoClient;
 
     @Mock
-    private ScreenRepository screenRepository;
+    private FormService formService;
 
     @Mock
     private UserPermissionsService userPermissionsService;
@@ -152,7 +155,7 @@ public class WorkflowServiceTest {
     @Before
     public void beforeTest() {
         workflowService = new WorkflowService(caseworkClient, documentClient, infoClient, camundaClient,
-            userPermissionsService, screenRepository);
+            userPermissionsService, formService);
     }
 
     @Test
@@ -720,8 +723,7 @@ public class WorkflowServiceTest {
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null,
             caseRef, caseResponseData, null, null, null, null, null, null, null);
         when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
-        Schema schemaDto = exampleSchemaDto();
-        when(screenRepository.getSchema(screenName)).thenReturn(schemaDto);
+        when(formService.getFormSchema(screenName)).thenReturn(exampleSchemaDto());
 
         //when
         GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
@@ -834,7 +836,7 @@ public class WorkflowServiceTest {
         when(userPermissionsService.getUserId()).thenReturn(userUUID);
         when(camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), "STICKY_CASES", "true")).thenReturn(
             true);
-        when(screenRepository.getSchema(nextStageScreenName)).thenReturn(exampleSchemaDto());
+
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null,
             caseRef, caseResponseData, null, null, null, null, null, null, null);
         when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
@@ -851,16 +853,23 @@ public class WorkflowServiceTest {
             "STICKY_CASES");
     }
 
-    private Schema exampleSchemaDto() {
-        Field fieldDto = new Field(fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), childField);
-        List<Field> fields = new ArrayList<>();
-        fields.add(fieldDto);
-        SecondaryAction secondaryActionDto = new SecondaryAction(secondaryActionName, secondaryActionLabel,
-            secondaryActionComponent, secondaryActionValidation, new HashMap<>());
-        List<SecondaryAction> secondaryActions = new ArrayList<>();
-        secondaryActions.add(secondaryActionDto);
-        return new Schema(schemaTitle, schemaDefaultActionLabel, fields, secondaryActions, schemaDtoProps,
-            schemaDtoValidation, null);
+    private HocsSchema exampleSchemaDto() {
+        List<Field> fieldList = List.of(
+            new Field(fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), childField));
+        List<SecondaryAction> secondaryActionList = List.of(
+            new SecondaryAction(secondaryActionName, secondaryActionLabel, secondaryActionComponent,
+                secondaryActionValidation, new HashMap<>()));
+
+        Schema schema = new Schema(schemaTitle, schemaDefaultActionLabel, fieldList, secondaryActionList,
+            schemaDtoProps, schemaDtoValidation, null);
+
+        List<HocsFormField> fields = schema.getFields().stream().map(HocsFormField::from).toList();
+        fields = HocsFormAccordion.loadFormAccordions(fields);
+
+        List<HocsFormSecondaryAction> secondaryActions = schema.getSecondaryActions().stream().map(
+            HocsFormSecondaryAction::from).toList();
+        return new HocsSchema(schema.getTitle(), schema.getDefaultActionLabel(), fields, secondaryActions,
+            schema.getProps(), schema.getValidation(), schema.getSummary());
     }
 
     private List<SchemaDto> setupTestSchemas() {

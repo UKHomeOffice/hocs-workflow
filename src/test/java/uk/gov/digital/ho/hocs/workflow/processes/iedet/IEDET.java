@@ -16,9 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
-import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.withVariables;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -104,7 +102,7 @@ public class IEDET {
                 .thenReturn("CompType", "SeriousMisconduct")
                 .deploy(rule);
 
-        whenAtCallActivity("PSU_COMPLAINT")
+        whenAtCallActivity("PSU_IEDET_COMPLAINT")
             .alwaysReturn("ReturnCase", "ReturnCase-false")
             .deploy(rule);
 
@@ -128,7 +126,7 @@ public class IEDET {
             .thenReturn("CompType", "SeriousMisconduct")
             .deploy(rule);
 
-        whenAtCallActivity("PSU_COMPLAINT")
+        whenAtCallActivity("PSU_IEDET_COMPLAINT")
             .alwaysReturn("ReturnCase", "ReturnCase-true")
             .deploy(rule);
 

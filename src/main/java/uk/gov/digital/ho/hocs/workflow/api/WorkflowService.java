@@ -2,6 +2,7 @@ package uk.gov.digital.ho.hocs.workflow.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -98,7 +99,7 @@ public class WorkflowService {
 
     private final UserPermissionsService userPermissionsService;
 
-    private final ScreenRepository screenRepository;
+    private final FormService formService;
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
@@ -106,13 +107,13 @@ public class WorkflowService {
                            InfoClient infoClient,
                            CamundaClient camundaClient,
                            UserPermissionsService userPermissionsService,
-                           ScreenRepository screenRepository) {
+                           @Qualifier("HocsFormService") FormService formService) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.userPermissionsService = userPermissionsService;
-        this.screenRepository = screenRepository;
+        this.formService = formService;
     }
 
     @Deprecated(forRemoval = true)
@@ -258,14 +259,7 @@ public class WorkflowService {
         }
 
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
-
-        Schema schemaDto = screenRepository.getSchema(screenName);
-        List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).toList();
-        List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(
-            HocsFormSecondaryAction::from).toList();
-        fields = HocsFormAccordion.loadFormAccordions(fields);
-        HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields,
-            secondaryActions, schemaDto.getProps(), schemaDto.getValidation(), schemaDto.getSummary());
+        HocsSchema schema = formService.getFormSchema(screenName);
         HocsForm form = new HocsForm(schema, inputResponse.getData());
         return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
     }
