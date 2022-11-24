@@ -80,7 +80,6 @@ public class IEDET_PSU_OUTCOME {
         verify(processScenario).hasCompleted("Service_UpdateDeadline");
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
         verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
-        verify(processScenario, times(1)).hasCompleted("Activity_ReturnCase");
         verify(processScenario).hasCompleted("EndEvent_Outcome");
     }
 
