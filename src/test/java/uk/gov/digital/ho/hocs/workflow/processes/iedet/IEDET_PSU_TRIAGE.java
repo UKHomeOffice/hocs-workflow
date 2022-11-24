@@ -96,11 +96,11 @@ public class IEDET_PSU_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
         verify(processScenario).hasCompleted("Screen_PSUComplaints");
-        verify(bpmnService).blankCaseValues(any(), any(), eq("CatAdminErr"), eq("CatAvail"),
-            eq("CatDelay"), eq("CatPhysEnv"),
-            eq("CatPoorComm"), eq("CatLost"), eq("CatStolen"), eq("CatWithheld"), eq("CatProvMinor"), eq("CatWrongInfo"),
-            eq("CatHandle"), eq("CatRude"), eq("CatUnfair"), eq("CatOtherUnprof"), eq("CatDetOnDet"),
-            eq("CatTheft"), eq("CatAssault"), eq("CatSexAssault"), eq("CatFraud"), eq("CatRacism"));
+        verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAdminErr"), eq("CatAvail"),
+            eq("CatDelay"), eq("CatPhysEnv"), eq("CatPoorComm"), eq("CatLost"), eq("CatStolen"),
+            eq("CatWithheld"), eq("CatProvMinor"), eq("CatWrongInfo"), eq("CatHandle"), eq("CatRude"),
+            eq("CatUnfair"), eq("CatOtherUnprof"), eq("CatDetOnDet"), eq("CatTheft"), eq("CatAssault"),
+            eq("CatSexAssault"), eq("CatFraud"), eq("CatRacism"));
         verify(processScenario).hasCompleted("Service_UpdateDeadline");
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
         verify(processScenario).hasCompleted("EndEvent_Triage");
