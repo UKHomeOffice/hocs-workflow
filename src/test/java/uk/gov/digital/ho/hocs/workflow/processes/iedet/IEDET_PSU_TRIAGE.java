@@ -64,8 +64,8 @@ public class IEDET_PSU_TRIAGE {
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
         verify(processScenario, times(3)).hasCompleted("Screen_PSUComplaints");
-        verify(processScenario, times(3)).hasCompleted("Service_UpdateDeadline_Triage");
-        verify(bpmnService, times(3)).updateDeadlineDays(any(), any(), eq("60"));
+        verify(processScenario).hasCompleted("Service_UpdateDeadline_Triage");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario, times(3)).hasCompleted("Screen_PSUComplaintCategory");
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
