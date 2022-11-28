@@ -60,9 +60,37 @@ public class PSU_IEDET_COMPLAINT {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Complaint");
-        verify(processScenario).hasCompleted("CallActivity_PSU");
-        verify(processScenario).hasCompleted("Service_UpdateDeadline");
+        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
+        verify(processScenario).hasCompleted("CallActivity_PSU");
+        verify(processScenario).hasCompleted("EndEvent_Complaint");
+    }
+
+    @Test
+    public void testReturnCase() {
+        whenAtCallActivity("PSU")
+            .thenReturn("ReturnCase", Boolean.TRUE.toString())
+            .deploy(rule);
+
+        Scenario.run(processScenario)
+            .startByKey("PSU_IEDET_COMPLAINT", Map.of(
+                "STAGE_REGISTRATION", "PSU_REGISTRATION",
+                "STAGE_TRIAGE", "PSU_TRIAGE",
+                "STAGE_OUTCOME", "PSU_OUTCOME"))
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Complaint");
+        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
+        verify(processScenario).hasCompleted("CallActivity_PSU");
+        verify(processScenario).hasCompleted("Service_ResetComplaintCategories");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAdminErr"), eq("CatAvail"),
+            eq("CatDelay"), eq("CatPhysEnv"),
+            eq("CatPoorComm"), eq("CatLost"), eq("CatStolen"), eq("CatWithheld"), eq("CatProvMinor"), eq("CatWrongInfo"),
+            eq("CatHandle"), eq("CatRude"), eq("CatUnfair"), eq("CatOtherUnprof"), eq("CatDetOnDet"),
+            eq("CatTheft"), eq("CatAssault"), eq("CatSexAssault"), eq("CatFraud"), eq("CatRacism"));
+        verify(processScenario).hasCompleted("Service_UpdateIedetDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
 
