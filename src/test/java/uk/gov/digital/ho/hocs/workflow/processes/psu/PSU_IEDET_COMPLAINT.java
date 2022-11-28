@@ -84,7 +84,7 @@ public class PSU_IEDET_COMPLAINT {
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario).hasCompleted("CallActivity_PSU");
         verify(processScenario).hasCompleted("Service_ResetComplaintCategories");
-        verify(bpmnService).blankCaseValues(any(), any(), eq("CatAdminErr"), eq("CatAvail"),
+        verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAdminErr"), eq("CatAvail"),
             eq("CatDelay"), eq("CatPhysEnv"),
             eq("CatPoorComm"), eq("CatLost"), eq("CatStolen"), eq("CatWithheld"), eq("CatProvMinor"), eq("CatWrongInfo"),
             eq("CatHandle"), eq("CatRude"), eq("CatUnfair"), eq("CatOtherUnprof"), eq("CatDetOnDet"),
