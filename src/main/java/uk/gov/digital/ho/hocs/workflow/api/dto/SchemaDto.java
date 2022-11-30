@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor()
-@NoArgsConstructor()
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
+@Deprecated(forRemoval = true)
 public class SchemaDto {
 
     @JsonProperty("uuid")

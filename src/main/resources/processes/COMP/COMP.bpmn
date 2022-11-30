@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1chg3vp" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0">
   <bpmn:process id="COMP" isExecutable="true">
     <bpmn:startEvent id="StartEvent_COMP">
       <bpmn:outgoing>SequenceFlow_1jkxh22</bpmn:outgoing>
@@ -20,6 +20,8 @@
         <camunda:out source="CompType" target="CompType" />
         <camunda:out source="Stage" target="Stage" />
         <camunda:out source="WebformComplaintInvalid" target="WebformComplaintInvalid" />
+        <camunda:out source="StageUUID" target="StageUUID" />
+        <camunda:out source="CaseUUID" target="CaseUUID" />
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1jkxh22</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_15z7c6l</bpmn:outgoing>
@@ -137,11 +139,13 @@
         <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
         <camunda:out source="QueueTeamUUID" target="QueueTeamUUID" />
         <camunda:out source="CchCompType" target="CompType" />
+        <camunda:out source="StageUUID" target="StageUUID" />
+        <camunda:out source="CaseUUID" target="CaseUUID" />
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_0iowipv</bpmn:incoming>
+      <bpmn:incoming>Flow_05362gy</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1tn7n28</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="SequenceFlow_0iowipv" sourceRef="ExclusiveGateway_11h64pd" targetRef="CallActivity_COMP_RETURNS">
+    <bpmn:sequenceFlow id="SequenceFlow_0iowipv" sourceRef="ExclusiveGateway_11h64pd" targetRef="Service_UpdateCCHDeadline">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "CCH"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1tn7n28" sourceRef="CallActivity_COMP_RETURNS" targetRef="ExclusiveGateway_11h64pd" />
@@ -330,11 +334,11 @@
         <camunda:out source="CctTriageAccept" target="CctTriageAccept" />
         <camunda:out source="CctTriageResult" target="CctTriageResult" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_073agya</bpmn:incoming>
       <bpmn:incoming>Flow_033e2tl</bpmn:incoming>
+      <bpmn:incoming>Flow_1txovww</bpmn:incoming>
       <bpmn:outgoing>Flow_1c2e4jd</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_073agya" sourceRef="ExclusiveGateway_11h64pd" targetRef="CallActivity_EXGRATIA_TRIAGE">
+    <bpmn:sequenceFlow id="Flow_073agya" sourceRef="ExclusiveGateway_11h64pd" targetRef="Service_UpdateDeadline">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType == "Ex-Gratia"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1c2e4jd" sourceRef="CallActivity_EXGRATIA_TRIAGE" targetRef="Gateway_1wrxr8i" />
@@ -643,9 +647,23 @@
     <bpmn:sequenceFlow id="Flow_0cf6v84" sourceRef="Gateway_1wrxr8i" targetRef="ServiceTask_CompleteCase">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctTriageResult == "Complete"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Service_UpdateDeadline" name="Update Case Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;),execution.getVariable(&#34;StageUUID&#34;),60)}">
+      <bpmn:incoming>Flow_073agya</bpmn:incoming>
+      <bpmn:outgoing>Flow_1txovww</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1txovww" sourceRef="Service_UpdateDeadline" targetRef="CallActivity_EXGRATIA_TRIAGE" />
+    <bpmn:serviceTask id="Service_UpdateCCHDeadline" name="Update Case Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;),execution.getVariable(&#34;StageUUID&#34;),20)}">
+      <bpmn:incoming>SequenceFlow_0iowipv</bpmn:incoming>
+      <bpmn:outgoing>Flow_05362gy</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_05362gy" sourceRef="Service_UpdateCCHDeadline" targetRef="CallActivity_COMP_RETURNS" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP">
+      <bpmndi:BPMNEdge id="Flow_1txovww_di" bpmnElement="Flow_1txovww">
+        <di:waypoint x="840" y="1060" />
+        <di:waypoint x="890" y="1060" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0cf6v84_di" bpmnElement="Flow_0cf6v84">
         <di:waypoint x="1061" y="1035" />
         <di:waypoint x="1061" y="960" />
@@ -744,8 +762,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_033e2tl_di" bpmnElement="Flow_033e2tl">
         <di:waypoint x="1307" y="1260" />
-        <di:waypoint x="860" y="1260" />
-        <di:waypoint x="860" y="1100" />
+        <di:waypoint x="940" y="1260" />
+        <di:waypoint x="940" y="1100" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0xoknlr_di" bpmnElement="Flow_0xoknlr">
         <di:waypoint x="1357" y="1260" />
@@ -813,13 +831,13 @@
         <di:waypoint x="1535" y="1060" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1c2e4jd_di" bpmnElement="Flow_1c2e4jd">
-        <di:waypoint x="910" y="1060" />
+        <di:waypoint x="990" y="1060" />
         <di:waypoint x="1036" y="1060" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_073agya_di" bpmnElement="Flow_073agya">
         <di:waypoint x="665" y="146" />
         <di:waypoint x="665" y="1060" />
-        <di:waypoint x="810" y="1060" />
+        <di:waypoint x="740" y="1060" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0fjx2nt_di" bpmnElement="SequenceFlow_0fjx2nt">
         <di:waypoint x="1307" y="585" />
@@ -911,12 +929,14 @@
         <di:waypoint x="2824" y="122" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1tn7n28_di" bpmnElement="SequenceFlow_1tn7n28">
-        <di:waypoint x="516" y="283" />
-        <di:waypoint x="648" y="129" />
+        <di:waypoint x="360" y="323" />
+        <di:waypoint x="655" y="323" />
+        <di:waypoint x="655" y="136" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0iowipv_di" bpmnElement="SequenceFlow_0iowipv">
-        <di:waypoint x="659" y="140" />
-        <di:waypoint x="536" y="284" />
+        <di:waypoint x="675" y="136" />
+        <di:waypoint x="675" y="230" />
+        <di:waypoint x="510" y="230" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_06cl5z0_di" bpmnElement="SequenceFlow_06cl5z0">
         <di:waypoint x="1635" y="323" />
@@ -959,6 +979,11 @@
         <di:waypoint x="215" y="121" />
         <di:waypoint x="442" y="121" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05362gy_di" bpmnElement="Flow_05362gy">
+        <di:waypoint x="410" y="230" />
+        <di:waypoint x="310" y="230" />
+        <di:waypoint x="310" y="283" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_COMP">
         <dc:Bounds x="179" y="103" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -982,9 +1007,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_17qyrjh_di" bpmnElement="CallActivity_COMP_SERVICE_DRAFT">
         <dc:Bounds x="1535" y="283" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="CallActivity_0fbepz5_di" bpmnElement="CallActivity_COMP_RETURNS">
-        <dc:Bounds x="442" y="283" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="CallActivity_08tusgd_di" bpmnElement="CallActivity_COMP_SERVICE_QA">
         <dc:Bounds x="2028" y="417" width="100" height="80" />
@@ -1017,7 +1039,7 @@
         <dc:Bounds x="1307" y="560" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1gq29ro_di" bpmnElement="CallActivity_EXGRATIA_TRIAGE">
-        <dc:Bounds x="810" y="1020" width="100" height="80" />
+        <dc:Bounds x="890" y="1020" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1wrxr8i_di" bpmnElement="Gateway_1wrxr8i" isMarkerVisible="true">
         <dc:Bounds x="1036" y="1035" width="50" height="50" />
@@ -1069,6 +1091,15 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0ygd859_di" bpmnElement="Gateway_0ygd859" isMarkerVisible="true">
         <dc:Bounds x="2053" y="1675" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0eg4kst_di" bpmnElement="Service_UpdateDeadline">
+        <dc:Bounds x="740" y="1020" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_0fbepz5_di" bpmnElement="CallActivity_COMP_RETURNS">
+        <dc:Bounds x="260" y="283" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0dlijul_di" bpmnElement="Service_UpdateCCHDeadline">
+        <dc:Bounds x="410" y="190" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

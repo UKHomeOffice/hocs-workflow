@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.api.dto;
 import java.util.Map;
 import java.util.UUID;
 
+@Deprecated(forRemoval = true)
 public final class FieldDtoBuilder {
 
     private UUID uuid;
@@ -16,8 +17,6 @@ public final class FieldDtoBuilder {
     private Object[] validation;
 
     private Map<String, Object> props;
-
-    private boolean summary;
 
     private boolean active;
 
@@ -60,11 +59,6 @@ public final class FieldDtoBuilder {
         return this;
     }
 
-    public FieldDtoBuilder withSummary(boolean summary) {
-        this.summary = summary;
-        return this;
-    }
-
     public FieldDtoBuilder withActive(boolean active) {
         this.active = active;
         return this;
@@ -76,7 +70,7 @@ public final class FieldDtoBuilder {
     }
 
     public FieldDto build() {
-        return new FieldDto(uuid, name, label, component, validation, props, summary, active, child);
+        return new FieldDto(uuid, name, label, component, validation, props, active, child);
     }
 
 }

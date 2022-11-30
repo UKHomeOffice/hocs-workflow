@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 import java.util.UUID;
 
-@AllArgsConstructor()
-@NoArgsConstructor()
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
+@Deprecated(forRemoval = true)
 public class FieldDto {
 
     @JsonProperty("uuid")
@@ -31,9 +32,6 @@ public class FieldDto {
 
     @JsonProperty("props")
     private Map<String, Object> props;
-
-    @JsonProperty("summary")
-    private boolean summary;
 
     @JsonProperty("active")
     private boolean active;

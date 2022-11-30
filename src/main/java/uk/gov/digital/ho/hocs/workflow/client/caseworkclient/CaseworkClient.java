@@ -144,6 +144,7 @@ public class CaseworkClient {
         return response;
     }
 
+    @Deprecated(forRemoval = true)
     public GetCaseworkCaseDataResponse getFullCase(UUID caseUUID) {
         GetCaseworkCaseDataResponse response = restHelper.get(serviceBaseURL,
             String.format("/case/%s/?full=true", caseUUID), GetCaseworkCaseDataResponse.class);
@@ -233,6 +234,7 @@ public class CaseworkClient {
         return correspondentUUID;
     }
 
+    @Deprecated(forRemoval = true)
     public GetAllStagesForCaseResponse getAllStagesForCase(UUID caseUUID) {
         GetAllStagesForCaseResponse response = restHelper.get(serviceBaseURL, String.format("/stage/case/%s", caseUUID),
             GetAllStagesForCaseResponse.class);

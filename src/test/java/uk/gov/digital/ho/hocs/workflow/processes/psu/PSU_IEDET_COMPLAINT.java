@@ -1,0 +1,97 @@
+package uk.gov.digital.ho.hocs.workflow.processes.psu;
+
+import org.camunda.bpm.engine.test.Deployment;
+import org.camunda.bpm.engine.test.ProcessEngineRule;
+import org.camunda.bpm.engine.test.mock.Mocks;
+import org.camunda.bpm.scenario.ProcessScenario;
+import org.camunda.bpm.scenario.Scenario;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
+import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.digital.ho.hocs.workflow.BpmnService;
+
+import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
+
+@RunWith(MockitoJUnitRunner.class)
+@Deployment(resources = { "processes/PSU/PSU_IEDET_COMPLAINT.bpmn" })
+public class PSU_IEDET_COMPLAINT {
+
+    @Rule
+    @ClassRule
+    public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(1).build();
+
+    @Rule
+    public ProcessEngineRule processEngineRule = new ProcessEngineRule();
+
+    @Mock
+    BpmnService bpmnService;
+
+    @Mock
+    private ProcessScenario processScenario;
+
+    @Before
+    public void setup() {
+        Mocks.register("bpmnService", bpmnService);
+    }
+
+    @Test
+    public void testHappyPath() {
+        whenAtCallActivity("PSU")
+                .thenReturn("", "")
+                .deploy(rule);
+
+        Scenario.run(processScenario)
+                .startByKey("PSU_IEDET_COMPLAINT", Map.of(
+                        "STAGE_REGISTRATION", "PSU_REGISTRATION",
+                        "STAGE_TRIAGE", "PSU_TRIAGE",
+                        "STAGE_OUTCOME", "PSU_OUTCOME"
+                ))
+                .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Complaint");
+        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
+        verify(processScenario).hasCompleted("CallActivity_PSU");
+        verify(processScenario).hasCompleted("EndEvent_Complaint");
+    }
+
+    @Test
+    public void testReturnCase() {
+        whenAtCallActivity("PSU")
+            .thenReturn("ReturnCase", Boolean.TRUE.toString())
+            .deploy(rule);
+
+        Scenario.run(processScenario)
+            .startByKey("PSU_IEDET_COMPLAINT", Map.of(
+                "STAGE_REGISTRATION", "PSU_REGISTRATION",
+                "STAGE_TRIAGE", "PSU_TRIAGE",
+                "STAGE_OUTCOME", "PSU_OUTCOME"))
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Complaint");
+        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
+        verify(processScenario).hasCompleted("CallActivity_PSU");
+        verify(processScenario).hasCompleted("Service_ResetComplaintCategories");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAdminErr"), eq("CatAvail"),
+            eq("CatDelay"), eq("CatPhysEnv"),
+            eq("CatPoorComm"), eq("CatLost"), eq("CatStolen"), eq("CatWithheld"), eq("CatProvMinor"), eq("CatWrongInfo"),
+            eq("CatHandle"), eq("CatRude"), eq("CatUnfair"), eq("CatOtherUnprof"), eq("CatDetOnDet"),
+            eq("CatTheft"), eq("CatAssault"), eq("CatSexAssault"), eq("CatFraud"), eq("CatRacism"));
+        verify(processScenario).hasCompleted("Service_UpdateIedetDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
+        verify(processScenario).hasCompleted("EndEvent_Complaint");
+    }
+
+}

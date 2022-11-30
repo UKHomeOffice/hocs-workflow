@@ -189,6 +189,8 @@ public class COMP {
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario).hasCompleted("Service_UpdateDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
         verify(processScenario, times(3)).hasCompleted("CallActivity_EX_GRATIA_RESPONSE_DRAFT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_SEND");

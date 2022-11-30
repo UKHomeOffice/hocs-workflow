@@ -43,4 +43,34 @@ public interface ApplicationExceptions {
 
     }
 
+    class ScreenNotFoundException extends RuntimeException {
+
+        private final LogEvent event;
+
+        public ScreenNotFoundException(String msg, LogEvent event) {
+            super(msg);
+            this.event = event;
+        }
+
+        public LogEvent getEvent() {
+            return event;
+        }
+
+    }
+
+    class JsonFileReadException extends RuntimeException {
+
+        private final LogEvent event;
+
+        public JsonFileReadException(String msg, LogEvent event) {
+            super(msg);
+            this.event = event;
+        }
+
+        public LogEvent getEvent() {
+            return event;
+        }
+
+    }
+
 }

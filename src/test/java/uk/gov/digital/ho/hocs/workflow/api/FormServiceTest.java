@@ -3,79 +3,81 @@ package uk.gov.digital.ho.hocs.workflow.api;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
-import uk.gov.digital.ho.hocs.workflow.api.dto.SecondaryActionDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
-import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
+import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("local")
 public class FormServiceTest {
 
-    @Mock
+    private static UUID caseUuid;
+
+    private static GetCaseworkCaseDataResponse caseworkResponse;
+
+    @MockBean
     private CaseworkClient caseworkClient;
 
-    @Mock
-    private InfoClient infoClient;
-
+    @Autowired
     private FormService formService;
 
     @Before
-    public void beforeTest() {
-        formService = new FormService(caseworkClient, infoClient);
+    public void setup() {
+        caseUuid = UUID.randomUUID();
+        caseworkResponse = new GetCaseworkCaseDataResponse(caseUuid, null, null, "TEST/0000000/00",
+            Map.of("Test", "Yes"), null, null, null, null, null, null, null);
+        when(caseworkClient.getCase(caseUuid)).thenReturn(caseworkResponse);
     }
 
     @Test
-    public void getFormWithCase() {
-        var caseUuid = UUID.randomUUID();
-        var screenName = "TEST_SCREEN";
+    public void getFormWithCaseWhenScreenOnlyInLiveFolder() {
+        var response = formService.getFormWithCase(caseUuid, "TEST_SCREEN");
 
-        var getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUuid, null, null, "TEST/0000000/00",
-            Map.of("Test", "Yes"), null, null, null, null, null, null, null);
-        when(caseworkClient.getCase(caseUuid)).thenReturn(getCaseworkCaseDataResponse);
-        when(infoClient.getSchema(screenName)).thenReturn(exampleSchemaDto());
-
-        var response = formService.getFormWithCase(caseUuid, screenName);
-
-        assertThat(response.getCaseReference()).isSameAs(getCaseworkCaseDataResponse.getReference());
-        assertThat(response.getForm().getSchema().getTitle()).isSameAs("Test Schema Title");
-        assertThat(response.getForm().getSchema().getDefaultActionLabel()).isEqualTo("Continue");
-        assertThat(response.getForm().getSchema().getFields().get(0).getComponent()).isEqualTo("text");
-        assertThat(response.getForm().getSchema().getFields().get(0).getValidation()).isEmpty();
-        assertThat(response.getForm().getSchema().getFields().get(0).getProps()).containsEntry("label",
-            "TestLabel").containsEntry("name", "TestField");
-        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getComponent()).isSameAs("button");
-        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getValidation()).isEmpty();
-        assertThat(response.getForm().getSchema().getSecondaryActions().get(0).getProps()).containsEntry("label",
-            "TestSecondaryLabel").containsEntry("name", "TestSecondaryAction");
-        assertThat(response.getForm().getSchema().getProps()).isNotNull();
-        assertThat(response.getForm().getSchema().getValidation()).isNotNull();
-        assertThat(response.getForm().getData()).isSameAs(getCaseworkCaseDataResponse.getData());
+        assertThat(response.getCaseReference()).isSameAs(caseworkResponse.getReference());
+        assertThat(response.getForm().getSchema()).isNotNull();
+        assertThat(response.getForm().getData()).isSameAs(caseworkResponse.getData());
     }
 
-    private SchemaDto exampleSchemaDto() {
-        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), "TestField", "TestLabel", "text", new Object[0],
-            new HashMap<>(), false, false, null);
-        List<FieldDto> fields = List.of(fieldDto);
+    @Test
+    public void getFormSchemaWhenScreenOnlyInLiveFolder() {
+        var response = formService.getFormSchema("TEST_SCREEN");
 
-        SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), "TestSecondaryAction",
-            "TestSecondaryLabel", "button", new String[0], new HashMap<>());
-        List<SecondaryActionDto> secondaryActions = List.of(secondaryActionDto);
+        assertThat(response.getTitle()).isEqualTo("Test Screen Title");
+        assertThat(response.getDefaultActionLabel()).isEqualTo("Continue");
+        assertThat(response.getFields().get(0).getComponent()).isEqualTo("text");
+        assertThat(response.getFields().get(0).getValidation()).isEqualTo(new String[] {"required"});
+        assertThat(response.getFields().get(0).getProps()).containsEntry("label",
+            "Test Field 1").containsEntry("name", "TestField");
+        assertThat(response.getSecondaryActions().get(0).getComponent()).isEqualTo("backButton");
+        assertThat(response.getSecondaryActions().get(0).getValidation()).isEmpty();
+        assertThat(response.getSecondaryActions().get(0).getProps()).containsEntry("label",
+            "Back").containsEntry("name", "backButton");
+        assertThat(response.getProps()).isNotNull();
+        assertThat(response.getValidation()).isNotNull();
+    }
 
-        return new SchemaDto(UUID.randomUUID(), "STAGE", "SCHEMA_TYPE", "Test Schema Title", "Continue", true, fields,
-            secondaryActions, new Object(), new Object(), new ArrayList<>());
+    @Test
+    public void getFormWithCaseWhenScreenOnlyInBetaFolder() {
+        var response = formService.getFormSchema("BETA_TEST_SCREEN");
+
+        assertThat(response.getTitle()).isEqualTo("Beta Screen Title");
+    }
+
+    @Test(expected = ApplicationExceptions.ScreenNotFoundException.class)
+    public void getFormSchemaThrowsExceptionIfNotPresent() {
+        formService.getFormSchema("UNKNOWN");
     }
 
 }

@@ -2,11 +2,19 @@ package uk.gov.digital.ho.hocs.workflow.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.digital.ho.hocs.workflow.api.dto.*;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.DocumentSummary;
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseDetailsResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
@@ -23,8 +31,14 @@ import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.UserDto;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.*;
-import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormAccordion;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormSecondaryAction;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.ScreenRepository;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Schema;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
@@ -33,14 +47,23 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_CLOSE_ERROR;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_FAILURE;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_NOTE_FAILED;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.WORKFLOW_SERVICE_UPDATE_CASE_DATA_VALUES;
 
@@ -48,15 +71,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.WORKFLOW_SERV
 @Slf4j
 public class WorkflowService {
 
-    private final CaseworkClient caseworkClient;
-
-    private final DocumentClient documentClient;
-
-    private final InfoClient infoClient;
-
-    private final CamundaClient camundaClient;
-
-    private final UserPermissionsService userPermissionsService;
+    public static final String STICKY_CASES_VARIABLE = "STICKY_CASES";
 
     private static final String COMPONENT_ENTITY_LIST = "entity-list";
 
@@ -74,19 +89,50 @@ public class WorkflowService {
 
     private static final String DOCUMENT_NOT_FOUND = "Document not found";
 
-    public static final String STICKY_CASES_VARIABLE = "STICKY_CASES";
+    private final CaseworkClient caseworkClient;
+
+    private final DocumentClient documentClient;
+
+    private final InfoClient infoClient;
+
+    private final CamundaClient camundaClient;
+
+    private final UserPermissionsService userPermissionsService;
+
+    private final FormService formService;
 
     @Autowired
     public WorkflowService(CaseworkClient caseworkClient,
                            DocumentClient documentClient,
                            InfoClient infoClient,
                            CamundaClient camundaClient,
-                           UserPermissionsService userPermissionsService) {
+                           UserPermissionsService userPermissionsService,
+                           @Qualifier("HocsFormService") FormService formService) {
         this.caseworkClient = caseworkClient;
         this.documentClient = documentClient;
         this.infoClient = infoClient;
         this.camundaClient = camundaClient;
         this.userPermissionsService = userPermissionsService;
+        this.formService = formService;
+    }
+
+    @Deprecated(forRemoval = true)
+    private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
+        List<HocsFormField> fields = new ArrayList<>();
+        Set<String> uniqueFieldNames = new HashSet<>();
+        for (SchemaDto schemaDto : schemaDtos) {
+            fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
+            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(
+                toList());
+            for (HocsFormField fieldToAdd : fieldsToAdd) {
+                if (fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(
+                    String.valueOf(fieldToAdd.getProps().get("name")))) {
+                    uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
+                    fields.add(fieldToAdd);
+                }
+            }
+        }
+        return fields;
     }
 
     public CreateCaseResponse createCase(String caseDataType,
@@ -213,14 +259,7 @@ public class WorkflowService {
         }
 
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getCase(caseUUID);
-
-        SchemaDto schemaDto = infoClient.getSchema(screenName);
-        List<HocsFormField> fields = schemaDto.getFields().stream().map(HocsFormField::from).collect(toList());
-        List<HocsFormSecondaryAction> secondaryActions = schemaDto.getSecondaryActions().stream().map(
-            HocsFormSecondaryAction::from).collect(toList());
-        fields = HocsFormAccordion.loadFormAccordions(fields);
-        HocsSchema schema = new HocsSchema(schemaDto.getTitle(), schemaDto.getDefaultActionLabel(), fields,
-            secondaryActions, schemaDto.getProps(), schemaDto.getValidation(), schemaDto.getSummary());
+        HocsSchema schema = formService.getFormSchema(screenName);
         HocsForm form = new HocsForm(schema, inputResponse.getData());
         return new GetStageResponse(stageUUID, inputResponse.getReference(), form);
     }
@@ -235,6 +274,7 @@ public class WorkflowService {
             STICKY_CASES_VARIABLE);
     }
 
+    @Deprecated(forRemoval = true)
     public GetCaseResponse getAllCaseStages(UUID caseUUID) {
 
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
@@ -261,6 +301,7 @@ public class WorkflowService {
         return new GetCaseResponse(inputResponse.getReference(), schema, dataMap);
     }
 
+    @Deprecated(forRemoval = true)
     public GetCaseDetailsResponse getReadOnlyCaseDetails(UUID caseUUID) {
         GetCaseworkCaseDataResponse inputResponse = caseworkClient.getFullCase(caseUUID);
 
@@ -283,6 +324,7 @@ public class WorkflowService {
 
     }
 
+    @Deprecated(forRemoval = true)
     public Map<String, String> convertDataToSchema(List<SchemaDto> schemaDtos, Map<String, String> dataMap) {
         for (SchemaDto schemaDto : schemaDtos) {
             for (FieldDto fieldDto : schemaDto.getFields()) {
@@ -319,6 +361,7 @@ public class WorkflowService {
         return dataMap;
     }
 
+    @Deprecated(forRemoval = true)
     private String fetchDocumentName(UUID documentUUID) {
 
         try {
@@ -332,24 +375,6 @@ public class WorkflowService {
             throw exception;
         }
 
-    }
-
-    private static List<HocsFormField> schemasToFormField(List<SchemaDto> schemaDtos) {
-        List<HocsFormField> fields = new ArrayList<>();
-        Set<String> uniqueFieldNames = new HashSet<>();
-        for (SchemaDto schemaDto : schemaDtos) {
-            fields.add(HocsFormField.fromTitle(schemaDto.getTitle()));
-            Collection<HocsFormField> fieldsToAdd = schemaDto.getFields().stream().map(HocsFormField::from).collect(
-                toList());
-            for (HocsFormField fieldToAdd : fieldsToAdd) {
-                if (fieldToAdd.getProps().get("name") != null && !uniqueFieldNames.contains(
-                    String.valueOf(fieldToAdd.getProps().get("name")))) {
-                    uniqueFieldNames.add(String.valueOf(fieldToAdd.getProps().get("name")));
-                    fields.add(fieldToAdd);
-                }
-            }
-        }
-        return fields;
     }
 
     public void updateStage(UUID caseUUID,

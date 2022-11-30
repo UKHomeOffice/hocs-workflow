@@ -1,30 +1,51 @@
 package uk.gov.digital.ho.hocs.workflow.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.digital.ho.hocs.workflow.api.dto.*;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.DocumentSummary;
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
+import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDtoBuilder;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseDetailsResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
-import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetAllStagesForCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponseBuilder;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStageResponseDto;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetStagesResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseRequest;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.MigrateCaseworkCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.StageDto;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.DocumentClient;
 import uk.gov.digital.ho.hocs.workflow.client.documentclient.dto.CreateCaseworkDocumentRequest;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.InfoClient;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.CaseDetailsFieldDto;
 import uk.gov.digital.ho.hocs.workflow.client.infoclient.dto.TeamDto;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormAccordion;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormSecondaryAction;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Field;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Schema;
+import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.SecondaryAction;
 import uk.gov.digital.ho.hocs.workflow.helper.SchemaDtoBuilder;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 
@@ -41,40 +62,22 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkflowServiceTest {
-
-    @Mock
-    private CamundaClient camundaClient;
-
-    @Mock
-    private CaseworkClient caseworkClient;
-
-    @Mock
-    private DocumentClient documentClient;
-
-    @Mock
-    private InfoClient infoClient;
-
-    @Mock
-    private UserPermissionsService userPermissionsService;
-
-    @Captor
-    ArgumentCaptor<CreateCaseworkCorrespondentRequest> argumentCaptor;
-
-    @Captor
-    ArgumentCaptor<Map<String, String>> caseDateArgumentCaptor;
-
-    @Captor
-    ArgumentCaptor<Map<String, String>> seedDataArgumentCaptor;
-
-    @Spy
-    @InjectMocks
-    private WorkflowService workflowServiceSpy;
-
-    private WorkflowService workflowService;
 
     private final String testFieldName = "field_name";
 
@@ -108,19 +111,51 @@ public class WorkflowServiceTest {
 
     private final Object schemaDtoProps = new Object();
 
-    private FieldDto childField = new FieldDto(UUID.randomUUID(), "test", "test", "test", fieldValidation,
-        new HashMap<>(), false, false, null);
-
     private final UUID oldTeam = UUID.fromString("141a19e7-4cee-40d7-b078-50fc43846ca3");
 
     private final UUID caseUUID = UUID.fromString("8ecc4f69-b64a-4825-afbf-31f5af95d292");
 
     private final String stageUUID = "5b1c9476-2c0d-40d7-a814-f83e1d5ab8df";
 
+    private final Field childField = new Field("test", "test", "test", fieldValidation, new HashMap<>(), null);
+
+    @Captor
+    ArgumentCaptor<CreateCaseworkCorrespondentRequest> argumentCaptor;
+
+    @Captor
+    ArgumentCaptor<Map<String, String>> caseDateArgumentCaptor;
+
+    @Captor
+    ArgumentCaptor<Map<String, String>> seedDataArgumentCaptor;
+
+    @Mock
+    private CamundaClient camundaClient;
+
+    @Mock
+    private CaseworkClient caseworkClient;
+
+    @Mock
+    private DocumentClient documentClient;
+
+    @Mock
+    private InfoClient infoClient;
+
+    @Mock
+    private FormService formService;
+
+    @Mock
+    private UserPermissionsService userPermissionsService;
+
+    @Spy
+    @InjectMocks
+    private WorkflowService workflowServiceSpy;
+
+    private WorkflowService workflowService;
+
     @Before
     public void beforeTest() {
         workflowService = new WorkflowService(caseworkClient, documentClient, infoClient, camundaClient,
-            userPermissionsService);
+            userPermissionsService, formService);
     }
 
     @Test
@@ -688,8 +723,7 @@ public class WorkflowServiceTest {
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null,
             caseRef, caseResponseData, null, null, null, null, null, null, null);
         when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
-        SchemaDto schemaDto = exampleSchemaDto();
-        when(infoClient.getSchema(screenName)).thenReturn(schemaDto);
+        when(formService.getFormSchema(screenName)).thenReturn(exampleSchemaDto());
 
         //when
         GetStageResponse response = workflowService.getStage(caseUUID, stageUUID);
@@ -802,7 +836,7 @@ public class WorkflowServiceTest {
         when(userPermissionsService.getUserId()).thenReturn(userUUID);
         when(camundaClient.hasProcessInstanceVariableWithValue(caseUUID.toString(), "STICKY_CASES", "true")).thenReturn(
             true);
-        when(infoClient.getSchema(nextStageScreenName)).thenReturn(exampleSchemaDto());
+
         GetCaseworkCaseDataResponse getCaseworkCaseDataResponse = new GetCaseworkCaseDataResponse(caseUUID, null, null,
             caseRef, caseResponseData, null, null, null, null, null, null, null);
         when(caseworkClient.getCase(caseUUID)).thenReturn(getCaseworkCaseDataResponse);
@@ -819,24 +853,29 @@ public class WorkflowServiceTest {
             "STICKY_CASES");
     }
 
-    private SchemaDto exampleSchemaDto() {
-        FieldDto fieldDto = new FieldDto(UUID.randomUUID(), fieldName, fieldLabel, fieldComponent, fieldValidation,
-            new HashMap<>(), false, false, childField);
-        List<FieldDto> fields = new ArrayList<>();
-        fields.add(fieldDto);
-        SecondaryActionDto secondaryActionDto = new SecondaryActionDto(UUID.randomUUID(), secondaryActionName,
-            secondaryActionLabel, secondaryActionComponent, secondaryActionValidation, new HashMap<>());
-        List<SecondaryActionDto> secondaryActions = new ArrayList<>();
-        secondaryActions.add(secondaryActionDto);
-        return new SchemaDto(UUID.randomUUID(), "schema-stage-type", "schema-type", schemaTitle,
-            schemaDefaultActionLabel, false, fields, secondaryActions, schemaDtoProps, schemaDtoValidation, null);
+    private HocsSchema exampleSchemaDto() {
+        List<Field> fieldList = List.of(
+            new Field(fieldName, fieldLabel, fieldComponent, fieldValidation, new HashMap<>(), childField));
+        List<SecondaryAction> secondaryActionList = List.of(
+            new SecondaryAction(secondaryActionName, secondaryActionLabel, secondaryActionComponent,
+                secondaryActionValidation, new HashMap<>()));
+
+        Schema schema = new Schema(schemaTitle, schemaDefaultActionLabel, fieldList, secondaryActionList,
+            schemaDtoProps, schemaDtoValidation, null);
+
+        List<HocsFormField> fields = schema.getFields().stream().map(HocsFormField::from).toList();
+        fields = HocsFormAccordion.loadFormAccordions(fields);
+
+        List<HocsFormSecondaryAction> secondaryActions = schema.getSecondaryActions().stream().map(
+            HocsFormSecondaryAction::from).toList();
+        return new HocsSchema(schema.getTitle(), schema.getDefaultActionLabel(), fields, secondaryActions,
+            schema.getProps(), schema.getValidation(), schema.getSummary());
     }
 
     private List<SchemaDto> setupTestSchemas() {
-
         Map<String, Object> props = Map.of("entity", "document");
         List<FieldDto> fieldDtos = List.of(
-            new FieldDto(null, testFieldName, null, "entity-list", null, props, true, true, null));
+            new FieldDto(null, testFieldName, null, "entity-list", null, props, true, null));
         SchemaDto schemaDto = new SchemaDto(UUID.randomUUID(), null, null, null, null, true, fieldDtos, null, null,
             null, null);
         return List.of(schemaDto);

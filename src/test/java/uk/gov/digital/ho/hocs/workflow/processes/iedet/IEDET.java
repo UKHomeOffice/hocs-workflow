@@ -102,9 +102,9 @@ public class IEDET {
                 .thenReturn("CompType", "SeriousMisconduct")
                 .deploy(rule);
 
-        whenAtCallActivity("PSU_COMPLAINT")
-                .thenReturn("", "")
-                .deploy(rule);
+        whenAtCallActivity("PSU_IEDET_COMPLAINT")
+            .alwaysReturn("ReturnCase", "ReturnCase-false")
+            .deploy(rule);
 
         Scenario.run(processScenario).startByKey("IEDET").execute();
 
@@ -113,6 +113,29 @@ public class IEDET {
         verify(processScenario).hasCompleted("CallActivity_IEDET_TRIAGE");
         verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_IEDET");
+    }
+
+    @Test
+    public void testSeriousMisconductSendtoIEDetntion(){
+        whenAtCallActivity("IEDET_REGISTRATION")
+            .thenReturn("", "")
+            .deploy(rule);
+
+        whenAtCallActivity("IEDET_TRIAGE")
+            .thenReturn("CompType", "SeriousMisconduct")
+            .deploy(rule);
+
+        whenAtCallActivity("PSU_IEDET_COMPLAINT")
+            .alwaysReturn("ReturnCase", "ReturnCase-true")
+            .deploy(rule);
+
+        Scenario.run(processScenario).startByKey("IEDET").execute();
+
+        verify(processScenario).hasCompleted("StartEvent_IEDET");
+        verify(processScenario).hasCompleted("CallActivity_IEDET_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_IEDET_TRIAGE");
+        verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
         verify(processScenario).hasCompleted("EndEvent_IEDET");
     }
 }
