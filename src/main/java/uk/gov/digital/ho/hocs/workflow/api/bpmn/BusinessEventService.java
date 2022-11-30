@@ -4,16 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
-import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.BusinessEvent;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.DataFieldUpdatedPayload;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 
+import java.util.Objects;
 import java.util.UUID;
 
-import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.COMPLAINT_TYPE_FORMAT;
-import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.COMPLAINT_TYPE_UPDATED_FORMAT;
-import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.PREVIOUS_COMPLAINT_TYPE;
-import static uk.gov.digital.ho.hocs.workflow.client.auditclient.EventType.COMPLAINT_TYPE_UPDATED;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.DATA_FIELD_UPDATED_EVENT_NAME;
+import static uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants.PREVIOUS_VALUE_KEY;
 
 @Service
 @Slf4j
@@ -28,18 +27,29 @@ public class BusinessEventService {
         this.bpmnService = bpmnService;
     }
 
-    public void createComplaintTypeEvent(String caseUUIDString, String stageUUIDString, String currentComplaintType){
+    public void createDataFieldUpdatedEvent(String caseUUIDString, String stageUUIDString, String fieldName, String newValue) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID= UUID.fromString(stageUUIDString);
+
+        String previousValueKey = String.format(PREVIOUS_VALUE_KEY, fieldName);
+        String name = String.format(DATA_FIELD_UPDATED_EVENT_NAME, fieldName);
+
         GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUUID);
-        String previousComplaintType = caseData.getData().get(PREVIOUS_COMPLAINT_TYPE);
+        String previousValue = caseData.getData().get(previousValueKey);
 
-        String message = previousComplaintType == null || currentComplaintType.equalsIgnoreCase(previousComplaintType)
-            ? String.format(COMPLAINT_TYPE_FORMAT, currentComplaintType)
-            : String.format(COMPLAINT_TYPE_UPDATED_FORMAT, previousComplaintType, currentComplaintType);
-        BusinessEvent businessEvent = new BusinessEvent(COMPLAINT_TYPE_UPDATED, message);
+        if (Objects.equals(previousValue, newValue)) {
+            return;
+        }
 
-        auditClient.createBusinessEvent(caseUUID, stageUUID, businessEvent);
-        bpmnService.updateCaseValue(caseUUIDString, stageUUIDString, PREVIOUS_COMPLAINT_TYPE, currentComplaintType);
+        DataFieldUpdatedPayload dataFieldUpdatedPayload = new DataFieldUpdatedPayload(
+            name,
+            fieldName,
+            newValue,
+            previousValue
+        );
+
+        auditClient.createBusinessEvent(caseUUID, stageUUID, dataFieldUpdatedPayload);
+        bpmnService.updateCaseValue(caseUUIDString, stageUUIDString, previousValueKey, newValue);
     }
+
 }

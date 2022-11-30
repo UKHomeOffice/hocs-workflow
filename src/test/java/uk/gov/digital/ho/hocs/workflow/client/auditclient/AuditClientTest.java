@@ -4,6 +4,7 @@ import com.amazonaws.services.sns.AmazonSNSAsync;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -19,6 +20,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.BusinessEventPayloadInterface;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.DataFieldUpdatedPayload;
 import uk.gov.digital.ho.hocs.workflow.util.BaseAwsTest;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.CreateAuditRequest;
 
@@ -35,42 +38,61 @@ public class AuditClientTest extends BaseAwsTest {
 
     @Captor
     private ArgumentCaptor<PublishRequest> publicRequestCaptor;
+
     private ResultCaptor<PublishResult> snsPublishResult;
+
     @SpyBean
     private AmazonSNSAsync auditSearchSnsClient;
+
     @MockBean(name = "requestData")
     private RequestData requestData;
-    @MockBean
-    private RestHelper restHelper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private AuditClient auditClient;
 
-    @Value("${hocs.audit-service}")
-    private String auditService;
-
     @Before
     public void setUp() {
-       /*when(requestData.correlationId()).thenReturn(UUID.randomUUID().toString());
+       when(requestData.correlationId()).thenReturn(UUID.randomUUID().toString());
        when(requestData.userId()).thenReturn("some user id");
        when(requestData.groups()).thenReturn("some groups");
        when(requestData.username()).thenReturn("some username");
 
        snsPublishResult = new ResultCaptor<>();
-       doAnswer(snsPublishResult).when(auditSearchSnsClient).publish(any());*/
+       doAnswer(snsPublishResult).when(auditSearchSnsClient).publish(any());
     }
 
     @Test
-    public void shouldSendCaseComplaintEvent() {
-        //auditClient.createCaseComplaintType();
+    public void shouldCreateBusinessEvent() throws JsonProcessingException {
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
 
-        //verify(auditSearchSnsClient).publish(publicRequestCaptor.capture());
-        //assertSnsValues(caseData.getUuid(), EventType.CASE_CREATED);
-        //System.out.println("Test completed");
+        String name = "CompType_UPDATED";
+        String fieldName = "CompType";
+        String newValue = "complaintType";
+        String previousValue = "previousComplaintType";
+
+
+        BusinessEventPayloadInterface businessEventPayloadInterface = new DataFieldUpdatedPayload(
+            name, fieldName, newValue, previousValue
+        );
+
+        Map<String, String> expectedData = Map.of(
+            "name", name,
+            "fieldName", fieldName,
+            "newValue", newValue,
+            "previousValue", previousValue
+         );
+
+        auditClient.createBusinessEvent(caseUUID, stageUUID, businessEventPayloadInterface);
+
+        verify(auditSearchSnsClient).publish(publicRequestCaptor.capture());
+        assertSnsValues(caseUUID, EventType.DATA_FIELD_UPDATED, expectedData);
     }
 
-
- /*   private void assertSnsValues(UUID caseUuid, EventType event, @NotNull Map<String, String> otherValues) throws JsonProcessingException {
+    private void assertSnsValues(UUID caseUuid, EventType event, @NotNull Map<String, String> otherValues) throws JsonProcessingException {
         var caseCreated =
                 objectMapper.readValue(publicRequestCaptor.getValue().getMessage(), CreateAuditRequest.class);
 
@@ -86,6 +108,6 @@ public class AuditClientTest extends BaseAwsTest {
 
             Assertions.assertTrue(caseCreatedData.entrySet().containsAll(otherValues.entrySet()));
         }
-    }*/
+    }
 
 }

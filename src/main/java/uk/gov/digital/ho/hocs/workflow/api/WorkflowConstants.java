@@ -29,7 +29,6 @@ public interface WorkflowConstants {
     String CHANNEL = "Channel";
     String CHANNEL_COMP_ORIGINATEDFROM = "XOriginatedFrom";
     String CHANNEL_COMP_WEBFORM = "Webform";
-    String PREVIOUS_COMPLAINT_TYPE =  "previousComplaintType";
-    String COMPLAINT_TYPE_FORMAT =  "Complaint type: %s";
-    String COMPLAINT_TYPE_UPDATED_FORMAT =  "Complaint type changed from %s to %s.";
+    String PREVIOUS_VALUE_KEY = "previous%s";
+    String DATA_FIELD_UPDATED_EVENT_NAME = "%s_UPDATED";
 }

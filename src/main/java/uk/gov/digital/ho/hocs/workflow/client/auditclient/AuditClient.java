@@ -6,6 +6,7 @@ import com.amazonaws.services.sns.model.PublishRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.BusinessEventPayloadInterface;
 import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
 
@@ -13,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import uk.gov.digital.ho.hocs.workflow.application.aws.SnsStringMessageAttributeValue;
-import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.BusinessEvent;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.CreateAuditRequest;
 
 import java.time.LocalDateTime;
@@ -52,7 +52,7 @@ public class AuditClient {
         this.requestData = requestData;
     }
 
-    public void createBusinessEvent(UUID caseUuid, UUID stageUuid, BusinessEvent businessEvent) {
+    public void createBusinessEvent(UUID caseUuid, UUID stageUuid, BusinessEventPayloadInterface businessEvent) {
         LocalDateTime localDateTime = LocalDateTime.now();
         String data = EMPTY_JSON;
         try {
@@ -61,7 +61,7 @@ public class AuditClient {
             logFailedToParseDataPayload(e);
         }
 
-        sendAuditMessage(localDateTime, caseUuid, data, EventType.BUSINESS_EVENT, stageUuid,
+        sendAuditMessage(localDateTime, caseUuid, data, businessEvent.getEventType(), stageUuid,
             requestData.correlationId(), requestData.userId());
     }
 
