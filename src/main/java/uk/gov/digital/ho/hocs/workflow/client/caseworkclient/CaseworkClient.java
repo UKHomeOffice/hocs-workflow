@@ -285,6 +285,5 @@ public class CaseworkClient {
 
     public void createCaseTag(UUID caseUUID, CaseTagRequest caseTagRequest) {
         restHelper.post(serviceBaseURL, String.format("/case/%s/tag", caseUUID), caseTagRequest, String.class);
-        log.info("Tag name : {} created for caseUUID: {}", caseUUID, caseTagRequest.getTag());
     }
 }

@@ -17,10 +17,9 @@ public class TaggingService {
     }
 
     public void createTagForCase(String caseUUIDString, String tag) {
-        log.info("createTagForCase is called");
         UUID caseUUID = UUID.fromString(caseUUIDString);
         CaseTagRequest caseTagRequest = new CaseTagRequest(tag);
-        log.info(caseTagRequest.getTag());
+        log.info("Set case data for case {} and tag - {}", caseUUIDString, caseTagRequest.getTag());
         caseWorkClient.createCaseTag(caseUUID, caseTagRequest);
     }
 }
