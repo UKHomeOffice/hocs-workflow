@@ -283,7 +283,8 @@ public class CaseworkClient {
         log.info("Data for caseUUID: {} mapped successfully.", caseUUID);
     }
 
-    public void createCaseTag(UUID caseUUID, CaseTagRequest caseTagRequest) {
+    public void createCaseTag(UUID caseUUID, String tag) {
+        CaseTagRequest caseTagRequest = new CaseTagRequest(tag);
         restHelper.post(serviceBaseURL, String.format("/case/%s/tag", caseUUID), caseTagRequest, String.class);
     }
 }
