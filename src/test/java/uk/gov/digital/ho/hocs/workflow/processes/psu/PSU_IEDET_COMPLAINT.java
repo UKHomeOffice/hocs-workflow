@@ -60,8 +60,6 @@ public class PSU_IEDET_COMPLAINT {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Complaint");
-        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario).hasCompleted("CallActivity_PSU");
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
@@ -80,8 +78,6 @@ public class PSU_IEDET_COMPLAINT {
             .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Complaint");
-        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario).hasCompleted("CallActivity_PSU");
         verify(processScenario).hasCompleted("Service_ResetComplaintCategories");
         verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAdminErr"), eq("CatAvail"),

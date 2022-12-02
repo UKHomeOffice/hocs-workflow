@@ -18,7 +18,7 @@
         <camunda:out source="ReturnCase" target="ReturnCase" />
         <camunda:out source="PsuTriageOutcome" target="PsuTriageOutcome" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0gxw7tx</bpmn:incoming>
+      <bpmn:incoming>Flow_1sk8zf2</bpmn:incoming>
       <bpmn:outgoing>Flow_0209jit</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_0209jit" sourceRef="CallActivity_PSU_TRIAGE" targetRef="Gateway_1s86vr7" />
@@ -46,7 +46,7 @@
       <bpmn:incoming>Flow_0l0h7fj</bpmn:incoming>
       <bpmn:outgoing>Flow_0gxw7tx</bpmn:outgoing>
     </bpmn:callActivity>
-    <bpmn:sequenceFlow id="Flow_0gxw7tx" sourceRef="CallActivity_PSU_REGISTRATION" targetRef="CallActivity_PSU_TRIAGE" />
+    <bpmn:sequenceFlow id="Flow_0gxw7tx" sourceRef="CallActivity_PSU_REGISTRATION" targetRef="Service_UpdatePsuDeadline" />
     <bpmn:sequenceFlow id="Flow_0l0h7fj" sourceRef="StartEvent_PSU" targetRef="CallActivity_PSU_REGISTRATION" />
     <bpmn:exclusiveGateway id="Gateway_1s86vr7" default="Flow_13puieu">
       <bpmn:incoming>Flow_0209jit</bpmn:incoming>
@@ -57,55 +57,66 @@
     <bpmn:sequenceFlow id="Flow_0v13kf6" sourceRef="Gateway_1s86vr7" targetRef="EndEvent_PSU">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.getVariable("ReturnCase") == true || execution.getVariable("PsuTriageOutcome") == "CloseCase"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="Service_UpdatePsuDeadline" name="Update Case Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, 60)}">
+      <bpmn:incoming>Flow_0gxw7tx</bpmn:incoming>
+      <bpmn:outgoing>Flow_1sk8zf2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1sk8zf2" sourceRef="Service_UpdatePsuDeadline" targetRef="CallActivity_PSU_TRIAGE" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="PSU">
       <bpmndi:BPMNEdge id="Flow_0v13kf6_di" bpmnElement="Flow_0v13kf6">
-        <di:waypoint x="530" y="312" />
-        <di:waypoint x="530" y="380" />
-        <di:waypoint x="780" y="380" />
-        <di:waypoint x="780" y="305" />
+        <di:waypoint x="623" y="212" />
+        <di:waypoint x="623" y="250" />
+        <di:waypoint x="850" y="250" />
+        <di:waypoint x="850" y="205" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_13puieu_di" bpmnElement="Flow_13puieu">
-        <di:waypoint x="530" y="262" />
-        <di:waypoint x="530" y="120" />
-        <di:waypoint x="610" y="120" />
+        <di:waypoint x="623" y="162" />
+        <di:waypoint x="623" y="120" />
+        <di:waypoint x="680" y="120" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0l0h7fj_di" bpmnElement="Flow_0l0h7fj">
-        <di:waypoint x="188" y="287" />
-        <di:waypoint x="230" y="287" />
+        <di:waypoint x="188" y="187" />
+        <di:waypoint x="220" y="187" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0gxw7tx_di" bpmnElement="Flow_0gxw7tx">
-        <di:waypoint x="330" y="287" />
-        <di:waypoint x="370" y="287" />
+        <di:waypoint x="320" y="187" />
+        <di:waypoint x="344" y="187" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1sqnq8i_di" bpmnElement="Flow_1sqnq8i">
-        <di:waypoint x="710" y="120" />
-        <di:waypoint x="736" y="120" />
-        <di:waypoint x="736" y="287" />
-        <di:waypoint x="762" y="287" />
+        <di:waypoint x="780" y="120" />
+        <di:waypoint x="850" y="120" />
+        <di:waypoint x="850" y="169" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0209jit_di" bpmnElement="Flow_0209jit">
-        <di:waypoint x="470" y="287" />
-        <di:waypoint x="505" y="287" />
+        <di:waypoint x="572" y="187" />
+        <di:waypoint x="598" y="187" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_PSU">
-        <dc:Bounds x="152" y="269" width="36" height="36" />
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1sk8zf2_di" bpmnElement="Flow_1sk8zf2">
+        <di:waypoint x="444" y="187" />
+        <di:waypoint x="472" y="187" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1r40ymd_di" bpmnElement="EndEvent_PSU">
-        <dc:Bounds x="762" y="269" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0tmg3tg_di" bpmnElement="CallActivity_PSU_TRIAGE">
-        <dc:Bounds x="370" y="247" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0t99yw8_di" bpmnElement="CallActivity_PSU_REGISTRATION">
-        <dc:Bounds x="230" y="247" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1s86vr7_di" bpmnElement="Gateway_1s86vr7" isMarkerVisible="true">
-        <dc:Bounds x="505" y="262" width="50" height="50" />
+        <dc:Bounds x="832" y="169" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_02z8j9k_di" bpmnElement="CallActivity_PSU_OUTCOME">
-        <dc:Bounds x="610" y="80" width="100" height="80" />
+        <dc:Bounds x="680" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_PSU">
+        <dc:Bounds x="152" y="169" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0t99yw8_di" bpmnElement="CallActivity_PSU_REGISTRATION">
+        <dc:Bounds x="220" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1s86vr7_di" bpmnElement="Gateway_1s86vr7" isMarkerVisible="true">
+        <dc:Bounds x="598" y="162" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0tmg3tg_di" bpmnElement="CallActivity_PSU_TRIAGE">
+        <dc:Bounds x="472" y="147" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15mg8cv_di" bpmnElement="Service_UpdatePsuDeadline">
+        <dc:Bounds x="344" y="147" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
