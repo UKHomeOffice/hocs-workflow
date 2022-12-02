@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,9 +49,6 @@ public class AuditClientTest extends BaseAwsTest {
     private RequestData requestData;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
     private AuditClient auditClient;
 
     @Before
@@ -73,17 +71,23 @@ public class AuditClientTest extends BaseAwsTest {
         String fieldName = "CompType";
         String newValue = "complaintType";
         String previousValue = "previousComplaintType";
+        String fieldNameLabel = "Complaint type";
+        String newValueLabel = "complaint type";
+        String previousValueLabel = "previous complaint type";
 
 
         BusinessEventPayloadInterface businessEventPayloadInterface = new DataFieldUpdatedPayload(
-            name, fieldName, newValue, previousValue
+            name, fieldName, newValue, previousValue, fieldNameLabel, newValueLabel, previousValueLabel
         );
 
         Map<String, String> expectedData = Map.of(
             "name", name,
             "fieldName", fieldName,
             "newValue", newValue,
-            "previousValue", previousValue
+            "previousValue", previousValue,
+            "fieldNameLabel", fieldNameLabel,
+            "newValueLabel", newValueLabel,
+            "previousValueLabel", previousValueLabel
          );
 
         auditClient.createBusinessEvent(caseUUID, stageUUID, businessEventPayloadInterface);

@@ -39,9 +39,9 @@ public class AuditClient {
 
     @Autowired
     public AuditClient(AmazonSNSAsync auditSnsClient,
-                       @Value("${aws.sns.audit-search.arn}") String auditQueue,
-                       @Value("${auditing.deployment.name}") String raisingService,
-                       @Value("${auditing.deployment.namespace}") String namespace,
+                       @Value("arn:aws:sns:eu-west-2:000000000000:hocs-audit-topic") String auditQueue,
+                       @Value("wf:hocs-workflow-service") String raisingService,
+                       @Value("local") String namespace,
                        ObjectMapper objectMapper,
                        RequestData requestData) {
         this.auditSnsClient = auditSnsClient;

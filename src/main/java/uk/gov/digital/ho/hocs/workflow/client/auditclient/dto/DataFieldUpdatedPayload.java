@@ -31,4 +31,13 @@ public class DataFieldUpdatedPayload implements BusinessEventPayloadInterface {
     @JsonProperty("previousValue")
     private String previousValue;
 
+    @JsonProperty("fieldNameLabel")
+    private String fieldNameLabel;
+
+    @JsonProperty("newValueLabel")
+    private String newValueLabel;
+
+    @JsonProperty("previousValueLabel")
+    private String previousValueLabel;
+
 }
