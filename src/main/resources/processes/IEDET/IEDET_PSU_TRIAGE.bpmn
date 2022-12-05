@@ -8,16 +8,16 @@
       <bpmn:incoming>Flow_1gidqty</bpmn:incoming>
       <bpmn:incoming>Flow_1cf4u27</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_18d0rzg" sourceRef="StartEvent_Triage" targetRef="Screen_PSUComplaints" />
+    <bpmn:sequenceFlow id="Flow_18d0rzg" sourceRef="StartEvent_Triage" targetRef="Service_UpdatePsuDeadline" />
     <bpmn:userTask id="Screen_PSUComplaints" name="Complaint Type" camunda:formKey="PSU_TRIAGE_COMPLAINT">
       <bpmn:extensionElements>
         <camunda:inputOutput>
           <camunda:outputParameter name="ReturnCase">${PsuTriageOutcome == "ReturnCase" ? true : false}</camunda:outputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_18d0rzg</bpmn:incoming>
       <bpmn:incoming>Flow_0pr6wk5</bpmn:incoming>
       <bpmn:incoming>Flow_12o2qxz</bpmn:incoming>
+      <bpmn:incoming>Flow_0qr26vo</bpmn:incoming>
       <bpmn:outgoing>Flow_12yecwj</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_12yecwj" sourceRef="Screen_PSUComplaints" targetRef="Gateway_0khr7oc" />
@@ -53,73 +53,85 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ DIRECTION == "BACKWARD" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1gr7asm" sourceRef="Gateway_09rm5y0" targetRef="Screen_PSUComplaintCategory" />
+    <bpmn:serviceTask id="Service_UpdatePsuDeadline" name="Update Case Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, 60)}">
+      <bpmn:incoming>Flow_18d0rzg</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qr26vo</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0qr26vo" sourceRef="Service_UpdatePsuDeadline" targetRef="Screen_PSUComplaints" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="IEDET_PSU_TRIAGE">
       <bpmndi:BPMNEdge id="Flow_1gr7asm_di" bpmnElement="Flow_1gr7asm" bioc:stroke="#e53935" color:border-color="#e53935">
-        <di:waypoint x="660" y="192" />
-        <di:waypoint x="660" y="130" />
-        <di:waypoint x="550" y="130" />
-        <di:waypoint x="550" y="177" />
+        <di:waypoint x="750" y="192" />
+        <di:waypoint x="750" y="130" />
+        <di:waypoint x="640" y="130" />
+        <di:waypoint x="640" y="177" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12o2qxz_di" bpmnElement="Flow_12o2qxz" bioc:stroke="#43a047" color:border-color="#43a047">
-        <di:waypoint x="660" y="192" />
-        <di:waypoint x="660" y="90" />
-        <di:waypoint x="330" y="90" />
-        <di:waypoint x="330" y="177" />
+        <di:waypoint x="750" y="192" />
+        <di:waypoint x="750" y="90" />
+        <di:waypoint x="420" y="90" />
+        <di:waypoint x="420" y="177" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1cf4u27_di" bpmnElement="Flow_1cf4u27">
-        <di:waypoint x="685" y="217" />
-        <di:waypoint x="722" y="217" />
+        <di:waypoint x="775" y="217" />
+        <di:waypoint x="812" y="217" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_07ifwlp_di" bpmnElement="Flow_07ifwlp">
-        <di:waypoint x="600" y="217" />
-        <di:waypoint x="635" y="217" />
+        <di:waypoint x="690" y="217" />
+        <di:waypoint x="725" y="217" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0pr6wk5_di" bpmnElement="Flow_0pr6wk5" bioc:stroke="#e53935" color:border-color="#e53935">
-        <di:waypoint x="440" y="192" />
-        <di:waypoint x="440" y="130" />
-        <di:waypoint x="330" y="130" />
-        <di:waypoint x="330" y="177" />
+        <di:waypoint x="530" y="192" />
+        <di:waypoint x="530" y="130" />
+        <di:waypoint x="420" y="130" />
+        <di:waypoint x="420" y="177" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1gidqty_di" bpmnElement="Flow_1gidqty">
-        <di:waypoint x="440" y="242" />
-        <di:waypoint x="440" y="310" />
-        <di:waypoint x="740" y="310" />
-        <di:waypoint x="740" y="235" />
+        <di:waypoint x="530" y="242" />
+        <di:waypoint x="530" y="310" />
+        <di:waypoint x="830" y="310" />
+        <di:waypoint x="830" y="235" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="627" y="252" width="57" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_13xu4ud_di" bpmnElement="Flow_13xu4ud">
-        <di:waypoint x="465" y="217" />
-        <di:waypoint x="500" y="217" />
+        <di:waypoint x="555" y="217" />
+        <di:waypoint x="590" y="217" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12yecwj_di" bpmnElement="Flow_12yecwj">
-        <di:waypoint x="380" y="217" />
-        <di:waypoint x="415" y="217" />
+        <di:waypoint x="470" y="217" />
+        <di:waypoint x="505" y="217" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_18d0rzg_di" bpmnElement="Flow_18d0rzg">
-        <di:waypoint x="215" y="217" />
-        <di:waypoint x="280" y="217" />
+        <di:waypoint x="188" y="217" />
+        <di:waypoint x="230" y="217" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Triage">
-        <dc:Bounds x="179" y="199" width="36" height="36" />
+      <bpmndi:BPMNEdge id="Flow_0qr26vo_di" bpmnElement="Flow_0qr26vo">
+        <di:waypoint x="330" y="217" />
+        <di:waypoint x="370" y="217" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0s49pcm_di" bpmnElement="EndEvent_Triage">
+        <dc:Bounds x="812" y="199" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0k2e8v7_di" bpmnElement="Screen_PSUComplaints">
-        <dc:Bounds x="280" y="177" width="100" height="80" />
+        <dc:Bounds x="370" y="177" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0khr7oc_di" bpmnElement="Gateway_0khr7oc" isMarkerVisible="true">
-        <dc:Bounds x="415" y="192" width="50" height="50" />
+        <dc:Bounds x="505" y="192" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_12wtqts_di" bpmnElement="Screen_PSUComplaintCategory">
-        <dc:Bounds x="500" y="177" width="100" height="80" />
+        <dc:Bounds x="590" y="177" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_09rm5y0_di" bpmnElement="Gateway_09rm5y0" isMarkerVisible="true">
-        <dc:Bounds x="635" y="192" width="50" height="50" />
+        <dc:Bounds x="725" y="192" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0s49pcm_di" bpmnElement="EndEvent_Triage">
-        <dc:Bounds x="722" y="199" width="36" height="36" />
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_Triage">
+        <dc:Bounds x="152" y="199" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0gwtsh6_di" bpmnElement="Service_UpdatePsuDeadline">
+        <dc:Bounds x="230" y="177" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
