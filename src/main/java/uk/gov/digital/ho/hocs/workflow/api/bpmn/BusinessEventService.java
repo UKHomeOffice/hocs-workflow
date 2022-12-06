@@ -27,22 +27,19 @@ public class BusinessEventService {
     private final AuditClient auditClient;
     private final CaseworkClient caseworkClient;
     private final BpmnService bpmnService;
-    private final CamundaClient camundaClient;
     private final FormService formService;
 
     public BusinessEventService(AuditClient auditClient,
                                 CaseworkClient caseworkClient,
                                 BpmnService bpmnService,
-                                CamundaClient camundaClient,
                                 FormService formService) {
         this.auditClient = auditClient;
         this.caseworkClient = caseworkClient;
         this.bpmnService = bpmnService;
-        this.camundaClient = camundaClient;
         this.formService = formService;
     }
 
-    public void createDataFieldUpdatedEvent(String caseUUIDString, String stageUUIDString, String fieldName, String newValue) {
+    public void createDataFieldUpdatedEvent(String caseUUIDString, String stageUUIDString, String screenName, String fieldName, String newValue) {
         UUID caseUUID = UUID.fromString(caseUUIDString);
         UUID stageUUID= UUID.fromString(stageUUIDString);
 
@@ -56,7 +53,6 @@ public class BusinessEventService {
             return;
         }
 
-        String screenName = camundaClient.getStageScreenName(stageUUID);
         HocsSchema hocsSchema = formService.getFormSchema(screenName);
 
         List<HocsFormField> fields = hocsSchema.getFields();

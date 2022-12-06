@@ -45,9 +45,6 @@ public class BusinessEventServiceTest {
     private BpmnService bpmnService;
 
     @Mock
-    private CamundaClient camundaClient;
-
-    @Mock
     private FormService formService;
 
     private BusinessEventService businessEventService;
@@ -64,8 +61,7 @@ public class BusinessEventServiceTest {
 
     @Before
     public void setup() {
-        businessEventService = new BusinessEventService(auditClient, caseworkClient, bpmnService, camundaClient,
-            formService);
+        businessEventService = new BusinessEventService(auditClient, caseworkClient, bpmnService, formService);
     }
 
     @Test
@@ -82,10 +78,9 @@ public class BusinessEventServiceTest {
                 null, null, false);
 
         when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
-        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
         when(formService.getFormSchema(screenName)).thenReturn(hocsSchema);
 
-        businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), "CompType", complaintType);
+        businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), screenName, "CompType", complaintType);
     }
 
     @Test
@@ -112,10 +107,9 @@ public class BusinessEventServiceTest {
                 null, null, false);
 
         when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
-        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
         when(formService.getFormSchema(screenName)).thenReturn(hocsSchema);
 
-        businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), fieldName, complaintType);
+        businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), screenName, fieldName, complaintType);
 
         verify(auditClient).createBusinessEvent(eq(caseUUID), eq(stageUUID), eq(expectedPayload));
     }
@@ -151,6 +145,7 @@ public class BusinessEventServiceTest {
     public void testShouldNotUpdateComplaintTypeNoChange(){
         Map<String, String> data = new HashMap<>();
         String complaintType = "Service";
+        String screenName = "screenName";
         data.put("previousCompType", complaintType);
 
         GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
@@ -160,7 +155,7 @@ public class BusinessEventServiceTest {
 
         when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
 
-        businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), "CompType", complaintType);
+        businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), screenName, "CompType", complaintType);
 
         verify(auditClient, never()).createBusinessEvent(any(), any(), any());
     }
