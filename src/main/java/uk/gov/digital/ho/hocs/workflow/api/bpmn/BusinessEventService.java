@@ -3,15 +3,15 @@ package uk.gov.digital.ho.hocs.workflow.api.bpmn;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
-import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
-import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
+import uk.gov.digital.ho.hocs.workflow.api.FormService;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.DataFieldUpdatedPayload;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,16 +27,19 @@ public class BusinessEventService {
     private final AuditClient auditClient;
     private final CaseworkClient caseworkClient;
     private final BpmnService bpmnService;
-    private final WorkflowService workflowService;
+    private final CamundaClient camundaClient;
+    private final FormService formService;
 
     public BusinessEventService(AuditClient auditClient,
                                 CaseworkClient caseworkClient,
                                 BpmnService bpmnService,
-                                WorkflowService workflowService) {
+                                CamundaClient camundaClient,
+                                FormService formService) {
         this.auditClient = auditClient;
         this.caseworkClient = caseworkClient;
         this.bpmnService = bpmnService;
-        this.workflowService = workflowService;
+        this.camundaClient = camundaClient;
+        this.formService = formService;
     }
 
     public void createDataFieldUpdatedEvent(String caseUUIDString, String stageUUIDString, String fieldName, String newValue) {
@@ -53,9 +56,10 @@ public class BusinessEventService {
             return;
         }
 
-        GetStageResponse getStageResponse = workflowService.getStage(caseUUID, stageUUID);
+        String screenName = camundaClient.getStageScreenName(stageUUID);
+        HocsSchema hocsSchema = formService.getFormSchema(screenName);
 
-        List<HocsFormField> fields = getStageResponse.getForm().getSchema().getFields();
+        List<HocsFormField> fields = hocsSchema.getFields();
         Optional<HocsFormField> hocsFormField = fields.stream().filter((field) -> Objects.equals(field.getProps().get("name"), fieldName)).findFirst();
 
         String fieldNameLabel = getFormProperty("label", hocsFormField, fieldName, String.class);

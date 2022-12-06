@@ -7,11 +7,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
+import uk.gov.digital.ho.hocs.workflow.api.FormService;
 import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.BusinessEventPayloadInterface;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.DataFieldUpdatedPayload;
+import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
@@ -19,7 +21,6 @@ import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Field;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,10 @@ public class BusinessEventServiceTest {
     private BpmnService bpmnService;
 
     @Mock
-    private WorkflowService workflowService;
+    private CamundaClient camundaClient;
+
+    @Mock
+    private FormService formService;
 
     private BusinessEventService businessEventService;
     private final UUID caseUUID = UUID.randomUUID();
@@ -60,15 +64,17 @@ public class BusinessEventServiceTest {
 
     @Before
     public void setup() {
-        businessEventService = new BusinessEventService(auditClient, caseworkClient, bpmnService, workflowService);
+        businessEventService = new BusinessEventService(auditClient, caseworkClient, bpmnService, camundaClient,
+            formService);
     }
 
     @Test
     public void testShouldCreateComplaintType(){
         Map<String, String> data = new HashMap<>();
+        String screenName = "screenName";
         data.put("previousCompType", null);
 
-        GetStageResponse getStageResponse = createGetStageResponse();
+        HocsSchema hocsSchema = createHocsSchema();
 
         GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
                 caseUUID, null, null, null,
@@ -76,18 +82,19 @@ public class BusinessEventServiceTest {
                 null, null, false);
 
         when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
-        when(workflowService.getStage(caseUUID, stageUUID)).thenReturn(getStageResponse);
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        when(formService.getFormSchema(screenName)).thenReturn(hocsSchema);
 
         businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), "CompType", complaintType);
     }
 
     @Test
     public void testShouldUpdateComplaintTypeToService(){
-
         Map<String, String> data = new HashMap<>();
+        String screenName = "screenName";
         data.put("previousCompType", previousComplaintType);
 
-        GetStageResponse getStageResponse = createGetStageResponse();
+        HocsSchema hocsSchema = createHocsSchema();
 
         BusinessEventPayloadInterface expectedPayload = new DataFieldUpdatedPayload(
             "CompType_UPDATED",
@@ -105,7 +112,8 @@ public class BusinessEventServiceTest {
                 null, null, false);
 
         when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
-        when(workflowService.getStage(caseUUID, stageUUID)).thenReturn(getStageResponse);
+        when(camundaClient.getStageScreenName(stageUUID)).thenReturn(screenName);
+        when(formService.getFormSchema(screenName)).thenReturn(hocsSchema);
 
         businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), fieldName, complaintType);
 
@@ -113,7 +121,7 @@ public class BusinessEventServiceTest {
     }
 
     @NotNull
-    private GetStageResponse createGetStageResponse() {
+    private HocsSchema createHocsSchema() {
         Map<String, Object> props = Map.of(
             "choices", List.of(
                 Map.of("value", complaintType, "label", newValueLabel),
@@ -128,7 +136,7 @@ public class BusinessEventServiceTest {
             null
         );
         List<HocsFormField> hocsFormFields = List.of(HocsFormField.from(field));
-        HocsSchema hocsSchema = new HocsSchema(
+        return new HocsSchema(
             null,
             null,
             hocsFormFields,
@@ -137,9 +145,6 @@ public class BusinessEventServiceTest {
             null,
             null
         );
-        HocsForm hocsForm = new HocsForm(hocsSchema, Map.of());
-        GetStageResponse getStageResponse = new GetStageResponse(stageUUID, "caseRef", hocsForm);
-        return getStageResponse;
     }
 
     @Test
