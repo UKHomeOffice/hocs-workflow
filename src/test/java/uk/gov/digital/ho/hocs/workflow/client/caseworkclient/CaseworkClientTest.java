@@ -271,7 +271,7 @@ public class CaseworkClientTest {
         String expectedUrl = String.format("/case/%s/tag", caseUUID);
         caseworkClient.createCaseTag(caseUUID, "TEST_TAG");
 
-        verify(restHelper).post(eq(caseServiceUrl), eq(expectedUrl), any(), eq(String.class));
+        verify(restHelper).post(eq(caseServiceUrl), eq(expectedUrl), any(), eq(Void.class));
         verifyNoMoreInteractions(restHelper);
     }
 
