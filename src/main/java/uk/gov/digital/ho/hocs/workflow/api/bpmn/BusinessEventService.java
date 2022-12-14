@@ -57,9 +57,9 @@ public class BusinessEventService {
         List<HocsFormField> fields = hocsSchema.getFields();
         Optional<HocsFormField> hocsFormField = fields.stream().filter((field) -> Objects.equals(field.getProps().get("name"), fieldName)).findFirst();
 
-        String fieldNameLabel = getFormProperty("label", hocsFormField, fieldName, String.class);
+        String fieldNameLabel = getFormProperty("label", hocsFormField, String.class).orElse(fieldName);
 
-        @SuppressWarnings("unchecked") List<Map<String, String>> choices = getFormProperty("choices", hocsFormField, List.of(), List.class);
+        List<Map<String, String>> choices = getChoices(hocsFormField, caseData);
 
         String newValueLabel = getLabel(newValue, choices);
         String previousValueLabel = getLabel(previousValue, choices);
@@ -79,6 +79,22 @@ public class BusinessEventService {
         bpmnService.updateCaseValue(caseUUIDString, stageUUIDString, previousValueKey, newValue);
     }
 
+    private List<Map<String, String>> getChoices(Optional<HocsFormField> hocsFormField, GetCaseworkCaseDataResponse caseData) {
+        @SuppressWarnings("unchecked") List<Object> conditionChoices = (List<Object>) getFormProperty("conditionChoices", hocsFormField, List.class).orElse(List.of());
+
+        for (Object choiceObj : conditionChoices) {
+            @SuppressWarnings("unchecked") Map<String, Object> choice = (Map<String, Object>) choiceObj;
+            String conditionPropertyName = (String) choice.get("conditionPropertyName");
+            String caseDataValue = caseData.getData().get(conditionPropertyName);
+            if (Objects.equals(choice.get("conditionPropertyValue"), caseDataValue)) {
+                //noinspection unchecked
+                return (List<Map<String, String>>) choice.get("choices");
+            }
+        }
+        //noinspection unchecked
+        return getFormProperty("choices", hocsFormField, List.class).orElse(List.of());
+    }
+
     private String getLabel(String value, List<Map<String, String>> choices) {
         return choices.stream()
             .filter(choice -> Objects.equals(choice.get("value"), value))
@@ -87,11 +103,10 @@ public class BusinessEventService {
             .orElse(value);
     }
 
-    private <T> T getFormProperty(String name, Optional<HocsFormField> hocsFormField, T defaultValue, Class<T> classTag) {
+    private <T> Optional<T> getFormProperty(String name, Optional<HocsFormField> hocsFormField, Class<T> classTag) {
         return hocsFormField
             .flatMap((field) -> Optional.ofNullable(field.getProps().get(name)))
-            .map(classTag::cast)
-            .orElse(defaultValue);
+            .map(classTag::cast);
     }
 
 }

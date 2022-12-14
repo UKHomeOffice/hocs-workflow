@@ -9,7 +9,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
-import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseworkStageRequest;
@@ -55,21 +54,17 @@ public class BpmnService {
 
     private final WorkflowService workflowService;
 
-    private final AuditClient auditClient;
-
     @Autowired
     public BpmnService(CaseworkClient caseworkClient,
                        CamundaClient camundaClient,
                        InfoClient infoClient,
                        Clock clock,
-                       WorkflowService workflowService,
-                       AuditClient auditClient) {
+                       WorkflowService workflowService) {
         this.clock = clock;
         this.caseworkClient = caseworkClient;
         this.camundaClient = camundaClient;
         this.infoClient = infoClient;
         this.workflowService = workflowService;
-        this.auditClient = auditClient;
     }
 
     public String createStage(String caseUUIDString,
@@ -662,4 +657,5 @@ public class BpmnService {
         private final StageTypeDto stageTypeDto;
 
     }
+
 }

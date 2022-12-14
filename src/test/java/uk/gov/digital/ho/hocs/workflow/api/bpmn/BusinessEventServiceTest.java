@@ -68,7 +68,7 @@ public class BusinessEventServiceTest {
     public void testShouldCreateComplaintType(){
         Map<String, String> data = new HashMap<>();
         String screenName = "screenName";
-        data.put("previousCompType", null);
+        data.put("XPreviousCompType", null);
 
         HocsSchema hocsSchema = createHocsSchema();
 
@@ -87,12 +87,12 @@ public class BusinessEventServiceTest {
     public void testShouldUpdateComplaintTypeToService(){
         Map<String, String> data = new HashMap<>();
         String screenName = "screenName";
-        data.put("previousCompType", previousComplaintType);
+        data.put("XPreviousCompType", previousComplaintType);
 
         HocsSchema hocsSchema = createHocsSchema();
 
         BusinessEventPayloadInterface expectedPayload = new DataFieldUpdatedPayload(
-            "CompType_UPDATED",
+            "CASE_DATA_ITEM_UPDATED",
             fieldName,
             complaintType,
             previousComplaintType,
@@ -105,6 +105,38 @@ public class BusinessEventServiceTest {
                 caseUUID, null, null, null,
                 data, null, null, null, null,
                 null, null, false);
+
+        when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
+        when(formService.getFormSchema(screenName)).thenReturn(hocsSchema);
+
+        businessEventService.createDataFieldUpdatedEvent(caseUUID.toString(), stageUUID.toString(), screenName, fieldName, complaintType);
+
+        verify(auditClient).createBusinessEvent(eq(caseUUID), eq(stageUUID), eq(expectedPayload));
+    }
+
+    @Test
+    public void testShouldUpdateComplaintTypeWithConditionalChoices(){
+        Map<String, String> data = new HashMap<>();
+        String screenName = "screenName";
+        data.put("XPreviousCompType", previousComplaintType);
+        data.put("name", "matches");
+
+        HocsSchema hocsSchema = createHocsSchemaWithConditionalChoices();
+
+        BusinessEventPayloadInterface expectedPayload = new DataFieldUpdatedPayload(
+            "CASE_DATA_ITEM_UPDATED",
+            fieldName,
+            complaintType,
+            previousComplaintType,
+            fieldNameLabel,
+            newValueLabel + "2",
+            previousValueLabel + "2"
+        );
+
+        GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
+            caseUUID, null, null, null,
+            data, null, null, null, null,
+            null, null, false);
 
         when(caseworkClient.getCase(caseUUID)).thenReturn(caseData);
         when(formService.getFormSchema(screenName)).thenReturn(hocsSchema);
@@ -141,12 +173,50 @@ public class BusinessEventServiceTest {
         );
     }
 
+    @NotNull
+    private HocsSchema createHocsSchemaWithConditionalChoices() {
+        Map<String, Object> props = Map.of(
+            "conditionChoices", List.of(
+                Map.of(
+                    "choices", List.of(
+                        Map.of("value", complaintType, "label", newValueLabel + "1"),
+                        Map.of("value", previousComplaintType, "label", previousValueLabel+ "1")),
+                    "conditionPropertyName", "name",
+                    "conditionPropertyValue", "doesnt match"
+                      ),
+                Map.of(
+                    "choices", List.of(
+                        Map.of("value", complaintType, "label", newValueLabel + "2"),
+                        Map.of("value", previousComplaintType, "label", previousValueLabel + "2")),
+                    "conditionPropertyName", "name",
+                    "conditionPropertyValue", "matches"
+                      )));
+        Field field = new Field(
+            fieldName,
+            fieldNameLabel,
+            null,
+            null,
+            new HashMap<>(props),
+            null
+        );
+        List<HocsFormField> hocsFormFields = List.of(HocsFormField.from(field));
+        return new HocsSchema(
+            null,
+            null,
+            hocsFormFields,
+            null,
+            null,
+            null,
+            null
+        );
+    }
+
     @Test
     public void testShouldNotUpdateComplaintTypeNoChange(){
         Map<String, String> data = new HashMap<>();
         String complaintType = "Service";
         String screenName = "screenName";
-        data.put("previousCompType", complaintType);
+        data.put("XPreviousCompType", complaintType);
 
         GetCaseworkCaseDataResponse caseData = new GetCaseworkCaseDataResponse(
             caseUUID, null, null, null,
