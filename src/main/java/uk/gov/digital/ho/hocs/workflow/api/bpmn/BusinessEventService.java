@@ -44,7 +44,6 @@ public class BusinessEventService {
         UUID stageUUID= UUID.fromString(stageUUIDString);
 
         String previousValueKey = String.format(PREVIOUS_VALUE_KEY, fieldName);
-        String name = String.format(DATA_FIELD_UPDATED_EVENT_NAME, fieldName);
 
         GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUUID);
         String previousValue = caseData.getData().get(previousValueKey);
@@ -67,7 +66,7 @@ public class BusinessEventService {
 
 
         DataFieldUpdatedPayload dataFieldUpdatedPayload = new DataFieldUpdatedPayload(
-            name,
+            DATA_FIELD_UPDATED_EVENT_NAME,
             fieldName,
             newValue,
             previousValue,
