@@ -209,4 +209,18 @@ public class COMP2_REGISTRATION {
         verify(compRegistrationProcess).hasCompleted("UpdateTeamForMinorMisconduct");
     }
 
+    @Test
+    public void compTypeSeriousMisconduct() {
+        when(compRegistrationProcess.waitsAtUserTask("Screen_Complaint")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "SeriousMisconduct")));
+
+        when(compRegistrationProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(compRegistrationProcess).startByKey("COMP2_REGISTRATION").execute();
+
+        verify(compRegistrationProcess, times(3)).hasCompleted("Activity_ScreenCategorySerious");
+    }
 }
