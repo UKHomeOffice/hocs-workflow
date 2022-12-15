@@ -1,19 +1,21 @@
 package uk.gov.digital.ho.hocs.workflow.api.bpmn;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.FormService;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.DataFieldUpdatedPayload;
-import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormFieldChoice;
+import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormFieldConditionChoice;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,15 +30,19 @@ public class BusinessEventService {
     private final CaseworkClient caseworkClient;
     private final BpmnService bpmnService;
     private final FormService formService;
+    private final ObjectMapper objectMapper;
 
     public BusinessEventService(AuditClient auditClient,
                                 CaseworkClient caseworkClient,
                                 BpmnService bpmnService,
-                                FormService formService) {
+                                FormService formService,
+                                ObjectMapper objectMapper
+                               ) {
         this.auditClient = auditClient;
         this.caseworkClient = caseworkClient;
         this.bpmnService = bpmnService;
         this.formService = formService;
+        this.objectMapper = objectMapper;
     }
 
     public void createDataFieldUpdatedEvent(String caseUUIDString, String stageUUIDString, String screenName, String fieldName, String newValue) {
@@ -57,9 +63,9 @@ public class BusinessEventService {
         List<HocsFormField> fields = hocsSchema.getFields();
         Optional<HocsFormField> hocsFormField = fields.stream().filter((field) -> Objects.equals(field.getProps().get("name"), fieldName)).findFirst();
 
-        String fieldNameLabel = getFormProperty("label", hocsFormField, String.class).orElse(fieldName);
+        String fieldNameLabel = getFormProperty("label", hocsFormField, new TypeReference<String>() {}).orElse(fieldName);
 
-        List<Map<String, String>> choices = getChoices(hocsFormField, caseData);
+        List<HocsFormFieldChoice> choices = getChoices(hocsFormField, caseData);
 
         String newValueLabel = getLabel(newValue, choices);
         String previousValueLabel = getLabel(previousValue, choices);
@@ -79,34 +85,33 @@ public class BusinessEventService {
         bpmnService.updateCaseValue(caseUUIDString, stageUUIDString, previousValueKey, newValue);
     }
 
-    private List<Map<String, String>> getChoices(Optional<HocsFormField> hocsFormField, GetCaseworkCaseDataResponse caseData) {
-        @SuppressWarnings("unchecked") List<Object> conditionChoices = (List<Object>) getFormProperty("conditionChoices", hocsFormField, List.class).orElse(List.of());
+    private List<HocsFormFieldChoice> getChoices(Optional<HocsFormField> hocsFormField, GetCaseworkCaseDataResponse caseData) {
+        List<HocsFormFieldConditionChoice> conditionChoices = getFormProperty("conditionChoices", hocsFormField,
+            new TypeReference<List<HocsFormFieldConditionChoice>>() {}).orElse(List.of());
 
-        for (Object choiceObj : conditionChoices) {
-            @SuppressWarnings("unchecked") Map<String, Object> choice = (Map<String, Object>) choiceObj;
-            String conditionPropertyName = (String) choice.get("conditionPropertyName");
-            String caseDataValue = caseData.getData().get(conditionPropertyName);
-            if (Objects.equals(choice.get("conditionPropertyValue"), caseDataValue)) {
-                //noinspection unchecked
-                return (List<Map<String, String>>) choice.get("choices");
+        for (HocsFormFieldConditionChoice choice : conditionChoices) {
+            String caseDataValue = caseData.getData().get(choice.getConditionPropertyName());
+            if (Objects.equals(choice.getConditionPropertyValue(), caseDataValue)) {
+                return choice.getChoices();
             }
         }
-        //noinspection unchecked
-        return getFormProperty("choices", hocsFormField, List.class).orElse(List.of());
+
+        return getFormProperty("choices", hocsFormField, new TypeReference<List<HocsFormFieldChoice>>() {}).orElse(
+            List.of());
     }
 
-    private String getLabel(String value, List<Map<String, String>> choices) {
+    private String getLabel(String value, List<HocsFormFieldChoice> choices) {
         return choices.stream()
-            .filter(choice -> Objects.equals(choice.get("value"), value))
+            .filter(choice -> Objects.equals(choice.getValue(), value))
             .findFirst()
-            .map(choice -> choice.get("label"))
+            .map(HocsFormFieldChoice::getLabel)
             .orElse(value);
     }
 
-    private <T> Optional<T> getFormProperty(String name, Optional<HocsFormField> hocsFormField, Class<T> classTag) {
+    private <T> Optional<T> getFormProperty(String name, Optional<HocsFormField> hocsFormField, TypeReference<T> typeRef) {
         return hocsFormField
             .flatMap((field) -> Optional.ofNullable(field.getProps().get(name)))
-            .map(classTag::cast);
+            .map(obj -> objectMapper.convertValue(obj, typeRef));
     }
 
 }

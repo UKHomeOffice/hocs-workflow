@@ -1,22 +1,22 @@
 package uk.gov.digital.ho.hocs.workflow.api.bpmn;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.FormService;
-import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
-import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.BusinessEventPayloadInterface;
 import uk.gov.digital.ho.hocs.workflow.client.auditclient.dto.DataFieldUpdatedPayload;
-import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Field;
@@ -26,14 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ActiveProfiles("local")
 public class BusinessEventServiceTest {
     @Mock
     private CaseworkClient caseworkClient;
@@ -46,6 +47,9 @@ public class BusinessEventServiceTest {
 
     @Mock
     private FormService formService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private BusinessEventService businessEventService;
     private final UUID caseUUID = UUID.randomUUID();
@@ -61,7 +65,7 @@ public class BusinessEventServiceTest {
 
     @Before
     public void setup() {
-        businessEventService = new BusinessEventService(auditClient, caseworkClient, bpmnService, formService);
+        businessEventService = new BusinessEventService(auditClient, caseworkClient, bpmnService, formService, objectMapper);
     }
 
     @Test
