@@ -13,7 +13,7 @@ import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
 @Slf4j
 @Component
 public class RestHelper {
-    
+
     private RestTemplate restTemplate;
 
     private RequestData requestData;
