@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CaseTagRequest;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseworkCorrespondentRequest;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.CreateCaseNoteRequest;
@@ -281,4 +283,8 @@ public class CaseworkClient {
         log.info("Data for caseUUID: {} mapped successfully.", caseUUID);
     }
 
+    public void createCaseTag(UUID caseUUID, String tag) {
+        CaseTagRequest caseTagRequest = new CaseTagRequest(tag);
+        restHelper.post(serviceBaseURL, String.format("/case/%s/tag", caseUUID), caseTagRequest, Void.class);
+    }
 }

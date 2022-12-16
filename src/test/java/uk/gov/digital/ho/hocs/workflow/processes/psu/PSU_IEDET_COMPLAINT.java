@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
+import uk.gov.digital.ho.hocs.workflow.bpmn.TaggingService;
 
 import java.util.Map;
 
@@ -38,11 +39,15 @@ public class PSU_IEDET_COMPLAINT {
     BpmnService bpmnService;
 
     @Mock
+    TaggingService taggingService;
+
+    @Mock
     private ProcessScenario processScenario;
 
     @Before
     public void setup() {
         Mocks.register("bpmnService", bpmnService);
+        Mocks.register("taggingService", taggingService);
     }
 
     @Test
@@ -60,8 +65,6 @@ public class PSU_IEDET_COMPLAINT {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Complaint");
-        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario).hasCompleted("CallActivity_PSU");
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
@@ -80,8 +83,6 @@ public class PSU_IEDET_COMPLAINT {
             .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Complaint");
-        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario).hasCompleted("CallActivity_PSU");
         verify(processScenario).hasCompleted("Service_ResetComplaintCategories");
         verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAdminErr"), eq("CatAvail"),
@@ -90,7 +91,9 @@ public class PSU_IEDET_COMPLAINT {
             eq("CatHandle"), eq("CatRude"), eq("CatUnfair"), eq("CatOtherUnprof"), eq("CatDetOnDet"),
             eq("CatTheft"), eq("CatAssault"), eq("CatSexAssault"), eq("CatFraud"), eq("CatRacism"));
         verify(processScenario).hasCompleted("Service_UpdateIedetDeadline");
+        verify(taggingService).createTagForCase(any(), any());
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
+        verify(processScenario).hasCompleted("Service_AddCaseTag");
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
 

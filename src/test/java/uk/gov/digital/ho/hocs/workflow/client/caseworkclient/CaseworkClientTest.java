@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import uk.gov.digital.ho.hocs.workflow.api.dto.CaseTagRequest;
 import uk.gov.digital.ho.hocs.workflow.application.RestHelper;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.*;
 
@@ -262,6 +263,15 @@ public class CaseworkClientTest {
 
         // THEN
         verify(restHelper).post(any(), eq(expectedURI), eq(varMap), eq(Void.class));
+        verifyNoMoreInteractions(restHelper);
+    }
+
+    @Test
+    public void testCreateCaseTag() {
+        String expectedUrl = String.format("/case/%s/tag", caseUUID);
+        caseworkClient.createCaseTag(caseUUID, "TEST_TAG");
+
+        verify(restHelper).post(eq(caseServiceUrl), eq(expectedUrl), any(), eq(Void.class));
         verifyNoMoreInteractions(restHelper);
     }
 
