@@ -230,8 +230,14 @@ public class COMP_REGISTRATION {
             task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "FORWARD")));
 
+        when(compRegistrationProcess.waitsAtUserTask("Screen_ComplaintDetailsSerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
         Scenario.run(compRegistrationProcess).startByKey("COMP_REGISTRATION").execute();
 
-        verify(compRegistrationProcess, times(3)).hasCompleted("Activity_ScreenCategorySerious");
+        verify(compRegistrationProcess, times(4)).hasCompleted("Activity_ScreenCategorySerious");
+        verify(compRegistrationProcess, times(3)).hasCompleted("Screen_ComplaintDetailsSerious");
     }
 }
