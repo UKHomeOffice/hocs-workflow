@@ -18,6 +18,7 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseRequest;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.application.LogEvent;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCorrespondentResponse;
@@ -45,6 +46,9 @@ public class SecurityIntegrationTest {
 
     @LocalServerPort
     int port;
+
+    @MockBean
+    AuditClient auditClient;
 
     @MockBean
     CaseworkClient caseworkClient;

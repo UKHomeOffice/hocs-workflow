@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
+import uk.gov.digital.ho.hocs.workflow.api.bpmn.BusinessEventService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
 import static org.mockito.Mockito.times;
@@ -37,11 +38,15 @@ public class IEDET_TRIAGE {
     private BpmnService bpmnService;
 
     @Mock
+    private BusinessEventService businessEventService;
+
+    @Mock
     private ProcessScenario processScenario;
 
     @Before
     public void setup() {
         Mocks.register("bpmnService", bpmnService);
+        Mocks.register("businessEventService", businessEventService);
     }
 
     @Test

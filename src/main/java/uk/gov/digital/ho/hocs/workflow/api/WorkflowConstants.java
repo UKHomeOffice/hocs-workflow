@@ -29,5 +29,6 @@ public interface WorkflowConstants {
     String CHANNEL = "Channel";
     String CHANNEL_COMP_ORIGINATEDFROM = "XOriginatedFrom";
     String CHANNEL_COMP_WEBFORM = "Webform";
-
+    String PREVIOUS_VALUE_KEY = "XPrevious%s";
+    String DATA_FIELD_UPDATED_EVENT_NAME = "CASE_DATA_ITEM_UPDATED";
 }
