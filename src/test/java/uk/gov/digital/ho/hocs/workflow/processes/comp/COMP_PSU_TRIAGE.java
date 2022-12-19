@@ -51,12 +51,18 @@ public class COMP_PSU_TRIAGE {
             task -> task.complete(withVariables("DIRECTION", "", "PsuTriageOutcome", ""))).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "FORWARD","PsuTriageOutcome", "Accept")));
 
+        when(processScenario.waitsAtUserTask("Screen_PSUComplaintCategory")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
         Scenario.run(processScenario)
                 .startByKey("COMP_PSU_TRIAGE")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
-        verify(processScenario, times(2)).hasCompleted("Screen_PSUComplaints");
+        verify(processScenario, times(3)).hasCompleted("Screen_PSUComplaints");
+        verify(processScenario, times(3)).hasCompleted("Screen_PSUComplaintCategory");
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
 
