@@ -48,7 +48,27 @@ public class COMP_SERVICE_TRIAGE {
     }
 
     @Test
-    public void testRejectTriage() {
+    public void testTriageAcceptCch() {
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "CCH")));
+
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(
+                withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
+
+        Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
+
+        verify(compServiceTriageProcess, times(3)).hasCompleted("Screen_Accept");
+        verify(compServiceTriageProcess, times(3)).hasCompleted("Screen_Transfer");
+        verify(compServiceTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+    }
+
+    @Test
+    public void testTriageAcceptOldValue() {
         when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
             task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
@@ -161,6 +181,24 @@ public class COMP_SERVICE_TRIAGE {
         verify(compServiceTriageProcess).hasCompleted("Screen_Details");
         verify(compServiceTriageProcess).hasCompleted("Screen_BusArea");
         verify(compServiceTriageProcess, times(2)).hasCompleted("Screen_Input");
+
+    }
+
+    @Test
+    public void testTriageAcceptPsu() {
+
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "PSU")));
+
+        when(compServiceTriageProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
+
+        verify(compServiceTriageProcess, times(2)).hasCompleted("Screen_Accept");
+        verify(compServiceTriageProcess, times(3)).hasCompleted("Activity_ScreenCategorySerious");
 
     }
 
