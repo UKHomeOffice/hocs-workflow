@@ -49,12 +49,18 @@ public class COMP_PSU_OUTCOME {
         when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
             task -> task.complete(withVariables("PsuComplaintOutcome", "Substantiated")));
 
+        when(processScenario.waitsAtUserTask("Screen_FinalResponse")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
         Scenario.run(processScenario)
                 .startByKey("COMP_PSU_OUTCOME")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Outcome");
-        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
+        verify(processScenario, times(2)).hasCompleted("Screen_ComplaintOutcome");
+        verify(processScenario, times(3)).hasCompleted("Screen_FinalResponse");
         verify(processScenario).hasCompleted("EndEvent_Outcome");
     }
 
