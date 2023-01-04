@@ -339,6 +339,56 @@ public class COMP {
     }
 
     @Test
+    public void testCompTypeServiceReturnToCch() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "CCH", "CctCompType", "CCH").deploy(rule);
+        whenAtCallActivity("COMP_CCH_RETURNS").thenReturn("CchCompType", "Complete").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeServiceReturnToCchTriageAcceptOldValue() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "No", "CctCompType", "CCH").deploy(rule);
+        whenAtCallActivity("COMP_CCH_RETURNS").thenReturn("CchCompType", "Complete").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeServiceEscalateToPsu() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
     public void whenWebformClosureCompletesCase() {
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("WebformComplaintInvalid", "Yes").deploy(rule);
 
