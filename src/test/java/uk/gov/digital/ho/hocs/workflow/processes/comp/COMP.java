@@ -389,6 +389,38 @@ public class COMP {
     }
 
     @Test
+    public void testCompTypeMinorMisconductEscalateToPsu() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct").deploy(rule);
+        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeExGratiaEscalateToPsu() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageAccept", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
     public void whenWebformClosureCompletesCase() {
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("WebformComplaintInvalid", "Yes").deploy(rule);
 

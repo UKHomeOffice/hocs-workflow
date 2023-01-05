@@ -160,4 +160,44 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
 
     }
 
+    @Test
+    public void testTriageAcceptCch() {
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "CCH")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(
+                withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
+
+        Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
+
+        verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Accept");
+        verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Transfer");
+        verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+    }
+
+    @Test
+    public void testTriageAcceptOldValue() {
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", false))).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
+            task -> task.complete(
+                withVariables("valid", true, "DIRECTION", "FORWARD", "CaseNote_TriageTransfer", "Reject")));
+
+        Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
+
+        verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Accept");
+        verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Transfer");
+        verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+    }
+
 }
