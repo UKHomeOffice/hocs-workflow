@@ -389,6 +389,24 @@ public class COMP {
     }
 
     @Test
+    public void testCompTypeServiceEscalateToPsuFromEscalate() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE_ESCALATE").thenReturn("CctEscalateResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_ESCALATE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
     public void testCompTypeMinorMisconductEscalateToPsu() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct").deploy(rule);
@@ -405,6 +423,24 @@ public class COMP {
     }
 
     @Test
+    public void testCompTypeMinorMisconductEscalateToPsuFromEscalate() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct").deploy(rule);
+        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate").deploy(rule);
+        whenAtCallActivity("COMP_MINORMISCONDUCT_ESCALATE").thenReturn("CctEscalateResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_ESCALATE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
     public void testCompTypeExGratiaEscalateToPsu() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
@@ -416,6 +452,24 @@ public class COMP {
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
         verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeExGratiaEscalateToPsuFromEscalate() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA_ESCALATE").thenReturn("CctEscalateResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_ESCALATE");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
