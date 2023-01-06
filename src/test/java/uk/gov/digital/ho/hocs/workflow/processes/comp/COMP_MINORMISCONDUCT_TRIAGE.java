@@ -200,4 +200,50 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
     }
 
+    @Test
+    public void testTriageAcceptPsu() {
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "PSU")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
+
+        verify(minorMisconductTriageProcess, times(2)).hasCompleted("Screen_Accept");
+        verify(minorMisconductTriageProcess, times(3)).hasCompleted("Activity_ScreenCategorySerious");
+
+    }
+
+    @Test
+    public void testTriageResultPsu() {
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Category")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Details")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_BusArea")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Input")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "PSU")));
+
+        when(minorMisconductTriageProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(minorMisconductTriageProcess).startByKey("COMP_MINORMISCONDUCT_TRIAGE").execute();
+
+        verify(minorMisconductTriageProcess, times(1)).hasCompleted("Screen_Accept");
+        verify(minorMisconductTriageProcess, times(1)).hasCompleted("Activity_ScreenCategorySerious");
+
+    }
+
 }

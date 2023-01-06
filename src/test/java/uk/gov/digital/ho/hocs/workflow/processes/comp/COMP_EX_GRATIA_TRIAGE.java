@@ -203,4 +203,50 @@ public class COMP_EX_GRATIA_TRIAGE {
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
     }
 
+    @Test
+    public void testTriageAcceptPsu() {
+
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "PSU")));
+
+        when(exGratiaTriageProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(exGratiaTriageProcess).startByKey("COMP_EXGRATIA_TRIAGE").execute();
+
+        verify(exGratiaTriageProcess, times(2)).hasCompleted("Screen_Accept");
+        verify(exGratiaTriageProcess, times(3)).hasCompleted("Activity_ScreenCategorySerious");
+
+    }
+
+    @Test
+    public void testTriageResultPsu() {
+
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Category")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Details")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_BusArea")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(exGratiaTriageProcess.waitsAtUserTask("Validate_Input")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "PSU")));
+
+        when(exGratiaTriageProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(exGratiaTriageProcess).startByKey("COMP_EXGRATIA_TRIAGE").execute();
+
+        verify(exGratiaTriageProcess, times(1)).hasCompleted("Screen_Accept");
+        verify(exGratiaTriageProcess, times(1)).hasCompleted("Activity_ScreenCategorySerious");
+
+    }
+
 }

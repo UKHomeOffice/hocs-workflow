@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1o2j0lb" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1o2j0lb" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.2.0">
   <bpmn:process id="COMP_MINORMISCONDUCT_TRIAGE" isExecutable="true">
     <bpmn:startEvent id="StartEvent_EXGRATIA_SERVICE_TRIAGE">
       <bpmn:outgoing>SequenceFlow_1i4bdvl</bpmn:outgoing>
@@ -33,19 +33,11 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_155xcyu" sourceRef="Screen_Input" targetRef="Validate_Input" />
     <bpmn:sequenceFlow id="SequenceFlow_0hku4ez" sourceRef="Validate_Input" targetRef="ExclusiveGateway_0m9lnbt" />
-    <bpmn:sequenceFlow id="SequenceFlow_0afnybj" sourceRef="ExclusiveGateway_137o870" targetRef="ExclusiveGateway_0gm7uv6">
+    <bpmn:sequenceFlow id="SequenceFlow_0afnybj" sourceRef="ExclusiveGateway_137o870" targetRef="ExclusiveGateway_0cw81i0">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1i4bdvl" sourceRef="StartEvent_EXGRATIA_SERVICE_TRIAGE" targetRef="Screen_Accept" />
-    <bpmn:exclusiveGateway id="ExclusiveGateway_0gm7uv6" name="Pending">
-      <bpmn:incoming>SequenceFlow_0afnybj</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1onbt8w</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_0065hi4</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1onbt8w" sourceRef="ExclusiveGateway_0gm7uv6" targetRef="ExclusiveGateway_0cw81i0">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctTriageResult != "Pending"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0065hi4" sourceRef="ExclusiveGateway_0gm7uv6" targetRef="Screen_Input">
+    <bpmn:sequenceFlow id="SequenceFlow_0065hi4" sourceRef="ExclusiveGateway_0cw81i0" targetRef="Screen_Input">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctTriageResult == "Pending"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Service_UpdateTeamByStageAndTexts_Draft" name="Update Team for Minor Misconduct Draft" camunda:expression="${bpmnService.updateTeamByStageAndTexts(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey,&#34;COMP_MINORMISCONDUCT_RESPONSE_DRAFT&#34;,&#34;QueueTeamUUID&#34;,&#34;QueueTeamName&#34;,&#34;Stage&#34;)}">
@@ -202,10 +194,12 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0cw81i0">
-      <bpmn:incoming>SequenceFlow_1onbt8w</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0afnybj</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0jpa2yo</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1e6xdxu</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1481m2f</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_0065hi4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1rqsqfx</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0jpa2yo" sourceRef="ExclusiveGateway_0cw81i0" targetRef="Service_UpdateTeamByStageAndTexts_Draft">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctTriageResult == "Draft"}</bpmn:conditionExpression>
@@ -318,6 +312,7 @@
     <bpmn:userTask id="Activity_ScreenCategorySerious" name="Complaint Category Serious" camunda:formKey="COMP_ESCALATION_CATEGORY_SERIOUS">
       <bpmn:incoming>Flow_06styjg</bpmn:incoming>
       <bpmn:incoming>Flow_16nvsf9</bpmn:incoming>
+      <bpmn:incoming>Flow_1rqsqfx</bpmn:incoming>
       <bpmn:outgoing>Flow_0mv3si3</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_0sb8t2z" default="Flow_06styjg">
@@ -337,9 +332,38 @@
     <bpmn:sequenceFlow id="Flow_18b4j3q" sourceRef="Gateway_0sb8t2z" targetRef="EndEvent_COMP_SERVICE_TRIAGE">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1rqsqfx" sourceRef="ExclusiveGateway_0cw81i0" targetRef="Activity_ScreenCategorySerious">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CctTriageResult == "PSU"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP_MINORMISCONDUCT_TRIAGE">
+      <bpmndi:BPMNEdge id="Flow_18b4j3q_di" bpmnElement="Flow_18b4j3q">
+        <di:waypoint x="1105" y="230" />
+        <di:waypoint x="4333" y="230" />
+        <di:waypoint x="4333" y="417" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mmkyle_di" bpmnElement="Flow_0mmkyle">
+        <di:waypoint x="1080" y="205" />
+        <di:waypoint x="1080" y="80" />
+        <di:waypoint x="390" y="80" />
+        <di:waypoint x="390" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16nvsf9_di" bpmnElement="Flow_16nvsf9">
+        <di:waypoint x="800" y="410" />
+        <di:waypoint x="800" y="230" />
+        <di:waypoint x="870" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mv3si3_di" bpmnElement="Flow_0mv3si3">
+        <di:waypoint x="970" y="230" />
+        <di:waypoint x="1055" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06styjg_di" bpmnElement="Flow_06styjg">
+        <di:waypoint x="1080" y="205" />
+        <di:waypoint x="1080" y="140" />
+        <di:waypoint x="920" y="140" />
+        <di:waypoint x="920" y="190" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ap1272_di" bpmnElement="Flow_0ap1272">
         <di:waypoint x="2985" y="945" />
         <di:waypoint x="4333" y="945" />
@@ -571,14 +595,10 @@
         <di:waypoint x="4315" y="435" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0065hi4_di" bpmnElement="SequenceFlow_0065hi4">
-        <di:waypoint x="2590" y="410" />
-        <di:waypoint x="2590" y="321" />
+        <di:waypoint x="2743" y="410" />
+        <di:waypoint x="2743" y="321" />
         <di:waypoint x="2268" y="321" />
         <di:waypoint x="2268" y="395" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1onbt8w_di" bpmnElement="SequenceFlow_1onbt8w">
-        <di:waypoint x="2615" y="435" />
-        <di:waypoint x="2718" y="435" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1i4bdvl_di" bpmnElement="SequenceFlow_1i4bdvl">
         <di:waypoint x="188" y="435" />
@@ -586,7 +606,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0afnybj_di" bpmnElement="SequenceFlow_0afnybj">
         <di:waypoint x="2473" y="435" />
-        <di:waypoint x="2565" y="435" />
+        <di:waypoint x="2718" y="435" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0hku4ez_di" bpmnElement="SequenceFlow_0hku4ez">
         <di:waypoint x="2318" y="598" />
@@ -603,31 +623,11 @@
           <dc:Bounds x="2406" y="415" width="24" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_06styjg_di" bpmnElement="Flow_06styjg">
-        <di:waypoint x="1080" y="205" />
-        <di:waypoint x="1080" y="140" />
-        <di:waypoint x="920" y="140" />
-        <di:waypoint x="920" y="190" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0mv3si3_di" bpmnElement="Flow_0mv3si3">
-        <di:waypoint x="970" y="230" />
-        <di:waypoint x="1055" y="230" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_16nvsf9_di" bpmnElement="Flow_16nvsf9">
-        <di:waypoint x="800" y="410" />
-        <di:waypoint x="800" y="230" />
-        <di:waypoint x="870" y="230" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0mmkyle_di" bpmnElement="Flow_0mmkyle">
-        <di:waypoint x="1080" y="205" />
-        <di:waypoint x="1080" y="80" />
-        <di:waypoint x="390" y="80" />
-        <di:waypoint x="390" y="395" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18b4j3q_di" bpmnElement="Flow_18b4j3q">
-        <di:waypoint x="1105" y="230" />
-        <di:waypoint x="4333" y="230" />
-        <di:waypoint x="4333" y="417" />
+      <bpmndi:BPMNEdge id="Flow_1rqsqfx_di" bpmnElement="Flow_1rqsqfx">
+        <di:waypoint x="2743" y="410" />
+        <di:waypoint x="2743" y="300" />
+        <di:waypoint x="920" y="300" />
+        <di:waypoint x="920" y="270" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_EXGRATIA_SERVICE_TRIAGE">
         <dc:Bounds x="152" y="417" width="36" height="36" />
@@ -643,12 +643,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_0sgm5gi_di" bpmnElement="EndEvent_COMP_SERVICE_TRIAGE">
         <dc:Bounds x="4315" y="417" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ExclusiveGateway_0gm7uv6_di" bpmnElement="ExclusiveGateway_0gm7uv6" isMarkerVisible="true">
-        <dc:Bounds x="2565" y="410" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2570" y="467" width="41" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_1rx0bdc_di" bpmnElement="Service_UpdateTeamByStageAndTexts_Draft">
         <dc:Bounds x="4076" y="395" width="100" height="80" />

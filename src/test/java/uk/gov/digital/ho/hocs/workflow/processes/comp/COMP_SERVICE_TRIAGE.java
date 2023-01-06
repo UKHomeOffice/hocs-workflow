@@ -202,4 +202,32 @@ public class COMP_SERVICE_TRIAGE {
 
     }
 
+    @Test
+    public void testTriageResultPsu() {
+
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "Yes")));
+
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Category")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Details")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_BusArea")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
+
+        when(compServiceTriageProcess.waitsAtUserTask("Validate_Input")).thenReturn(task -> task.complete(
+            withVariables("valid", true, "DIRECTION", "FORWARD", "CctTriageResult", "PSU")));
+
+        when(compServiceTriageProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+            Scenario.run(compServiceTriageProcess).startByKey("COMP_SERVICE_TRIAGE").execute();
+
+        verify(compServiceTriageProcess, times(1)).hasCompleted("Screen_Accept");
+        verify(compServiceTriageProcess, times(1)).hasCompleted("Activity_ScreenCategorySerious");
+
+    }
+
 }
