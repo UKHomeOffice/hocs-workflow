@@ -6,62 +6,119 @@
     </bpmn:startEvent>
     <bpmn:endEvent id="EndEvent" name="End">
       <bpmn:incoming>Flow_047c560</bpmn:incoming>
+      <bpmn:incoming>Flow_1k68mwt</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:exclusiveGateway id="Gateway_10lycdv" default="Flow_1jpgxoo">
       <bpmn:incoming>Flow_0nduhgj</bpmn:incoming>
       <bpmn:outgoing>Flow_047c560</bpmn:outgoing>
       <bpmn:outgoing>Flow_1jpgxoo</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0asn5rb</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_047c560" sourceRef="Gateway_10lycdv" targetRef="EndEvent">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD" &amp;&amp; CompType != "SeriousMisconduct"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:userTask id="Screen_ComplaintType" name="Complaint Type" camunda:formKey="COMP_RECATEGORISE_COMPLAINT_TYPE">
+    <bpmn:userTask id="Activity_ScreenComplaintType" name="Complaint Type" camunda:formKey="COMP_RECATEGORISE_COMPLAINT_TYPE">
       <bpmn:incoming>Flow_0r43s3r</bpmn:incoming>
       <bpmn:incoming>Flow_1jpgxoo</bpmn:incoming>
+      <bpmn:incoming>Flow_1ndtogw</bpmn:incoming>
       <bpmn:outgoing>Flow_0nduhgj</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_0r43s3r" sourceRef="StartEvent" targetRef="Screen_ComplaintType" />
-    <bpmn:sequenceFlow id="Flow_0nduhgj" sourceRef="Screen_ComplaintType" targetRef="Gateway_10lycdv" />
-    <bpmn:sequenceFlow id="Flow_1jpgxoo" sourceRef="Gateway_10lycdv" targetRef="Screen_ComplaintType" />
+    <bpmn:sequenceFlow id="Flow_0r43s3r" sourceRef="StartEvent" targetRef="Activity_ScreenComplaintType" />
+    <bpmn:sequenceFlow id="Flow_0nduhgj" sourceRef="Activity_ScreenComplaintType" targetRef="Gateway_10lycdv" />
+    <bpmn:sequenceFlow id="Flow_1jpgxoo" sourceRef="Gateway_10lycdv" targetRef="Activity_ScreenComplaintType" />
+    <bpmn:userTask id="Activity_ScreenCategorySerious" name="Complaint Category Serious" camunda:formKey="COMP_RECATEGORISE_CATEGORY_SERIOUS">
+      <bpmn:incoming>Flow_0asn5rb</bpmn:incoming>
+      <bpmn:incoming>Flow_1n7kdfq</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qpbaq9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0asn5rb" sourceRef="Gateway_10lycdv" targetRef="Activity_ScreenCategorySerious">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD" &amp;&amp; CompType == "SeriousMisconduct"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_0srsyn8" default="Flow_1n7kdfq">
+      <bpmn:incoming>Flow_0qpbaq9</bpmn:incoming>
+      <bpmn:outgoing>Flow_1k68mwt</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1n7kdfq</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ndtogw</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0qpbaq9" sourceRef="Activity_ScreenCategorySerious" targetRef="Gateway_0srsyn8" />
+    <bpmn:sequenceFlow id="Flow_1k68mwt" sourceRef="Gateway_0srsyn8" targetRef="EndEvent">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1n7kdfq" sourceRef="Gateway_0srsyn8" targetRef="Activity_ScreenCategorySerious" />
+    <bpmn:sequenceFlow id="Flow_1ndtogw" sourceRef="Gateway_0srsyn8" targetRef="Activity_ScreenComplaintType">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP2_RECATEGORISE">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent">
-        <dc:Bounds x="179" y="159" width="36" height="36" />
+        <dc:Bounds x="179" y="299" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="185" y="202" width="24" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1t0ra5c_di" bpmnElement="EndEvent">
-        <dc:Bounds x="622" y="159" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="630" y="202" width="20" height="14" />
+          <dc:Bounds x="185" y="342" width="24" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_10lycdv_di" bpmnElement="Gateway_10lycdv" isMarkerVisible="true">
-        <dc:Bounds x="495" y="152" width="50" height="50" />
+        <dc:Bounds x="495" y="292" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_17zos8m_di" bpmnElement="Screen_ComplaintType">
-        <dc:Bounds x="310" y="137" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_17zos8m_di" bpmnElement="Activity_ScreenComplaintType">
+        <dc:Bounds x="310" y="277" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1t0ra5c_di" bpmnElement="EndEvent">
+        <dc:Bounds x="802" y="299" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="810" y="342" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04gvq89_di" bpmnElement="Activity_ScreenCategorySerious">
+        <dc:Bounds x="580" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0srsyn8_di" bpmnElement="Gateway_0srsyn8" isMarkerVisible="true">
+        <dc:Bounds x="725" y="175" width="50" height="50" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_047c560_di" bpmnElement="Flow_047c560">
-        <di:waypoint x="545" y="177" />
-        <di:waypoint x="622" y="177" />
+        <di:waypoint x="545" y="317" />
+        <di:waypoint x="802" y="317" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0r43s3r_di" bpmnElement="Flow_0r43s3r">
-        <di:waypoint x="215" y="177" />
-        <di:waypoint x="310" y="177" />
+        <di:waypoint x="215" y="317" />
+        <di:waypoint x="310" y="317" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0nduhgj_di" bpmnElement="Flow_0nduhgj">
-        <di:waypoint x="410" y="177" />
-        <di:waypoint x="495" y="177" />
+        <di:waypoint x="410" y="317" />
+        <di:waypoint x="495" y="317" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1jpgxoo_di" bpmnElement="Flow_1jpgxoo">
-        <di:waypoint x="520" y="152" />
-        <di:waypoint x="520" y="90" />
-        <di:waypoint x="360" y="90" />
-        <di:waypoint x="360" y="137" />
+        <di:waypoint x="520" y="342" />
+        <di:waypoint x="520" y="420" />
+        <di:waypoint x="360" y="420" />
+        <di:waypoint x="360" y="357" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0asn5rb_di" bpmnElement="Flow_0asn5rb">
+        <di:waypoint x="520" y="292" />
+        <di:waypoint x="520" y="200" />
+        <di:waypoint x="580" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qpbaq9_di" bpmnElement="Flow_0qpbaq9">
+        <di:waypoint x="680" y="200" />
+        <di:waypoint x="725" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1k68mwt_di" bpmnElement="Flow_1k68mwt">
+        <di:waypoint x="775" y="200" />
+        <di:waypoint x="820" y="200" />
+        <di:waypoint x="820" y="299" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n7kdfq_di" bpmnElement="Flow_1n7kdfq">
+        <di:waypoint x="750" y="175" />
+        <di:waypoint x="750" y="130" />
+        <di:waypoint x="630" y="130" />
+        <di:waypoint x="630" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ndtogw_di" bpmnElement="Flow_1ndtogw">
+        <di:waypoint x="750" y="175" />
+        <di:waypoint x="750" y="80" />
+        <di:waypoint x="360" y="80" />
+        <di:waypoint x="360" y="277" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

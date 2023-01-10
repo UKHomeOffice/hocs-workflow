@@ -43,7 +43,7 @@ public class COMP_RECATEGORISE {
     public void defaultScenario() {
         Mocks.register("bpmnService", bpmnService);
 
-        when(compRecategoriseProcess.waitsAtUserTask("Screen_ComplaintType")).thenReturn(
+        when(compRecategoriseProcess.waitsAtUserTask("Activity_ScreenComplaintType")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Service")));
     }
 
@@ -51,17 +51,33 @@ public class COMP_RECATEGORISE {
     public void happyPath() {
         Scenario.run(compRecategoriseProcess).startByKey("COMP_RECATEGORISE").execute();
 
-        verify(compRecategoriseProcess).hasCompleted("Screen_ComplaintType");
+        verify(compRecategoriseProcess).hasCompleted("Activity_ScreenComplaintType");
     }
 
     @Test
     public void defaultsBackToComplaintTypeIfNotMovingForward() {
-        when(compRecategoriseProcess.waitsAtUserTask("Screen_ComplaintType")).thenReturn(
+        when(compRecategoriseProcess.waitsAtUserTask("Activity_ScreenComplaintType")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Service")));
 
         Scenario.run(compRecategoriseProcess).startByKey("COMP_RECATEGORISE").execute();
 
-        verify(compRecategoriseProcess, times(2)).hasCompleted("Screen_ComplaintType");
+        verify(compRecategoriseProcess, times(2)).hasCompleted("Activity_ScreenComplaintType");
+    }
+
+    @Test
+    public void showsComplaintCategoryScreenIfSeriousMisconductIsSelected() {
+        when(compRecategoriseProcess.waitsAtUserTask("Activity_ScreenComplaintType"))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "SeriousMisconduct")))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "SeriousMisconduct")));
+        when(compRecategoriseProcess.waitsAtUserTask("Activity_ScreenCategorySerious"))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "")))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "BACKWARD")))
+            .thenReturn(task -> task.complete(withVariables("DIRECTION", "FORWARD", "OtherUnprof", "true")));
+
+        Scenario.run(compRecategoriseProcess).startByKey("COMP_RECATEGORISE").execute();
+
+        verify(compRecategoriseProcess, times(2)).hasCompleted("Activity_ScreenComplaintType");
+        verify(compRecategoriseProcess, times(3)).hasCompleted("Activity_ScreenCategorySerious");
     }
 }
