@@ -88,6 +88,8 @@ public class PSU_COMP_COMPLAINT {
         verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAssault"), eq("CatFraud"),
             eq("CatOtherUnprof"), eq("CatRacism"), eq("CatRude"), eq("CatSexAssault"),
             eq("CatTheft"), eq("CatUnfair"));
+        verify(processScenario).hasCompleted("Service_AddCaseTag");
+        verify(taggingService).createTagForCase(any(), eq("REJECTED_BY_PSU"));
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
 }
