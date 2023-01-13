@@ -102,4 +102,19 @@ public class COMP_MINORMISCONDUCT_QA {
             eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 
+    @Test
+    public void testEscalateToPsu() {
+        when(minorMisconductProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctQaResult", "PSU")));
+
+        when(minorMisconductProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(minorMisconductProcess).startByKey("COMP_MINORMISCONDUCT_QA").execute();
+
+        verify(minorMisconductProcess, times(2)).hasCompleted("Screen_Input");
+        verify(minorMisconductProcess, times(3)).hasCompleted("Activity_ScreenCategorySerious");
+    }
 }
