@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1bmud3z" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.18.0">
+  <bpmn:process id="COMP_MINOR_MISCONDUCT_CHECK" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_COMP_MINOR_MISCONDUCT_CHECK">
+      <bpmn:outgoing>Flow_13vc79z</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:callActivity id="CallActivity_COMP_MINOR_CHECK" name="Minor Check" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="MinorCheckUUID" target="StageUUID" />
+        <camunda:in sourceExpression="COMP_MINOR_CHECK" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="MinorCheckUUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="COMP_MINOR_CHECK" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:out source="MinorCompType" target="CompType" />
+        <camunda:out source="MinorAccept" target="MinorAccept" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_13vc79z</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0uac5hc</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_0o61v4x" default="Flow_0arrxwv">
+      <bpmn:incoming>SequenceFlow_0uac5hc</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0htf303</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0arrxwv</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:callActivity id="CallActivity_COMP_MINOR_RESP" name="Minor Response" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in source="MinorRespUUID" target="StageUUID" />
+        <camunda:in sourceExpression="COMP_MINOR_RESP" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:out source="StageUUID" target="MinorRespUUID" />
+        <camunda:out source="DateReceived" target="DateReceived" />
+        <camunda:in sourceExpression="COMP_MINOR_RESP" target="StageType" />
+        <camunda:in sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out sourceExpression="ALLOCATE_TEAM" target="EmailType" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0htf303</bpmn:incoming>
+      <bpmn:outgoing>Flow_15xc803</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="SequenceFlow_0uac5hc" sourceRef="CallActivity_COMP_MINOR_CHECK" targetRef="ExclusiveGateway_0o61v4x" />
+    <bpmn:sequenceFlow id="SequenceFlow_0htf303" sourceRef="ExclusiveGateway_0o61v4x" targetRef="CallActivity_COMP_MINOR_RESP">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${MinorAccept == "Yes"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="EndEvent_COMP_MINOR_MISCONDUCT_CHECK">
+      <bpmn:incoming>Flow_15xc803</bpmn:incoming>
+      <bpmn:incoming>Flow_0arrxwv</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_13vc79z" sourceRef="StartEvent_COMP_MINOR_MISCONDUCT_CHECK" targetRef="CallActivity_COMP_MINOR_CHECK" />
+    <bpmn:sequenceFlow id="Flow_15xc803" sourceRef="CallActivity_COMP_MINOR_RESP" targetRef="EndEvent_COMP_MINOR_MISCONDUCT_CHECK" />
+    <bpmn:sequenceFlow id="Flow_0arrxwv" sourceRef="ExclusiveGateway_0o61v4x" targetRef="EndEvent_COMP_MINOR_MISCONDUCT_CHECK" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP_MINOR_MISCONDUCT_CHECK">
+      <bpmndi:BPMNShape id="CallActivity_0ifbpqm_di" bpmnElement="CallActivity_COMP_MINOR_CHECK">
+        <dc:Bounds x="320" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_0o61v4x_di" bpmnElement="ExclusiveGateway_0o61v4x" isMarkerVisible="true">
+        <dc:Bounds x="546" y="152" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="CallActivity_0r8r4v9_di" bpmnElement="CallActivity_COMP_MINOR_RESP">
+        <dc:Bounds x="792" y="137" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1p9eyu7_di" bpmnElement="EndEvent_COMP_MINOR_MISCONDUCT_CHECK">
+        <dc:Bounds x="1042" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_COMP_MINOR_MISCONDUCT_CHECK">
+        <dc:Bounds x="179" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_13vc79z_di" bpmnElement="Flow_13vc79z">
+        <di:waypoint x="215" y="180" />
+        <di:waypoint x="320" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0uac5hc_di" bpmnElement="SequenceFlow_0uac5hc">
+        <di:waypoint x="420" y="177" />
+        <di:waypoint x="546" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0htf303_di" bpmnElement="SequenceFlow_0htf303">
+        <di:waypoint x="596" y="177" />
+        <di:waypoint x="792" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0arrxwv_di" bpmnElement="Flow_0arrxwv">
+        <di:waypoint x="571" y="152" />
+        <di:waypoint x="571" y="80" />
+        <di:waypoint x="1060" y="80" />
+        <di:waypoint x="1060" y="159" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15xc803_di" bpmnElement="Flow_15xc803">
+        <di:waypoint x="892" y="177" />
+        <di:waypoint x="1042" y="177" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
