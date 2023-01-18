@@ -90,6 +90,8 @@ public class PSU_COMP_COMPLAINT {
             eq("CatTheft"), eq("CatUnfair"));
         verify(processScenario).hasCompleted("Service_AddCaseTag");
         verify(taggingService).createTagForCase(any(), eq("REJECTED_BY_PSU"));
+        verify(processScenario).hasCompleted("Service_UpdateUKVIDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
 }
