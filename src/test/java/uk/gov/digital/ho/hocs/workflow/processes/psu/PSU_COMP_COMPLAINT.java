@@ -88,6 +88,8 @@ public class PSU_COMP_COMPLAINT {
         verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAssault"), eq("CatFraud"),
             eq("CatOtherUnprof"), eq("CatRacism"), eq("CatRude"), eq("CatSexAssault"),
             eq("CatTheft"), eq("CatUnfair"));
+        verify(processScenario).hasCompleted("Service_UpdateUKVIDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
 }
