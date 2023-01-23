@@ -17,6 +17,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.withVariables;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,6 +61,8 @@ public class COMP_PSU_OUTCOME {
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Outcome");
+        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario, times(2)).hasCompleted("Screen_ComplaintOutcome");
         verify(processScenario, times(3)).hasCompleted("Screen_FinalResponse");
         verify(processScenario).hasCompleted("EndEvent_Outcome");

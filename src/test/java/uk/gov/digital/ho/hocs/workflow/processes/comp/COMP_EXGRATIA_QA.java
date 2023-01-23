@@ -102,4 +102,19 @@ public class COMP_EXGRATIA_QA {
             eq("QueueTeamUUID"), eq("QueueTeamName"), eq("Stage"));
     }
 
+    @Test
+    public void testEscalateToPsu() {
+        when(exGratiaProcess.waitsAtUserTask("Validate_Input")).thenReturn(
+            task -> task.complete(withVariables("valid", true, "CctQaResult", "PSU")));
+
+        when(exGratiaProcess.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(exGratiaProcess).startByKey("COMP_EXGRATIA_QA").execute();
+
+        verify(exGratiaProcess, times(2)).hasCompleted("Screen_Input");
+        verify(exGratiaProcess, times(3)).hasCompleted("Activity_ScreenCategorySerious");
+    }
 }
