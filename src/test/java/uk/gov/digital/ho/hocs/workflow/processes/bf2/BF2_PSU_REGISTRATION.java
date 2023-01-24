@@ -5,6 +5,7 @@ import org.camunda.bpm.engine.test.ProcessEngineRule;
 import org.camunda.bpm.engine.test.mock.Mocks;
 import org.camunda.bpm.scenario.ProcessScenario;
 import org.camunda.bpm.scenario.Scenario;
+import org.camunda.bpm.scenario.delegate.TaskDelegate;
 import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRule;
 import org.camunda.community.process_test_coverage.junit4.platform7.rules.TestCoverageProcessEngineRuleBuilder;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -43,11 +45,15 @@ public class BF2_PSU_REGISTRATION {
 
     @Test
     public void testHappyPath() {
+        when(processScenario.waitsAtUserTask("Screen_PsuReference"))
+            .thenReturn(TaskDelegate::complete);
+
         Scenario.run(processScenario)
                 .startByKey("BF2_PSU_REGISTRATION")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
+        verify(processScenario).hasCompleted("Screen_PsuReference");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
 
