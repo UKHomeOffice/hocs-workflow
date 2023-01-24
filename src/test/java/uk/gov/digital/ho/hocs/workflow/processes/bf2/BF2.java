@@ -154,4 +154,47 @@ public class BF2 {
         verify(processScenario).hasCompleted("EndEvent_BF2");
     }
 
+    @Test
+    public void testEscalateToPsuReturnCase() {
+        whenAtCallActivity("BF2_REGISTRATION").thenReturn("CompType", "SeriousMisconduct").deploy(rule);
+
+        whenAtCallActivity("PSU_BF2_COMPLAINT").thenReturn("ReturnCase", "true").deploy(rule);
+
+        whenAtCallActivity("BF2_TRIAGE").thenReturn("BFTriageResult", "Draft", "BfTriageAccept", "Yes").deploy(rule);
+
+        whenAtCallActivity("BF2_DRAFT").thenReturn("BfDraftResult", "QA").deploy(rule);
+
+        whenAtCallActivity("BF2_QA").thenReturn("BfQaResult", "Accept").deploy(rule);
+
+        whenAtCallActivity("BF2_SEND").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("BF2").execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF2");
+        verify(processScenario).hasCompleted("CallActivity_BF2_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
+        verify(processScenario).hasCompleted("CallActivity_BF2_TRIAGE");
+        verify(processScenario).hasCompleted("CallActivity_BF2_DRAFT");
+        verify(processScenario).hasCompleted("CallActivity_BF2_SEND");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF2");
+
+        verify(processScenario, times(0)).hasCompleted("CallActivity_BF2_ESCALATE");
+    }
+
+    @Test
+    public void testEscalateToPsuCloseCase() {
+        whenAtCallActivity("BF2_REGISTRATION").thenReturn("CompType", "SeriousMisconduct").deploy(rule);
+
+        whenAtCallActivity("PSU_BF2_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("BF2").execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF2");
+        verify(processScenario).hasCompleted("CallActivity_BF2_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF2");
+    }
+
 }
