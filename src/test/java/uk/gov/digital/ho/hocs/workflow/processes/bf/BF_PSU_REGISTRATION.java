@@ -45,11 +45,15 @@ public class BF_PSU_REGISTRATION {
 
     @Test
     public void testHappyPath() {
+        when(processScenario.waitsAtUserTask("Screen_PsuReference"))
+            .thenReturn(TaskDelegate::complete);
+
         Scenario.run(processScenario)
                 .startByKey("BF_PSU_REGISTRATION")
                 .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Registration");
+        verify(processScenario).hasCompleted("Screen_PsuReference");
         verify(processScenario).hasCompleted("EndEvent_Registration");
     }
 
