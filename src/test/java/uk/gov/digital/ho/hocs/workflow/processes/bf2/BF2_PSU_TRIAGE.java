@@ -16,7 +16,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.withVariables;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -43,11 +46,46 @@ public class BF2_PSU_TRIAGE {
 
     @Test
     public void testHappyPath() {
+        when(processScenario.waitsAtUserTask("Screen_PSUComplaints")).thenReturn(
+            task -> task.complete(withVariables("PsuTriageOutcome", ""))).thenReturn(
+            task -> task.complete(withVariables("PsuTriageOutcome", "Accept")));
+
         Scenario.run(processScenario)
-                .startByKey("BF2_PSU_TRIAGE")
-                .execute();
+            .startByKey("BF2_PSU_TRIAGE")
+            .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Triage");
+        verify(processScenario, times(2)).hasCompleted("Screen_PSUComplaints");
+        verify(processScenario).hasCompleted("EndEvent_Triage");
+    }
+
+    @Test
+    public void testSetComplaintTypeAsCloseCase() {
+        when(processScenario.waitsAtUserTask("Screen_PSUComplaints")).thenReturn(
+            task -> task.complete(withVariables(
+                "PsuTriageOutcome", "CloseCase")));
+
+        Scenario.run(processScenario)
+            .startByKey("BF2_PSU_TRIAGE")
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Triage");
+        verify(processScenario).hasCompleted("Screen_PSUComplaints");
+        verify(processScenario).hasCompleted("EndEvent_Triage");
+    }
+
+    @Test
+    public void testSetComplaintTypeAsReturnCase() {
+        when(processScenario.waitsAtUserTask("Screen_PSUComplaints")).thenReturn(
+            task -> task.complete(withVariables(
+                "PsuTriageOutcome", "ReturnCase")));
+
+        Scenario.run(processScenario)
+            .startByKey("BF2_PSU_TRIAGE")
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Triage");
+        verify(processScenario).hasCompleted("Screen_PSUComplaints");
         verify(processScenario).hasCompleted("EndEvent_Triage");
     }
 }
