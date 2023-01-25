@@ -48,12 +48,44 @@ public class BF_PSU_OUTCOME {
 
     @Test
     public void testHappyPath() {
+        when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
+            task -> task.complete(withVariables("PsuComplaintOutcome", "Substantiated")));
 
         Scenario.run(processScenario)
-                .startByKey("BF_PSU_OUTCOME")
-                .execute();
+            .startByKey("BF_PSU_OUTCOME")
+            .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Outcome");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
+        verify(processScenario).hasCompleted("EndEvent_Outcome");
+    }
+
+    @Test
+    public void testReturnCase() {
+        when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
+            task -> task.complete(withVariables("PsuComplaintOutcome", "ReturnCase")));
+
+        Scenario.run(processScenario)
+            .startByKey("BF_PSU_OUTCOME")
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Outcome");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
+        verify(processScenario).hasCompleted("EndEvent_Outcome");
+    }
+
+    @Test
+    public void testWithdrawCase() {
+        when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
+            task -> task.complete(withVariables("PsuComplaintOutcome", "Withdrawn")));
+
+        Scenario.run(processScenario)
+            .startByKey("BF_PSU_OUTCOME")
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Outcome");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
+        verify(processScenario, times(1)).hasCompleted("Activity_SaveWithdrawnNote");
         verify(processScenario).hasCompleted("EndEvent_Outcome");
     }
 }

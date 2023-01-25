@@ -16,7 +16,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.withVariables;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Deployment(resources = {
@@ -43,12 +46,44 @@ public class BF2_PSU_OUTCOME {
 
     @Test
     public void testHappyPath() {
+        when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
+            task -> task.complete(withVariables("PsuComplaintOutcome", "Substantiated")));
 
         Scenario.run(processScenario)
-                .startByKey("BF2_PSU_OUTCOME")
-                .execute();
+            .startByKey("BF2_PSU_OUTCOME")
+            .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Outcome");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
+        verify(processScenario).hasCompleted("EndEvent_Outcome");
+    }
+
+    @Test
+    public void testReturnCase() {
+        when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
+            task -> task.complete(withVariables("PsuComplaintOutcome", "ReturnCase")));
+
+        Scenario.run(processScenario)
+            .startByKey("BF2_PSU_OUTCOME")
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Outcome");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
+        verify(processScenario).hasCompleted("EndEvent_Outcome");
+    }
+
+    @Test
+    public void testWithdrawCase() {
+        when(processScenario.waitsAtUserTask("Screen_ComplaintOutcome")).thenReturn(
+            task -> task.complete(withVariables("PsuComplaintOutcome", "Withdrawn")));
+
+        Scenario.run(processScenario)
+            .startByKey("BF2_PSU_OUTCOME")
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Outcome");
+        verify(processScenario, times(1)).hasCompleted("Screen_ComplaintOutcome");
+        verify(processScenario, times(1)).hasCompleted("Activity_SaveWithdrawnNote");
         verify(processScenario).hasCompleted("EndEvent_Outcome");
     }
 }
