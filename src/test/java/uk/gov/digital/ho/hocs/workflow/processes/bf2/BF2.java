@@ -155,12 +155,16 @@ public class BF2 {
     }
 
     @Test
-    public void testEscalateToPsuReturnCase() {
-        whenAtCallActivity("BF2_REGISTRATION").thenReturn("CompType", "SeriousMisconduct").deploy(rule);
+    public void testEscalateToPsuFromTriageReturnCase() {
+        whenAtCallActivity("BF2_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+
+        whenAtCallActivity("BF2_TRIAGE").deploy(rule);
 
         whenAtCallActivity("PSU_BF2_COMPLAINT").thenReturn("ReturnCase", "true").deploy(rule);
 
-        whenAtCallActivity("BF2_TRIAGE").thenReturn("BFTriageResult", "Draft", "BfTriageAccept", "Yes").deploy(rule);
+        whenAtCallActivity("BF2_TRIAGE").thenReturn(
+            "BfTriageAccept", "PSU").thenReturn(
+            "BFTriageResult", "Draft", "BfTriageAccept", "Yes").deploy(rule);
 
         whenAtCallActivity("BF2_DRAFT").thenReturn("BfDraftResult", "QA").deploy(rule);
 
@@ -173,7 +177,7 @@ public class BF2 {
         verify(processScenario).hasCompleted("StartEvent_BF2");
         verify(processScenario).hasCompleted("CallActivity_BF2_REGISTRATION");
         verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
-        verify(processScenario).hasCompleted("CallActivity_BF2_TRIAGE");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_BF2_TRIAGE");
         verify(processScenario).hasCompleted("CallActivity_BF2_DRAFT");
         verify(processScenario).hasCompleted("CallActivity_BF2_SEND");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
@@ -183,8 +187,10 @@ public class BF2 {
     }
 
     @Test
-    public void testEscalateToPsuCloseCase() {
-        whenAtCallActivity("BF2_REGISTRATION").thenReturn("CompType", "SeriousMisconduct").deploy(rule);
+    public void testEscalateToPsuFromTriageCloseCase() {
+        whenAtCallActivity("BF2_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+
+        whenAtCallActivity("BF2_TRIAGE").thenReturn("BfTriageAccept", "PSU").deploy(rule);
 
         whenAtCallActivity("PSU_BF2_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
 
@@ -192,6 +198,7 @@ public class BF2 {
 
         verify(processScenario).hasCompleted("StartEvent_BF2");
         verify(processScenario).hasCompleted("CallActivity_BF2_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_BF2_TRIAGE");
         verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_BF2");
