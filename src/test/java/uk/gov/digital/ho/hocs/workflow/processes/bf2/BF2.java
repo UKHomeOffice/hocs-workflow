@@ -221,4 +221,25 @@ public class BF2 {
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_BF2");
     }
+
+    @Test
+    public void testEscalateToPsuFromWfmCloseCase() {
+        whenAtCallActivity("BF2_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+
+        whenAtCallActivity("BF2_TRIAGE").thenReturn("BfTriageAccept", "Yes", "BFTriageResult", "Escalate").deploy(rule);
+
+        whenAtCallActivity("BF2_ESCALATE").thenReturn("BfEscalationResult", "PSU").deploy(rule);
+
+        whenAtCallActivity("PSU_BF2_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("BF2").execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF2");
+        verify(processScenario).hasCompleted("CallActivity_BF2_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_BF2_TRIAGE");
+        verify(processScenario).hasCompleted("CallActivity_BF2_ESCALATE");
+        verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF2");
+    }
 }
