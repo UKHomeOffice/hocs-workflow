@@ -6,7 +6,7 @@
       <bpmn:incoming>Flow_1bnsbkw</bpmn:incoming>
       <bpmn:incoming>Flow_1hvxas2</bpmn:incoming>
       <bpmn:incoming>Flow_0yr3jad</bpmn:incoming>
-      <bpmn:incoming>Flow_1l4roh3</bpmn:incoming>
+      <bpmn:incoming>Flow_0rg4koz</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="Validate_Capture_Reason" name="Capture Reason" camunda:formKey="BF_TRIAGE_BUSAREA">
       <bpmn:incoming>Flow_1sgsexl</bpmn:incoming>
@@ -123,6 +123,7 @@
       <bpmn:incoming>Flow_1l1q72y</bpmn:incoming>
       <bpmn:incoming>Flow_1xvnn1x</bpmn:incoming>
       <bpmn:incoming>Flow_1rinbe7</bpmn:incoming>
+      <bpmn:incoming>Flow_0vi3o7i</bpmn:incoming>
       <bpmn:outgoing>Flow_181h423</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="Gateway_1x35rrg">
@@ -252,8 +253,27 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ "Yes" == execution.getVariable("PaymentTypeExGratia") }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0pac256" sourceRef="CLEAR_EXGRATIA_VAL" targetRef="CALCULATE_TOTAL_PAYMENT" />
-    <bpmn:sequenceFlow id="Flow_1l4roh3" sourceRef="Gateway_0zqenx0" targetRef="EndEvent_BF_TRIAGE">
+    <bpmn:sequenceFlow id="Flow_1l4roh3" sourceRef="Gateway_0zqenx0" targetRef="Activity_ScreenCategorySerious">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BfTriageAccept == "PSU"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="Activity_ScreenCategorySerious" name="Complaint Category Serious" camunda:formKey="BF_REGISTRATION_CATEGORY_SERIOUS">
+      <bpmn:incoming>Flow_1l4roh3</bpmn:incoming>
+      <bpmn:incoming>Flow_0i5srll</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xqwyc3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1xqwyc3" sourceRef="Activity_ScreenCategorySerious" targetRef="Gateway_1ccylrk" />
+    <bpmn:exclusiveGateway id="Gateway_1ccylrk" default="Flow_0i5srll">
+      <bpmn:incoming>Flow_1xqwyc3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0rg4koz</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0i5srll</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0vi3o7i</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0rg4koz" sourceRef="Gateway_1ccylrk" targetRef="EndEvent_BF_TRIAGE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0i5srll" sourceRef="Gateway_1ccylrk" targetRef="Activity_ScreenCategorySerious" />
+    <bpmn:sequenceFlow id="Flow_0vi3o7i" sourceRef="Gateway_1ccylrk" targetRef="Validate_Accept_Case">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -503,8 +523,28 @@
       <bpmndi:BPMNEdge id="Flow_1l4roh3_di" bpmnElement="Flow_1l4roh3">
         <di:waypoint x="510" y="645" />
         <di:waypoint x="510" y="1190" />
+        <di:waypoint x="570" y="1190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xqwyc3_di" bpmnElement="Flow_1xqwyc3">
+        <di:waypoint x="670" y="1190" />
+        <di:waypoint x="695" y="1190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rg4koz_di" bpmnElement="Flow_0rg4koz">
+        <di:waypoint x="745" y="1190" />
         <di:waypoint x="2180" y="1190" />
         <di:waypoint x="2180" y="638" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0i5srll_di" bpmnElement="Flow_0i5srll">
+        <di:waypoint x="720" y="1215" />
+        <di:waypoint x="720" y="1270" />
+        <di:waypoint x="620" y="1270" />
+        <di:waypoint x="620" y="1230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vi3o7i_di" bpmnElement="Flow_0vi3o7i">
+        <di:waypoint x="720" y="1215" />
+        <di:waypoint x="720" y="1320" />
+        <di:waypoint x="300" y="1320" />
+        <di:waypoint x="300" y="660" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_0pmmumb_di" bpmnElement="EndEvent_BF_TRIAGE">
         <dc:Bounds x="2162" y="602" width="36" height="36" />
@@ -613,6 +653,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0t10w0i_di" bpmnElement="CALCULATE_TOTAL_PAYMENT">
         <dc:Bounds x="1270" y="830" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_135vexi_di" bpmnElement="Activity_ScreenCategorySerious">
+        <dc:Bounds x="570" y="1150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1ccylrk_di" bpmnElement="Gateway_1ccylrk" isMarkerVisible="true">
+        <dc:Bounds x="695" y="1165" width="50" height="50" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -284,9 +284,15 @@ public class BF2_TRIAGE {
         when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
             task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "PSU")));
 
+        when(process.waitsAtUserTask("Activity_ScreenCategorySerious")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
         Scenario.run(process).startByKey("BF2_TRIAGE").execute();
 
-        verify(process).hasCompleted("Validate_Accept_Case");
+        verify(process, times(2)).hasCompleted("Validate_Accept_Case");
+        verify(process, times(3)).hasCompleted("Activity_ScreenCategorySerious");
         verify(process).hasCompleted("EndEvent_BF2_TRIAGE");
     }
 
