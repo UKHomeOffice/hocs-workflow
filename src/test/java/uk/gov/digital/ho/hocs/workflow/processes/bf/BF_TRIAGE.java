@@ -281,4 +281,15 @@ public class BF_TRIAGE {
         verify(process).hasCompleted("EndEvent_BF_TRIAGE");
     }
 
+    @Test
+    public void testEscalateToPsu() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "PSU")));
+
+        Scenario.run(process).startByKey("BF_TRIAGE").execute();
+
+        verify(process).hasCompleted("Validate_Accept_Case");
+        verify(process).hasCompleted("EndEvent_BF_TRIAGE");
+    }
+
 }
