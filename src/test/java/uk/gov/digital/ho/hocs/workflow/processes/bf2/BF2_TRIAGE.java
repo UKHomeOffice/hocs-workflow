@@ -280,7 +280,7 @@ public class BF2_TRIAGE {
     }
 
     @Test
-    public void testEscalateToPsu() {
+    public void testEscalateToPsuFromAcceptCase() {
         when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
             task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "PSU")));
 
@@ -296,4 +296,18 @@ public class BF2_TRIAGE {
         verify(process).hasCompleted("EndEvent_BF2_TRIAGE");
     }
 
+    @Test
+    public void testEscalateToPsuFromTriageDetails() {
+        when(process.waitsAtUserTask("Validate_Accept_Case")).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "BfTriageAccept", "Yes")));
+
+        when(process.waitsAtUserTask("Validate_Capture_Reason")).thenReturn(
+            task -> task.complete(withVariables(VALID, true, "PaymentRequested", "Yes", "BFTriageResult", "PSU")));
+
+        Scenario.run(process).startByKey("BF2_TRIAGE").execute();
+
+        verify(process, times(1)).hasCompleted("Validate_Accept_Case");
+        verify(process, times(1)).hasCompleted("Validate_Capture_Reason");
+        verify(process).hasCompleted("EndEvent_BF2_TRIAGE");
+    }
 }

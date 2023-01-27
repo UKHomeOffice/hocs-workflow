@@ -189,10 +189,28 @@ public class BF {
     }
 
     @Test
-    public void testEscalateToPsuFromTriageCloseCase() {
+    public void testEscalateToPsuFromTriageAcceptCloseCase() {
         whenAtCallActivity("BF_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
 
         whenAtCallActivity("BF_TRIAGE").thenReturn("BfTriageAccept", "PSU").deploy(rule);
+
+        whenAtCallActivity("PSU_BF_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("BF").execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF");
+        verify(processScenario).hasCompleted("CallActivity_BF_REGISTRATION");
+        verify(processScenario).hasCompleted("CallActivity_BF_TRIAGE");
+        verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF");
+    }
+
+    @Test
+    public void testEscalateToPsuFromTriageResultCloseCase() {
+        whenAtCallActivity("BF_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+
+        whenAtCallActivity("BF_TRIAGE").thenReturn("BfTriageAccept", "Yes", "BFTriageResult", "PSU").deploy(rule);
 
         whenAtCallActivity("PSU_BF_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="Definitions_0a8virv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="Definitions_0a8virv" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.2.0">
   <bpmn:process id="BF2_TRIAGE" isExecutable="true">
     <bpmn:endEvent id="EndEvent_BF2_TRIAGE">
       <bpmn:incoming>Flow_1bnsbkw</bpmn:incoming>
@@ -7,6 +7,7 @@
       <bpmn:incoming>Flow_0yr3jad</bpmn:incoming>
       <bpmn:incoming>Flow_0pawikq</bpmn:incoming>
       <bpmn:incoming>Flow_1t2ei1f</bpmn:incoming>
+      <bpmn:incoming>Flow_0zyve7m</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:userTask id="Validate_Capture_Reason" name="Capture Reason" camunda:formKey="BF2_TRIAGE_BUSAREA">
       <bpmn:incoming>Flow_1sgsexl</bpmn:incoming>
@@ -24,17 +25,16 @@
     <bpmn:sequenceFlow id="Flow_0tijz6t" sourceRef="Gateway_1xii2tv" targetRef="Gateway_15ofe6q">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${valid == true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_0tf16js" name="TriageResult?">
+    <bpmn:exclusiveGateway id="Gateway_0tf16js" name="TriageResult?" default="Flow_0pawikq">
       <bpmn:incoming>Flow_0kr6hjo</bpmn:incoming>
       <bpmn:incoming>Flow_01qhktf</bpmn:incoming>
       <bpmn:outgoing>Flow_0pawikq</bpmn:outgoing>
       <bpmn:outgoing>Flow_0yqamon</bpmn:outgoing>
       <bpmn:outgoing>Flow_1i1vtvo</bpmn:outgoing>
       <bpmn:outgoing>Flow_1k4hd8y</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0zyve7m</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0pawikq" sourceRef="Gateway_0tf16js" targetRef="EndEvent_BF2_TRIAGE">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BFTriageResult != "Pending" &amp;&amp; BFTriageResult != "Complete" &amp;&amp; BFTriageResult != "Escalate"}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0pawikq" sourceRef="Gateway_0tf16js" targetRef="EndEvent_BF2_TRIAGE" />
     <bpmn:sequenceFlow id="Flow_0yqamon" name="Pending" sourceRef="Gateway_0tf16js" targetRef="Validate_Capture_Reason">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BFTriageResult == "Pending"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -275,9 +275,38 @@
     <bpmn:sequenceFlow id="Flow_15eqr4z" sourceRef="Gateway_0qaucq6" targetRef="Validate_Accept_Case">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0zyve7m" name="PSU" sourceRef="Gateway_0tf16js" targetRef="EndEvent_BF2_TRIAGE">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${BFTriageResult == "PSU"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BF2_TRIAGE">
+      <bpmndi:BPMNEdge id="Flow_15eqr4z_di" bpmnElement="Flow_15eqr4z">
+        <di:waypoint x="730" y="1145" />
+        <di:waypoint x="730" y="1250" />
+        <di:waypoint x="300" y="1250" />
+        <di:waypoint x="300" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18laq23_di" bpmnElement="Flow_18laq23">
+        <di:waypoint x="730" y="1145" />
+        <di:waypoint x="730" y="1210" />
+        <di:waypoint x="620" y="1210" />
+        <di:waypoint x="620" y="1160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1t2ei1f_di" bpmnElement="Flow_1t2ei1f">
+        <di:waypoint x="755" y="1120" />
+        <di:waypoint x="2320" y="1120" />
+        <di:waypoint x="2320" y="588" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1w5pvem_di" bpmnElement="Flow_1w5pvem">
+        <di:waypoint x="670" y="1120" />
+        <di:waypoint x="705" y="1120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10fn72f_di" bpmnElement="Flow_10fn72f">
+        <di:waypoint x="510" y="595" />
+        <di:waypoint x="510" y="1120" />
+        <di:waypoint x="570" y="1120" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_01qhktf_di" bpmnElement="Flow_01qhktf">
         <di:waypoint x="1620" y="670" />
         <di:waypoint x="1620" y="595" />
@@ -521,31 +550,14 @@
         <di:waypoint x="670" y="570" />
         <di:waypoint x="705" y="570" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_10fn72f_di" bpmnElement="Flow_10fn72f">
-        <di:waypoint x="510" y="595" />
-        <di:waypoint x="510" y="1120" />
-        <di:waypoint x="570" y="1120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1w5pvem_di" bpmnElement="Flow_1w5pvem">
-        <di:waypoint x="670" y="1120" />
-        <di:waypoint x="705" y="1120" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1t2ei1f_di" bpmnElement="Flow_1t2ei1f">
-        <di:waypoint x="755" y="1120" />
-        <di:waypoint x="2320" y="1120" />
-        <di:waypoint x="2320" y="588" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18laq23_di" bpmnElement="Flow_18laq23">
-        <di:waypoint x="730" y="1145" />
-        <di:waypoint x="730" y="1210" />
-        <di:waypoint x="620" y="1210" />
-        <di:waypoint x="620" y="1160" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15eqr4z_di" bpmnElement="Flow_15eqr4z">
-        <di:waypoint x="730" y="1145" />
-        <di:waypoint x="730" y="1250" />
-        <di:waypoint x="300" y="1250" />
-        <di:waypoint x="300" y="610" />
+      <bpmndi:BPMNEdge id="Flow_0zyve7m_di" bpmnElement="Flow_0zyve7m">
+        <di:waypoint x="1620" y="545" />
+        <di:waypoint x="1620" y="480" />
+        <di:waypoint x="2320" y="480" />
+        <di:waypoint x="2320" y="552" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1959" y="462" width="23" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_0pmmumb_di" bpmnElement="EndEvent_BF2_TRIAGE">
         <dc:Bounds x="2302" y="552" width="36" height="36" />
