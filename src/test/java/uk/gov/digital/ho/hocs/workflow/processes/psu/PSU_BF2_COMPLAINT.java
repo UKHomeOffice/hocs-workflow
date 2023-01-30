@@ -19,6 +19,8 @@ import uk.gov.digital.ho.hocs.workflow.bpmn.TaggingService;
 
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
@@ -67,4 +69,23 @@ public class PSU_BF2_COMPLAINT {
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
 
+    @Test
+    public void testReturnCase() {
+        whenAtCallActivity("PSU")
+            .thenReturn("ReturnCase", Boolean.TRUE.toString())
+            .deploy(rule);
+
+        Scenario.run(processScenario)
+            .startByKey("PSU_BF2_COMPLAINT", Map.of(
+                "STAGE_REGISTRATION", "PSU_REGISTRATION",
+                "STAGE_TRIAGE", "PSU_TRIAGE",
+                "STAGE_OUTCOME", "PSU_OUTCOME"))
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Complaint");
+        verify(processScenario).hasCompleted("CallActivity_PSU");
+        verify(processScenario).hasCompleted("Service_UpdateBF2Deadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
+        verify(processScenario).hasCompleted("EndEvent_Complaint");
+    }
 }

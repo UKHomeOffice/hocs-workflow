@@ -69,4 +69,24 @@ public class PSU_BF_COMPLAINT {
         verify(processScenario).hasCompleted("EndEvent_Complaint");
     }
 
+    @Test
+    public void testReturnCase() {
+        whenAtCallActivity("PSU")
+            .thenReturn("ReturnCase", Boolean.TRUE.toString())
+            .deploy(rule);
+
+        Scenario.run(processScenario)
+            .startByKey("PSU_BF_COMPLAINT", Map.of(
+                "STAGE_REGISTRATION", "PSU_REGISTRATION",
+                "STAGE_TRIAGE", "PSU_TRIAGE",
+                "STAGE_OUTCOME", "PSU_OUTCOME"))
+            .execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Complaint");
+        verify(processScenario).hasCompleted("CallActivity_PSU");
+        verify(processScenario).hasCompleted("Service_UpdateBFDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
+        verify(processScenario).hasCompleted("EndEvent_Complaint");
+    }
+
 }
