@@ -61,6 +61,8 @@ public class BF_PSU_OUTCOME {
             .execute();
 
         verify(processScenario).hasCompleted("StartEvent_Outcome");
+        verify(processScenario).hasCompleted("Service_UpdatePsuDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario, times(2)).hasCompleted("Screen_ComplaintOutcome");
         verify(processScenario, times(3)).hasCompleted("Screen_FinalResponse");
         verify(processScenario).hasCompleted("EndEvent_Outcome");
