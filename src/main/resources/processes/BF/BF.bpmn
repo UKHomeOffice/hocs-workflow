@@ -40,7 +40,7 @@
       <bpmn:incoming>Flow_172krna</bpmn:incoming>
       <bpmn:incoming>Flow_1bztiob</bpmn:incoming>
       <bpmn:incoming>Flow_12f431e</bpmn:incoming>
-      <bpmn:incoming>Flow_0ih5430</bpmn:incoming>
+      <bpmn:incoming>Flow_1es0jmm</bpmn:incoming>
       <bpmn:outgoing>Flow_1xr2nd0</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:callActivity id="CallActivity_BF_SEND" name="SEND" calledElement="STAGE">
@@ -254,7 +254,7 @@
       <bpmn:outgoing>Flow_0ih5430</bpmn:outgoing>
       <bpmn:outgoing>Flow_02ktaeb</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0ih5430" sourceRef="Gateway_04hfiqy" targetRef="CallActivity_BF_TRIAGE">
+    <bpmn:sequenceFlow id="Flow_0ih5430" sourceRef="Gateway_04hfiqy" targetRef="Activity_1vzjq7j">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("ReturnCase") == true }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0xdnr9v" sourceRef="CallActivity_PSU_COMPLAINT" targetRef="Gateway_04hfiqy" />
@@ -268,9 +268,29 @@
     <bpmn:sequenceFlow id="Flow_1bl4bzj" sourceRef="Gateway_1j0kezi" targetRef="CallActivity_PSU_COMPLAINT">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${EscalationResult == "PSU"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:callActivity id="Activity_1vzjq7j" name="Recategorise" calledElement="STAGE">
+      <bpmn:extensionElements>
+        <camunda:in sourceExpression="BF_RECATEGORISE" target="StageWorkFlow" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" />
+        <camunda:in sourceExpression="BF_RECATEGORISE" target="StageType" />
+        <camunda:in sourceExpression="${execution.processBusinessKey}" target="CaseUUID" />
+        <camunda:out source="CompType" target="CompType" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ih5430</bpmn:incoming>
+      <bpmn:outgoing>Flow_1es0jmm</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1es0jmm" sourceRef="Activity_1vzjq7j" targetRef="CallActivity_BF_TRIAGE" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="BF">
+      <bpmndi:BPMNEdge id="Flow_1bl4bzj_di" bpmnElement="Flow_1bl4bzj">
+        <di:waypoint x="948" y="598" />
+        <di:waypoint x="920" y="570" />
+        <di:waypoint x="920" y="280" />
+        <di:waypoint x="670" y="280" />
+        <di:waypoint x="670" y="230" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i5pjop_di" bpmnElement="Flow_1i5pjop">
         <di:waypoint x="820" y="416" />
         <di:waypoint x="820" y="280" />
@@ -296,8 +316,7 @@
       <bpmndi:BPMNEdge id="Flow_0ih5430_di" bpmnElement="Flow_0ih5430">
         <di:waypoint x="820" y="165" />
         <di:waypoint x="820" y="80" />
-        <di:waypoint x="520" y="80" />
-        <di:waypoint x="520" y="401" />
+        <di:waypoint x="720" y="80" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ima01w_di" bpmnElement="Flow_0ima01w">
         <di:waypoint x="400" y="416" />
@@ -427,12 +446,10 @@
         <di:waypoint x="188" y="441" />
         <di:waypoint x="240" y="441" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1bl4bzj_di" bpmnElement="Flow_1bl4bzj">
-        <di:waypoint x="948" y="598" />
-        <di:waypoint x="920" y="570" />
-        <di:waypoint x="920" y="280" />
-        <di:waypoint x="670" y="280" />
-        <di:waypoint x="670" y="230" />
+      <bpmndi:BPMNEdge id="Flow_1es0jmm_di" bpmnElement="Flow_1es0jmm">
+        <di:waypoint x="620" y="80" />
+        <di:waypoint x="520" y="80" />
+        <di:waypoint x="520" y="401" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_BF">
         <dc:Bounds x="152" y="423" width="36" height="36" />
@@ -490,6 +507,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_04hfiqy_di" bpmnElement="Gateway_04hfiqy" isMarkerVisible="true">
         <dc:Bounds x="795" y="165" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vzjq7j_di" bpmnElement="Activity_1vzjq7j">
+        <dc:Bounds x="620" y="40" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
