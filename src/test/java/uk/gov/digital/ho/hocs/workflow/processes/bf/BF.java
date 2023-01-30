@@ -153,6 +153,8 @@ public class BF {
 
         whenAtCallActivity("PSU_BF_COMPLAINT").thenReturn("ReturnCase", "true").deploy(rule);
 
+        whenAtCallActivity("BF_RECATEGORISE").thenReturn("CompType", "Service").deploy(rule);
+
         whenAtCallActivity("BF_TRIAGE").thenReturn("BFTriageResult", "Draft", "BfTriageAccept", "Yes").deploy(rule);
 
         whenAtCallActivity("BF_DRAFT").thenReturn("BfDraftResult", "Send").deploy(rule);
