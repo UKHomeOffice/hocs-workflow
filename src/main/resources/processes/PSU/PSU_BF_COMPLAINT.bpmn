@@ -7,7 +7,7 @@
     <bpmn:sequenceFlow id="Flow_0lb4jdo" sourceRef="StartEvent_Complaint" targetRef="CallActivity_PSU" />
     <bpmn:endEvent id="EndEvent_Complaint">
       <bpmn:incoming>Flow_07g5aey</bpmn:incoming>
-      <bpmn:incoming>Flow_0u2ijxu</bpmn:incoming>
+      <bpmn:incoming>Flow_0p2kysf</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:callActivity id="CallActivity_PSU" name="PSU" calledElement="PSU">
       <bpmn:extensionElements>
@@ -28,14 +28,24 @@
       <bpmn:outgoing>Flow_0x4s5sr</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_07g5aey" sourceRef="Gateway_186ck5u" targetRef="EndEvent_Complaint" />
-    <bpmn:sequenceFlow id="Flow_0x4s5sr" sourceRef="Gateway_186ck5u" targetRef="Service_UpdateBFDeadline">
+    <bpmn:sequenceFlow id="Flow_0x4s5sr" sourceRef="Gateway_186ck5u" targetRef="Service_ResetComplaintCategories">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.getVariable("ReturnCase") == true }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Service_UpdateBFDeadline" name="Update Case Deadline" camunda:expression="${bpmnService.updateDeadlineDays(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, 20)}">
-      <bpmn:incoming>Flow_0x4s5sr</bpmn:incoming>
+      <bpmn:incoming>Flow_02ytclq</bpmn:incoming>
       <bpmn:outgoing>Flow_0u2ijxu</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0u2ijxu" sourceRef="Service_UpdateBFDeadline" targetRef="EndEvent_Complaint" />
+    <bpmn:sequenceFlow id="Flow_0u2ijxu" sourceRef="Service_UpdateBFDeadline" targetRef="Service_AddCaseTag" />
+    <bpmn:serviceTask id="Service_ResetComplaintCategories" name="Reset COMP Complaint Categories" camunda:expression="${bpmnService.blankCaseValues(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;CompType&#34;, &#34;CatAssault&#34;, &#34;CatFraud&#34;, &#34;CatOtherUnprof&#34;, &#34;CatRacism&#34;, &#34;CatRude&#34;, &#34;CatSexAssault&#34;, &#34;CatTheft&#34;, &#34;CatUnfair&#34;)}">
+      <bpmn:incoming>Flow_0x4s5sr</bpmn:incoming>
+      <bpmn:outgoing>Flow_02ytclq</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_02ytclq" sourceRef="Service_ResetComplaintCategories" targetRef="Service_UpdateBFDeadline" />
+    <bpmn:serviceTask id="Service_AddCaseTag" name="Add a case tag" camunda:expression="${taggingService.createTagForCase(execution.getVariable(&#34;CaseUUID&#34;), &#34;REJECTED_BY_PSU&#34;)}">
+      <bpmn:incoming>Flow_0u2ijxu</bpmn:incoming>
+      <bpmn:outgoing>Flow_0p2kysf</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0p2kysf" sourceRef="Service_AddCaseTag" targetRef="EndEvent_Complaint" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="PSU_BF_COMPLAINT">
@@ -48,11 +58,17 @@
       <bpmndi:BPMNShape id="Gateway_186ck5u_di" bpmnElement="Gateway_186ck5u" isMarkerVisible="true">
         <dc:Bounds x="435" y="222" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0r9qf4i_di" bpmnElement="Service_UpdateBFDeadline">
-        <dc:Bounds x="490" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_01a2sbb_di" bpmnElement="EndEvent_Complaint">
-        <dc:Bounds x="602" y="229" width="36" height="36" />
+        <dc:Bounds x="862" y="229" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08j7d6e_di" bpmnElement="Service_ResetComplaintCategories">
+        <dc:Bounds x="480" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0r9qf4i_di" bpmnElement="Service_UpdateBFDeadline">
+        <dc:Bounds x="620" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0izm7q5_di" bpmnElement="Service_AddCaseTag">
+        <dc:Bounds x="760" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0lb4jdo_di" bpmnElement="Flow_0lb4jdo">
         <di:waypoint x="188" y="247" />
@@ -64,17 +80,25 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_07g5aey_di" bpmnElement="Flow_07g5aey">
         <di:waypoint x="485" y="247" />
-        <di:waypoint x="602" y="247" />
+        <di:waypoint x="862" y="247" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0x4s5sr_di" bpmnElement="Flow_0x4s5sr">
         <di:waypoint x="460" y="222" />
         <di:waypoint x="460" y="130" />
-        <di:waypoint x="490" y="130" />
+        <di:waypoint x="480" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0u2ijxu_di" bpmnElement="Flow_0u2ijxu">
-        <di:waypoint x="590" y="130" />
+        <di:waypoint x="720" y="130" />
+        <di:waypoint x="760" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02ytclq_di" bpmnElement="Flow_02ytclq">
+        <di:waypoint x="580" y="130" />
         <di:waypoint x="620" y="130" />
-        <di:waypoint x="620" y="229" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0p2kysf_di" bpmnElement="Flow_0p2kysf">
+        <di:waypoint x="860" y="130" />
+        <di:waypoint x="880" y="130" />
+        <di:waypoint x="880" y="229" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
