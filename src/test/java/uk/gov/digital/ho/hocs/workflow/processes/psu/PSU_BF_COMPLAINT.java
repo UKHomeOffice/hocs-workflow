@@ -84,6 +84,12 @@ public class PSU_BF_COMPLAINT {
 
         verify(processScenario).hasCompleted("StartEvent_Complaint");
         verify(processScenario).hasCompleted("CallActivity_PSU");
+        verify(processScenario).hasCompleted("Service_ResetComplaintCategories");
+        verify(bpmnService).blankCaseValues(any(), any(), eq("CompType"), eq("CatAssault"), eq("CatFraud"),
+            eq("CatOtherUnprof"), eq("CatRacism"), eq("CatRude"), eq("CatSexAssault"),
+            eq("CatTheft"), eq("CatUnfair"));
+        verify(processScenario).hasCompleted("Service_AddCaseTag");
+        verify(taggingService).createTagForCase(any(), eq("REJECTED_BY_PSU"));
         verify(processScenario).hasCompleted("Service_UpdateBFDeadline");
         verify(bpmnService).updateDeadlineDays(any(), any(), eq("20"));
         verify(processScenario).hasCompleted("EndEvent_Complaint");
