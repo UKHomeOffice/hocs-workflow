@@ -55,6 +55,26 @@ public class COMP_RECATEGORISE {
     }
 
     @Test
+    public void assignToExGratia() {
+        when(compRecategoriseProcess.waitsAtUserTask("Activity_ScreenComplaintType")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "Ex-Gratia")));
+
+        Scenario.run(compRecategoriseProcess).startByKey("COMP_RECATEGORISE").execute();
+
+        verify(compRecategoriseProcess).hasCompleted("Activity_ScreenComplaintType");
+    }
+
+    @Test
+    public void assignToMinorMisconduct() {
+        when(compRecategoriseProcess.waitsAtUserTask("Activity_ScreenComplaintType")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
+
+        Scenario.run(compRecategoriseProcess).startByKey("COMP_RECATEGORISE").execute();
+
+        verify(compRecategoriseProcess).hasCompleted("Activity_ScreenComplaintType");
+    }
+
+    @Test
     public void defaultsBackToComplaintTypeIfNotMovingForward() {
         when(compRecategoriseProcess.waitsAtUserTask("Activity_ScreenComplaintType")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
