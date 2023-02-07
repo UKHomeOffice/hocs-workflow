@@ -78,6 +78,18 @@ public class COMP_SERVICE {
     }
 
     @Test
+    public void testWhenService_HardCloseAfterTriage() {
+
+        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageResult", "Complete").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP_SERVICE").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP_SERVICE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP_SERVICE");
+    }
+
+    @Test
     public void testWhenService_TriageEscalate() {
 
         whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",

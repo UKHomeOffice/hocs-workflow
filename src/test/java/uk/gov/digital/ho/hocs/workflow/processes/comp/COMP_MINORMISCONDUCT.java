@@ -80,6 +80,18 @@ public class COMP_MINORMISCONDUCT {
     }
 
     @Test
+    public void testWhenMinorMisconduct_HardCloseAfterTriage() {
+
+        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageResult", "Complete").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP_MINORMISCONDUCT").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP_MINORMISCONDUCT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_MINORMISCONDUCT_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP_MINORMISCONDUCT");
+    }
+
+    @Test
     public void testWhenMinorMisconduct_TriageEscalate() {
 
         whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",

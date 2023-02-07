@@ -16,6 +16,8 @@ import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
@@ -58,6 +60,7 @@ public class COMP_EXGRATIA {
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP_EXGRATIA");
         verify(processScenario, times(1)).hasCompleted("Service_UpdateDeadline");
+        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA_TRIAGE");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA_RESPONSE_DRAFT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA_SEND");
@@ -71,6 +74,19 @@ public class COMP_EXGRATIA {
             .thenReturn("CctTriageAccept", "No", "CctCompType", "CCH")
             .deploy(rule);
 
+
+        Scenario.run(processScenario).startByKey("COMP_EXGRATIA").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP_EXGRATIA");
+        verify(processScenario, times(1)).hasCompleted("Service_UpdateDeadline");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP_EXGRATIA");
+    }
+
+    @Test
+    public void testWhenExGratia_HardCloseAfterTriage() {
+
+        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageResult", "Complete").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP_EXGRATIA").execute();
 
