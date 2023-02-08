@@ -21,18 +21,20 @@ import static org.mockito.Mockito.*;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = { "processes/COMP/COMP.bpmn", "processes/COMP/COMP_CCH_REOPENED.bpmn",
-    "processes/COMP/COMP_CCH_RETURNS.bpmn", "processes/COMP/COMP_CLOSED.bpmn", "processes/COMP/COMP_MINOR_CHECK.bpmn",
+@Deployment(resources = { "processes/COMP/COMP.bpmn",
+    "processes/COMP/COMP_CCH.bpmn", "processes/COMP/COMP_CLOSED.bpmn", "processes/COMP/COMP_MINOR_CHECK.bpmn",
     "processes/COMP/COMP_MINOR_RESP.bpmn", "processes/COMP/COMP_OTHER.bpmn", "processes/COMP/COMP_REGISTRATION.bpmn",
-    "processes/COMP/COMP_RECATEGORISE.bpmn", "processes/COMP/COMP_SERVICE_DRAFT.bpmn", "processes/COMP/COMP_SERVICE_ESCALATE.bpmn",
-    "processes/COMP/COMP_SERVICE_QA.bpmn", "processes/COMP/COMP_SERVICE_SEND.bpmn",
-    "processes/COMP/COMP_SERVICE_TRIAGE.bpmn", "processes/STAGE.bpmn", "processes/STAGE_WITH_USER.bpmn" })
+    "processes/COMP/COMP_RECATEGORISE.bpmn", "processes/COMP/COMP_SERVICE.bpmn", "processes/COMP/COMP_EXGRATIA.bpmn",
+    "processes/COMP/COMP_MINORMISCONDUCT.bpmn", "processes/STAGE.bpmn", "processes/STAGE_WITH_USER.bpmn",
+    "processes/PSU/PSU_COMP_COMPLAINT.bpmn"
+})
+
 public class COMP {
 
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
-        0.30).build();
+        0.90).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -46,25 +48,19 @@ public class COMP {
     @Before
     public void setup() {
         Mocks.register("bpmnService", bpmnService);
-
     }
 
     @Test
-    public void testWhenService() {
+    public void testWhenService_CompleteCase() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service", "Stage", "Stage1").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",
-            "Draft").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_DRAFT").thenReturn("CctDraftResult", "Send").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_SEND").thenReturn("CctDraftResult", "Send", "Stage", "Stage1").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE").thenReturn("CompType", "Service").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_DRAFT");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -73,85 +69,83 @@ public class COMP {
     public void testWhenService_ReturnToCch() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service", "Stage", "Stage1").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "No", "CctCompType", "CCH").deploy(
-            rule);
-        whenAtCallActivity("COMP_CCH_RETURNS").thenReturn("CchCompType", "Complete").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE").thenReturn("CompType", "CCH").deploy(rule);
+        whenAtCallActivity("COMP_CCH").thenReturn("CompType", "Complete").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CCH");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
 
     @Test
-    public void testWhenService_TriageEscalate() {
+    public void testCompTypeService_EscalateToPsu() {
 
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service", "Stage", "Stage1").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",
-            "Escalate").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_ESCALATE").thenReturn("CctEscalateResult", "Triage").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_DRAFT").thenReturn("CctDraftResult", "Send").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_SEND").thenReturn("CctDraftResult", "Send", "Stage", "Stage1").deploy(rule);
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE").thenReturn("CctTriageAccept", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_ESCALATE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_DRAFT");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
 
     @Test
-    public void testWhenService_DraftEscalate() {
+    public void testCompTypeServiceEscalateToPsuFromTriageResult() {
 
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service", "Stage", "Stage1").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",
-            "Draft").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_DRAFT").thenReturn("CctDraftResult", "Escalate").thenReturn("CctDraftResult",
-            "Send").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_ESCALATE").thenReturn("CctEscalateResult", "Draft").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_SEND").thenReturn("CctDraftResult", "Send", "Stage", "Stage1").deploy(rule);
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE").thenReturn("CctTriageResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_COMP_SERVICE_DRAFT");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_ESCALATE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
 
     @Test
-    public void testWhenService_WhenQaRejectThenAccept() {
+    public void testCompTypeService_EscalateToPsuFromEscalate() {
 
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service", "Stage", "Stage1").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",
-            "Draft").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_DRAFT").thenReturn("CctDraftResult", "QA").thenReturn("CctDraftResult",
-            "QA").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_QA").thenReturn("CctQaResult", "Reject").thenReturn("CctQaResult",
-            "Accept").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_SEND").thenReturn("CctDraftResult", "Send", "Stage", "Stage1").deploy(rule);
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE").thenReturn("CctEscalateResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_COMP_SERVICE_DRAFT");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_COMP_SERVICE_QA");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeService_EscalateToPsuFromQa() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
+        whenAtCallActivity("COMP_SERVICE").thenReturn("CctQaResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -177,46 +171,13 @@ public class COMP {
     public void testWhenExGratia() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",
-            "Draft").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_RESPONSE_DRAFT").thenReturn("CctDraftResult", "default").thenReturn(
-            "CctDraftResult", "QA").thenReturn("CctDraftResult", "Send").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_QA").thenReturn("CctQaResult", "Reject").thenReturn("CctQaResult",
-            "Accept").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_SEND").thenReturn("CctDraftResult", "Send", "Stage", "Stage1").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA").thenReturn("CompType", "Ex-Gratia").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario).hasCompleted("Service_UpdateDeadline");
-        verify(bpmnService).updateDeadlineDays(any(), any(), eq("60"));
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
-        verify(processScenario, times(3)).hasCompleted("CallActivity_EX_GRATIA_RESPONSE_DRAFT");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_SEND");
-        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testWhenExGratiaEscalate() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",
-            "Escalate").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_ESCALATE").thenReturn("CctEscalateResult", "Triage").thenReturn(
-            "CctEscalateResult", "Draft").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_RESPONSE_DRAFT").thenReturn("CctDraftResult", "Escalate").thenReturn(
-            "CctDraftResult", "Send").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_SEND").thenReturn("CctDraftResult", "Send").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_EX_GRATIA_RESPONSE_DRAFT");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -225,16 +186,83 @@ public class COMP {
     public void testWhenExGratia_ReturnToCch() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageAccept", "No", "CctCompType", "CCH").deploy(
-            rule);
-        whenAtCallActivity("COMP_CCH_RETURNS").thenReturn("CchCompType", "Complete").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA").thenReturn("CctTriageAccept", "No", "CompType", "CCH").deploy(rule);
+        whenAtCallActivity("COMP_CCH").thenReturn("CompType", "Complete").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CCH");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeExGratia_EscalateToPsu() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA").thenReturn("CctTriageAccept", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeExGratia_EscalateToPsuFromTriageResult() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA").thenReturn("CctTriageResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeExGratia_EscalateToPsuFromEscalate() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA").thenReturn("CctEscalateResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
+        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
+    }
+
+    @Test
+    public void testCompTypeExGratia_EscalateToPsuFromQa() {
+
+        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
+        whenAtCallActivity("COMP_EXGRATIA").thenReturn("CctQaResult", "PSU").deploy(rule);
+        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("COMP").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_EXGRATIA");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -244,46 +272,13 @@ public class COMP {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct", "Stage", "Stage1").deploy(
             rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",
-            "Draft").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").thenReturn("CctDraftResult", "default").thenReturn(
-            "CctDraftResult", "QA").thenReturn("CctDraftResult", "Send").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_QA").thenReturn("CctQaResult", "Reject").thenReturn("CctQaResult",
-            "Accept").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_SEND").thenReturn("CctDraftResult", "Send", "Stage", "Stage1").deploy(
-            rule);
+        whenAtCallActivity("COMP_MINORMISCONDUCT").thenReturn("CompType", "MinorMisconduct").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
-        verify(processScenario, times(3)).hasCompleted("CallActivity_MM_DRAFT");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_SEND");
-        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testWhenMinorMisconductEscalate() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct", "Stage", "Stage1").deploy(
-            rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult",
-            "Escalate").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Draft").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_ESCALATE").thenReturn("CctEscalateResult", "Triage").thenReturn(
-            "CctEscalateResult", "Draft").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_RESPONSE_DRAFT").thenReturn("CctDraftResult", "Escalate").thenReturn(
-            "CctDraftResult", "Send").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_SEND").thenReturn("CctDraftResult", "Send").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_MM_TRIAGE");
-        verify(processScenario, times(2)).hasCompleted("CallActivity_MM_DRAFT");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_SEND");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_MINORMISCONDUCT");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
@@ -293,231 +288,63 @@ public class COMP {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct", "Stage", "Stage1").deploy(
             rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "No", "CctCompType",
-            "CCH").deploy(rule);
-        whenAtCallActivity("COMP_CCH_RETURNS").thenReturn("CchCompType", "Complete").deploy(rule);
+        whenAtCallActivity("COMP_MINORMISCONDUCT").thenReturn("CompType", "CCH").deploy(rule);
+        whenAtCallActivity("COMP_CCH").thenReturn("CompType", "Complete").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_MINORMISCONDUCT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_CCH");
         verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
 
     @Test
-    public void testWhenMinorMisconduct_HardCloseAfterTriage() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct", "Stage", "Stage1").deploy(
-            rule);
-
-        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageResult", "Complete").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testWhenExGratia_HardCloseAfterTriage() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia", "Stage", "Stage1").deploy(rule);
-
-        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageResult", "Complete").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeServiceReturnToCch() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "CCH", "CctCompType", "CCH").deploy(rule);
-        whenAtCallActivity("COMP_CCH_RETURNS").thenReturn("CchCompType", "Complete").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
-        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeServiceReturnToCchTriageAcceptOldValue() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "No", "CctCompType", "CCH").deploy(rule);
-        whenAtCallActivity("COMP_CCH_RETURNS").thenReturn("CchCompType", "Complete").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_RETURNS");
-        verify(processScenario, times(1)).hasCompleted("ServiceTask_CompleteCase");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeServiceEscalateToPsu() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "PSU").deploy(rule);
-        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeServiceEscalateToPsuFromTriageResult() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "PSU").deploy(rule);
-        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeServiceEscalateToPsuFromEscalate() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Service").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate").deploy(rule);
-        whenAtCallActivity("COMP_SERVICE_ESCALATE").thenReturn("CctEscalateResult", "PSU").deploy(rule);
-        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_SERVICE_ESCALATE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeMinorMisconductEscalateToPsu() {
+    public void testCompTypeMinorMisconduct_EscalateToPsu() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "PSU").deploy(rule);
+        whenAtCallActivity("COMP_MINORMISCONDUCT").thenReturn("CctTriageAccept", "PSU").deploy(rule);
         whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_MINORMISCONDUCT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
 
     @Test
-    public void testCompTypeMinorMisconductEscalateToPsuFromTriageResult() {
+    public void testCompTypeMinorMisconduct_EscalateToPsuFromTriageResult() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "PSU").deploy(rule);
+        whenAtCallActivity("COMP_MINORMISCONDUCT").thenReturn("CctTriageResult", "PSU").deploy(rule);
         whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_MINORMISCONDUCT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
 
     @Test
-    public void testCompTypeMinorMisconductEscalateToPsuFromEscalate() {
+    public void testCompTypeMinorMisconduct_EscalateToPsuFromEscalate() {
 
         whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "MinorMisconduct").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate").deploy(rule);
-        whenAtCallActivity("COMP_MINORMISCONDUCT_ESCALATE").thenReturn("CctEscalateResult", "PSU").deploy(rule);
+        whenAtCallActivity("COMP_MINORMISCONDUCT").thenReturn("CctEscalateResult", "PSU").deploy(rule);
         whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
 
         Scenario.run(processScenario).startByKey("COMP").execute();
 
         verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_MM_ESCALATE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeExGratiaEscalateToPsu() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageAccept", "PSU").deploy(rule);
-        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeExGratiaEscalateToPsuFromTriageResult() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "PSU").deploy(rule);
-        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
-        verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
-    }
-
-    @Test
-    public void testCompTypeExGratiaEscalateToPsuFromEscalate() {
-
-        whenAtCallActivity("COMP_REGISTRATION").thenReturn("CompType", "Ex-Gratia").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_TRIAGE").thenReturn("CctTriageAccept", "Yes", "CctTriageResult", "Escalate").deploy(rule);
-        whenAtCallActivity("COMP_EXGRATIA_ESCALATE").thenReturn("CctEscalateResult", "PSU").deploy(rule);
-        whenAtCallActivity("PSU_COMP_COMPLAINT").thenReturn("ReturnCase", "false").deploy(rule);
-
-        Scenario.run(processScenario).startByKey("COMP").execute();
-
-        verify(processScenario, times(1)).hasCompleted("StartEvent_COMP");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_REGISTRATION");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EXGRATIA_TRIAGE");
-        verify(processScenario, times(1)).hasCompleted("CallActivity_EX_GRATIA_ESCALATE");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_MINORMISCONDUCT");
         verify(processScenario, times(1)).hasCompleted("CallActivity_COMP_PSU");
         verify(processScenario, times(1)).hasCompleted("EndEvent_COMP");
     }
