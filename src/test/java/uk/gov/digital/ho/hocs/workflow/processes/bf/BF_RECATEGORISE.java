@@ -51,6 +51,7 @@ public class BF_RECATEGORISE {
     public void happyPath() {
         Scenario.run(bfRecategoriseProcess).startByKey("BF_RECATEGORISE").execute();
 
+        verify(bfRecategoriseProcess).hasCompleted("Service_SetStage");
         verify(bfRecategoriseProcess).hasCompleted("Activity_ScreenComplaintType");
     }
 
