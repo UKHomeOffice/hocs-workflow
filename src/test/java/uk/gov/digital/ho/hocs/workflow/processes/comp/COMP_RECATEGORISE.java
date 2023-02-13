@@ -61,6 +61,7 @@ public class COMP_RECATEGORISE {
 
         Scenario.run(compRecategoriseProcess).startByKey("COMP_RECATEGORISE").execute();
 
+        verify(compRecategoriseProcess).hasCompleted("Service_SetStage");
         verify(compRecategoriseProcess).hasCompleted("Activity_ScreenComplaintType");
     }
 
@@ -71,6 +72,7 @@ public class COMP_RECATEGORISE {
 
         Scenario.run(compRecategoriseProcess).startByKey("COMP_RECATEGORISE").execute();
 
+        verify(compRecategoriseProcess).hasCompleted("Service_SetStage");
         verify(compRecategoriseProcess).hasCompleted("Activity_ScreenComplaintType");
     }
 
