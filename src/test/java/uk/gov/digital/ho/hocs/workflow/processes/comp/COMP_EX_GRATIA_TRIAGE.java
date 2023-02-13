@@ -51,7 +51,7 @@ public class COMP_EX_GRATIA_TRIAGE {
     public void testRejectTriage() {
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No", "CctCompType", "CCH")));
 
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
             task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
@@ -64,7 +64,9 @@ public class COMP_EX_GRATIA_TRIAGE {
         verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Transfer");
         verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(exGratiaTriageProcess).hasCompleted("Service_UpdateCompType");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+        verify(bpmnService).updateValue(any(), any(), eq("CompType"), eq("CCH"));
     }
 
     @Test
@@ -167,7 +169,7 @@ public class COMP_EX_GRATIA_TRIAGE {
     public void testTriageAcceptCch() {
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "CCH")));
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "CCH", "CctCompType", "CCH")));
 
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
             task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
@@ -180,14 +182,16 @@ public class COMP_EX_GRATIA_TRIAGE {
         verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Transfer");
         verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(exGratiaTriageProcess).hasCompleted("Service_UpdateCompType");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+        verify(bpmnService).updateValue(any(), any(), eq("CompType"), eq("CCH"));
     }
 
     @Test
     public void testTriageAcceptOldValue() {
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No", "CctCompType", "CCH")));
 
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
             task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
@@ -200,7 +204,9 @@ public class COMP_EX_GRATIA_TRIAGE {
         verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(exGratiaTriageProcess, times(3)).hasCompleted("Screen_Transfer");
         verify(exGratiaTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(exGratiaTriageProcess).hasCompleted("Service_UpdateCompType");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+        verify(bpmnService).updateValue(any(), any(), eq("CompType"), eq("CCH"));
     }
 
     @Test
