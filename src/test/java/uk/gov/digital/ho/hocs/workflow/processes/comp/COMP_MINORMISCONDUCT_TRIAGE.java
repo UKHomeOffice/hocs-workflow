@@ -51,7 +51,7 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
     public void testRejectTriage() {
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No", "CctCompType", "CCH")));
 
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
             task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
@@ -64,7 +64,9 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
         verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Transfer");
         verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateCompType");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+        verify(bpmnService).updateValue(any(), any(), eq("CompType"), eq("CCH"));
     }
 
     @Test
@@ -164,7 +166,7 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
     public void testTriageAcceptCch() {
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "CCH")));
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "CCH", "CctCompType", "CCH")));
 
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
             task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
@@ -184,7 +186,7 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
     public void testTriageAcceptOldValue() {
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No")));
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No", "CctCompType", "CCH")));
 
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
             task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
@@ -197,7 +199,9 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
         verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Accept");
         verify(minorMisconductTriageProcess, times(3)).hasCompleted("Screen_Transfer");
         verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateAllocationNote");
+        verify(minorMisconductTriageProcess).hasCompleted("Service_UpdateCompType");
         verify(bpmnService).updateAllocationNote(any(), any(), eq("Reject"), eq("REJECT"));
+        verify(bpmnService).updateValue(any(), any(), eq("CompType"), eq("CCH"));
     }
 
     @Test
