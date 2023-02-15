@@ -534,10 +534,6 @@ public class BpmnService {
         camundaClient.removeTaskVariables(UUID.fromString(stageUUIDString), variables);
     }
 
-    public void printVariable(Object variable) {
-        System.out.println(variable);
-    }
-
     public void createCaseNote(String caseUUIDString, String caseNote, String caseNoteType) {
         log.debug("######## Create Case Note ########");
         caseworkClient.createCaseNote(UUID.fromString(caseUUIDString), caseNoteType, caseNote);
