@@ -87,6 +87,14 @@ public class COMP2_REGISTRATION {
     }
 
     @Test
+    public void origniationFromExternalContractor() {
+        when(compRegistrationProcess.waitsAtUserTask("Screen_OriginationCheck")).thenReturn(
+            task -> task.complete(withVariables("CaseCreateContinue", "YesExternalContractor")));
+
+        Scenario.run(compRegistrationProcess).startByKey("COMP2_REGISTRATION").execute();
+    }
+
+    @Test
     public void originatedFromOutsideCreationScreen() {
         Scenario.run(compRegistrationProcess).startByKey("COMP2_REGISTRATION",
             Map.of("XOriginatedFrom", "Escalation")).execute();
