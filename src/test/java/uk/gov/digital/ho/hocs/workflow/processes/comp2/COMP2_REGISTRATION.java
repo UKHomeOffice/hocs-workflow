@@ -49,7 +49,7 @@ public class COMP2_REGISTRATION {
         Mocks.register("bpmnService", bpmnService);
 
         when(compRegistrationProcess.waitsAtUserTask("Screen_OriginationCheck")).thenReturn(
-            task -> task.complete(withVariables("CaseCreateContinue", "YesSopraSteria")));
+            task -> task.complete(withVariables("CaseCreateContinue", "YesFurtherStage2")));
 
         when(compRegistrationProcess.waitsAtUserTask("Screen_CorrespondentInput")).thenReturn(TaskDelegate::complete);
 
