@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.1 as builder
+FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.2 as builder
 
 WORKDIR /builder
 
@@ -6,7 +6,7 @@ COPY ./build/libs/hocs-*.jar .
 
 RUN java -Djarmode=layertools -jar hocs-*.jar extract
 
-FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.1
+FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.2
 
 WORKDIR /app
 
