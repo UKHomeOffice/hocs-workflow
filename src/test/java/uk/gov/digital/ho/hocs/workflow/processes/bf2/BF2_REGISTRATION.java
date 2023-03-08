@@ -57,11 +57,6 @@ public class BF2_REGISTRATION {
             task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
             task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(task -> task.complete(
-            withVariables("valid", false, "DIRECTION", "BACKWARD", "CompType", "Service"))).thenReturn(
-            task -> task.complete(
-                withVariables("valid", false, "DIRECTION", "FORWARD", "CompType", "Service"))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
 
         Scenario.run(process).startByKey("BF2_REGISTRATION").execute();
 
@@ -85,9 +80,6 @@ public class BF2_REGISTRATION {
 
         when(process.waitsAtUserTask("Validate_Complainant")).thenReturn(
             task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
-
-        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
 
         Scenario.run(process).startByKey("BF2_REGISTRATION").execute();
 
