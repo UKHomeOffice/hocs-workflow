@@ -60,7 +60,7 @@ public class DCU_MIN {
     @Test
     public void acceptMinisterSignOffScenario() {
 
-        whenAtCallActivity("DCU_MIN_MINISTER_SIGN_OFF").thenReturn("MinisterSignOffDecision", "ACCEPT").deploy(rule);
+        whenAtCallActivity("DCU_MIN_MINISTER_SIGN_OFF").thenReturn("MinisterSignOffDecision", "ACCEPT_WET").deploy(rule);
 
         Scenario.run(dcuMinProcess).startByKey("MIN").execute();
 
@@ -74,7 +74,7 @@ public class DCU_MIN {
     public void rejectMinisterSignOffScenario() {
 
         whenAtCallActivity("DCU_MIN_MINISTER_SIGN_OFF").thenReturn("MinisterSignOffDecision", "REJECT").thenReturn(
-            "MinisterSignOffDecision", "ACCEPT").deploy(rule);
+            "MinisterSignOffDecision", "ACCEPT_WET").deploy(rule);
 
         Scenario.run(dcuMinProcess).startByKey("MIN").execute();
 
@@ -89,7 +89,7 @@ public class DCU_MIN {
     public void notApplicableMinisterSignOffScenario() {
 
         whenAtCallActivity("DCU_MIN_MINISTER_SIGN_OFF").thenReturn("MinisterSignOffDecision",
-            "NOT_APPLICABLE").thenReturn("MinisterSignOffDecision", "ACCEPT").deploy(rule);
+            "NOT_APPLICABLE").thenReturn("MinisterSignOffDecision", "ACCEPT_WET").deploy(rule);
 
         Scenario.run(dcuMinProcess).startByKey("MIN").execute();
 
