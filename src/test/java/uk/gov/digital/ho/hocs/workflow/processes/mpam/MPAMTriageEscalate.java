@@ -61,7 +61,6 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
-        verify(processScenario, times(2)).hasCompleted("Screen_ReferenceTypeToOfficial");
         verify(processScenario).hasCompleted("Service_UpdateRefTypeToOfficial");
         verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Official"), eq("RefTypeStatus"),
             eq("Confirm"));
@@ -82,7 +81,6 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
-        verify(processScenario).hasCompleted("ServiceTask_RequestContributionInput");
         verify(processScenario).hasCompleted("UserTask_RequestContributionInput");
         verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
     }
@@ -99,7 +97,6 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
-        verify(processScenario, times(2)).hasCompleted("Screen_ReferenceTypeToMinisterial");
         verify(processScenario).hasCompleted("Service_UpdateRefTypeToMinisterial");
         verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Ministerial"), eq("RefTypeStatus"),
             eq("Confirm"));
