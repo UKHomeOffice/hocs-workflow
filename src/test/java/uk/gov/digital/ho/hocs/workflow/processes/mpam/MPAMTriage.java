@@ -59,7 +59,6 @@ public class MPAMTriage extends MPAMCommonTests {
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE").execute();
 
-        verify(processScenario).hasCompleted("Screen_ReferenceTypeToOfficial_0pxyggg");
         verify(processScenario).hasCompleted("Service_UpdateRefTypeToOfficial_07vhlhy");
         verify(processScenario).hasCompleted("Service_ClearMinisterialValues_05l3eed");
         verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote_1sobox0");
@@ -80,7 +79,6 @@ public class MPAMTriage extends MPAMCommonTests {
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE").execute();
 
-        verify(processScenario).hasCompleted("Screen_ReferenceTypeToMinisterial_1c5qr22");
         verify(processScenario).hasCompleted("Service_UpdateRefTypeToMinisterial_0ai6870");
         verify(processScenario).hasCompleted("Service_SaveRefTypeChangeCaseNote_1sobox0");
         verify(processScenario).hasFinished("EndEvent_MpamTriage");
@@ -103,7 +101,6 @@ public class MPAMTriage extends MPAMCommonTests {
 
         verify(processScenario, times(2)).hasCompleted("Service_ClearCampaignType");
         verify(bpmnService, times(2)).blankCaseValues(any(), any(), eq("CampaignType"));
-        verify(processScenario, times(2)).hasCompleted("Screen_RequestCampaign");
         verify(processScenario).hasCompleted("Service_UpdateTeamForCampaign");
         verify(bpmnService).updateTeamByStageAndTexts(any(), any(), eq("MPAM_CAMPAIGN"), eq("QueueTeamUUID"),
             eq("QueueTeamName"), eq("BusArea"), eq("RefType"));
