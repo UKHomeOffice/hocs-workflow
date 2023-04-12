@@ -18,6 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
 import static org.camunda.bpm.engine.test.assertions.ProcessEngineTests.withVariables;
+import static org.camunda.bpm.engine.test.assertions.bpmn.BpmnAwareTests.executionQuery;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -32,7 +33,7 @@ public class MPAMTriage extends MPAMCommonTests {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
-        0.43).build();
+        0.66).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -126,17 +127,70 @@ public class MPAMTriage extends MPAMCommonTests {
     }
 
     @Test
-    public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
-        whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_TRIAGE", "Service_UpdateTeamForTriage", "MPAM_TRIAGE",
-            "EndEvent_MpamTriage", processScenario, bpmnService);
+    public void whenComplianceMeasuresOtherDetailsSet_addCaseNote() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(task -> task.complete(
+            withVariables( "DIRECTION", "FORWARD",
+                "TriageOutcome", "SendToDraft",
+                "ComplianceMeasuresOtherDetails", "TEST")));
+
+        Scenario.run(processScenario).startByKey("MPAM_TRIAGE").execute();
+
+        verify(bpmnService).createCaseNote(any(), eq("TEST"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
     }
 
     @Test
-    public void whenTriageUpdateEnquiryReasonSubject_thenBusAreaStatusIsConfirmed() {
-        ProcessExpressions.registerCallActivityMock("MPAM_UPDATE_ENQUIRY_SUBJECT_REASON").deploy(rule);
+    public void whenComplianceMeasuresOtherDetailsSet_thenCleared_doNotAddCaseNote() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageOutcome", "Pending",
+                "ComplianceMeasuresOtherDetails", "TEST")))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageOutcome", "SendToDraft",
+                "ComplianceMeasuresOtherDetails", "")));
 
-        whenUpdateEnquirySubjectReason_thenShouldContinue("MPAM_TRIAGE", "TriageOutcome", "EndEvent_MpamTriage",
-            processScenario, bpmnService);
+        Scenario.run(processScenario).startByKey("MPAM_TRIAGE").execute();
+
+        verify(bpmnService).createCaseNote(any(), eq("TEST"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
+    }
+
+    @Test
+    public void whenComplianceMeasuresOtherDetailsNotSet_thenSet_addCaseNote() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageOutcome", "Pending")))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageOutcome", "SendToDraft",
+                "ComplianceMeasuresOtherDetails", "TEST")));
+
+        Scenario.run(processScenario).startByKey("MPAM_TRIAGE").execute();
+
+        verify(bpmnService).createCaseNote(any(), eq("TEST"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
+    }
+
+    @Test
+    public void whenComplianceMeasuresOtherDetailsSet_thenChanged_addCaseNote() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageOutcome", "Pending",
+                "ComplianceMeasuresOtherDetails", "TEST")))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageOutcome", "SendToDraft",
+                "ComplianceMeasuresOtherDetails", "TEST1")));
+
+        Scenario.run(processScenario).startByKey("MPAM_TRIAGE").execute();
+
+        verify(bpmnService).createCaseNote(any(), eq("TEST"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(bpmnService).createCaseNote(any(), eq("TEST1"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriage");
+    }
+
+    @Test
+    public void whenTriageChangeBusinessArea_thenBusAreaStatusIsConfirmed() {
+        whenChangeBusinessArea_thenBusAreaStatusIsConfirmed("MPAM_TRIAGE", "Service_UpdateTeamForTriage", "MPAM_TRIAGE",
+            "EndEvent_MpamTriage", processScenario, bpmnService);
     }
 
 }
