@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Deployment(resources = { "processes/MPAM/MPAM_TRIAGE.bpmn", "processes/MPAM/MPAM_UPDATE_ENQUIRY_SUBJECT_REASON.bpmn" })
+@Deployment(resources = { "processes/MPAM/MPAM_TRIAGE.bpmn" })
 public class MPAMTriage extends MPAMCommonTests {
 
     @Rule
