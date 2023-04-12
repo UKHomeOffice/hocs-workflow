@@ -56,13 +56,12 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
             withVariables("DIRECTION", "UpdateRefType", "RefType", "Ministerial", "RefTypeCorrection", "Correction")));
         when(processScenario.waitsAtUserTask("Validate_ReferenceTypeToOfficial")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
-            task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", false))).thenReturn(
             task -> task.complete(
-                withVariables("DIRECTION", "FORWARD", "valid", true, "CaseNote_TriageChangeCaseType", "Casenote")));
+                withVariables("DIRECTION", "FORWARD", "CaseNote_TriageChangeCaseType", "Casenote")));
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
-        verify(processScenario, times(3)).hasCompleted("Screen_ReferenceTypeToOfficial");
+        verify(processScenario, times(2)).hasCompleted("Screen_ReferenceTypeToOfficial");
         verify(processScenario).hasCompleted("Service_UpdateRefTypeToOfficial");
         verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Official"), eq("RefTypeStatus"),
             eq("Confirm"));
@@ -76,7 +75,7 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
     @Test
     public void whenRequestContributions_thenRequestContributions() {
         when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(task -> task.complete(
-            withVariables("DIRECTION", "FORWARD", "valid", true, "TriageEscalateOutcome", "RequestContribution")));
+            withVariables("DIRECTION", "FORWARD", "TriageEscalateOutcome", "RequestContribution")));
 
         when(processScenario.waitsAtUserTask("UserTask_RequestContributionInput")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "FORWARD")));
@@ -95,13 +94,12 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
             withVariables("DIRECTION", "UpdateRefType", "RefType", "Official", "RefTypeCorrection", "Correction")));
         when(processScenario.waitsAtUserTask("Validate_ReferenceTypeToMinisterial")).thenReturn(
             task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
-            task -> task.complete(withVariables("DIRECTION", "FORWARD", "valid", false))).thenReturn(
             task -> task.complete(
-                withVariables("DIRECTION", "FORWARD", "valid", true, "CaseNote_TriageChangeCaseType", "Casenote")));
+                withVariables("DIRECTION", "FORWARD", "CaseNote_TriageChangeCaseType", "Casenote")));
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
-        verify(processScenario, times(3)).hasCompleted("Screen_ReferenceTypeToMinisterial");
+        verify(processScenario, times(2)).hasCompleted("Screen_ReferenceTypeToMinisterial");
         verify(processScenario).hasCompleted("Service_UpdateRefTypeToMinisterial");
         verify(bpmnService).updateValue(any(), any(), eq("RefType"), eq("Ministerial"), eq("RefTypeStatus"),
             eq("Confirm"));
@@ -115,10 +113,10 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
     public void whenTransferToOGD_thenAddTransferNote_thenSetDueDate_thenUpdateTeamForTransfer() {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "UpdateBusinessArea")));
+            task -> task.complete(withVariables("DIRECTION", "UpdateBusinessArea")));
 
         when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange")).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "BusArea", "TransferToOgd")));
+            task -> task.complete(withVariables( "DIRECTION", "FORWARD", "BusArea", "TransferToOgd")));
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
@@ -133,10 +131,10 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
     public void whenTransferToOther_thenAddTransferNote_thenSetDueDate_thenUpdateTeamForTransfer() {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "UpdateBusinessArea")));
+            task -> task.complete(withVariables( "DIRECTION", "UpdateBusinessArea")));
 
         when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange")).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "BusArea", "TransferToOther")));
+            task -> task.complete(withVariables( "DIRECTION", "FORWARD", "BusArea", "TransferToOther")));
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
@@ -151,10 +149,10 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
     public void whenNotTransferToOther_thenUpdateTeamForDraft() {
 
         when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "UpdateBusinessArea")));
+            task -> task.complete(withVariables( "DIRECTION", "UpdateBusinessArea")));
 
         when(processScenario.waitsAtUserTask("Validate_BusinessAreaChange")).thenReturn(task -> task.complete(
-            withVariables("valid", true, "DIRECTION", "FORWARD", "BusArea", "NotTransferToOther")));
+            withVariables( "DIRECTION", "FORWARD", "BusArea", "NotTransferToOther")));
 
         Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
