@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants;
 import uk.gov.digital.ho.hocs.workflow.api.WorkflowService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.CreateCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
@@ -125,6 +126,21 @@ public class BpmnService {
         workflowService.migrateCase(caseType, caseUuid);
 
         log.info("Migrating case for caseType {} from caseUUID {}", caseType, fromCaseUUID);
+    }
+
+    public void reopenCase(@NotNull String caseUuidString, @NotNull String userUUIDString) {
+
+        UUID caseUuid = UUID.fromString(caseUuidString);
+        UUID userUuid = UUID.fromString(userUUIDString);
+
+        GetCaseworkCaseDataResponse caseData = caseworkClient.getCase(caseUuid);
+
+        Map<String, String> seedData = new HashMap<>(caseData.getData());
+        seedData.put(WorkflowConstants.DATE_RECEIVED, caseData.getDateReceived().toString());
+        seedData.put(WorkflowConstants.LAST_UPDATED_BY_USER, userUuid.toString());
+        seedData.put(WorkflowConstants.CASE_REFERENCE, caseData.getReference());
+
+        camundaClient.startCase(caseUuid, caseData.getType(), seedData);
     }
 
     /**

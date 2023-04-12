@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.digital.ho.hocs.workflow.api.WorkflowConstants;
 import uk.gov.digital.ho.hocs.workflow.application.RequestData;
+import uk.gov.digital.ho.hocs.workflow.client.auditclient.AuditClient;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.dto.GetCaseworkCaseDataResponse;
 import uk.gov.digital.ho.hocs.workflow.migration.api.MigrateCaseRequest;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,9 +29,12 @@ public class MigrationWorkflowResource {
 
     private final CaseworkClient caseworkClient;
 
-    public MigrationWorkflowResource(CamundaClient camundaClient, CaseworkClient caseworkClient) {
+    private final AuditClient auditClient;
+
+    public MigrationWorkflowResource(CamundaClient camundaClient, CaseworkClient caseworkClient, AuditClient auditClient) {
         this.camundaClient = camundaClient;
         this.caseworkClient = caseworkClient;
+        this.auditClient = auditClient;
     }
 
     @PostMapping(value = "/migrate/case", consumes = APPLICATION_JSON_UTF8_VALUE)
@@ -44,6 +49,8 @@ public class MigrationWorkflowResource {
         seedData.put(WorkflowConstants.CASE_REFERENCE, caseData.getReference());
 
         camundaClient.startCase(request.getCaseUUID(), caseData.getType(), seedData);
+
+        auditClient.reopenCase(request.getCaseUUID());
 
         return ResponseEntity.ok().build();
     }

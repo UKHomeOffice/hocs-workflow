@@ -75,6 +75,7 @@ public class AuditClient {
         sendAuditMessage(localDateTime, caseUUID, payload, eventType, stageUUID, "{}",
                 correlationId, userId);
     }
+
     private void sendAuditMessage(LocalDateTime localDateTime, UUID caseUUID, String payload, EventType eventType,
                                   UUID stageUUID, String data, String correlationId, String userId) {
         CreateAuditRequest request = new CreateAuditRequest(
@@ -100,6 +101,20 @@ public class AuditClient {
             log.error("Failed to create audit event for case UUID {}, event {}, exception: {}",
                 caseUUID, value(EVENT, AUDIT_FAILED), value(EXCEPTION, e));
         }
+    }
+
+    public void reopenCase(UUID caseUuid) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+
+        sendAuditMessage(
+            localDateTime,
+            caseUuid,
+            null,
+            EventType.CASE_REOPENED,
+            null,
+            requestData.correlationId(),
+            requestData.userId()
+        );
     }
 
     private Map<String, MessageAttributeValue> getQueueHeaders(String eventType) {
