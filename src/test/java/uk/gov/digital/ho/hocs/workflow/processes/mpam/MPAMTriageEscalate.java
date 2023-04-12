@@ -33,7 +33,7 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
     @Rule
     @ClassRule
     public static TestCoverageProcessEngineRule rule = TestCoverageProcessEngineRuleBuilder.create().assertClassCoverageAtLeast(
-        0.25).build();
+        0.79).build();
 
     @Rule
     public ProcessEngineRule processEngineRule = new ProcessEngineRule();
@@ -165,13 +165,64 @@ public class MPAMTriageEscalate extends MPAMCommonTests {
     }
 
     @Test
-    public void whenTriageUpdateEnquiryReasonSubject_thenBusAreaStatusIsConfirmed() {
-        ProcessExpressions.registerCallActivityMock("MPAM_UPDATE_ENQUIRY_SUBJECT_REASON").deploy(rule);
+    public void whenComplianceMeasuresOtherDetailsSet_addCaseNote() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput")).thenReturn(task -> task.complete(
+            withVariables( "DIRECTION", "FORWARD",
+                "TriageEscalateOutcome", "Triage",
+                "ComplianceMeasuresOtherDetails", "TEST")));
 
-        whenUpdateEnquirySubjectReason_thenShouldContinue("MPAM_TRIAGE_ESCALATE", "TriageEscalateOutcome",
-            "EndEvent_MpamTriageEscalate", processScenario, bpmnService);
+        Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
 
-        verify(processScenario).hasCompleted("ServiceTask_0rvjsky");
+        verify(bpmnService).createCaseNote(any(), eq("TEST"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
+    }
+
+    @Test
+    public void whenComplianceMeasuresOtherDetailsSet_thenCleared_doNotAddCaseNote() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageEscalateOutcome", "Escalate",
+                "ComplianceMeasuresOtherDetails", "TEST")))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageEscalateOutcome", "Triage",
+                "ComplianceMeasuresOtherDetails", "")));
+
+        Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
+
+        verify(bpmnService).createCaseNote(any(), eq("TEST"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
+    }
+
+    @Test
+    public void whenComplianceMeasuresOtherDetailsNotSet_thenSet_addCaseNote() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageEscalateOutcome", "Escalate")))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageEscalateOutcome", "Triage",
+                "ComplianceMeasuresOtherDetails", "TEST")));
+
+        Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
+
+        verify(bpmnService).createCaseNote(any(), eq("TEST"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
+    }
+
+    @Test
+    public void whenComplianceMeasuresOtherDetailsSet_thenChanged_addCaseNote() {
+        when(processScenario.waitsAtUserTask("Validate_UserInput"))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageEscalateOutcome", "Escalate",
+                "ComplianceMeasuresOtherDetails", "TEST")))
+            .thenReturn(task -> task.complete(withVariables( "DIRECTION", "FORWARD",
+                "TriageEscalateOutcome", "Triage",
+                "ComplianceMeasuresOtherDetails", "TEST1")));
+
+        Scenario.run(processScenario).startByKey("MPAM_TRIAGE_ESCALATE").execute();
+
+        verify(bpmnService).createCaseNote(any(), eq("TEST"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(bpmnService).createCaseNote(any(), eq("TEST1"), eq("ENQUIRY_REASON_EUNATIONAL_OTHERDETAILS"));
+        verify(processScenario).hasFinished("EndEvent_MpamTriageEscalate");
     }
 
 }
