@@ -34,7 +34,7 @@
       <bpmn:outgoing>Flow_0tdhwmb</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0a0poq2" sourceRef="Screen_Complaint" targetRef="ExclusiveGateway_13i27xe" />
-    <bpmn:sequenceFlow id="SequenceFlow_1ckq4uv" sourceRef="ExclusiveGateway_0q5xpfe" targetRef="Screen_RegistrationInput">
+    <bpmn:sequenceFlow id="SequenceFlow_1ckq4uv" sourceRef="ExclusiveGateway_0q5xpfe" targetRef="Screen_Category">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CompType != "Ex-Gratia" &amp;&amp; CompType != "MinorMisconduct" &amp;&amp; CompType != "SeriousMisconduct" }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_13i27xe">
@@ -48,34 +48,23 @@
     <bpmn:sequenceFlow id="SequenceFlow_10ljnwx" sourceRef="ExclusiveGateway_13i27xe" targetRef="Screen_Complainant">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:userTask id="Screen_RegistrationInput" name="Registration Details" camunda:formKey="COMP_REGISTRATION_INPUT">
-      <bpmn:incoming>SequenceFlow_0vok10k</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_1ckq4uv</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0huxrwp</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0huxrwp" sourceRef="Screen_RegistrationInput" targetRef="ExclusiveGateway_0kbzifz" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_0kbzifz">
-      <bpmn:incoming>SequenceFlow_0huxrwp</bpmn:incoming>
+      <bpmn:incoming>Flow_0tokcmd</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0nm8aus</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_0bgkub9</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_0nm8aus" sourceRef="ExclusiveGateway_0kbzifz" targetRef="Screen_Category">
+    <bpmn:sequenceFlow id="SequenceFlow_0nm8aus" sourceRef="ExclusiveGateway_0kbzifz" targetRef="Screen_RegistrationInput">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "FORWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_0bgkub9" sourceRef="ExclusiveGateway_0kbzifz" targetRef="Screen_Complaint">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0vkxg3s">
-      <bpmn:incoming>SequenceFlow_1ygr6ir</bpmn:incoming>
+      <bpmn:incoming>Flow_0qvozb6</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0vok10k</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_09xhbcb</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:userTask id="Screen_Category" name="Category" camunda:formKey="COMP_REGISTRATION_CATEGORY">
-      <bpmn:incoming>SequenceFlow_0nm8aus</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1ygr6ir</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:sequenceFlow id="SequenceFlow_1ygr6ir" sourceRef="Screen_Category" targetRef="ExclusiveGateway_0vkxg3s" />
-    <bpmn:sequenceFlow id="SequenceFlow_0vok10k" sourceRef="ExclusiveGateway_0vkxg3s" targetRef="Screen_RegistrationInput">
+    <bpmn:sequenceFlow id="SequenceFlow_0vok10k" sourceRef="ExclusiveGateway_0vkxg3s" targetRef="Screen_Category">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${DIRECTION == "BACKWARD"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Service_UpdatePrimaryCorrespondent" name="Save Primary Correspondent" camunda:expression="${bpmnService.updatePrimaryCorrespondent(execution.getVariable(&#34;CaseUUID&#34;),execution.processBusinessKey, execution.getVariable(&#34;Correspondents&#34;))}">
@@ -249,6 +238,17 @@
     <bpmn:endEvent id="EndEvent_COMP_WEBFORM_CREATION">
       <bpmn:incoming>Flow_06qfv1d</bpmn:incoming>
     </bpmn:endEvent>
+    <bpmn:userTask id="Screen_Category" name="Category" camunda:formKey="COMP_REGISTRATION_CATEGORY">
+      <bpmn:incoming>SequenceFlow_1ckq4uv</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0vok10k</bpmn:incoming>
+      <bpmn:outgoing>Flow_0tokcmd</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Screen_RegistrationInput" name="Registration Details" camunda:formKey="COMP_REGISTRATION_INPUT">
+      <bpmn:incoming>SequenceFlow_0nm8aus</bpmn:incoming>
+      <bpmn:outgoing>Flow_0qvozb6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0tokcmd" sourceRef="Screen_Category" targetRef="ExclusiveGateway_0kbzifz" />
+    <bpmn:sequenceFlow id="Flow_0qvozb6" sourceRef="Screen_RegistrationInput" targetRef="ExclusiveGateway_0vkxg3s" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="COMP_REGISTRATION">
@@ -275,10 +275,6 @@
           <dc:Bounds x="1982" y="760" width="76" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_0k00jya_di" bpmnElement="Screen_RegistrationInput">
-        <dc:Bounds x="1860" y="579" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0kbzifz_di" bpmnElement="ExclusiveGateway_0kbzifz" isMarkerVisible="true">
         <dc:Bounds x="2055" y="594" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -290,10 +286,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2912" y="760" width="76" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_0y49grp_di" bpmnElement="Screen_Category">
-        <dc:Bounds x="2210" y="579" width="100" height="80" />
-        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_1glmvvh_di" bpmnElement="Service_UpdatePrimaryCorrespondent">
         <dc:Bounds x="590" y="579" width="100" height="80" />
@@ -373,6 +365,14 @@
       <bpmndi:BPMNShape id="Event_1br8k5l_di" bpmnElement="EndEvent_COMP_WEBFORM_CREATION">
         <dc:Bounds x="622" y="452" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1s2avzu" bpmnElement="Screen_RegistrationInput">
+        <dc:Bounds x="2210" y="579" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0ad7so0" bpmnElement="Screen_Category">
+        <dc:Bounds x="1860" y="579" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0hokxc0_di" bpmnElement="SequenceFlow_0hokxc0">
         <di:waypoint x="530" y="619" />
         <di:waypoint x="590" y="619" />
@@ -399,10 +399,6 @@
         <di:waypoint x="1140" y="730" />
         <di:waypoint x="1140" y="659" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0huxrwp_di" bpmnElement="SequenceFlow_0huxrwp">
-        <di:waypoint x="1960" y="619" />
-        <di:waypoint x="2055" y="619" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0nm8aus_di" bpmnElement="SequenceFlow_0nm8aus">
         <di:waypoint x="2105" y="619" />
         <di:waypoint x="2210" y="619" />
@@ -413,14 +409,10 @@
         <di:waypoint x="1440" y="860" />
         <di:waypoint x="1440" y="659" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1ygr6ir_di" bpmnElement="SequenceFlow_1ygr6ir">
-        <di:waypoint x="2310" y="619" />
-        <di:waypoint x="2395" y="619" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0vok10k_di" bpmnElement="SequenceFlow_0vok10k">
         <di:waypoint x="2420" y="644" />
-        <di:waypoint x="2420" y="780" />
-        <di:waypoint x="1910" y="780" />
+        <di:waypoint x="2420" y="730" />
+        <di:waypoint x="1910" y="730" />
         <di:waypoint x="1910" y="659" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_04d6e2u_di" bpmnElement="SequenceFlow_04d6e2u">
@@ -597,6 +589,14 @@
       <bpmndi:BPMNEdge id="Flow_0px4h63_di" bpmnElement="Flow_0px4h63">
         <di:waypoint x="335" y="619" />
         <di:waypoint x="430" y="619" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tokcmd_di" bpmnElement="Flow_0tokcmd">
+        <di:waypoint x="1960" y="619" />
+        <di:waypoint x="2055" y="619" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qvozb6_di" bpmnElement="Flow_0qvozb6">
+        <di:waypoint x="2310" y="619" />
+        <di:waypoint x="2395" y="619" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
