@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_00l63uj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_00l63uj" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="PSU_BF2_COMPLAINT" isExecutable="true">
     <bpmn:startEvent id="StartEvent_Complaint">
       <bpmn:outgoing>Flow_0lb4jdo</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0lb4jdo" sourceRef="StartEvent_Complaint" targetRef="Service_UpdateCompType" />
+    <bpmn:sequenceFlow id="Flow_0lb4jdo" sourceRef="StartEvent_Complaint" targetRef="SMC_UpdateCompType" />
     <bpmn:endEvent id="EndEvent_Complaint">
       <bpmn:incoming>Flow_0w1ka59</bpmn:incoming>
       <bpmn:incoming>Flow_0iruf1o</bpmn:incoming>
@@ -33,7 +33,7 @@
       <bpmn:incoming>Flow_14d78ba</bpmn:incoming>
       <bpmn:outgoing>Flow_0g2v7q1</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_14n9p8u" sourceRef="Gateway_1opetjf" targetRef="Activity_105d17w">
+    <bpmn:sequenceFlow id="Flow_14n9p8u" sourceRef="Gateway_1opetjf" targetRef="Service_UpdateCompType">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ execution.getVariable("ReturnCase") == true }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0g2v7q1" sourceRef="Service_UpdateBF2Deadline" targetRef="Service_AddCaseTag" />
@@ -47,16 +47,16 @@
       <bpmn:outgoing>Flow_0iruf1o</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0iruf1o" sourceRef="Service_AddCaseTag" targetRef="EndEvent_Complaint" />
-    <bpmn:serviceTask id="Service_UpdateCompType" name="Update complaint type in case data" camunda:expression="${bpmnService.updateCaseValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;CompType&#34;,  &#34;SeriousMisconduct&#34;)}">
+    <bpmn:serviceTask id="SMC_UpdateCompType" name="Update complaint type to Serious Misconduct" camunda:expression="${bpmnService.updateCaseValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;CompType&#34;,  &#34;SeriousMisconduct&#34;)}">
       <bpmn:incoming>Flow_0lb4jdo</bpmn:incoming>
       <bpmn:outgoing>Flow_0f7331e</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0f7331e" sourceRef="Service_UpdateCompType" targetRef="CallActivity_PSU" />
-    <bpmn:serviceTask id="Activity_105d17w" name="Update complaint type" camunda:expression="${bpmnService.updateCaseValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;CompType&#34;,  &#34;Service&#34;)}">
+    <bpmn:sequenceFlow id="Flow_0f7331e" sourceRef="SMC_UpdateCompType" targetRef="CallActivity_PSU" />
+    <bpmn:serviceTask id="Service_UpdateCompType" name="Update complaint type to Service" camunda:expression="${bpmnService.updateCaseValue(execution.getVariable(&#34;CaseUUID&#34;), execution.processBusinessKey, &#34;CompType&#34;,  &#34;Service&#34;)}">
       <bpmn:incoming>Flow_14n9p8u</bpmn:incoming>
       <bpmn:outgoing>Flow_1rfs1qs</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1rfs1qs" sourceRef="Activity_105d17w" targetRef="Service_ResetComplaintCategories" />
+    <bpmn:sequenceFlow id="Flow_1rfs1qs" sourceRef="Service_UpdateCompType" targetRef="Service_ResetComplaintCategories" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="PSU_BF2_COMPLAINT">
@@ -69,7 +69,7 @@
       <bpmndi:BPMNShape id="Gateway_1opetjf_di" bpmnElement="Gateway_1opetjf" isMarkerVisible="true">
         <dc:Bounds x="575" y="222" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1t4v65w_di" bpmnElement="Service_UpdateCompType">
+      <bpmndi:BPMNShape id="Activity_1t4v65w_di" bpmnElement="SMC_UpdateCompType">
         <dc:Bounds x="240" y="207" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
@@ -85,7 +85,7 @@
       <bpmndi:BPMNShape id="Event_01a2sbb_di" bpmnElement="EndEvent_Complaint">
         <dc:Bounds x="1122" y="229" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_16odjrr" bpmnElement="Activity_105d17w">
+      <bpmndi:BPMNShape id="BPMNShape_16odjrr" bpmnElement="Service_UpdateCompType">
         <dc:Bounds x="630" y="80" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
