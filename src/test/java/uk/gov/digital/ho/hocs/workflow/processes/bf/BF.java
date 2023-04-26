@@ -246,4 +246,24 @@ public class BF {
         verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
         verify(processScenario).hasCompleted("EndEvent_BF");
     }
+
+    @Test
+    public void testEscalateToPsuRecategorisationReturnToPsu() {
+        whenAtCallActivity("BF_REGISTRATION").thenReturn("CompType", "SeriousMisconduct").deploy(rule);
+
+        whenAtCallActivity("PSU_BF_COMPLAINT").thenReturn(
+            "ReturnCase", "true").thenReturn(
+            "ReturnCase", "false").deploy(rule);
+
+        whenAtCallActivity("BF_RECATEGORISE").thenReturn("CompType", "SeriousMisconduct").deploy(rule);
+
+        Scenario.run(processScenario).startByKey("BF").execute();
+
+        verify(processScenario).hasCompleted("StartEvent_BF");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_REGISTRATION");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_PSU_COMPLAINT");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_BF_RECATEGORISE");
+        verify(processScenario).hasCompleted("ServiceTask_CompleteCase");
+        verify(processScenario).hasCompleted("EndEvent_BF");
+    }
 }

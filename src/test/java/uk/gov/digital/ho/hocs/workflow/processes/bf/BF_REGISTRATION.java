@@ -62,12 +62,6 @@ public class BF_REGISTRATION {
             task -> task.complete(withVariables("valid", false, "DIRECTION", "FORWARD"))).thenReturn(
             task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(task -> task.complete(
-            withVariables("valid", false, "DIRECTION", "BACKWARD", "CompType", "Service"))).thenReturn(
-            task -> task.complete(
-                withVariables("valid", false, "DIRECTION", "FORWARD", "CompType", "Service"))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
-
         Scenario.run(process).startByKey("BF_REGISTRATION").execute();
 
         verify(bpmnService, times(2)).updatePrimaryCorrespondent(any(), any(), any());
@@ -88,9 +82,6 @@ public class BF_REGISTRATION {
             task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD")));
 
         when(process.waitsAtUserTask("Validate_Complaint_Selection")).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
-
-        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(
             task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
 
         Scenario.run(process).startByKey("BF_REGISTRATION").execute();
@@ -119,8 +110,6 @@ public class BF_REGISTRATION {
         when(process.waitsAtUserTask("Validate_Complaint_Selection")).thenReturn(
             task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "MinorMisconduct")));
 
-        when(process.waitsAtUserTask("Validate_Complaint_Input")).thenReturn(
-            task -> task.complete(withVariables("valid", true, "DIRECTION", "FORWARD", "CompType", "Service")));
 
         Scenario.run(process).startByKey("BF_REGISTRATION").execute();
 

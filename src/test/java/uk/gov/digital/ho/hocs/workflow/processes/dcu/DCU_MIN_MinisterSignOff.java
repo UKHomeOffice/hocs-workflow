@@ -56,7 +56,7 @@ public class DCU_MIN_MinisterSignOff {
     public void acceptSignOffScenario() {
 
         when(dcuMinSignOffProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF)).thenReturn(
-            task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "ACCEPT")));
+            task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "ACCEPT_WET")));
 
         Scenario.run(dcuMinSignOffProcess).startByKey(DCU_MIN_MINISTER_SIGN_OFF).execute();
 
@@ -114,7 +114,7 @@ public class DCU_MIN_MinisterSignOff {
 
         when(dcuMinSignOffProcess.waitsAtUserTask(APPROVE_MINISTER_SIGN_OFF)).thenReturn(task -> task.complete(
             withVariables("valid", true, "MinisterSignOffDecision", "NOT_APPLICABLE"))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "ACCEPT")));
+            task -> task.complete(withVariables("valid", true, "MinisterSignOffDecision", "ACCEPT_WET")));
 
         when(dcuMinSignOffProcess.waitsAtUserTask(VALIDATE_NOT_APPLICABLE)).thenReturn(
             task -> task.complete(withVariables("valid", true, "DIRECTION", "BACKWARD"))).thenReturn(
