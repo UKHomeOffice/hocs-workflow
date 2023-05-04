@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.digital.ho.hocs.workflow.util.CallActivityMockWrapper.whenAtCallActivity;
 
@@ -117,7 +118,7 @@ public class IEDET {
     }
 
     @Test
-    public void testSeriousMisconductSendtoIEDetntion(){
+    public void testSeriousMisconductSendtoIEDetention(){
         whenAtCallActivity("IEDET_REGISTRATION")
             .thenReturn("", "")
             .deploy(rule);
@@ -137,5 +138,34 @@ public class IEDET {
         verify(processScenario).hasCompleted("CallActivity_IEDET_TRIAGE");
         verify(processScenario).hasCompleted("CallActivity_PSU_COMPLAINT");
         verify(processScenario).hasCompleted("EndEvent_IEDET");
+    }
+
+    @Test
+    public void testReturnToTriageFromSend(){
+        whenAtCallActivity("IEDET_REGISTRATION")
+            .alwaysReturn("", "")
+            .deploy(rule);
+
+        whenAtCallActivity("IEDET_TRIAGE")
+            .alwaysReturn("", "")
+            .deploy(rule);
+
+        whenAtCallActivity("IEDET_DRAFT")
+            .alwaysReturn("", "")
+            .deploy(rule);
+
+        whenAtCallActivity("IEDET_SEND")
+            .thenReturn("SendAction", "Triage")
+            .thenReturn("SendAction", "Close")
+            .deploy(rule);
+
+        Scenario.run(processScenario).startByKey("IEDET").execute();
+
+        verify(processScenario, times(1)).hasCompleted("StartEvent_IEDET");
+        verify(processScenario, times(1)).hasCompleted("CallActivity_IEDET_REGISTRATION");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_IEDET_TRIAGE");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_IEDET_DRAFT");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_IEDET_SEND");
+        verify(processScenario, times(1)).hasCompleted("EndEvent_IEDET");
     }
 }
