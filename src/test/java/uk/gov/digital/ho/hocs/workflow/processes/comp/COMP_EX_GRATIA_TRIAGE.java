@@ -169,7 +169,7 @@ public class COMP_EX_GRATIA_TRIAGE {
     public void testTriageAcceptCch() {
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "CCH", "CctCompType", "CCH")));
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No", "CctCompType", "CCH")));
 
         when(exGratiaTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
             task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(

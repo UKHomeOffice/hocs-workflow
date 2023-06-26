@@ -166,7 +166,7 @@ public class COMP_MINORMISCONDUCT_TRIAGE {
     public void testTriageAcceptCch() {
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Accept")).thenReturn(
             task -> task.complete(withVariables("valid", false))).thenReturn(
-            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "CCH", "CctCompType", "CCH")));
+            task -> task.complete(withVariables("valid", true, "CctTriageAccept", "No", "CctCompType", "CCH")));
 
         when(minorMisconductTriageProcess.waitsAtUserTask("Validate_Transfer")).thenReturn(
             task -> task.complete(withVariables("valid", false, "DIRECTION", "BACKWARD"))).thenReturn(
