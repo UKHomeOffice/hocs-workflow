@@ -36,7 +36,7 @@ class WorkflowResource {
         this.bpmnService = bpmnService;
     }
 
-    @Authorised(accessLevel = AccessLevel.OWNER, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
+    @Authorised(accessLevel = AccessLevel.OWNER)
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request,
                                                          @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
@@ -86,7 +86,7 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
-    @Authorised(accessLevel = AccessLevel.WRITE, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
+    @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity createDocument(@PathVariable UUID caseUUID, @RequestBody CreateDocumentRequest request) {
         workflowService.createDocument(caseUUID, request.getDocuments());
@@ -103,7 +103,7 @@ class WorkflowResource {
     }
 
     @Deprecated(forRemoval = true)
-    @Authorised(accessLevel = AccessLevel.READ, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
+    @Authorised(accessLevel = AccessLevel.READ)
     @GetMapping(value = "/case/{caseUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetCaseResponse> getCase(@PathVariable UUID caseUUID) {
         GetCaseResponse response = workflowService.getAllCaseStages(caseUUID);
