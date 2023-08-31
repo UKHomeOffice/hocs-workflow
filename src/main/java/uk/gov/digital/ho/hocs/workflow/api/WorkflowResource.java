@@ -2,7 +2,10 @@ package uk.gov.digital.ho.hocs.workflow.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
@@ -43,6 +46,13 @@ class WorkflowResource {
         CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(),
             request.getDocuments(), userUUID, request.getFromCaseUUID(), request.getData());
         return ResponseEntity.ok(response);
+    }
+
+    @ConditionalOnProperty(value = "hocs.migration.enabled", matchIfMissing = true)
+    @PostMapping(value = "/case/migrate")
+    public ResponseEntity<Void> migrateCases(@RequestBody MigrateCasesRequest request) {
+        workflowService.migrateCases(request.getCaseUUIDs(), request.getSourceVersion(), request.getTargetVersion());
+        return ResponseEntity.ok().build();
     }
 
     @Authorised(accessLevel = AccessLevel.OWNER)
