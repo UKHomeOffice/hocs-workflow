@@ -2,7 +2,10 @@ package uk.gov.digital.ho.hocs.workflow.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
@@ -36,13 +39,20 @@ class WorkflowResource {
         this.bpmnService = bpmnService;
     }
 
-    @Authorised(accessLevel = AccessLevel.OWNER, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
+    @Authorised(accessLevel = AccessLevel.OWNER)
     @PostMapping(value = "/case", consumes = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<CreateCaseResponse> createCase(@RequestBody CreateCaseRequest request,
                                                          @RequestHeader(RequestData.USER_ID_HEADER) UUID userUUID) {
         CreateCaseResponse response = workflowService.createCase(request.getType(), request.getDateReceived(),
             request.getDocuments(), userUUID, request.getFromCaseUUID(), request.getData());
         return ResponseEntity.ok(response);
+    }
+
+    @ConditionalOnProperty(value = "hocs.migration.enabled", matchIfMissing = true)
+    @PostMapping(value = "/case/migrate")
+    public ResponseEntity<Void> migrateCases(@RequestBody MigrateCasesRequest request) {
+        workflowService.migrateCases(request.getCaseUUIDs(), request.getSourceVersion(), request.getTargetVersion());
+        return ResponseEntity.ok().build();
     }
 
     @Authorised(accessLevel = AccessLevel.OWNER)
@@ -86,7 +96,7 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
-    @Authorised(accessLevel = AccessLevel.WRITE, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
+    @Authorised(accessLevel = AccessLevel.WRITE)
     @PostMapping(value = "/case/{caseUUID}/document", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity createDocument(@PathVariable UUID caseUUID, @RequestBody CreateDocumentRequest request) {
         workflowService.createDocument(caseUUID, request.getDocuments());
@@ -103,7 +113,7 @@ class WorkflowResource {
     }
 
     @Deprecated(forRemoval = true)
-    @Authorised(accessLevel = AccessLevel.READ, permittedLowerLevels = { AccessLevel.RESTRICTED_OWNER })
+    @Authorised(accessLevel = AccessLevel.READ)
     @GetMapping(value = "/case/{caseUUID}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<GetCaseResponse> getCase(@PathVariable UUID caseUUID) {
         GetCaseResponse response = workflowService.getAllCaseStages(caseUUID);
