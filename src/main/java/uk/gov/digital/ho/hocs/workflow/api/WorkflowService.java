@@ -196,6 +196,10 @@ public class WorkflowService {
 
     }
 
+    public void migrateCases(List<UUID> caseUUIDs, String sourceVersion, String targetVersion) {
+        camundaClient.migrateCases(caseUUIDs, sourceVersion, targetVersion);
+    }
+
     private CreateCaseworkCorrespondentRequest buildCorrespondentRequest(Map<String, String> data) {
         CreateCaseworkCorrespondentRequest correspondentRequest;
         correspondentRequest = CreateCaseworkCorrespondentRequest.builder().type(

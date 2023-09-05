@@ -3,11 +3,16 @@ package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.migration.MigrationPlan;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.runtime.ProcessInstanceQuery;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.model.xml.ModelInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
@@ -15,7 +20,9 @@ import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
@@ -44,6 +51,25 @@ public class CamundaClient {
         runtimeService.startProcessInstanceByMessage(message, caseUUID.toString(), new HashMap<>(data));
         log.info("Started case bpmn: Case: '{}', Type: '{}', Message: {}, Event {}", caseUUID, caseDataType, message,
             value(EVENT, CASE_STARTED_SUCCESS));
+    }
+
+    public void migrateCases(List<UUID> caseUUIDs, String sourceVersion, String targetVersion) {
+        MigrationPlan migrationPlan = runtimeService
+                    .createMigrationPlan(sourceVersion, targetVersion)
+                    .mapEqualActivities()
+                    .build();
+
+        ProcessInstanceQuery processInstanceQuery = runtimeService
+            .createProcessInstanceQuery()
+            .processDefinitionId(sourceVersion);
+
+        List<String> processInstanceIDs = caseUUIDs.stream().map(caseUUID -> processInstanceQuery.processInstanceBusinessKey(caseUUID.toString()).list().get(0).getProcessInstanceId()).collect(
+            Collectors.toList());
+
+        runtimeService
+            .newMigration(migrationPlan)
+            .processInstanceIds(processInstanceIDs)
+            .execute();
     }
 
     /**
