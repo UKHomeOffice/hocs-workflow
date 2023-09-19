@@ -26,7 +26,7 @@
       <bpmn:incoming>SequenceFlow_0lnw468</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0knicym</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_0lfimbn</bpmn:incoming>
-      <bpmn:incoming>Flow_0lxq8ab</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1t6o8wi</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1p2dvke</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="SequenceFlow_16fw7qq" sourceRef="StartEvent_WCS" targetRef="CallActivity_0itv8jg" />
@@ -581,7 +581,7 @@
     <bpmn:sequenceFlow id="SequenceFlow_1ptr3tz" name="ReturnToEligibility" sourceRef="ExclusiveGateway_0br8e7x" targetRef="CallActivity_15sv3if">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CaseworkStatus == "ReturnToEligibility"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1t6o8wi" name="ReturnToRegistration" sourceRef="ExclusiveGateway_0br8e7x" targetRef="Gateway_1bbcix4">
+    <bpmn:sequenceFlow id="SequenceFlow_1t6o8wi" name="ReturnToRegistration" sourceRef="ExclusiveGateway_0br8e7x" targetRef="CallActivity_0itv8jg">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${CaseworkStatus == "ReturnToRegistration"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0br8e7x" name="Casework Status?">
@@ -793,10 +793,10 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_07qeroh" sourceRef="CallActivity_1ckc2th" targetRef="ExclusiveGateway_1prlsec" />
     <bpmn:sequenceFlow id="SequenceFlow_0ccneyt" name="SendToEligibility" sourceRef="ExclusiveGateway_15z8s52" targetRef="CallActivity_15sv3if">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RegistrationNextTeamOutput == "SendToEligibility"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RegistrationNextTeamOutput == "SendToEligibility" || IsTaskForce == "No"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1sd65eg" name="SendToTriage" sourceRef="ExclusiveGateway_15z8s52" targetRef="CallActivity_0yoi4tq">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RegistrationNextTeamOutput == "SendToTriage"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${RegistrationNextTeamOutput == "SendToTriage" || IsTaskForce == "Yes"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_00rent3" name="EligibilityRejectedOutcome?">
       <bpmn:incoming>SequenceFlow_0bhyhgr</bpmn:incoming>
@@ -941,16 +941,6 @@
     <bpmn:sequenceFlow id="Flow_0to0bm4" name="Send from Tier2 to Tier1" sourceRef="ExclusiveGateway_15tids7" targetRef="CallActivity_0viljw4">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${Tier2Coord == "Tier1"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:exclusiveGateway id="Gateway_0iyfmcf">
-      <bpmn:incoming>Flow_0w5m6v6</bpmn:incoming>
-      <bpmn:outgoing>Flow_0lxq8ab</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0lxq8ab" sourceRef="Gateway_0iyfmcf" targetRef="CallActivity_0itv8jg" />
-    <bpmn:exclusiveGateway id="Gateway_1bbcix4">
-      <bpmn:incoming>SequenceFlow_1t6o8wi</bpmn:incoming>
-      <bpmn:outgoing>Flow_0w5m6v6</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0w5m6v6" sourceRef="Gateway_1bbcix4" targetRef="Gateway_0iyfmcf" />
   </bpmn:process>
   <bpmn:message id="WCS_TRIAGE" name="WCS_TRIAGE" />
   <bpmn:message id="Message_0m4dmb5" name="WCS_CASEWORK" />
@@ -1306,12 +1296,6 @@
           <dc:Bounds x="1271" y="2170" width="85" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0iyfmcf_di" bpmnElement="Gateway_0iyfmcf" isMarkerVisible="true">
-        <dc:Bounds x="325" y="291" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1bbcix4_di" bpmnElement="Gateway_1bbcix4" isMarkerVisible="true">
-        <dc:Bounds x="385" y="291" width="50" height="50" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_16fw7qq_di" bpmnElement="SequenceFlow_16fw7qq">
         <di:waypoint x="199" y="500" />
         <di:waypoint x="255" y="500" />
@@ -1634,9 +1618,10 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1t6o8wi_di" bpmnElement="SequenceFlow_1t6o8wi">
         <di:waypoint x="865" y="316" />
-        <di:waypoint x="435" y="316" />
+        <di:waypoint x="305" y="316" />
+        <di:waypoint x="305" y="460" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="724" y="322" width="86" height="27" />
+          <dc:Bounds x="701" y="322" width="86" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1g6deoe_di" bpmnElement="SequenceFlow_1g6deoe">
@@ -1991,15 +1976,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2824" y="916" width="79" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0lxq8ab_di" bpmnElement="Flow_0lxq8ab">
-        <di:waypoint x="325" y="316" />
-        <di:waypoint x="305" y="316" />
-        <di:waypoint x="305" y="460" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0w5m6v6_di" bpmnElement="Flow_0w5m6v6">
-        <di:waypoint x="385" y="316" />
-        <di:waypoint x="375" y="316" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
