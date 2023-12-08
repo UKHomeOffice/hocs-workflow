@@ -48,7 +48,7 @@ class WorkflowResource {
         return ResponseEntity.ok(response);
     }
 
-    @ConditionalOnProperty(value = "hocs.migration.enabled", matchIfMissing = true)
+    @ConditionalOnProperty(value = "hocs.migration.enabled")
     @PostMapping(value = "/case/migrate")
     public ResponseEntity<Void> migrateCases(@RequestBody MigrateCasesRequest request) {
         workflowService.migrateCases(request.getCaseUUIDs(), request.getSourceVersion(), request.getTargetVersion());
