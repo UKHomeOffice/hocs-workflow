@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
