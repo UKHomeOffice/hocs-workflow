@@ -2,9 +2,9 @@ FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.6 as builder
 
 WORKDIR /builder
 
-COPY ./build/libs/hocs-* .
+COPY ./build/libs/hocs-wokflow.jar ./
 
-RUN java -Djarmode=layertools -jar hocs-* extract
+RUN java -Djarmode=layertools -jar hocs-*.jar extract
 
 FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.6
 
