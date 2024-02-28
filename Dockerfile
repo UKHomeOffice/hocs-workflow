@@ -4,7 +4,7 @@ WORKDIR /builder
 
 COPY ./build/libs/hocs-workflow.jar .
 
-RUN java -Djarmode=layertools -jar hocs-*.jar extract
+RUN java -Djarmode=layertools -jar hocs-workflow.jar extract
 
 FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.6
 
