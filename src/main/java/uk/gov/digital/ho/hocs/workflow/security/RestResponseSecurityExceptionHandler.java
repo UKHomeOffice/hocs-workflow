@@ -27,9 +27,9 @@ public class RestResponseSecurityExceptionHandler {
     @ExceptionHandler(SecurityExceptions.StageNotAssignedToLoggedInUserException.class)
     public ResponseEntity<String> handle(SecurityExceptions.StageNotAssignedToLoggedInUserException e) {
         // SECURITY_CASE_NOT_ALLOCATED_TO_USER is misused by the frontend to drive its logic.
-        // The original intent of the message has been lost. Lowering to WARN, so that real errors can be seen
+        // The original intent of the message has been lost. Lowering to INFO, so that real errors can be seen
         if (e.getEvent().equals(LogEvent.SECURITY_CASE_NOT_ALLOCATED_TO_USER)) {
-            log.warn("SecurityException: {} {}", e.getMessage(), value(EVENT, e.getEvent()));
+            log.info("SecurityException: {} {}", e.getMessage(), value(EVENT, e.getEvent()));
         } else {
             log.error("SecurityException: {} {}", e.getMessage(), value(EVENT, e.getEvent()));
         }
@@ -40,8 +40,8 @@ public class RestResponseSecurityExceptionHandler {
     public ResponseEntity<String> handle(SecurityExceptions.StageNotAssignedToUserTeamException e) {
         if (e.getEvent().equals(LogEvent.SECURITY_CASE_NOT_ALLOCATED_TO_TEAM)) {
             // SECURITY_CASE_NOT_ALLOCATED_TO_TEAM is misused by the frontend to drive its logic.
-            // The original intent of the message has been lost. Lowering to WARN, so that real errors can be seen
-            log.warn("SecurityException: {} {}", e.getMessage(), value(EVENT, e.getEvent()));
+            // The original intent of the message has been lost. Lowering to INFO, so that real errors can be seen
+            log.info("SecurityException: {} {}", e.getMessage(), value(EVENT, e.getEvent()));
         } else {
             log.error("SecurityException: {} {}", e.getMessage(), value(EVENT, e.getEvent()));
         }
