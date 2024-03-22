@@ -16,4 +16,4 @@ COPY --from=builder --chown=user_hocs:group_hocs ./builder/application/ ./
 
 USER 10000
 
-ENTRYPOINT exec java $JAVA_OPTS org.springframework.boot.loader.JarLauncher
+ENTRYPOINT exec java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher
