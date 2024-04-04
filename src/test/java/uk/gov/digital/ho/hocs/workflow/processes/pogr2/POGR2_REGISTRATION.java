@@ -141,4 +141,29 @@ public class POGR2_REGISTRATION {
         verify(bpmnService, times(1)).updateDeadlineDays(any(), any(), eq("1"));
     }
 
+    @Test
+    public void testInvalidBusinessArea() {
+        whenAtCallActivity("COMPLAINT_CORRESPONDENT").thenReturn("DIRECTION", "FORWARD").thenReturn("DIRECTION", "FORWARD").deploy(rule);
+
+        when(processScenario.waitsAtUserTask("Screen_BusinessAreaSelect")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "BACKWARD"))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", ""))).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD", "BusinessArea", "HMPO")));
+
+        when(processScenario.waitsAtUserTask("Screen_Hmpo_DataInput")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        when(processScenario.waitsAtUserTask("Screen_SendInterimLetter")).thenReturn(
+            task -> task.complete(withVariables("DIRECTION", "FORWARD")));
+
+        Scenario.run(processScenario).startByKey("POGR2_REGISTRATION", Map.of("BusinessArea", "INVALID")).execute();
+
+        verify(processScenario).hasCompleted("StartEvent_Registration");
+        verify(processScenario, times(2)).hasCompleted("CallActivity_CorrespondentInput");
+        verify(processScenario, times(1)).hasCompleted("Screen_Hmpo_DataInput");
+        verify(processScenario, times(3)).hasCompleted("Screen_BusinessAreaSelect");
+        verify(processScenario, times(1)).hasCompleted("Screen_SendInterimLetter");
+        verify(processScenario).hasCompleted("EndEvent_Registration");
+    }
+
 }
