@@ -182,6 +182,11 @@ public class CamundaClient {
                      .toList();
     }
 
+    public ProcessVariables getProcessVariablesForInstance(String processInstanceId) {
+        ProcessInstance instance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
+        return getProcessVariables(instance);
+    }
+
     private Stream<ProcessInstance> streamProcessInstancesForBusinessKey(String key) {
         return runtimeService
             .createProcessInstanceQuery()
@@ -202,11 +207,12 @@ public class CamundaClient {
                     Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> Optional.ofNullable(entry.getValue()).map(Objects::toString)
-                    ))
+                    )
+                )
         );
     }
 
-    public void updateProcessVariables(String processKey, Map<String, ?> processVariables) {
-        runtimeService.setVariables(processKey, processVariables);
+    public void updateProcessVariables(String processInstanceId, Map<String, ?> processVariables) {
+        runtimeService.setVariables(processInstanceId, processVariables);
     }
 }

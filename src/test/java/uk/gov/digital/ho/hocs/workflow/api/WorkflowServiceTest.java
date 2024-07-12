@@ -976,7 +976,7 @@ public class WorkflowServiceTest {
     }
 
     @Test
-    public void getAllTaskVariablesForCase_mapsCamundaDataToTheExpectedDTO() {
+    public void getAllProcessVariablesForCase_mapsCamundaDataToTheExpectedDTO() {
         // given
         UUID caseUUID = UUID.randomUUID();
         UUID stageUUID = UUID.randomUUID();
@@ -993,7 +993,7 @@ public class WorkflowServiceTest {
         when(camundaClient.getProcessVariablesForCase(caseUUID, stageUUID)).thenReturn(processVariables);
 
         // when
-        GetProcessVariablesResponse dto = workflowService.getAllTaskVariablesForCase(caseUUID);
+        GetProcessVariablesResponse dto = workflowService.getAllProcessVariablesForCase(caseUUID);
 
         //then
         assertThat(dto.caseUUID()).isEqualTo(caseUUID);
@@ -1002,7 +1002,7 @@ public class WorkflowServiceTest {
     }
 
     @Test
-    public void getAllTaskVariablesForCase_mapsCamundaDataToTheExpectedDTO_whenThereIsNoActiveStage() {
+    public void getAllProcessVariablesForCase_mapsCamundaDataToTheExpectedDTO_whenThereIsNoActiveStage() {
         // given
         UUID caseUUID = UUID.randomUUID();
 
@@ -1012,7 +1012,7 @@ public class WorkflowServiceTest {
         when(camundaClient.getProcessVariablesForCase(caseUUID, null)).thenReturn(processVariables);
 
         // when
-        GetProcessVariablesResponse dto = workflowService.getAllTaskVariablesForCase(caseUUID);
+        GetProcessVariablesResponse dto = workflowService.getAllProcessVariablesForCase(caseUUID);
 
         //then
         assertThat(dto.caseUUID()).isEqualTo(caseUUID);
@@ -1021,8 +1021,19 @@ public class WorkflowServiceTest {
     }
 
     @Test
+    public void getVariablesForProcessInstanceId_passesRequestAndResponseDirectly() {
+        String processInstanceId = "process-instance-id";
+        ProcessVariables processVariables = mock(ProcessVariables.class);
+        when(camundaClient.getProcessVariablesForInstance(processInstanceId)).thenReturn(processVariables);
+
+        ProcessVariables result = workflowService.getProcessVariablesForInstance(processInstanceId);
+
+        assertThat(result).isEqualTo(processVariables);
+    }
+
+    @Test
     public void updateProcessVariables_passesTheArgumentsToCamundaClient() {
-        String processKey = "process-key";
+        String processInstanceId = "process-instance-id";
         Map<String, String> variables = new HashMap<>(){
             {
                 put("present", "String");
@@ -1030,9 +1041,9 @@ public class WorkflowServiceTest {
             }
         };
 
-        workflowService.updateProcessVariables(processKey, variables);
+        workflowService.updateProcessVariables(processInstanceId, variables);
 
-        verify(camundaClient).updateProcessVariables(eq(processKey), eq(variables));
+        verify(camundaClient).updateProcessVariables(eq(processInstanceId), eq(variables));
     }
 
 }

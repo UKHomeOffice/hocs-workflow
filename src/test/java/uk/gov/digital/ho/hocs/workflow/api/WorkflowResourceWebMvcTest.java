@@ -42,11 +42,14 @@ public class WorkflowResourceWebMvcTest {
     @MockBean
     private BpmnService bpmnService;
 
+    public static final String PROCESS_INSTANCE_ID = "process-instance-id";
+    public static final String ROOT_PROCESS_INSTANCE_ID = "root-process-instance-id";
+
     @Test
-    public void requestingProcessVariables_returnsTheExpectedJSON() throws Exception {
+    public void requestingProcessVariablesForCase_returnsTheExpectedJSON() throws Exception {
         UUID caseUUID = UUID.randomUUID();
 
-        when(workflowService.getAllTaskVariablesForCase(caseUUID))
+        when(workflowService.getAllProcessVariablesForCase(caseUUID))
             .thenReturn(buildExampleGetProcessVariablesResponse(caseUUID));
 
         mockMvc
@@ -54,8 +57,8 @@ public class WorkflowResourceWebMvcTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.caseUUID", is(caseUUID.toString())))
             .andExpect(jsonPath("$.stageUUID", nullValue()))
-            .andExpect(jsonPath("$.processes[0].processKey", is("process-key")))
-            .andExpect(jsonPath("$.processes[0].rootProcessKey", is("root-process-key")))
+            .andExpect(jsonPath("$.processes[0].processInstanceId", is(PROCESS_INSTANCE_ID)))
+            .andExpect(jsonPath("$.processes[0].rootProcessInstanceId", is(ROOT_PROCESS_INSTANCE_ID)))
             .andExpect(jsonPath("$.processes[0].businessKey", is(caseUUID.toString())))
             .andExpect(jsonPath("$.processes[0].variables.present", is("String")))
             .andExpect(jsonPath("$.processes[0].variables.empty", nullValue()));
@@ -65,24 +68,43 @@ public class WorkflowResourceWebMvcTest {
         return new GetProcessVariablesResponse(
             caseUUID,
             null,
-            List.of(
-                new ProcessVariables(
-                    "process-key",
-                    caseUUID.toString(),
-                    "root-process-key",
-                    Map.of(
-                        "present", Optional.of("String"),
-                        "empty", Optional.empty()
-                    )
-                )
+            List.of(buildProcessVariables(PROCESS_INSTANCE_ID, caseUUID.toString()))
+        );
+    }
+
+    private static @NotNull ProcessVariables buildProcessVariables(String processInstanceId, String businessKey) {
+        return new ProcessVariables(
+            processInstanceId,
+            businessKey,
+            ROOT_PROCESS_INSTANCE_ID,
+            Map.of(
+                "present", Optional.of("String"),
+                "empty", Optional.empty()
             )
         );
     }
 
     @Test
+    public void requestingProcessVariablesForInstance_returnsTheExpectedJSON() throws Exception {
+        UUID caseUUID = UUID.randomUUID();
+
+        when(workflowService.getProcessVariablesForInstance(PROCESS_INSTANCE_ID))
+            .thenReturn(buildProcessVariables(PROCESS_INSTANCE_ID, caseUUID.toString()));
+
+        mockMvc
+            .perform(get("/case/%s/process/%s/variables".formatted(caseUUID.toString(), PROCESS_INSTANCE_ID)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.processInstanceId", is(PROCESS_INSTANCE_ID)))
+            .andExpect(jsonPath("$.rootProcessInstanceId", is(ROOT_PROCESS_INSTANCE_ID)))
+            .andExpect(jsonPath("$.businessKey", is(caseUUID.toString())))
+            .andExpect(jsonPath("$.variables.present", is("String")))
+            .andExpect(jsonPath("$.variables.empty", nullValue()));
+    }
+
+    @Test
     public void puttingProcessVariables_updatesTheVariablesForThatProcess() throws Exception {
         UUID caseUUID = UUID.randomUUID();
-        String processKey = "process-key";
+        String processInstanceId = PROCESS_INSTANCE_ID;
 
         String jsonVariables = """
             {
@@ -99,12 +121,12 @@ public class WorkflowResourceWebMvcTest {
 
         mockMvc
             .perform(
-                put("/case/%s/process/%s/variables".formatted(caseUUID.toString(), processKey))
+                put("/case/%s/process/%s/variables".formatted(caseUUID.toString(), processInstanceId))
                     .contentType(ContentType.APPLICATION_JSON.toString())
                     .content(jsonVariables)
             )
             .andExpect(status().isOk());
 
-        verify(workflowService).updateProcessVariables(eq(processKey), eq(expectedVariables));
+        verify(workflowService).updateProcessVariables(eq(processInstanceId), eq(expectedVariables));
     }
 }

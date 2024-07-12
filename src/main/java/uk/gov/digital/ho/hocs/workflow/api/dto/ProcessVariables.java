@@ -6,7 +6,7 @@ import org.springframework.lang.Nullable;
 import java.util.Map;
 import java.util.Optional;
 
-public record ProcessVariables(@JsonProperty("processKey") String processKey,
+public record ProcessVariables(@JsonProperty("processInstanceId") String processInstanceId,
                                @JsonProperty("businessKey") String businessKey,
-                               @JsonProperty("rootProcessKey") @Nullable String rootProcessKey,
+                               @JsonProperty("rootProcessInstanceId") @Nullable String rootProcessInstanceId,
                                @JsonProperty("variables") Map<String, Optional<String>> variables) {}

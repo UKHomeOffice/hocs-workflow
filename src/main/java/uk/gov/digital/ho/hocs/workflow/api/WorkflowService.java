@@ -461,16 +461,20 @@ public class WorkflowService {
             receivedData.get(WorkflowConstants.CHANNEL_COMP_ORIGINATEDFROM), WorkflowConstants.CHANNEL_COMP_WEBFORM);
     }
 
-    public GetProcessVariablesResponse getAllTaskVariablesForCase(UUID caseUUID) {
+    public GetProcessVariablesResponse getAllProcessVariablesForCase(UUID caseUUID) {
         Optional<StageDto> activeStage = caseworkClient.getActiveStage(caseUUID);
-
         UUID stageUUID = activeStage.map(StageDto::getUuid).orElse(null);
+
         List<ProcessVariables> variables = camundaClient.getProcessVariablesForCase(caseUUID, stageUUID);
 
         return new GetProcessVariablesResponse(caseUUID, stageUUID, variables);
     }
 
-    public void updateProcessVariables(String processKey, Map<String, String> variables) {
-        camundaClient.updateProcessVariables(processKey, variables);
+    public ProcessVariables getProcessVariablesForInstance(String processInstanceId) {
+        return camundaClient.getProcessVariablesForInstance(processInstanceId);
+    }
+
+    public void updateProcessVariables(String processInstanceId, Map<String, String> variables) {
+        camundaClient.updateProcessVariables(processInstanceId, variables);
     }
 }

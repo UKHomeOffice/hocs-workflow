@@ -156,18 +156,28 @@ class WorkflowResource {
     @Authorised(accessLevel = AccessLevel.READ)
     @GetMapping(value = "/case/{caseUUID}/process/variables")
     public ResponseEntity<GetProcessVariablesResponse> getProcessVariablesForCase(@PathVariable UUID caseUUID) {
-        return ResponseEntity.ok(workflowService.getAllTaskVariablesForCase(caseUUID));
+        return ResponseEntity.ok(workflowService.getAllProcessVariablesForCase(caseUUID));
     }
 
-    @SuppressWarnings("unused") // Case UUID needs to be bound to an argument for @Authorised to work
-    @Authorised(accessLevel = AccessLevel.WRITE)
-    @PutMapping(value = "/case/{caseUUID}/process/{processKey}/variables")
-    public ResponseEntity<GetProcessVariablesResponse> updateProcessVariables(
+    @Authorised(accessLevel = AccessLevel.READ)
+    @GetMapping(value = "/case/{caseUUID}/process/{processInstanceId}/variables")
+    public ResponseEntity<ProcessVariables> getProcessVariablesForInstance(
+        @SuppressWarnings("unused") // Case UUID needs to be bound to first argument for @Authorised to work
         @PathVariable UUID caseUUID,
-        @PathVariable String processKey,
+        @PathVariable String processInstanceId
+    ) {
+        return ResponseEntity.ok(workflowService.getProcessVariablesForInstance(processInstanceId));
+    }
+
+    @Authorised(accessLevel = AccessLevel.WRITE)
+    @PutMapping(value = "/case/{caseUUID}/process/{processInstanceId}/variables")
+    public ResponseEntity<GetProcessVariablesResponse> updateProcessVariables(
+        @SuppressWarnings("unused") // Case UUID needs to be bound to first argument for @Authorised to work
+        @PathVariable UUID caseUUID,
+        @PathVariable String processInstanceId,
         @RequestBody Map<String, String> variables
     ) {
-        workflowService.updateProcessVariables(processKey, variables);
+        workflowService.updateProcessVariables(processInstanceId, variables);
         return ResponseEntity.ok().build();
     }
 
