@@ -14,6 +14,8 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
 import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseDetailsResponse;
 import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseResponse;
 import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetProcessVariablesResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.ProcessVariables;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
@@ -35,10 +37,7 @@ import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsCaseSchema;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsForm;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormAccordion;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormField;
-import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsFormSecondaryAction;
 import uk.gov.digital.ho.hocs.workflow.domain.model.forms.HocsSchema;
-import uk.gov.digital.ho.hocs.workflow.domain.repositories.ScreenRepository;
-import uk.gov.digital.ho.hocs.workflow.domain.repositories.entity.Schema;
 import uk.gov.digital.ho.hocs.workflow.security.UserPermissionsService;
 import uk.gov.digital.ho.hocs.workflow.util.NoteType;
 import uk.gov.digital.ho.hocs.workflow.util.UuidUtils;
@@ -400,7 +399,7 @@ public class WorkflowService {
         camundaClient.completeTask(stageUUID, values);
     }
 
-    public ResponseEntity closeCase(UUID caseUUID) throws UnsupportedEncodingException {
+    public ResponseEntity<String> closeCase(UUID caseUUID) throws UnsupportedEncodingException {
         GetCaseworkCaseDataResponse caseDetails = caseworkClient.getCase(caseUUID);
 
         //Get stage uuid from casework
@@ -462,4 +461,16 @@ public class WorkflowService {
             receivedData.get(WorkflowConstants.CHANNEL_COMP_ORIGINATEDFROM), WorkflowConstants.CHANNEL_COMP_WEBFORM);
     }
 
+    public GetProcessVariablesResponse getAllTaskVariablesForCase(UUID caseUUID) {
+        Optional<StageDto> activeStage = caseworkClient.getActiveStage(caseUUID);
+
+        UUID stageUUID = activeStage.map(StageDto::getUuid).orElse(null);
+        List<ProcessVariables> variables = camundaClient.getProcessVariablesForCase(caseUUID, stageUUID);
+
+        return new GetProcessVariablesResponse(caseUUID, stageUUID, variables);
+    }
+
+    public void updateProcessVariables(String processKey, Map<String, String> variables) {
+        camundaClient.updateProcessVariables(processKey, variables);
+    }
 }

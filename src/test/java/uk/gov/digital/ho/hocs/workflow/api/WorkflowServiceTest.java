@@ -21,7 +21,9 @@ import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDto;
 import uk.gov.digital.ho.hocs.workflow.api.dto.FieldDtoBuilder;
 import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseDetailsResponse;
 import uk.gov.digital.ho.hocs.workflow.api.dto.GetCaseResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.GetProcessVariablesResponse;
 import uk.gov.digital.ho.hocs.workflow.api.dto.GetStageResponse;
+import uk.gov.digital.ho.hocs.workflow.api.dto.ProcessVariables;
 import uk.gov.digital.ho.hocs.workflow.api.dto.SchemaDto;
 import uk.gov.digital.ho.hocs.workflow.client.camundaclient.CamundaClient;
 import uk.gov.digital.ho.hocs.workflow.client.caseworkclient.CaseworkClient;
@@ -971,6 +973,66 @@ public class WorkflowServiceTest {
         Mockito.doReturn(null).when(caseworkClient).updateStageTeam(any(), any(), any(), any());
         Mockito.doNothing().when(caseworkClient).completeCase(any(), anyBoolean());
         when(workflowService.closeCase(any())).thenCallRealMethod();
+    }
+
+    @Test
+    public void getAllTaskVariablesForCase_mapsCamundaDataToTheExpectedDTO() {
+        // given
+        UUID caseUUID = UUID.randomUUID();
+        UUID stageUUID = UUID.randomUUID();
+
+        StageDto stageDto = mock(StageDto.class);
+        when(stageDto.getUuid()).thenReturn(stageUUID);
+
+        List<ProcessVariables> processVariables = List.of(
+            mock(ProcessVariables.class),
+            mock(ProcessVariables.class)
+        );
+
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.of(stageDto));
+        when(camundaClient.getProcessVariablesForCase(caseUUID, stageUUID)).thenReturn(processVariables);
+
+        // when
+        GetProcessVariablesResponse dto = workflowService.getAllTaskVariablesForCase(caseUUID);
+
+        //then
+        assertThat(dto.caseUUID()).isEqualTo(caseUUID);
+        assertThat(dto.stageUUID()).isEqualTo(stageUUID);
+        assertThat(dto.processes()).isSameAs(processVariables);
+    }
+
+    @Test
+    public void getAllTaskVariablesForCase_mapsCamundaDataToTheExpectedDTO_whenThereIsNoActiveStage() {
+        // given
+        UUID caseUUID = UUID.randomUUID();
+
+        List<ProcessVariables> processVariables = List.of(mock(ProcessVariables.class));
+
+        when(caseworkClient.getActiveStage(caseUUID)).thenReturn(Optional.empty());
+        when(camundaClient.getProcessVariablesForCase(caseUUID, null)).thenReturn(processVariables);
+
+        // when
+        GetProcessVariablesResponse dto = workflowService.getAllTaskVariablesForCase(caseUUID);
+
+        //then
+        assertThat(dto.caseUUID()).isEqualTo(caseUUID);
+        assertThat(dto.stageUUID()).isEqualTo(null);
+        assertThat(dto.processes()).isSameAs(processVariables);
+    }
+
+    @Test
+    public void updateProcessVariables_passesTheArgumentsToCamundaClient() {
+        String processKey = "process-key";
+        Map<String, String> variables = new HashMap<>(){
+            {
+                put("present", "String");
+                put("empty",  null);
+            }
+        };
+
+        workflowService.updateProcessVariables(processKey, variables);
+
+        verify(camundaClient).updateProcessVariables(eq(processKey), eq(variables));
     }
 
 }

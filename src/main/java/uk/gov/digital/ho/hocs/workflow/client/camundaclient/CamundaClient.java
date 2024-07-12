@@ -1,31 +1,33 @@
 package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.migration.MigrationPlan;
-import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceQuery;
 import org.camunda.bpm.engine.runtime.VariableInstance;
 import org.camunda.bpm.engine.task.Task;
-import org.camunda.bpm.model.xml.ModelInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import uk.gov.digital.ho.hocs.workflow.api.dto.ProcessVariables;
 import uk.gov.digital.ho.hocs.workflow.domain.exception.ApplicationExceptions;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.*;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CASE_STARTED_SUCCESS;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.CURRENT_STAGE_RETRIEVED;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.EVENT;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.TASK_COMPLETED;
+import static uk.gov.digital.ho.hocs.workflow.application.LogEvent.TASK_RETRIEVAL_FAILURE;
 
 @Slf4j
 @Component
@@ -171,4 +173,40 @@ public class CamundaClient {
         runtimeService.deleteProcessInstance(processID, null);
     }
 
+    public List<ProcessVariables> getProcessVariablesForCase(UUID caseUUID, UUID stageUUID) {
+        return Stream.of(caseUUID, stageUUID)
+                     .filter(Objects::nonNull)
+                     .map(Objects::toString)
+                     .flatMap(this::streamProcessInstancesForBusinessKey)
+                     .map(this::getProcessVariables)
+                     .toList();
+    }
+
+    private Stream<ProcessInstance> streamProcessInstancesForBusinessKey(String key) {
+        return runtimeService
+            .createProcessInstanceQuery()
+            .processInstanceBusinessKey(key)
+            .list().stream();
+    }
+
+    private ProcessVariables getProcessVariables(ProcessInstance instance) {
+        return new ProcessVariables(
+            instance.getProcessInstanceId(),
+            instance.getBusinessKey(),
+            instance.getRootProcessInstanceId(),
+            runtimeService
+                .getVariables(instance.getProcessInstanceId())
+                .entrySet()
+                .stream()
+                .collect(
+                    Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> Optional.ofNullable(entry.getValue()).map(Objects::toString)
+                    ))
+        );
+    }
+
+    public void updateProcessVariables(String processKey, Map<String, ?> processVariables) {
+        runtimeService.setVariables(processKey, processVariables);
+    }
 }

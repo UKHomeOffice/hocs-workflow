@@ -3,6 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.application;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.time.Clock;
@@ -38,6 +39,7 @@ public class SpringConfiguration implements WebMvcConfigurer {
         ObjectMapper m = new ObjectMapper();
         m.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
         m.registerModule(new JavaTimeModule());
+        m.registerModule(new Jdk8Module());
         m.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         m.enable(SerializationFeature.INDENT_OUTPUT);
         m.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);

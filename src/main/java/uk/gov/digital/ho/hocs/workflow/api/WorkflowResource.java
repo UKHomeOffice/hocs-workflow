@@ -3,9 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
@@ -153,6 +151,24 @@ class WorkflowResource {
     public ResponseEntity closeCase(@PathVariable UUID caseUUID) throws UnsupportedEncodingException {
         ResponseEntity response = workflowService.closeCase(caseUUID);
         return response;
+    }
+
+    @Authorised(accessLevel = AccessLevel.READ)
+    @GetMapping(value = "/case/{caseUUID}/process/variables")
+    public ResponseEntity<GetProcessVariablesResponse> getProcessVariablesForCase(@PathVariable UUID caseUUID) {
+        return ResponseEntity.ok(workflowService.getAllTaskVariablesForCase(caseUUID));
+    }
+
+    @SuppressWarnings("unused") // Case UUID needs to be bound to an argument for @Authorised to work
+    @Authorised(accessLevel = AccessLevel.WRITE)
+    @PutMapping(value = "/case/{caseUUID}/process/{processKey}/variables")
+    public ResponseEntity<GetProcessVariablesResponse> updateProcessVariables(
+        @PathVariable UUID caseUUID,
+        @PathVariable String processKey,
+        @RequestBody Map<String, String> variables
+    ) {
+        workflowService.updateProcessVariables(processKey, variables);
+        return ResponseEntity.ok().build();
     }
 
 }
