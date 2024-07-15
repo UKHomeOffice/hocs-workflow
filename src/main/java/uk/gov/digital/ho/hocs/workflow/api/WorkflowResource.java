@@ -3,9 +3,7 @@ package uk.gov.digital.ho.hocs.workflow.api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.ho.hocs.workflow.BpmnService;
 import uk.gov.digital.ho.hocs.workflow.api.dto.*;
@@ -153,6 +151,34 @@ class WorkflowResource {
     public ResponseEntity closeCase(@PathVariable UUID caseUUID) throws UnsupportedEncodingException {
         ResponseEntity response = workflowService.closeCase(caseUUID);
         return response;
+    }
+
+    @Authorised(accessLevel = AccessLevel.READ)
+    @GetMapping(value = "/case/{caseUUID}/process/variables")
+    public ResponseEntity<GetProcessVariablesResponse> getProcessVariablesForCase(@PathVariable UUID caseUUID) {
+        return ResponseEntity.ok(workflowService.getAllProcessVariablesForCase(caseUUID));
+    }
+
+    @Authorised(accessLevel = AccessLevel.READ)
+    @GetMapping(value = "/case/{caseUUID}/process/{processInstanceId}/variables")
+    public ResponseEntity<ProcessVariables> getProcessVariablesForInstance(
+        @SuppressWarnings("unused") // Case UUID needs to be bound to first argument for @Authorised to work
+        @PathVariable UUID caseUUID,
+        @PathVariable String processInstanceId
+    ) {
+        return ResponseEntity.ok(workflowService.getProcessVariablesForInstance(processInstanceId));
+    }
+
+    @Authorised(accessLevel = AccessLevel.WRITE)
+    @PutMapping(value = "/case/{caseUUID}/process/{processInstanceId}/variables")
+    public ResponseEntity<GetProcessVariablesResponse> updateProcessVariables(
+        @SuppressWarnings("unused") // Case UUID needs to be bound to first argument for @Authorised to work
+        @PathVariable UUID caseUUID,
+        @PathVariable String processInstanceId,
+        @RequestBody Map<String, String> variables
+    ) {
+        workflowService.updateProcessVariables(processInstanceId, variables);
+        return ResponseEntity.ok().build();
     }
 
 }

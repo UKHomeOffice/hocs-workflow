@@ -1,15 +1,5 @@
 package uk.gov.digital.ho.hocs.workflow.client.camundaclient;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -23,6 +13,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.digital.ho.hocs.workflow.api.dto.ProcessVariables;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CamundaClientTest {
@@ -210,6 +215,180 @@ public class CamundaClientTest {
         //then
         verify(runtimeService).removeVariable(caseUUID, variableName);
         verify(runtimeService).removeVariable(stageUUID, variableName);
+    }
+
+    @Test
+    public void getProcessVariablesForCase_transformsVariablesIntoExpectedDTO() {
+        // given
+        when(runtimeService.createProcessInstanceQuery()).thenReturn(processInstanceQuery);
+
+        UUID caseUUID = UUID.randomUUID();
+        String caseProcessInstanceId = "case-process-instance-id";
+
+        UUID stageUUID = UUID.randomUUID();
+        List<String> stageProcessInstanceIds = List.of("stage-process-one", "stage-process-two");
+
+        setupCaseInstance(caseUUID, caseProcessInstanceId);
+        setupStageInstances(stageUUID, caseProcessInstanceId, stageProcessInstanceIds);
+
+        // when
+        List<ProcessVariables> dtos = camundaClient.getProcessVariablesForCase(caseUUID, stageUUID);
+
+        // then
+        assertThat(dtos).hasSize(3);
+        assertThat(dtos).containsExactlyInAnyOrder(
+            new ProcessVariables(
+                caseProcessInstanceId,
+                caseUUID.toString(),
+                caseProcessInstanceId,
+                Map.of(
+                    "root_k1", Optional.of("String"),
+                    "root_k2", Optional.empty()
+                )
+            ),
+            new ProcessVariables(
+                "stage-process-one",
+                stageUUID.toString(),
+                caseProcessInstanceId,
+                Map.of(
+                    "stage-process-one_k1", Optional.of("String"),
+                    "stage-process-one_k2", Optional.empty()
+                )
+            ),
+            new ProcessVariables(
+                "stage-process-two",
+                stageUUID.toString(),
+                caseProcessInstanceId,
+                Map.of(
+                    "stage-process-two_k1", Optional.of("String"),
+                    "stage-process-two_k2", Optional.empty()
+                )
+            )
+        );
+    }
+
+    private void setupCaseInstance(UUID caseUUID, String caseProcessKey) {
+        setupProcessInstanceQuery(
+            caseUUID.toString(),
+            List.of(
+                setupProcessInstance(
+                    caseUUID.toString(),
+                    caseProcessKey,
+                    caseProcessKey,
+                    new HashMap<>() {
+                        {
+                            put("root_k1", "String");
+                            put("root_k2", null);
+                        }
+                    }
+                )
+            )
+        );
+    }
+
+    private void setupStageInstances(
+        UUID stageUUID,
+        String caseProcessInstanceId,
+        List<String> stageProcessInstanceIds
+    ) {
+        setupProcessInstanceQuery(
+            stageUUID.toString(),
+            stageProcessInstanceIds.stream().map(stageProcessInstanceId ->
+                setupProcessInstance(
+                    stageUUID.toString(),
+                    stageProcessInstanceId,
+                    caseProcessInstanceId,
+                    new HashMap<>() {
+                        {
+                            put(stageProcessInstanceId + "_k1", "String");
+                            put(stageProcessInstanceId + "_k2", null);
+                        }
+                    }
+                )
+            ).toList()
+        );
+    }
+
+    private ProcessInstance setupProcessInstance(
+        String businessKey,
+        String processInstanceId,
+        String rootProcessInstanceId,
+        Map<String, Object> variables
+    ) {
+        ProcessInstance instanceMock = mock(ProcessInstance.class);
+
+        when(instanceMock.getBusinessKey()).thenReturn(businessKey);
+        when(instanceMock.getProcessInstanceId()).thenReturn(processInstanceId);
+        when(instanceMock.getRootProcessInstanceId()).thenReturn(rootProcessInstanceId);
+
+        when(runtimeService.getVariables(processInstanceId)).thenReturn(variables);
+
+        return instanceMock;
+    }
+
+    private void setupProcessInstanceQuery(
+        String businessKey,
+        List<ProcessInstance> processInstances
+    ) {
+        ProcessInstanceQuery caseProcessInstanceQuery = mock(ProcessInstanceQuery.class);
+
+        when(processInstanceQuery.processInstanceBusinessKey(businessKey)).thenReturn(caseProcessInstanceQuery);
+        when(caseProcessInstanceQuery.list()).thenReturn(processInstances);
+    }
+
+    @Test
+    public void getProcessVariablesForInstance_returnsTheVariablesForThatInstance() {
+        // given
+        when(runtimeService.createProcessInstanceQuery()).thenReturn(processInstanceQuery);
+
+        String processInstanceId = "process-instance-id";
+        String businessKey = "business-key";
+
+        ProcessInstance instance = setupProcessInstance(
+            businessKey,
+            processInstanceId,
+            processInstanceId,
+            new HashMap<>() {
+                {
+                    put("present", "String");
+                    put("empty", null);
+                }
+            }
+        );
+        ProcessInstanceQuery processInstanceIdQuery = mock(ProcessInstanceQuery.class);
+        when(processInstanceIdQuery.singleResult()).thenReturn(instance);
+        when(processInstanceQuery.processInstanceId(processInstanceId)).thenReturn(processInstanceIdQuery);
+
+        // when
+        ProcessVariables processVariables = camundaClient.getProcessVariablesForInstance(processInstanceId);
+
+        // then
+        assertThat(processVariables).isEqualTo(
+            new ProcessVariables(
+                processInstanceId,
+                businessKey,
+                processInstanceId,
+                Map.of(
+                    "present", Optional.of("String"),
+                    "empty", Optional.empty()
+                )
+            )
+        );
+    }
+
+    @Test
+    public void updateProcessVariables_passesTheArgumentsToCamundaRuntime() {
+        String processInstanceId = "process-instance-id";
+        Map<String, Object> variables = new HashMap<>(){
+            {
+                put("present", "String");
+                put("empty",  null);
+            }
+        };
+
+        camundaClient.updateProcessVariables(processInstanceId, variables);
+
+        verify(runtimeService).setVariables(eq(processInstanceId), eq(variables));
     }
 
 }
