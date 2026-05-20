@@ -185,15 +185,15 @@ public class DCU_MIN_PRIVATE_OFFICE {
     private void verifyHomeSecOfficeDeadlinesSet() {
         verify(processScenario).hasCompleted(UPDATE_HOME_SEC_DEADLINE);
 
-        // Case deadline of 10 days
-        verify(bpmnService).updateDeadlineDays(eq(CASE_UUID), any(), eq("10"));
+        // Case deadline of 20 days
+        verify(bpmnService).updateDeadlineDays(eq(CASE_UUID), any(), eq("20"));
         verify(processScenario).hasCompleted(UPDATE_HOME_SEC_STAGES_DEADLINES);
 
         // Case stage deadlines
-        verify(bpmnService).updateDeadlineForStages(eq(CASE_UUID), any(), eq("DCU_MIN_INITIAL_DRAFT"), eq("7"),
-            eq("DCU_MIN_QA_RESPONSE"), eq("7"), eq("DCU_MIN_PRIVATE_OFFICE"), eq("9"), eq("DCU_MIN_MINISTER_SIGN_OFF"),
-            eq("9"), eq("DCU_MIN_TRANSFER_CONFIRMATION"), eq("10"), eq("DCU_MIN_NO_REPLY_NEEDED_CONFIRMATION"),
-            eq("10"), eq("DCU_MIN_DISPATCH"), eq("10"), eq("DCU_MIN_COPY_NUMBER_TEN"), eq("10"));
+        verify(bpmnService).updateDeadlineForStages(eq(CASE_UUID), any(), eq("DCU_MIN_INITIAL_DRAFT"), eq("10"),
+            eq("DCU_MIN_QA_RESPONSE"), eq("10"), eq("DCU_MIN_PRIVATE_OFFICE"), eq("19"), eq("DCU_MIN_MINISTER_SIGN_OFF"),
+            eq("19"), eq("DCU_MIN_TRANSFER_CONFIRMATION"), eq("20"), eq("DCU_MIN_NO_REPLY_NEEDED_CONFIRMATION"),
+            eq("20"), eq("DCU_MIN_DISPATCH"), eq("20"), eq("DCU_MIN_COPY_NUMBER_TEN"), eq("20"));
     }
 
     private void verifyMinisterOrDirectorOfficeDeadlinesSet() {
