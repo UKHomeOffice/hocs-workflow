@@ -185,8 +185,8 @@ public class DCU_MIN_PRIVATE_OFFICE {
     private void verifyHomeSecOfficeDeadlinesSet() {
         verify(processScenario).hasCompleted(UPDATE_HOME_SEC_DEADLINE);
 
-        // Case deadline of 7 days
-        verify(bpmnService).updateDeadlineDays(eq(CASE_UUID), any(), eq("7"));
+        // Case deadline of 20 days
+        verify(bpmnService).updateDeadlineDays(eq(CASE_UUID), any(), eq("20"));
         verify(processScenario).hasCompleted(UPDATE_HOME_SEC_STAGES_DEADLINES);
 
         // Case stage deadlines
