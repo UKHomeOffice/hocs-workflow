@@ -347,8 +347,8 @@ public class DCU_MIN_Markup extends DCU_MIN_DTEN_Markup_Common {
     private void verifyHomeSecOfficeDeadlinesSet() {
         verify(dcuMinMarkup).hasCompleted(UPDATE_HOME_SEC_DEADLINE);
 
-        // Case deadline of 10 days
-        verify(bpmnService).updateDeadlineDays(eq(CASE_UUID), any(), eq("10"));
+        // Case deadline of 7 days
+        verify(bpmnService).updateDeadlineDays(eq(CASE_UUID), any(), eq("7"));
         verify(dcuMinMarkup).hasCompleted(UPDATE_HOME_SEC_STAGES_DEADLINES);
 
         // Case stage deadlines
