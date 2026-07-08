@@ -191,9 +191,9 @@ public class DCU_MIN_PRIVATE_OFFICE {
 
         // Case stage deadlines
         verify(bpmnService).updateDeadlineForStages(eq(CASE_UUID), any(), eq("DCU_MIN_INITIAL_DRAFT"), eq("7"),
-            eq("DCU_MIN_QA_RESPONSE"), eq("7"), eq("DCU_MIN_PRIVATE_OFFICE"), eq("9"), eq("DCU_MIN_MINISTER_SIGN_OFF"),
-            eq("9"), eq("DCU_MIN_TRANSFER_CONFIRMATION"), eq("10"), eq("DCU_MIN_NO_REPLY_NEEDED_CONFIRMATION"),
-            eq("10"), eq("DCU_MIN_DISPATCH"), eq("10"), eq("DCU_MIN_COPY_NUMBER_TEN"), eq("10"));
+            eq("DCU_MIN_QA_RESPONSE"), eq("7"), eq("DCU_MIN_PRIVATE_OFFICE"), eq("19"), eq("DCU_MIN_MINISTER_SIGN_OFF"),
+            eq("19"), eq("DCU_MIN_TRANSFER_CONFIRMATION"), eq("20"), eq("DCU_MIN_NO_REPLY_NEEDED_CONFIRMATION"),
+            eq("20"), eq("DCU_MIN_DISPATCH"), eq("20"), eq("DCU_MIN_COPY_NUMBER_TEN"), eq("20"));
     }
 
     private void verifyMinisterOrDirectorOfficeDeadlinesSet() {
