@@ -3,10 +3,44 @@ on:
   pull_request:
     types: [ opened, reopened, synchronize ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    uses: UKHomeOffice/sas-github-workflows/.github/workflows/test-gradle.yml@v2
-    with:
-      dockerComposeBinary: 'docker compose'
-      dockerComposeComponents: 'localstack postgres'
-    secrets: inherit
+    name: 'Unit and Integration Tests'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Build project
+        run: ./gradlew clean assemble --no-daemon
+        shell: bash
+        env:
+          PACKAGE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Start docker-compose infrastructure
+        run: |
+          docker compose \
+          -f ./ci/docker-compose.yml up \
+          -d localstack postgres
+        shell: bash
+
+      - name: Start healthcheck
+        run: ./ci/healthcheck.sh
+        shell: bash
+
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+        shell: bash
