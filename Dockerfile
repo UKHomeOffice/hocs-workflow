@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.6 as builder
+FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.6 AS builder
 
 WORKDIR /builder
 
@@ -16,4 +16,4 @@ COPY --from=builder --chown=user_hocs:group_hocs ./builder/application/ ./
 
 USER 10000
 
-ENTRYPOINT exec java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]
